@@ -6,11 +6,12 @@
 결과는 앱이 읽는 data/weather.json 한 파일로 저장한다.
 인증키는 GitHub 비밀 저장소(DATA_GO_KR_KEY)에서만 읽고, 로그나 파일에는 남기지 않는다.
 """
-import json, math, os, sys, time, urllib.parse, urllib.request
+import json, math, os, re, sys, time, urllib.parse, urllib.request
 from datetime import datetime, timedelta, timezone
 
 KST = timezone(timedelta(hours=9))
-KEY = os.environ.get('DATA_GO_KR_KEY', '').strip()
+# 붙여넣을 때 섞여 들어간 띄어쓰기·줄바꿈은 모두 지운다
+KEY = re.sub(r'\s+', '', os.environ.get('DATA_GO_KR_KEY', ''))
 OUT = next((a for a in sys.argv[1:] if not a.startswith('--')), 'weather.json')
 
 # 출항지별: 예보 받을 앞바다 지점(앞쪽부터 시도, 파고가 나오는 첫 격자를 씀) · 수온 관측소
