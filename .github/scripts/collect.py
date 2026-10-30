@@ -11,7 +11,7 @@ from datetime import datetime, timedelta, timezone
 
 KST = timezone(timedelta(hours=9))
 KEY = os.environ.get('DATA_GO_KR_KEY', '').strip()
-OUT = sys.argv[1] if len(sys.argv) > 1 else 'weather.json'
+OUT = next((a for a in sys.argv[1:] if not a.startswith('--')), 'weather.json')
 
 # 출항지별: 예보 받을 앞바다 지점(앞쪽부터 시도, 파고가 나오는 첫 격자를 씀) · 수온 관측소
 STATIONS = {
@@ -32,14 +32,18 @@ def log(*a):
     print(*a, flush=True)
 
 
-def get_json(url, params, tries=3):
+def note(msg, level='notice'):
+    print(f'::{level}::{msg}', flush=True)
+
+
+def get_json(url, params, tries=2, timeout=12):
     """공공데이터포털 호출. 키는 주소에 넣되 오류 메시지에는 키를 빼고 보여준다."""
     q = urllib.parse.urlencode(params, safe='')
     full = f'{url}?serviceKey={KEY}&{q}'
     last = None
     for i in range(tries):
         try:
-            with urllib.request.urlopen(urllib.request.Request(full, headers={'Accept': 'application/json'}), timeout=25) as r:
+            with urllib.request.urlopen(urllib.request.Request(full, headers={'Accept': 'application/json'}), timeout=timeout) as r:
                 body = r.read().decode('utf-8', 'replace')
             try:
                 return json.loads(body)
@@ -47,7 +51,7 @@ def get_json(url, params, tries=3):
                 last = f'JSON 아님: {body[:200]}'
         except Exception as e:  # 네트워크·서버 오류는 잠시 뒤 다시
             last = f'{type(e).__name__}: {str(e)[:200]}'
-        time.sleep(2 + 3 * i)
+        time.sleep(2)
     raise RuntimeError(f'{url.split("/")[-1]} {q} 실패 → {last}')
 
 
@@ -184,7 +188,7 @@ def main():
                     used, items = fetch_fcst(g[0], g[1], base)
                     cache[g] = (used, pack_fcst(items))
                 except RuntimeError as e:
-                    log('  예보 오류', e); cache[g] = (None, {})
+                    note(f'{key} 예보 오류 {str(e)[:200]}', 'warning'); cache[g] = (None, {})
             used, fc = cache[g]
             if fc and any(v[2] is not None for v in fc.values()):
                 got = (g, used, fc); break
@@ -199,14 +203,14 @@ def main():
             st['fc'] = dict(sorted(merged.items()))
             st['grid'] = list(g); st['base'] = ' '.join(used) if used else None
             ok_f += 1
-            log(f'{key}: 격자 {g}, 예보 {len(fc)}시간, 파고 {"있음" if any(v[2] is not None for v in fc.values()) else "없음"}')
+            note(f'{key}: 격자 {g}, 예보 {len(fc)}시간, 파고 {"있음" if any(v[2] is not None for v in fc.values()) else "없음"}')
         else:
             st['fc'] = pst.get('fc') or {}
-            log(f'{key}: 예보 못 받음 (이전 자료 유지)')
+            note(f'{key}: 예보 못 받음 (이전 자료 유지)', 'warning')
         o = fetch_obs(cfg['obs'], now)
         if o:
             o['code'] = cfg['obs']; st['obs'] = o; ok_o += 1
-            log(f'  수온 {o["wtem"]}℃ ({o["t"]}), 24시간 전 {o["wtem24"]}')
+            note(f'{key} 수온 {o["wtem"]}℃ ({o["t"]}), 24시간 전 {o["wtem24"]}')
         out['stations'][key] = st
     if ok_f == 0 and ok_o == 0:
         sys.exit('예보·관측을 하나도 받지 못했어요 (인증키 활용신청 승인 대기 중일 수 있어요)')
@@ -216,5 +220,26 @@ def main():
     log(f'저장: 예보 {ok_f}/8곳, 수온 {ok_o}/8곳')
 
 
+def diag():
+    now = datetime.now(KST); d, t = kma_base(now)
+    tests = [
+        ('KMA https', KMA_URL, {'pageNo': 1, 'numOfRows': 20, 'dataType': 'JSON', 'base_date': d, 'base_time': t, 'nx': 55, 'ny': 124}),
+        ('KMA http', KMA_URL.replace('https://', 'http://'), {'pageNo': 1, 'numOfRows': 20, 'dataType': 'JSON', 'base_date': d, 'base_time': t, 'nx': 55, 'ny': 124}),
+        ('KHOA https', OBS_URL, {'type': 'json', 'obsCode': 'DT_0001', 'reqDate': now.strftime('%Y%m%d'), 'min': 60, 'pageNo': 1, 'numOfRows': 5}),
+    ]
+    for name, url, params in tests:
+        t0 = time.time()
+        q = urllib.parse.urlencode(params, safe='')
+        try:
+            with urllib.request.urlopen(f'{url}?serviceKey={KEY}&{q}', timeout=15) as r:
+                body = r.read().decode('utf-8', 'replace')
+            note(f'{name}: HTTP {r.status} {time.time() - t0:.1f}s :: {body[:230].replace(KEY, "***")}')
+        except Exception as e:
+            note(f'{name}: 실패 {time.time() - t0:.1f}s :: {type(e).__name__} {str(e)[:200].replace(KEY, "***")}', 'warning')
+
+
 if __name__ == '__main__':
-    main()
+    if '--diag' in sys.argv:
+        diag()
+    else:
+        main()
