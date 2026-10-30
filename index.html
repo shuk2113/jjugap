@@ -161,12 +161,19 @@ h2{margin:0; font-size:16px; font-weight:700; text-wrap:balance}
 .st-btn .chev{width:6px; height:6px; margin-left:2px; border-right:2px solid var(--ink-2); border-bottom:2px solid var(--ink-2); transform:translateY(-2px) rotate(45deg)}
 .sheet-back{position:fixed; inset:0; z-index:40; background:rgba(0,0,0,.4); animation:fadeIn .22s ease}
 .sheet{position:fixed; left:0; right:0; bottom:0; z-index:41; max-width:520px; max-height:85vh; overflow-y:auto; margin:0 auto; border-radius:24px 24px 0 0; background:var(--card); box-shadow:0 -10px 30px rgba(0,0,0,.2);
-  padding:8px max(16px, env(safe-area-inset-right, 0px)) calc(18px + env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px)); animation:sheetUp .3s cubic-bezier(.2,.8,.2,1)}
-.sheet.closing{animation:sheetDown .2s ease forwards} .sheet-back.closing{animation:fadeOut .2s ease forwards}
+  padding:0 max(16px, env(safe-area-inset-right, 0px)) calc(18px + env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px)); animation:sheetUp .3s cubic-bezier(.2,.8,.2,1);
+  overscroll-behavior:contain; will-change:transform}
+.sheet.closing{animation:sheetDown .22s cubic-bezier(.4,0,1,1) forwards} .sheet-back.closing{animation:fadeOut .22s ease forwards}
+.sheet.closing.fast, .sheet-back.closing.fast{animation-duration:.15s}
 @keyframes sheetUp{from{transform:translateY(100%)}} @keyframes sheetDown{to{transform:translateY(100%)}}
 @keyframes fadeIn{from{opacity:0}} @keyframes fadeOut{to{opacity:0}}
+.sh-head{position:sticky; top:0; z-index:2; padding:8px 0 12px; background:var(--card); cursor:grab; touch-action:none}
 .grabber{width:38px; height:5px; margin:0 auto 12px; border-radius:3px; background:var(--line)}
-.sh-title{margin-bottom:10px; text-align:center; font-size:16px; font-weight:700}
+.sh-x{position:absolute; top:19px; right:0; width:36px; height:36px; display:grid; place-items:center; padding:0; border:0; border-radius:50%; background:var(--well); color:var(--ink-2); cursor:pointer; -webkit-tap-highlight-color:transparent; transition:transform .12s, color .15s}
+.sh-x svg{width:15px; height:15px}
+.sh-x:active{transform:scale(.88); color:var(--ink)}
+@media (hover:hover){ .sh-x:hover{color:var(--ink)} }
+.sh-title{text-align:center; font-size:16px; font-weight:700; line-height:24px}
 .st-list{display:flex; flex-direction:column; gap:6px}
 .st-item{display:flex; align-items:center; gap:12px; width:100%; padding:12px 14px; border:1.5px solid transparent; border-radius:14px; background:var(--well); font:inherit; color:var(--ink); text-align:left; -webkit-tap-highlight-color:transparent; transition:transform .12s}
 .st-item:active{transform:scale(.98)}
@@ -469,8 +476,11 @@ h2{margin:0; font-size:16px; font-weight:700; text-wrap:balance}
 
 <div class="sheet-back" id="st-back" hidden></div>
 <div class="sheet" id="st-sheet" role="dialog" aria-modal="true" aria-label="출항지 고르기" hidden>
-  <div class="grabber" aria-hidden="true"></div>
-  <div class="sh-title">출항지 고르기</div>
+  <div class="sh-head" id="st-head">
+    <div class="grabber" aria-hidden="true"></div>
+    <div class="sh-title">출항지 고르기</div>
+    <button class="sh-x" id="st-x" type="button" aria-label="닫기"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 3.5l9 9M12.5 3.5l-9 9" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
+  </div>
   <button class="st-gps" id="st-gps" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="7" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="2.6" fill="currentColor"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span>내 위치에서 가장 가까운 곳</span></button>
   <p class="st-gps-msg" id="st-gps-msg" aria-live="polite" hidden></p>
   <div class="st-list" id="st-list"></div>
@@ -1334,19 +1344,76 @@ const TideHarm = (() => {
       list.innerHTML = ST_KEYS.map(k => { const S = TideHarm.STATIONS[k];
         return `<button class="st-item${k === tideSt ? ' on' : ''}" data-k="${k}"><span class="nm"><b>${S.name}</b><span>${diffText(S)}</span></span><span class="ck" aria-hidden="true">✓</span></button>`; }).join('');
     }
-    function open() { paintList(); back.classList.remove('closing'); sheet.classList.remove('closing'); back.hidden = false; sheet.hidden = false; }
-    function close() {
-      if (reduceM()) { back.hidden = true; sheet.hidden = true; return; }
-      back.classList.add('closing'); sheet.classList.add('closing');
-      setTimeout(() => { back.hidden = true; sheet.hidden = true; }, 200);
+    let inFrame = false;
+    try { inFrame = window.top !== window.self; } catch (_) { inFrame = true; }
+    const useHist = !inFrame;   // 설치한 앱에서는 폰의 '뒤로' 버튼으로도 닫힌다
+    let isOpen = false, closeT = 0, skipPop = false;
+    const resetDrag = () => { sheet.style.transform = sheet.style.transition = back.style.opacity = back.style.transition = ''; };
+    function open() {
+      clearTimeout(closeT); paintList(); resetDrag();
+      back.classList.remove('closing', 'fast'); sheet.classList.remove('closing', 'fast');
+      back.hidden = false; sheet.hidden = false; sheet.scrollTop = 0; isOpen = true;
+      if (useHist) { try { history.pushState({ stSheet: 1 }, ''); } catch (_) {} }
     }
-    btn.onclick = open; back.onclick = close;
-    document.addEventListener('keydown', e => { if (e.key === 'Escape' && !sheet.hidden) close(); });
+    // fast: X 버튼처럼 짧고 빠르게 / fromPop: 폰 뒤로가기로 닫힌 경우
+    function close(fast, fromPop) {
+      if (!isOpen) return; isOpen = false; drag = null;
+      if (useHist && !fromPop && history.state && history.state.stSheet) { skipPop = true; history.back(); }
+      if (reduceM()) { back.hidden = true; sheet.hidden = true; resetDrag(); return; }
+      sheet.style.transition = back.style.transition = 'none';
+      back.classList.toggle('fast', !!fast); sheet.classList.toggle('fast', !!fast);
+      back.classList.add('closing'); sheet.classList.add('closing');
+      closeT = setTimeout(() => { back.hidden = true; sheet.hidden = true; resetDrag(); }, fast ? 160 : 230);
+    }
+    btn.onclick = open; back.onclick = () => close();
+    $('st-x').onclick = e => { e.stopPropagation(); close(true); };
+    document.addEventListener('keydown', e => { if (e.key === 'Escape' && isOpen) close(); });
+    addEventListener('popstate', () => { if (skipPop) { skipPop = false; return; } if (isOpen) close(false, true); });
+    // 아래로 쓸어 닫기: 손잡이·제목 줄은 언제든, 목록은 맨 위까지 올라가 있을 때 아래로 끌면 판이 손가락을 따라 내려간다
+    let drag = null;
+    const dStart = (x, y, t, onHead) => { if (isOpen) drag = { x0: x, y0: y, onHead, mode: null, dy: 0, last: y, lastT: t, v: 0 }; };
+    const dMove = (x, y, t) => {
+      if (!drag) return false;
+      if (!drag.mode) {
+        const dx = x - drag.x0, dy = y - drag.y0;
+        if (Math.abs(dx) < 6 && Math.abs(dy) < 6) return drag.onHead;
+        drag.mode = dy > 0 && Math.abs(dy) > Math.abs(dx) && (drag.onHead || sheet.scrollTop <= 0) ? 'drag' : 'scroll';
+        if (drag.mode === 'drag') { drag.y0 = y; drag.last = y; drag.lastT = t; sheet.style.transition = back.style.transition = 'none'; }
+      }
+      if (drag.mode !== 'drag') return false;
+      const d = Math.max(0, y - drag.y0), dt = t - drag.lastT;
+      if (dt > 0) drag.v = 0.7 * ((y - drag.last) / dt) + 0.3 * drag.v;
+      drag.last = y; drag.lastT = t; drag.dy = d;
+      sheet.style.transform = `translateY(${d}px)`;
+      back.style.opacity = String(Math.max(0, 1 - d / (sheet.offsetHeight || 1)));
+      return true;
+    };
+    const dEnd = () => {
+      const g = drag; drag = null;
+      if (!g || g.mode !== 'drag') return;
+      if (g.dy > Math.min(120, sheet.offsetHeight * 0.22) || (g.v > 0.45 && g.dy > 12)) { close(); return; }
+      sheet.style.transition = 'transform .24s cubic-bezier(.2,.8,.2,1)'; back.style.transition = 'opacity .24s ease';
+      sheet.style.transform = ''; back.style.opacity = '';
+    };
+    sheet.addEventListener('touchstart', e => {
+      if (e.touches.length !== 1 || e.target.closest('.sh-x')) { drag = null; return; }
+      const p = e.touches[0]; dStart(p.clientX, p.clientY, e.timeStamp, !!e.target.closest('.sh-head'));
+    }, { passive: true });
+    sheet.addEventListener('touchmove', e => { const p = e.touches[0]; if (p && dMove(p.clientX, p.clientY, e.timeStamp) && e.cancelable) e.preventDefault(); }, { passive: false });
+    sheet.addEventListener('touchend', dEnd); sheet.addEventListener('touchcancel', dEnd);
+    // 컴퓨터(마우스)에서는 손잡이 줄을 끌어서
+    $('st-head').addEventListener('pointerdown', e => {
+      if (e.pointerType !== 'mouse' || e.target.closest('.sh-x')) return;
+      dStart(e.clientX, e.clientY, e.timeStamp, true);
+      const mv = ev => dMove(ev.clientX, ev.clientY, ev.timeStamp);
+      const up = () => { removeEventListener('pointermove', mv); removeEventListener('pointerup', up); dEnd(); };
+      addEventListener('pointermove', mv); addEventListener('pointerup', up);
+    });
     function choose(k, delay) {
       tideSt = k;
       try { localStorage.setItem('jjukgap-station', tideSt); } catch (_) {}
       paintBtn(); paintList(); renderTide();
-      setTimeout(close, delay);
+      setTimeout(() => close(), delay);
     }
     list.addEventListener('click', e => {
       const b = e.target.closest('[data-k]'); if (!b) return;
@@ -1360,8 +1427,6 @@ const TideHarm = (() => {
       const h = Math.sin(dA / 2) ** 2 + Math.cos(a1 * R) * Math.cos(a2 * R) * Math.sin(dO / 2) ** 2;
       return 12742 * Math.asin(Math.sqrt(h));
     };
-    let inFrame = false;
-    try { inFrame = window.top !== window.self; } catch (_) { inFrame = true; }
     gpsBtn.onclick = () => {
       if (!('geolocation' in navigator)) { say('이 기기에서는 위치를 쓸 수 없어요.'); return; }
       gpsBtn.setAttribute('aria-busy', 'true'); say('위치를 찾는 중이에요…');
@@ -1550,5 +1615,5 @@ const TideHarm = (() => {
 </script>
 
 <script>
-if ('serviceWorker' in navigator) addEventListener('load', () => navigator.serviceWorker.register('sw.js?v=dd8dfa2b').catch(() => {}));
+if ('serviceWorker' in navigator) addEventListener('load', () => navigator.serviceWorker.register('sw.js?v=81adf348').catch(() => {}));
 </script>
