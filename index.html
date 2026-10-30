@@ -188,14 +188,16 @@ h2{margin:0; font-size:16px; font-weight:700; text-wrap:balance}
 
 /* 물 높이: 바다 그림 아래 하루 시간 막대 + 만조·간조 */
 .scene-wrap{position:relative}
-.stags{display:flex; flex-wrap:wrap; align-items:center; gap:6px 10px; min-width:0}
+.stags{display:flex; flex-wrap:nowrap; align-items:center; gap:8px; min-width:0; overflow:hidden}
 .stag-time{font-size:17px; font-weight:700; color:var(--ink); font-variant-numeric:tabular-nums; white-space:nowrap}
 .stag{padding:4px 11px; border-radius:999px; background:var(--well); color:var(--ink); font-size:13px; font-weight:700; font-variant-numeric:tabular-nums; white-space:nowrap}
 .stag .up{color:var(--hi)} .stag .down{color:var(--lo)}
 .scrub-wrap{display:flex; flex-direction:column; gap:6px; padding:12px 14px 12px; border-top:1px solid var(--line)}
-.scrub-head{display:flex; align-items:center; justify-content:space-between; gap:8px; min-height:28px}
-.scrub-cap{text-align:center; font-size:11.5px; color:var(--ink-2)}
+.scrub-head{display:flex; flex-direction:column; align-items:stretch; gap:6px}
+.sh-row{display:flex; align-items:center; justify-content:space-between; gap:8px; height:30px}
+.scrub-cap{min-height:3em; text-align:center; font-size:11.5px; color:var(--ink-2)}
 .now-btn{flex:none; white-space:nowrap; height:28px; padding:0 12px; border:0; border-radius:999px; background:var(--well); font:inherit; font-size:12.5px; font-weight:700; color:var(--ink); -webkit-tap-highlight-color:transparent}
+.now-btn.off{visibility:hidden; pointer-events:none}
 .scrub{touch-action:pan-y; cursor:pointer; -webkit-user-select:none; user-select:none; -webkit-tap-highlight-color:transparent}
 #scrub-svg{display:block; width:100%; height:auto}
 .sc-night{fill:var(--ink); opacity:.09}
@@ -369,7 +371,7 @@ h2{margin:0; font-size:16px; font-weight:700; text-wrap:balance}
       <canvas id="sea" role="img" aria-label="바다 그림"></canvas>
     </div>
     <div class="scrub-wrap">
-      <div class="scrub-head"><div class="stags" aria-live="polite"><span class="stag-time" id="stag-time">-</span><span class="stag" id="stag-state">-</span><span class="stag" id="stag-flow">-</span></div><button class="now-btn" id="now-btn" hidden>지금</button></div>
+      <div class="scrub-head" aria-live="polite"><div class="sh-row"><span class="stag-time" id="stag-time">-</span><button class="now-btn off" id="now-btn" tabindex="-1" aria-hidden="true">지금</button></div><div class="stags"><span class="stag" id="stag-state">-</span><span class="stag" id="stag-flow">-</span></div></div>
       <div class="scrub" id="scrub">
         <svg id="scrub-svg" viewBox="0 0 360 94" role="img" aria-label="하루 물 높이 시간 막대">
           <defs>
@@ -781,7 +783,7 @@ const TideHarm = (() => {
     $('adv-now').textContent = msg;
     $('adv-day').textContent = `하루 전체로는: ${LV[dd.lv].advice}`;
     [...$('tide-list').children].forEach(b => b.classList.toggle('active', !!near && Math.abs(+b.dataset.min - near.min) < 0.5));
-    $('now-btn').hidden = !(sel === today && !isNow);
+    { const nb = $('now-btn'), off = !(sel === today && !isNow); nb.classList.toggle('off', off); nb.tabIndex = off ? -1 : 0; nb.setAttribute('aria-hidden', String(off)); }
     $('sea').setAttribute('aria-label', `${ampm(tMin)} 바다 그림. ${state}, 물 높이 ${meters(h)}, 조류 세기 ${pct}%.`);
   }
   // 시간 막대 조작: 톡 누르면 그 시각으로, 옆으로 밀면 따라가고, 만조·간조 근처에서 놓으면 그 시각에 착 붙는다
@@ -1517,11 +1519,36 @@ const TideHarm = (() => {
   };
   paintThemeBtn();
 
+  // 안내 문장 길이가 바뀌어도 아래 화면이 흔들리지 않도록, 나올 수 있는 가장 긴 문장 높이만큼 자리를 미리 잡아 둔다
+  {
+    const nowCands = ['물이 가장 높이 차오른 만조예요. 물 흐름이 잠시 멈춰요.', '물이 가장 많이 빠진 간조예요. 물가 쪽 갯벌이 드러나고, 물 흐름이 잠시 멈춰요.', '물이 가장 낮은 간조예요. 물 흐름이 잠시 멈춰요.'];
+    for (const a of ['물이 들어오는 중(들물)', '물이 빠지는 중(날물)']) {
+      for (const p of ['100', '99', '88']) nowCands.push(`${a}이고, 조류가 ${p}%로 센 시간이에요.`);
+      for (const p of ['64', '58', '88']) nowCands.push(`${a}이고, 조류가 ${p}%로 적당해요.`);
+      for (const p of ['34', '28', '8']) nowCands.push(`${a}이고, 조류가 ${p}%로 약해요.`);
+    }
+    const dayCands = Object.values(LV).map(v => `하루 전체로는: ${v.advice}`);
+    const reserve = () => {
+      const adv = $('advice'), w = adv.offsetWidth; if (!w) return;
+      const probe = adv.cloneNode(true); probe.removeAttribute('id'); probe.querySelectorAll('[id]').forEach(n => n.removeAttribute('id'));
+      Object.assign(probe.style, { position: 'absolute', visibility: 'hidden', left: '-9999px', top: '0', width: w + 'px' });
+      adv.parentNode.appendChild(probe);
+      const pb = probe.querySelector('b'), ps = probe.querySelector('span'); pb.style.minHeight = ps.style.minHeight = '0';
+      let hb = 0, hs = 0;
+      for (const t of nowCands) { pb.textContent = t; hb = Math.max(hb, pb.getBoundingClientRect().height); }
+      for (const t of dayCands) { ps.textContent = t; hs = Math.max(hs, ps.getBoundingClientRect().height); }
+      probe.remove();
+      $('adv-now').style.minHeight = Math.ceil(hb) + 'px'; $('adv-day').style.minHeight = Math.ceil(hs) + 'px';
+    };
+    reserve();
+    let rT = 0; addEventListener('resize', () => { clearTimeout(rT); rT = setTimeout(reserve, 120); });
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(reserve);
+  }
   setRegion(region);
   requestAnimationFrame(() => chart.classList.add('ready'));
 })();
 </script>
 
 <script>
-if ('serviceWorker' in navigator) addEventListener('load', () => navigator.serviceWorker.register('sw.js?v=6d22229b').catch(() => {}));
+if ('serviceWorker' in navigator) addEventListener('load', () => navigator.serviceWorker.register('sw.js?v=dd8dfa2b').catch(() => {}));
 </script>
