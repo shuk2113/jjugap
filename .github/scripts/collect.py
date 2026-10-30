@@ -143,7 +143,7 @@ def fetch_obs(code, now):
         except RuntimeError as e:
             log('  관측 오류', e); continue
         if c not in ('00', '0'):
-            log(f'  관측 {code} {day:%Y%m%d}: {c} {msg}')
+            note(f'관측 {code} {day:%Y%m%d}: 결과코드 {c} {msg}', 'warning')
         rows += items
     def f(v):
         try:
@@ -234,7 +234,7 @@ def diag():
         try:
             with urllib.request.urlopen(f'{url}?serviceKey={KEY}&{q}', timeout=15) as r:
                 body = r.read().decode('utf-8', 'replace')
-            note(f'{name}: HTTP {r.status} {time.time() - t0:.1f}s :: {body[:230].replace(KEY, "***")}')
+            note(f'{name}: HTTP {r.status} {time.time() - t0:.1f}s :: {re.sub(r"\\s+", " ", body)[:320].replace(KEY, "***")}')
         except Exception as e:
             note(f'{name}: 실패 {time.time() - t0:.1f}s :: {type(e).__name__} {str(e)[:200].replace(KEY, "***")}', 'warning')
 
