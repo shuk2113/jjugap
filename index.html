@@ -1,0 +1,1525 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" media="(prefers-color-scheme: light)" content="#EAF0EC">
+<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0D1819">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="쭈갑 물때">
+<meta name="description" content="쭈꾸미·갑오징어 선상낚시 물때, 만조·간조, 물 높이와 조류를 한눈에">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-180.png">
+<title>쭈갑 물때</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=IBM+Plex+Sans+KR:wght@400;500;700&display=swap">
+<style>
+/* 레이아웃: 폰 폭 단일 컬럼 앱. 오늘의 바다 장면(물살을 그림으로) → 다음 조금·사리 → 보름 물때 띠 → 한 달 달력 → 색 읽는 법 */
+:root{
+  --paper:#EAF0EC; --card:#F8FBF8; --ink:#12282A; --ink-2:#51635F; --line:#D0DBD5; --well:#DDE6E1;
+  --sea:#2C6C68; --sea-deep:#143838; --sky-top:#CFDFE3; --sky-bot:#EDF2EA;
+  --mud:#8C7B5D; --mud-deep:#665A44; --hull:#FBFAF5; --hull-line:#12282A;
+  --streak:rgba(236,246,242,.75); --moon-lit:#FFF3CF; --moon-dark:#AFC0C3;
+  --pe:#F07C14; --jig:#E2457A;
+  --calm:#1C8B6B; --mid:#B97E0A; --strong:#C9452F;
+  --calm-soft:rgba(28,139,107,.15); --mid-soft:rgba(194,133,12,.17); --strong-soft:rgba(201,69,47,.15);
+  --sat:#2F62C4; --sun:#C9452F; --hi:#2560AE; --lo:#93652A;
+  --font-display:"Black Han Sans","Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+  --font-body:"IBM Plex Sans KR","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#0D1819; --card:#132223; --ink:#E2ECE8; --ink-2:#99AEA9; --line:#25393A; --well:#1D3031;
+    --sea:#2A6662; --sea-deep:#0A2223; --sky-top:#08121A; --sky-bot:#1A3236;
+    --mud:#5E513D; --mud-deep:#3E3528; --hull:#E9EDE6; --hull-line:#0D1819;
+    --streak:rgba(200,232,224,.55); --moon-lit:#FFF0C2; --moon-dark:#2E4448;
+    --pe:#FF9535; --jig:#FF6A98;
+    --calm:#45C59A; --mid:#EDB43C; --strong:#F2745C;
+    --calm-soft:rgba(69,197,154,.16); --mid-soft:rgba(237,180,60,.16); --strong-soft:rgba(242,116,92,.16);
+    --sat:#7AA2F0; --sun:#F2745C; --hi:#7FB2EE; --lo:#D8A764;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#0D1819; --card:#132223; --ink:#E2ECE8; --ink-2:#99AEA9; --line:#25393A; --well:#1D3031;
+  --sea:#2A6662; --sea-deep:#0A2223; --sky-top:#08121A; --sky-bot:#1A3236;
+  --mud:#5E513D; --mud-deep:#3E3528; --hull:#E9EDE6; --hull-line:#0D1819;
+  --streak:rgba(200,232,224,.55); --moon-lit:#FFF0C2; --moon-dark:#2E4448;
+  --pe:#FF9535; --jig:#FF6A98;
+  --calm:#45C59A; --mid:#EDB43C; --strong:#F2745C;
+  --calm-soft:rgba(69,197,154,.16); --mid-soft:rgba(237,180,60,.16); --strong-soft:rgba(242,116,92,.16);
+  --sat:#7AA2F0; --sun:#F2745C; --hi:#7FB2EE; --lo:#D8A764;
+  color-scheme:dark;
+}
+/* 앱 안의 모드 전환 버튼으로 고른 모드가 기기·뷰어 설정보다 우선한다 (기본은 다크) */
+html:root[data-app="dark"]{
+  --paper:#0D1819; --card:#132223; --ink:#E2ECE8; --ink-2:#99AEA9; --line:#25393A; --well:#1D3031;
+  --sea:#2A6662; --sea-deep:#0A2223; --sky-top:#08121A; --sky-bot:#1A3236;
+  --mud:#5E513D; --mud-deep:#3E3528; --hull:#E9EDE6; --hull-line:#0D1819;
+  --streak:rgba(200,232,224,.55); --moon-lit:#FFF0C2; --moon-dark:#2E4448;
+  --pe:#FF9535; --jig:#FF6A98;
+  --calm:#45C59A; --mid:#EDB43C; --strong:#F2745C;
+  --calm-soft:rgba(69,197,154,.16); --mid-soft:rgba(237,180,60,.16); --strong-soft:rgba(242,116,92,.16);
+  --sat:#7AA2F0; --sun:#F2745C; --hi:#7FB2EE; --lo:#D8A764;
+  color-scheme:dark;
+}
+html:root[data-app="light"]{
+  --paper:#EAF0EC; --card:#F8FBF8; --ink:#12282A; --ink-2:#51635F; --line:#D0DBD5; --well:#DDE6E1;
+  --sea:#2C6C68; --sea-deep:#143838; --sky-top:#CFDFE3; --sky-bot:#EDF2EA;
+  --mud:#8C7B5D; --mud-deep:#665A44; --hull:#FBFAF5; --hull-line:#12282A;
+  --streak:rgba(236,246,242,.75); --moon-lit:#FFF3CF; --moon-dark:#AFC0C3;
+  --pe:#F07C14; --jig:#E2457A;
+  --calm:#1C8B6B; --mid:#B97E0A; --strong:#C9452F;
+  --calm-soft:rgba(28,139,107,.15); --mid-soft:rgba(194,133,12,.17); --strong-soft:rgba(201,69,47,.15);
+  --sat:#2F62C4; --sun:#C9452F; --hi:#2560AE; --lo:#93652A;
+  color-scheme:light;
+}
+/* 모드를 바꾸는 순간에만 색이 부드럽게 넘어가게 */
+html.theme-anim, html.theme-anim *, html.theme-anim *::before, html.theme-anim *::after{
+  transition:background-color .3s ease, color .3s ease, border-color .3s ease, fill .3s ease, stroke .3s ease !important;
+}
+*{box-sizing:border-box}
+body{
+  background:var(--paper); color:var(--ink); font-family:var(--font-body);
+  font-size:15px; line-height:1.5; -webkit-font-smoothing:antialiased;
+  padding-left:max(16px, env(safe-area-inset-left, 0px));
+  padding-right:max(16px, env(safe-area-inset-right, 0px));
+  padding-block:max(14px, env(safe-area-inset-top, 0px)) 36px;
+}
+button{font:inherit; color:inherit; cursor:pointer}
+:focus-visible{outline:2px solid var(--ink); outline-offset:2px}
+.app{max-width:480px; margin:0 auto; display:flex; flex-direction:column; gap:18px}
+
+/* 상단 */
+.top{display:flex; align-items:center; justify-content:space-between; gap:12px}
+.brand{font-family:var(--font-display); font-size:25px; line-height:1.1; letter-spacing:.01em}
+.brand small{display:block; font-family:var(--font-body); font-size:12px; font-weight:500; color:var(--ink-2); letter-spacing:.04em; margin-top:3px}
+.seg{display:flex; gap:2px; padding:3px; border-radius:999px; background:var(--well)}
+.top-right{display:flex; align-items:center; gap:8px; flex:none}
+.theme-btn{flex:none; width:38px; height:38px; display:grid; place-items:center; border:0; border-radius:50%; background:var(--well); color:var(--ink); -webkit-tap-highlight-color:transparent; transition:transform .15s}
+.theme-btn:active{transform:scale(.9)}
+.theme-btn svg{width:18px; height:18px}
+.theme-btn .i-sun{display:none}
+:root[data-app="dark"] .theme-btn .i-sun{display:block}
+:root[data-app="dark"] .theme-btn .i-moon{display:none}
+.theme-btn.spin svg{animation:themeSpin .45s cubic-bezier(.2,.7,.2,1)}
+@keyframes themeSpin{from{transform:rotate(-90deg) scale(.6); opacity:0}}
+@media (prefers-reduced-motion: reduce){ .theme-btn.spin svg{animation:none} }
+.seg-btn{border:0; background:transparent; padding:7px 15px; border-radius:999px; font-size:13px; font-weight:500; color:var(--ink-2)}
+.seg-btn[aria-pressed="true"]{background:var(--card); color:var(--ink); box-shadow:0 1px 3px rgba(0,0,0,.14)}
+
+.datebar{display:flex; align-items:center; gap:8px}
+.icon-btn{flex:none; width:40px; height:40px; display:grid; place-items:center; border-radius:50%; border:1px solid var(--line); background:var(--card); font-size:20px; line-height:1}
+.date-text{flex:1; min-width:0; text-align:center; border:0; background:transparent; padding:4px 0; border-radius:12px; -webkit-tap-highlight-color:transparent; transition:background-color .15s}
+.date-text:active{background:var(--well)}
+#date-main, #date-sub{display:block}
+#date-main{font-size:17px; font-weight:700}
+#date-main::after{content:""; display:inline-block; width:6px; height:6px; margin-left:8px; border-right:2px solid var(--ink-2); border-bottom:2px solid var(--ink-2); transform:translateY(-4px) rotate(45deg)}
+#date-sub{font-size:13px; color:var(--ink-2)}
+.today-btn{flex:none; padding:8px 14px; border-radius:999px; border:1px solid var(--line); background:var(--card); font-size:13px; font-weight:500}
+.today-btn:disabled{opacity:.4; cursor:default}
+
+/* 오늘의 물때 */
+.hero{background:var(--card); border:1px solid var(--line); border-radius:22px; overflow:hidden}
+.hero-head{display:flex; align-items:flex-end; justify-content:space-between; gap:12px; padding:16px 18px 12px}
+.eyebrow{font-size:12px; font-weight:500; letter-spacing:.06em; color:var(--ink-2)}
+.mul{font-family:var(--font-display); font-size:68px; line-height:.95; margin-top:6px; transition:color .4s}
+.hero-side{display:flex; flex-direction:column; align-items:flex-end; gap:8px}
+.chip{display:inline-flex; align-items:center; gap:6px; padding:5px 12px; border-radius:999px; font-size:14px; font-weight:700}
+.chip::before{content:""; width:8px; height:8px; border-radius:50%; background:currentColor}
+.meter{display:flex; align-items:flex-end; gap:4px; height:26px}
+.meter span{width:9px; border-radius:3px; background:var(--well); transition:background-color .4s}
+.meter span:nth-child(1){height:8px} .meter span:nth-child(2){height:12px} .meter span:nth-child(3){height:16px}
+.meter span:nth-child(4){height:21px} .meter span:nth-child(5){height:26px}
+.meter span.on{background:currentColor}
+.meter-cap{font-size:11px; color:var(--ink-2); letter-spacing:.04em}
+#sea{display:block; width:100%; height:250px}
+.advice{margin:0; padding:14px 18px 18px; border-top:1px solid var(--line); font-size:15px; line-height:1.65}
+
+.t-calm{color:var(--calm)} .t-mid{color:var(--mid)} .t-strong{color:var(--strong)}
+.chip.t-calm{background:var(--calm-soft)} .chip.t-mid{background:var(--mid-soft)} .chip.t-strong{background:var(--strong-soft)}
+
+
+/* 공통 섹션 */
+.block{display:flex; flex-direction:column; gap:10px}
+.block-head{display:flex; align-items:baseline; justify-content:space-between; gap:8px}
+h2{margin:0; font-size:16px; font-weight:700; text-wrap:balance}
+.hint{font-size:12px; color:var(--ink-2)}
+
+/* 한 달 물때 파도 */
+#wave-section{margin-block:3mm}
+/* 출항지 버튼과 고르기 판 */
+.st-btn{align-self:flex-start; display:inline-flex; align-items:center; gap:7px; height:36px; padding:0 14px 0 11px; border:1px solid var(--line); border-radius:999px; background:var(--card); font:inherit; font-size:14px; color:var(--ink); -webkit-tap-highlight-color:transparent; transition:transform .12s}
+.st-btn:active{transform:scale(.97)}
+.st-btn svg{width:17px; height:17px; color:var(--hi)}
+.st-btn .st-lab{font-size:12px; font-weight:500; color:var(--ink-2)}
+.st-btn #st-name{font-weight:700}
+.st-btn .chev{width:6px; height:6px; margin-left:2px; border-right:2px solid var(--ink-2); border-bottom:2px solid var(--ink-2); transform:translateY(-2px) rotate(45deg)}
+.sheet-back{position:fixed; inset:0; z-index:40; background:rgba(0,0,0,.4); animation:fadeIn .22s ease}
+.sheet{position:fixed; left:0; right:0; bottom:0; z-index:41; max-width:520px; max-height:85vh; overflow-y:auto; margin:0 auto; border-radius:24px 24px 0 0; background:var(--card); box-shadow:0 -10px 30px rgba(0,0,0,.2);
+  padding:8px max(16px, env(safe-area-inset-right, 0px)) calc(18px + env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px)); animation:sheetUp .3s cubic-bezier(.2,.8,.2,1)}
+.sheet.closing{animation:sheetDown .2s ease forwards} .sheet-back.closing{animation:fadeOut .2s ease forwards}
+@keyframes sheetUp{from{transform:translateY(100%)}} @keyframes sheetDown{to{transform:translateY(100%)}}
+@keyframes fadeIn{from{opacity:0}} @keyframes fadeOut{to{opacity:0}}
+.grabber{width:38px; height:5px; margin:0 auto 12px; border-radius:3px; background:var(--line)}
+.sh-title{margin-bottom:10px; text-align:center; font-size:16px; font-weight:700}
+.st-list{display:flex; flex-direction:column; gap:6px}
+.st-item{display:flex; align-items:center; gap:12px; width:100%; padding:12px 14px; border:1.5px solid transparent; border-radius:14px; background:var(--well); font:inherit; color:var(--ink); text-align:left; -webkit-tap-highlight-color:transparent; transition:transform .12s}
+.st-item:active{transform:scale(.98)}
+.st-item.on{border-color:var(--ink)}
+.st-item .nm{flex:1; min-width:0; display:flex; flex-direction:column; gap:1px}
+.st-item .nm b{font-size:15.5px}
+.st-item .nm span{font-size:12.5px; color:var(--ink-2)}
+.st-item .ck{flex:none; width:22px; height:22px; border-radius:50%; display:grid; place-items:center; background:var(--ink); color:var(--card); font-size:13px; font-weight:700; visibility:hidden}
+.st-item.on .ck{visibility:visible}
+.st-note{margin:12px 2px 0; font-size:12px; line-height:1.6; color:var(--ink-2)}
+.st-gps{display:flex; align-items:center; justify-content:center; gap:8px; width:100%; height:46px; margin-bottom:8px; border:1.5px solid var(--hi); border-radius:14px; background:transparent; color:var(--hi); font:inherit; font-size:15px; font-weight:700; -webkit-tap-highlight-color:transparent; transition:transform .12s, opacity .2s}
+.st-gps:active{transform:scale(.98)}
+.st-gps svg{width:18px; height:18px}
+.st-gps[aria-busy="true"]{opacity:.55}
+.st-gps[aria-busy="true"] svg{animation:gpsPulse 1s ease-in-out infinite}
+@keyframes gpsPulse{50%{transform:scale(.8)}}
+.st-gps-msg{margin:0 2px 10px; font-size:12.5px; line-height:1.5; color:var(--ink-2); text-align:center}
+@media (prefers-reduced-motion: reduce){ .sheet, .sheet-back, .sheet.closing, .sheet-back.closing{animation:none} }
+
+/* 물 높이: 바다 그림 아래 하루 시간 막대 + 만조·간조 */
+.scene-wrap{position:relative}
+.stags{display:flex; flex-wrap:wrap; align-items:center; gap:6px 10px; min-width:0}
+.stag-time{font-size:17px; font-weight:700; color:var(--ink); font-variant-numeric:tabular-nums; white-space:nowrap}
+.stag{padding:4px 11px; border-radius:999px; background:var(--well); color:var(--ink); font-size:13px; font-weight:700; font-variant-numeric:tabular-nums; white-space:nowrap}
+.stag .up{color:var(--hi)} .stag .down{color:var(--lo)}
+.scrub-wrap{display:flex; flex-direction:column; gap:6px; padding:12px 14px 12px; border-top:1px solid var(--line)}
+.scrub-head{display:flex; align-items:center; justify-content:space-between; gap:8px; min-height:28px}
+.scrub-cap{text-align:center; font-size:11.5px; color:var(--ink-2)}
+.now-btn{flex:none; white-space:nowrap; height:28px; padding:0 12px; border:0; border-radius:999px; background:var(--well); font:inherit; font-size:12.5px; font-weight:700; color:var(--ink); -webkit-tap-highlight-color:transparent}
+.scrub{touch-action:pan-y; cursor:pointer; -webkit-user-select:none; user-select:none; -webkit-tap-highlight-color:transparent}
+#scrub-svg{display:block; width:100%; height:auto}
+.sc-night{fill:var(--ink); opacity:.09}
+.sc-area{fill:url(#sc-fill)}
+.sc-curve{fill:none; stroke:var(--hi); stroke-width:2; stroke-linejoin:round}
+.sc-dot{stroke:var(--card); stroke-width:1.5} .sc-dot.H{fill:var(--hi)} .sc-dot.L{fill:var(--lo)}
+.sc-lab{font-family:var(--font-body); font-size:9.5px; fill:var(--ink-2); text-anchor:middle; dominant-baseline:central}
+.sc-now{fill:var(--ink-2)}
+.sc-base{stroke:var(--line); stroke-width:1}
+.sc-flow{opacity:.85} .sc-flow.up{fill:var(--hi)} .sc-flow.down{fill:var(--lo)}
+.sc-thumb-line{stroke:var(--ink); stroke-width:1.5}
+.sc-thumb-dot{fill:var(--pe); stroke:var(--card); stroke-width:2}
+.tide-list{display:grid; grid-template-columns:repeat(var(--n, 4), minmax(0,1fr)); gap:6px; margin-top:4px}
+.ti{display:flex; flex-direction:column; align-items:center; gap:1px; padding:8px 0 7px; border:0; border-radius:12px; background:var(--well); font:inherit; color:inherit; font-variant-numeric:tabular-nums; -webkit-tap-highlight-color:transparent; transition:transform .12s}
+.ti:active{transform:scale(.96)}
+.ti .k{font-size:11.5px; font-weight:700}
+.ti.H .k{color:var(--hi)} .ti.L .k{color:var(--lo)}
+.ti .t{font-size:16px; font-weight:700; color:var(--ink)}
+.ti .v{font-size:12px; color:var(--ink-2)}
+.ti.past{opacity:.45}
+.ti.active{box-shadow:inset 0 0 0 1.5px var(--ink); opacity:1}
+.advice b{display:block; margin-bottom:3px; font-weight:700; color:var(--ink)}
+.advice span{display:block; font-size:14px; color:var(--ink-2)}
+.chart-head{align-items:center}
+.win-nav{display:flex; align-items:center; gap:6px; flex:none}
+#win-title{font-size:13px; font-weight:500; color:var(--ink-2); font-variant-numeric:tabular-nums; white-space:nowrap}
+.chart-wrap{display:flex; flex-direction:column; gap:4px; padding:10px 6px 10px; border-radius:18px; border:1px solid var(--line); background:var(--card)}
+#chart{display:block; width:100%; height:auto; touch-action:pan-y; cursor:pointer; user-select:none; -webkit-user-select:none; -webkit-touch-callout:none}
+.chart-wrap, .chart-wrap *{-webkit-tap-highlight-color:transparent}
+#chart:focus, #chart:focus-visible{outline:none}
+.band-calm{fill:var(--calm-soft)} .band-mid{fill:var(--mid-soft)} .band-strong{fill:var(--strong-soft)}
+.gridl{stroke:var(--line); stroke-width:1}
+.area{fill:url(#lvg); opacity:.3}
+.curve{fill:none; stroke:url(#lvg); stroke-width:2.8; stroke-linejoin:round; stroke-linecap:round}
+.lbl{font-family:var(--font-body); font-size:10px; font-weight:700; text-anchor:end; dominant-baseline:central}
+.lbl.calm{fill:var(--calm)} .lbl.mid{fill:var(--mid)} .lbl.strong{fill:var(--strong)}
+.dn{font-family:var(--font-body); font-size:10px; fill:var(--ink-2); text-anchor:middle; dominant-baseline:central}
+.tp rect{fill:var(--ink)} .tp text{fill:var(--card); font-family:var(--font-body); font-size:9.5px; font-weight:700; text-anchor:middle; dominant-baseline:central}
+.wkband{fill:var(--ink); opacity:.06}
+.dn.mo{fill:var(--ink); font-weight:700}
+.todayline{stroke:var(--ink); stroke-width:1.1; stroke-dasharray:3 3; opacity:.55}
+.mk{font-family:var(--font-body); font-size:10px; font-weight:700; text-anchor:middle; dominant-baseline:central}
+.mk.sa{fill:var(--strong)} .mk.jo{fill:var(--calm)}
+.pt-sa{fill:var(--strong); stroke:var(--card); stroke-width:1.5} .pt-jo{fill:var(--calm); stroke:var(--card); stroke-width:1.5}
+.chart-box{position:relative}
+.boat-handle{position:absolute; left:0; top:0; width:64px; height:84px; margin:-42px 0 0 -32px; border-radius:32px; touch-action:none; cursor:grab; -webkit-user-select:none; user-select:none}
+.b-mast{stroke:var(--ink); stroke-width:1.4; stroke-linecap:round}
+.b-cloth{stroke:var(--ink); stroke-width:.8; stroke-linejoin:round}
+.b-cloth.calm{fill:var(--calm)} .b-cloth.mid{fill:var(--mid)} .b-cloth.strong{fill:var(--strong)}
+.b-ftext{font-family:var(--font-body); font-size:10.5px; font-weight:700; fill:var(--card); dominant-baseline:central; font-variant-numeric:tabular-nums}
+.boat-handle.grabbing{cursor:grabbing}
+.b-halo{fill:var(--ink); opacity:.08; transition:opacity .15s}
+#chart.grabbing .b-halo{opacity:.18}
+.b-hull{fill:var(--ink)} .b-cab{fill:var(--card); stroke:var(--ink); stroke-width:1.3} .b-rod{fill:none; stroke:var(--ink); stroke-width:1.4; stroke-linecap:round}
+#b-guide{stroke:var(--ink-2); stroke-width:1; stroke-dasharray:2 3}
+.c-hint{margin:0; text-align:center; font-size:12px; color:var(--ink-2)}
+
+/* 달력 */
+.cal-head{align-items:center}
+.cal-head h2{flex:1; text-align:center}
+.small-btn{flex:none; width:34px; height:34px; display:grid; place-items:center; border-radius:50%; border:1px solid var(--line); background:var(--card); font-size:17px; line-height:1}
+.cal-week, .cal{display:grid; grid-template-columns:repeat(7, minmax(0,1fr)); gap:4px}
+#cal-section{scroll-margin-bottom:40px}
+.cal-stage{overflow:hidden; touch-action:pan-y; -webkit-tap-highlight-color:transparent}
+.cal-track{display:flex; align-items:flex-start; will-change:transform}
+.cal-track > .cal{flex:0 0 100%; min-width:0}
+.cal-week{font-size:12px; color:var(--ink-2); text-align:center}
+.cal-week span:first-child{color:var(--sun)} .cal-week span:last-child{color:var(--sat)}
+.cell{min-width:0; max-width:100%; aspect-ratio:1/1.08; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1px; padding:2px 0; border-radius:10px; border:1.5px solid transparent; background:transparent}
+.cell.lv-calm{background:var(--calm-soft)} .cell.lv-mid{background:var(--mid-soft)} .cell.lv-strong{background:var(--strong-soft)}
+.c-n{font-size:14px; font-weight:700; font-variant-numeric:tabular-nums}
+.c-m{font-size:10.5px; font-weight:500; white-space:nowrap}
+.cell.lv-calm .c-m{color:var(--calm)} .cell.lv-mid .c-m{color:var(--mid)} .cell.lv-strong .c-m{color:var(--strong)}
+.cell.sat .c-n{color:var(--sat)} .cell.sun .c-n{color:var(--sun)}
+.cell.is-today .c-n{text-decoration:underline 2px; text-underline-offset:3px}
+.cell.is-sel{border-color:var(--ink)}
+.cell.blank{visibility:hidden}
+
+/* 색 읽는 법 */
+.legend ul{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:12px}
+.legend li{display:grid; grid-template-columns:26px minmax(0,1fr); gap:12px; align-items:start}
+.sw{position:relative; width:26px; height:34px; border-radius:7px; background:var(--well); overflow:hidden}
+.sw i{position:absolute; left:0; right:0; bottom:0}
+.legend b{display:block; font-size:14px}
+.legend span{font-size:13px; color:var(--ink-2); line-height:1.55}
+.note{margin:2px 0 0; font-size:13px; line-height:1.65; color:var(--ink-2)}
+.foot{margin:0; font-size:12px; line-height:1.65; color:var(--ink-2)}
+
+@media (prefers-reduced-motion: reduce){ .mul, .meter span{transition:none} }
+
+[hidden]{display:none !important}
+/* 달력 제목 버튼 */
+.cal-h{flex:1; margin:0; text-align:center}
+.cal-title-btn{display:inline-flex; align-items:center; gap:9px; padding:6px 14px; border:0; border-radius:999px; background:transparent; font:inherit; font-size:16px; font-weight:700; color:var(--ink); -webkit-tap-highlight-color:transparent; transition:background-color .15s}
+.cal-title-btn:active{background:var(--well)}
+.cal-title-btn .chev{width:7px; height:7px; border-right:2px solid var(--ink-2); border-bottom:2px solid var(--ink-2); transform:translateY(-2px) rotate(45deg); transition:transform .28s cubic-bezier(.3,.7,.2,1)}
+.cal-title-btn[aria-expanded="true"] .chev{transform:translateY(2px) rotate(225deg)}
+.cal.swap{animation:calIn .26s cubic-bezier(.2,.7,.2,1)}
+@keyframes calIn{from{opacity:0; transform:translateY(8px)}}
+@media (prefers-reduced-motion: reduce){ .cal.swap{animation:none} .cal-title-btn .chev{transition:none} }
+
+/* 1안: 달력 자리가 열두 달 판으로 바뀜 (좌우로 밀면 연도 이동) */
+.mpanel{display:flex; flex-direction:column; gap:8px; transform-origin:50% 0; touch-action:pan-y; -webkit-user-select:none; user-select:none; animation:mpIn .24s cubic-bezier(.2,.7,.2,1)}
+@keyframes mpIn{from{opacity:0; transform:scale(.97)}}
+.mp-year{display:flex; align-items:center; justify-content:center; gap:4px}
+.mp-arrow{width:40px; height:40px; display:grid; place-items:center; border:0; border-radius:50%; background:transparent; -webkit-tap-highlight-color:transparent; transition:background-color .15s}
+.mp-arrow:active{background:var(--well)}
+.mp-arrow .ch{width:8px; height:8px; border-left:2px solid var(--ink-2); border-bottom:2px solid var(--ink-2)}
+.mp-arrow .ch.l{transform:translateX(2px) rotate(45deg)}
+.mp-arrow .ch.r{transform:translateX(-2px) rotate(-135deg)}
+#mp-ytxt{min-width:5.2em; text-align:center; font-size:19px; font-weight:700; letter-spacing:-.01em; font-variant-numeric:tabular-nums; }
+.mp-stage{flex:1; display:flex; overflow:hidden}
+.mp-track{display:flex; width:100%; will-change:transform}
+.mp-page{flex:0 0 100%; display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); grid-auto-rows:1fr; gap:2px 6px}
+.mp-m{display:flex; align-items:center; justify-content:center; min-height:44px; border:0; background:transparent; font:inherit; color:var(--ink); -webkit-tap-highlight-color:transparent}
+.mp-m span{position:relative; display:inline-flex; align-items:center; justify-content:center; min-width:62px; height:40px; padding:0 14px; border-radius:999px; font-size:16.5px; font-weight:500; font-variant-numeric:tabular-nums; transition:background-color .2s, color .2s, transform .12s}
+.mp-m:active span{background:var(--well); transform:scale(.95)}
+.mp-m.cur span{background:var(--ink); color:var(--card); font-weight:700}
+.mp-m.now span::after{content:""; position:absolute; left:50%; bottom:4px; width:4px; height:4px; margin-left:-2px; border-radius:50%; background:var(--calm)}
+.mp-m.cur.now span::after{background:var(--card)}
+.mp-today{align-self:center; display:inline-flex; align-items:center; gap:7px; height:34px; padding:0 16px; border:0; border-radius:999px; background:var(--well); font:inherit; font-size:13.5px; font-weight:600; color:var(--ink); -webkit-tap-highlight-color:transparent; transition:transform .12s}
+.mp-today:active{transform:scale(.96)}
+.mp-today i{width:6px; height:6px; border-radius:50%; background:var(--calm)}
+@media (prefers-reduced-motion: reduce){ .mpanel{animation:none} }
+</style>
+<script>
+// 저장된 화면 모드(없으면 다크)를 화면을 그리기 전에 먼저 적용해 깜빡임을 막는다
+(function () { var t = 'dark'; try { var s = localStorage.getItem('jjukgap-theme'); if (s === 'light' || s === 'dark') t = s; } catch (e) {} document.documentElement.setAttribute('data-app', t); })();
+</script>
+
+<div class="app">
+  <header class="top">
+    <div class="brand">쭈갑 물때<small id="brand-sub">서해 7물때 기준</small></div>
+    <div class="top-right">
+      <div class="seg" role="group" aria-label="물때 계산 방식">
+        <button id="reg-west" class="seg-btn" aria-pressed="true">서해</button>
+        <button id="reg-south" class="seg-btn" aria-pressed="false">남해</button>
+      </div>
+      <button class="theme-btn" id="theme-btn" aria-label="라이트 모드로 바꾸기">
+        <svg class="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4.2"></circle><path d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5.3 5.3l1.6 1.6M17.1 17.1l1.6 1.6M5.3 18.7l1.6-1.6M17.1 6.9l1.6-1.6"></path></svg>
+        <svg class="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"></path></svg>
+      </button>
+    </div>
+  </header>
+
+  <button class="st-btn" id="st-btn" aria-haspopup="dialog"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-6.5-6.1-6.5-11A6.5 6.5 0 0 1 18.5 10c0 4.9-6.5 11-6.5 11z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"></path><circle cx="12" cy="10" r="2.4" fill="currentColor"></circle></svg><span class="st-lab">출항지</span><span id="st-name">인천 연안부두</span><i class="chev" aria-hidden="true"></i></button>
+
+  <nav class="datebar" aria-label="날짜 이동">
+    <button id="prev-day" class="icon-btn" aria-label="전날">‹</button>
+    <button class="date-text" id="date-btn" aria-label="달력으로 이동">
+      <span id="date-main">10월 30일 금요일</span>
+      <span id="date-sub">음력 20일</span>
+    </button>
+    <button id="next-day" class="icon-btn" aria-label="다음날">›</button>
+    <button id="go-today" class="today-btn">오늘</button>
+  </nav>
+
+  <section class="hero" aria-live="polite">
+    <div class="hero-head">
+      <div>
+        <div class="eyebrow" id="eyebrow">오늘의 물때</div>
+        <div class="mul" id="mul">13물</div>
+      </div>
+      <div class="hero-side">
+        <span class="chip" id="chip">물 약함</span>
+        <div class="meter" id="meter" role="img" aria-label="물살 세기"><span></span><span></span><span></span><span></span><span></span></div>
+        <div class="meter-cap">물살 세기</div>
+      </div>
+    </div>
+    <div class="scene-wrap">
+      <canvas id="sea" role="img" aria-label="바다 그림"></canvas>
+    </div>
+    <div class="scrub-wrap">
+      <div class="scrub-head"><div class="stags" aria-live="polite"><span class="stag-time" id="stag-time">-</span><span class="stag" id="stag-state">-</span><span class="stag" id="stag-flow">-</span></div><button class="now-btn" id="now-btn" hidden>지금</button></div>
+      <div class="scrub" id="scrub">
+        <svg id="scrub-svg" viewBox="0 0 360 94" role="img" aria-label="하루 물 높이 시간 막대">
+          <defs>
+            <linearGradient id="sc-fill" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" style="stop-color:var(--hi); stop-opacity:.35"></stop>
+              <stop offset="1" style="stop-color:var(--hi); stop-opacity:.05"></stop>
+            </linearGradient>
+          </defs>
+          <g id="scrub-plot"></g>
+          <line class="sc-thumb-line" id="sc-thumb-line" x1="0" y1="2" x2="0" y2="78"></line>
+          <circle class="sc-thumb-dot" id="sc-thumb-dot" cx="0" cy="0" r="6"></circle>
+        </svg>
+      </div>
+      <div class="scrub-cap" id="scrub-cap">막대를 밀어 시간 이동 · 아래 띠는 조류 세기 (파랑 들물, 갈색 날물)</div>
+      <div class="tide-list" id="tide-list"></div>
+    </div>
+    <p class="advice" id="advice"><b id="adv-now"></b><span id="adv-day"></span></p>
+  </section>
+
+  <section class="block" id="wave-section">
+    <div class="block-head chart-head">
+      <h2>한 달 물때 파도</h2>
+      <div class="win-nav">
+        <button id="prev-win" class="small-btn" aria-label="이전 30일">‹</button>
+        <span id="win-title">-</span>
+        <button id="next-win" class="small-btn" aria-label="다음 30일">›</button>
+      </div>
+    </div>
+    <div class="chart-wrap">
+      <div class="chart-box">
+      <svg id="chart" viewBox="0 -12 380 198" tabindex="0" role="img" aria-label="한 달 물때 곡선">
+        <defs>
+          <linearGradient id="lvg" gradientUnits="userSpaceOnUse" x1="0" y1="148" x2="0" y2="26">
+            <stop offset="0" style="stop-color:var(--calm)"></stop><stop offset=".3" style="stop-color:var(--calm)"></stop>
+            <stop offset=".3" style="stop-color:var(--mid)"></stop><stop offset=".76" style="stop-color:var(--mid)"></stop>
+            <stop offset=".76" style="stop-color:var(--strong)"></stop><stop offset="1" style="stop-color:var(--strong)"></stop>
+          </linearGradient>
+        </defs>
+        <g id="plot"></g>
+        <g id="boat">
+          <line id="b-guide" x1="0" y1="0" x2="0" y2="148"></line>
+          <g id="b-ship">
+            <circle class="b-halo" cx="0" cy="-5" r="15"></circle>
+            <line class="b-mast" x1="-2.5" y1="-12" x2="-2.5" y2="-34"></line>
+            <path class="b-rod" d="M7 -5 L16 -17"></path>
+            <rect class="b-cab" x="-7" y="-12" width="9" height="7" rx="1"></rect>
+            <path class="b-hull" d="M-12 -5 L12 -5 L8.5 1 Q0 3 -8.5 1 Z"></path>
+          </g>
+          <g id="b-flag">
+            <path id="b-flag-cloth" class="b-cloth mid" d="M0 0 L40 0 L35 7.5 L40 15 L0 15 Z"></path>
+            <text id="b-flag-text" class="b-ftext" x="4" y="7.5">-</text>
+          </g>
+        </g>
+      </svg>
+      <div class="boat-handle" id="boat-handle" aria-hidden="true"></div>
+      </div>
+      <p class="c-hint">곡선이 높을수록 물살이 셉니다 · 배를 잡고 끌거나 곡선을 눌러 날짜 선택</p>
+    </div>
+  </section>
+
+  <section class="block" id="cal-section">
+    <div class="block-head cal-head">
+      <button id="prev-month" class="small-btn" aria-label="이전 달">‹</button>
+      <h2 class="cal-h"><button id="cal-pick" class="cal-title-btn" aria-expanded="false" aria-label="연도와 월 고르기"><span id="cal-title">2026년 10월</span><i class="chev" aria-hidden="true"></i></button></h2>
+      <button id="next-month" class="small-btn" aria-label="다음 달">›</button>
+    </div>
+    <div class="cal-week" aria-hidden="true"><span>일</span><span>월</span><span>화</span><span>수</span><span>목</span><span>금</span><span>토</span></div>
+    <div class="cal-stage" id="cal-stage"><div class="cal-track" id="cal-track"><div class="cal" id="cal-prev" aria-hidden="true" inert></div><div class="cal" id="cal"></div><div class="cal" id="cal-next" aria-hidden="true" inert></div></div></div>
+    <div class="mpanel" id="mpanel" hidden>
+      <div class="mp-year">
+        <button class="mp-arrow" id="mp-prev" aria-label="이전 해"><i class="ch l"></i></button>
+        <span id="mp-ytxt">2026년</span>
+        <button class="mp-arrow" id="mp-next" aria-label="다음 해"><i class="ch r"></i></button>
+      </div>
+      <div class="mp-stage" id="mp-stage"><div class="mp-track" id="mp-track"></div></div>
+      <button class="mp-today" id="mp-today"><i aria-hidden="true"></i>이번 달</button>
+    </div>
+  </section>
+
+  <section class="block legend">
+    <h2>색 읽는 법</h2>
+    <ul>
+      <li><span class="sw"><i style="height:28%;background:var(--calm)"></i></span>
+        <p style="margin:0"><b class="t-calm">초록 · 물 약함</b><span>조금 전후. 채비가 바닥에 곧게 닿아 쭈꾸미·갑오징어 하기 편해요.</span></p></li>
+      <li><span class="sw"><i style="height:60%;background:var(--mid)"></i></span>
+        <p style="margin:0"><b class="t-mid">노랑 · 보통</b><span>물이 적당히 흘러요. 바닥 느낌에 맞춰 봉돌 무게를 조절하세요.</span></p></li>
+      <li><span class="sw"><i style="height:94%;background:var(--strong)"></i></span>
+        <p style="margin:0"><b class="t-strong">빨강 · 물 셈</b><span>사리 전후. 줄이 많이 날리고 밑걸림이 잦아요.</span></p></li>
+    </ul>
+    <p class="note">그림 속 주황 낚싯줄이 곧게 내려갈수록 물이 약한 날이에요. 사리는 보름달·그믐 무렵, 조금은 반달 무렵에 옵니다.</p>
+  </section>
+
+  <p class="foot">물때와 물살 세기는 음력과 달의 위치로 계산한 값이에요. 실제 만조·간조 시각과 바람, 파고는 국립해양조사원과 기상청 예보로 함께 확인하세요.</p>
+</div>
+
+<div class="sheet-back" id="st-back" hidden></div>
+<div class="sheet" id="st-sheet" role="dialog" aria-modal="true" aria-label="출항지 고르기" hidden>
+  <div class="grabber" aria-hidden="true"></div>
+  <div class="sh-title">출항지 고르기</div>
+  <button class="st-gps" id="st-gps" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="7" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="2.6" fill="currentColor"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span>내 위치에서 가장 가까운 곳</span></button>
+  <p class="st-gps-msg" id="st-gps-msg" aria-live="polite" hidden></p>
+  <div class="st-list" id="st-list"></div>
+  <p class="st-note">고른 곳의 국립해양조사원 예보에 맞춘 계산이에요. 물때(몇 물)는 음력이라 어디서나 같아요.</p>
+</div>
+
+<script>
+/*CALC-START*/
+const Tide = (() => {
+  const DAY = 86400000, RAD = Math.PI / 180, SYN = 29.530588861;
+  // Meeus, Astronomical Algorithms 49장: 실제 삭(새달) 시각 (JDE)
+  function newMoonJDE(k) {
+    const T = k / 1236.85, T2 = T * T, T3 = T2 * T, T4 = T3 * T;
+    let jde = 2451550.09766 + SYN * k + 0.00015437 * T2 - 0.00000015 * T3 + 0.00000000073 * T4;
+    const E = 1 - 0.002516 * T - 0.0000074 * T2;
+    const M = (2.5534 + 29.1053567 * k - 0.0000014 * T2 - 0.00000011 * T3) * RAD;
+    const Mp = (201.5643 + 385.81693528 * k + 0.0107582 * T2 + 0.00001238 * T3 - 0.000000058 * T4) * RAD;
+    const F = (160.7108 + 390.67050284 * k - 0.0016118 * T2 - 0.00000227 * T3 + 0.000000011 * T4) * RAD;
+    const Om = (124.7746 - 1.56375588 * k + 0.0020672 * T2 + 0.00000215 * T3) * RAD;
+    const s = Math.sin;
+    jde += -0.4072 * s(Mp) + 0.17241 * E * s(M) + 0.01608 * s(2 * Mp) + 0.01039 * s(2 * F)
+      + 0.00739 * E * s(Mp - M) - 0.00514 * E * s(Mp + M) + 0.00208 * E * E * s(2 * M)
+      - 0.00111 * s(Mp - 2 * F) - 0.00057 * s(Mp + 2 * F) + 0.00056 * E * s(2 * Mp + M)
+      - 0.00042 * s(3 * Mp) + 0.00042 * E * s(M + 2 * F) + 0.00038 * E * s(M - 2 * F)
+      - 0.00024 * E * s(2 * Mp - M) - 0.00017 * s(Om) - 0.00007 * s(Mp + 2 * M)
+      + 0.00004 * s(2 * Mp - 2 * F) + 0.00004 * s(3 * M) + 0.00003 * s(Mp + M - 2 * F)
+      + 0.00003 * s(2 * Mp + 2 * F) - 0.00003 * s(Mp + M + 2 * F) + 0.00003 * s(Mp - M + 2 * F)
+      - 0.00002 * s(Mp - M - 2 * F) - 0.00002 * s(3 * Mp + M) + 0.00002 * s(4 * Mp);
+    return jde;
+  }
+  const cache = new Map();
+  function newMoon(k) {
+    if (cache.has(k)) return cache.get(k);
+    const jd = newMoonJDE(k) - 70 / 86400;               // TT → UT
+    const kstMs = (jd - 2440587.5) * DAY + 9 * 3600000;   // 한국 표준시
+    const r = { jd, dn: Math.floor(kstMs / DAY) };
+    cache.set(k, r);
+    return r;
+  }
+  const EPOCH = Date.UTC(2000, 0, 6) / DAY;
+  const memo = new Map();
+  // n: 한국 날짜의 일련번호(1970-01-01 = 0)
+  function info(n) {
+    if (memo.has(n)) return memo.get(n);
+    let k = Math.floor((n - EPOCH) / SYN) - 1;
+    while (newMoon(k + 1).dn <= n) k++;
+    while (newMoon(k).dn > n) k--;
+    const nm = newMoon(k);
+    const lunarDay = n - nm.dn + 1;                         // 삭이 든 날 = 음력 1일
+    const age = (n * DAY + 3 * 3600000) / DAY + 2440587.5 - nm.jd; // 그날 정오의 월령
+    // 사리는 삭·망 뒤 하루 남짓에 가장 세다 → 반 삭망월 주기의 코사인으로 상대 세기 추정
+    const s = 0.5 + 0.5 * Math.cos(2 * Math.PI * (age - 1.2) / (SYN / 2));
+    const r = { lunarDay, age, s };
+    memo.set(n, r);
+    return r;
+  }
+  // 서해 7물때식 / 남해 8물때식
+  function mulName(lunarDay, region) {
+    const d = ((lunarDay - 1) % 15) + 1;
+    if (region === 'south') {
+      if (d <= 7) return (d + 7) + '물';
+      if (d === 8) return '조금';
+      return (d - 8) + '물';
+    }
+    if (d <= 7) return (d + 6) + '물';
+    if (d === 8) return '조금';
+    if (d === 9) return '무시';
+    return (d - 9) + '물';
+  }
+  function level(s) { return s < 0.3 ? 'calm' : s < 0.76 ? 'mid' : 'strong'; }
+  function cycleDay(lunarDay) { return ((lunarDay - 1) % 15) + 1; }
+  return { info, mulName, level, cycleDay, DAY };
+})();
+/*CALC-END*/
+/*TIDEHARM-START*/
+// 조화분석 조석 계산: 국립해양조사원 예보(인천)에 맞춘 27개 분조로 어느 날이든 물 높이·만조·간조를 계산한다
+const TideHarm = (() => {
+  const D2R = Math.PI / 180, DAY = 86400000;
+  const SPEED = [14.4920521, 0.5490165, 0.0410686, 0.0046418, 0.0022064, 0.0000020]; // 도/시
+  const STATIONS = {"incheon":{"name":"인천 연안부두","lat":37.45,"lon":126.6,"z0":459.24,"cons":[["M2",[2,0,0,0,0,0],0,[["M2",1]],-196.813,-221.428],["S2",[2,2,-2,0,0,0],0,[["1",1]],11.677,-111.201],["N2",[2,-1,0,1,0,0],0,[["M2",1]],-40.805,-28.666],["K2",[2,2,0,0,0,0],0,[["K2",1]],0.759,-30.223],["K1",[1,1,0,0,0,0],90,[["K1",1]],36.606,-6.597],["O1",[1,-1,0,0,0,0],-90,[["O1",1]],20.793,-17.711],["P1",[1,1,-2,0,0,0],-90,[["1",1]],10.257,-3.482],["Q1",[1,-2,0,1,0,0],-90,[["O1",1]],2.552,-4.427],["M4",[4,0,0,0,0,0],0,[["M2",2]],4.203,0.649],["MS4",[4,2,-2,0,0,0],0,[["M2",1],["1",1]],1.949,2.851],["MN4",[4,-1,0,1,0,0],0,[["M2",1],["M2",1]],0.718,-0.439],["M6",[6,0,0,0,0,0],0,[["M2",3]],-3.715,6.084],["2MS6",[6,2,-2,0,0,0],0,[["M2",2],["1",1]],-2.095,2.019],["MK3",[3,1,0,0,0,0],90,[["M2",1],["K1",1]],-0.042,3.282],["MO3",[3,-1,0,0,0,0],-90,[["M2",1],["O1",1]],2.991,0.395],["2N2",[2,-2,0,2,0,0],0,[["M2",1]],-1.276,-1.29],["MU2",[2,-2,2,0,0,0],0,[["M2",1]],-4.074,-7.983],["NU2",[2,-1,2,-1,0,0],0,[["M2",1]],-5.305,-1.94],["L2",[2,1,0,-1,0,0],180,[["M2",1]],-12.393,-10.694],["T2",[2,2,-3,0,0,1],0,[["1",1]],-0.286,-4.967],["2SM2",[2,4,-4,0,0,0],0,[["1",2],["M2",-1]],-3.695,5.413],["MSF",[0,2,-2,0,0,0],0,[["MSF",1]],-1.978,-3.256],["MM",[0,1,0,-1,0,0],0,[["MM",1]],-1.976,0.72],["SSA",[0,0,2,0,0,0],0,[["1",1]],-1.067,-1.056],["SA",[0,0,1,0,0,0],0,[["1",1]],-16.873,16.786],["J1",[1,2,0,-1,0,0],90,[["K1",1]],1.79,0.63],["OO1",[1,3,0,0,0,0],90,[["OO1",1]],0.7,0.87]],"ref":238,"dmin":0,"amp":1},"yeongheung":{"name":"영흥도","lat":37.25,"lon":126.47,"z0":433.21,"cons":[["M2",[2,0,0,0,0,0],0,[["M2",1]],-188.465,-183.018],["S2",[2,2,-2,0,0,0],0,[["1",1]],2.62,-103.319],["N2",[2,-1,0,1,0,0],0,[["M2",1]],-42.866,-22.751],["K2",[2,2,0,0,0,0],0,[["K2",1]],-0.981,-28.543],["K1",[1,1,0,0,0,0],90,[["K1",1]],36.95,-8.788],["O1",[1,-1,0,0,0,0],-90,[["O1",1]],19.864,-18.635],["P1",[1,1,-2,0,0,0],-90,[["1",1]],10.631,-3.135],["Q1",[1,-2,0,1,0,0],-90,[["O1",1]],2.583,-3.979],["M4",[4,0,0,0,0,0],0,[["M2",2]],3.647,-2.227],["MS4",[4,2,-2,0,0,0],0,[["M2",1],["1",1]],3.719,1.154],["MN4",[4,-1,0,1,0,0],0,[["M2",2]],0.635,-0.828],["M6",[6,0,0,0,0,0],0,[["M2",3]],0.637,0.813],["2MS6",[6,2,-2,0,0,0],0,[["M2",2],["1",1]],1.852,0.444],["MK3",[3,1,0,0,0,0],90,[["M2",1],["K1",1]],1.472,2.673],["MO3",[3,-1,0,0,0,0],-90,[["M2",1],["O1",1]],2.604,-0.672],["2N2",[2,-2,0,2,0,0],0,[["M2",1]],-5.752,-2.033],["MU2",[2,-2,2,0,0,0],0,[["M2",1]],-1.582,-8.735],["NU2",[2,-1,2,-1,0,0],0,[["M2",1]],-9.453,-1.133],["L2",[2,1,0,-1,0,0],180,[["M2",1]],-9.491,-12.148],["T2",[2,2,-3,0,0,1],0,[["1",1]],1.013,-6.203],["2SM2",[2,4,-4,0,0,0],0,[["1",2],["M2",-1]],-2.187,3.702],["MSF",[0,2,-2,0,0,0],0,[["MSF",1]],-3.747,-1.384],["MM",[0,1,0,-1,0,0],0,[["MM",1]],1.848,-0.155],["SSA",[0,0,2,0,0,0],0,[["1",1]],0.9,-0.533],["SA",[0,0,1,0,0,0],0,[["1",1]],-13.595,12.912],["J1",[1,2,0,-1,0,0],90,[["K1",1]],2.153,1.001],["OO1",[1,3,0,0,0,0],90,[["OO1",1]],0.398,0.943],["MK4",[4,2,0,0,0,0],0,[["M2",1],["K2",1]],1.202,-0.188],["S4",[4,4,-4,0,0,0],0,[["1",2]],-0.077,0.573],["2MN6",[6,-1,0,1,0,0],0,[["M2",3]],0.999,-0.041],["MSN6",[6,1,-2,1,0,0],0,[["M2",2],["1",1]],-0.789,1.229],["M8",[8,0,0,0,0,0],0,[["M2",4]],0.008,-0.181],["2MS2",[2,-2,2,0,0,0],0,[["M2",2],["1",-1]],2.577,-1.434],["MNS2",[2,-3,2,1,0,0],0,[["M2",2],["1",-1]],-1.046,-0.611],["SN4",[4,1,-2,1,0,0],0,[["1",1],["M2",1]],0.385,0.463]],"ref":207,"dmin":-9,"amp":0.89},"bangameori":{"name":"대부도 방아머리","lat":37.29,"lon":126.57,"z0":449.6,"cons":[["M2",[2,0,0,0,0,0],0,[["M2",1]],-204.383,-202.901],["S2",[2,2,-2,0,0,0],0,[["1",1]],1.813,-110.601],["N2",[2,-1,0,1,0,0],0,[["M2",1]],-39.549,-22.971],["K2",[2,2,0,0,0,0],0,[["K2",1]],-1.887,-29.849],["K1",[1,1,0,0,0,0],90,[["K1",1]],35.824,-8.747],["O1",[1,-1,0,0,0,0],-90,[["O1",1]],18.293,-17.113],["P1",[1,1,-2,0,0,0],-90,[["1",1]],9.939,-4.067],["Q1",[1,-2,0,1,0,0],-90,[["O1",1]],2.149,-4.165],["M4",[4,0,0,0,0,0],0,[["M2",2]],3.606,2.133],["MS4",[4,2,-2,0,0,0],0,[["M2",1],["1",1]],1.36,1.946],["MN4",[4,-1,0,1,0,0],0,[["M2",1],["M2",1]],0.492,0.016],["M6",[6,0,0,0,0,0],0,[["M2",3]],-3.373,9.366],["2MS6",[6,2,-2,0,0,0],0,[["M2",2],["1",1]],-2.749,2.132],["MK3",[3,1,0,0,0,0],90,[["M2",1],["K1",1]],0.883,3.851],["MO3",[3,-1,0,0,0,0],-90,[["M2",1],["O1",1]],2.228,1.091],["2N2",[2,-2,0,2,0,0],0,[["M2",1]],-1.268,-1.078],["MU2",[2,-2,2,0,0,0],0,[["M2",1]],-4.353,-6.973],["NU2",[2,-1,2,-1,0,0],0,[["M2",1]],-5.001,-1.354],["L2",[2,1,0,-1,0,0],180,[["M2",1]],-12.673,-9.624],["T2",[2,2,-3,0,0,1],0,[["1",1]],-0.715,-4.87],["2SM2",[2,4,-4,0,0,0],0,[["1",2],["M2",-1]],-3.169,5.656],["MSF",[0,2,-2,0,0,0],0,[["MSF",1]],-1.978,-3.256],["MM",[0,1,0,-1,0,0],0,[["MM",1]],-1.976,0.72],["SSA",[0,0,2,0,0,0],0,[["1",1]],-1.067,-1.056],["SA",[0,0,1,0,0,0],0,[["1",1]],-16.873,16.786],["J1",[1,2,0,-1,0,0],90,[["K1",1]],1.809,0.515],["OO1",[1,3,0,0,0,0],90,[["OO1",1]],0.745,0.818]],"ref":236,"dmin":-7,"amp":0.97},"anheung":{"name":"태안 안흥항","lat":36.67,"lon":126.13,"z0":351.46,"cons":[["M2",[2,0,0,0,0,0],0,[["M2",1]],-193.611,-94.321],["S2",[2,2,-2,0,0,0],0,[["1",1]],-27.36,-76.212],["N2",[2,-1,0,1,0,0],0,[["M2",1]],-36.403,-6.203],["K2",[2,2,0,0,0,0],0,[["K2",1]],-9.011,-19.954],["K1",[1,1,0,0,0,0],90,[["K1",1]],32.785,-14.792],["O1",[1,-1,0,0,0,0],-90,[["O1",1]],15.719,-20.095],["P1",[1,1,-2,0,0,0],-90,[["1",1]],8.802,-5.677],["Q1",[1,-2,0,1,0,0],-90,[["O1",1]],1.508,-4.528],["M4",[4,0,0,0,0,0],0,[["M2",2]],5.029,-2.942],["MS4",[4,2,-2,0,0,0],0,[["M2",1],["1",1]],1.946,0.515],["MN4",[4,-1,0,1,0,0],0,[["M2",1],["M2",1]],1.249,-1.015],["M6",[6,0,0,0,0,0],0,[["M2",3]],-1.958,5.543],["2MS6",[6,2,-2,0,0,0],0,[["M2",2],["1",1]],-4.545,1.402],["MK3",[3,1,0,0,0,0],90,[["M2",1],["K1",1]],0.924,0.802],["MO3",[3,-1,0,0,0,0],-90,[["M2",1],["O1",1]],0.221,-0.516],["2N2",[2,-2,0,2,0,0],0,[["M2",1]],-1.263,-0.457],["MU2",[2,-2,2,0,0,0],0,[["M2",1]],-5.262,-4.044],["NU2",[2,-1,2,-1,0,0],0,[["M2",1]],-4.165,0.389],["L2",[2,1,0,-1,0,0],180,[["M2",1]],-11.292,-3.756],["T2",[2,2,-3,0,0,1],0,[["1",1]],-1.749,-3.15],["2SM2",[2,4,-4,0,0,0],0,[["1",2],["M2",-1]],-0.708,4.693],["MSF",[0,2,-2,0,0,0],0,[["MSF",1]],-1.978,-3.256],["MM",[0,1,0,-1,0,0],0,[["MM",1]],-1.976,0.72],["SSA",[0,0,2,0,0,0],0,[["1",1]],-1.067,-1.056],["SA",[0,0,1,0,0,0],0,[["1",1]],-16.873,16.786],["J1",[1,2,0,-1,0,0],90,[["K1",1]],1.827,0.17],["OO1",[1,3,0,0,0,0],90,[["OO1",1]],0.861,0.652]],"ref":182,"dmin":-46,"amp":0.73},"ocheon":{"name":"보령 오천항","lat":36.44,"lon":126.52,"z0":395.21,"cons":[["M2",[2,0,0,0,0,0],0,[["M2",1]],-224.235,-55.213],["S2",[2,2,-2,0,0,0],0,[["1",1]],-47.23,-76.013],["N2",[2,-1,0,1,0,0],0,[["M2",1]],-42.812,3.966],["K2",[2,2,0,0,0,0],0,[["K2",1]],-13.519,-18.496],["K1",[1,1,0,0,0,0],90,[["K1",1]],30.0,-16.86],["O1",[1,-1,0,0,0,0],-90,[["O1",1]],13.562,-21.615],["P1",[1,1,-2,0,0,0],-90,[["1",1]],9.721,-3.967],["Q1",[1,-2,0,1,0,0],-90,[["O1",1]],2.433,-4.382],["M4",[4,0,0,0,0,0],0,[["M2",2]],8.47,-13.202],["MS4",[4,2,-2,0,0,0],0,[["M2",1],["1",1]],10.559,-3.473],["MN4",[4,-1,0,1,0,0],0,[["M2",2]],1.242,-6.23],["M6",[6,0,0,0,0,0],0,[["M2",3]],3.077,-0.786],["2MS6",[6,2,-2,0,0,0],0,[["M2",2],["1",1]],3.483,1.307],["MK3",[3,1,0,0,0,0],90,[["M2",1],["K1",1]],2.136,-0.037],["MO3",[3,-1,0,0,0,0],-90,[["M2",1],["O1",1]],0.561,-1.081],["2N2",[2,-2,0,2,0,0],0,[["M2",1]],-5.409,-0.371],["MU2",[2,-2,2,0,0,0],0,[["M2",1]],-4.165,-4.004],["NU2",[2,-1,2,-1,0,0],0,[["M2",1]],-11.287,0.97],["L2",[2,1,0,-1,0,0],180,[["M2",1]],-13.638,-2.021],["T2",[2,2,-3,0,0,1],0,[["1",1]],-3.15,-7.02],["2SM2",[2,4,-4,0,0,0],0,[["1",2],["M2",-1]],-0.317,2.676],["MSF",[0,2,-2,0,0,0],0,[["MSF",1]],-0.672,-0.007],["MM",[0,1,0,-1,0,0],0,[["MM",1]],0.941,0.748],["SSA",[0,0,2,0,0,0],0,[["1",1]],1.957,-1.376],["SA",[0,0,1,0,0,0],0,[["1",1]],-13.608,13.575],["J1",[1,2,0,-1,0,0],90,[["K1",1]],2.549,-0.024],["OO1",[1,3,0,0,0,0],90,[["OO1",1]],0.548,0.179],["MK4",[4,2,0,0,0,0],0,[["M2",1],["K2",1]],2.712,-1.308],["S4",[4,4,-4,0,0,0],0,[["1",2]],1.73,0.765],["SN4",[4,1,-2,1,0,0],0,[["1",1],["M2",1]],1.876,-0.524],["2MN6",[6,-1,0,1,0,0],0,[["M2",3]],1.493,-0.895],["MSN6",[6,1,-2,1,0,0],0,[["M2",2],["1",1]],0.974,0.501],["2SM6",[6,4,-4,0,0,0],0,[["1",2],["M2",1]],-0.307,0.508],["MSK6",[6,4,-2,0,0,0],0,[["M2",1],["1",1],["K2",1]],0.205,0.409],["M8",[8,0,0,0,0,0],0,[["M2",4]],0.092,0.009],["3MS8",[8,2,-2,0,0,0],0,[["M2",3],["1",1]],-0.043,0.055],["3MN8",[8,-1,0,1,0,0],0,[["M2",4]],0.179,0.114],["2MSN8",[8,1,-2,1,0,0],0,[["M2",3],["1",1]],-0.182,0.079],["SK3",[3,3,-2,0,0,0],90,[["1",1],["K1",1]],0.2,0.139],["2MK5",[5,1,0,0,0,0],90,[["M2",2],["K1",1]],-0.056,-0.23],["2SK5",[5,5,-4,0,0,0],90,[["1",2],["K1",1]],0.047,-0.016],["2MS2",[2,-2,2,0,0,0],0,[["M2",2],["1",-1]],2.892,-0.402],["MNS2",[2,-3,2,1,0,0],0,[["M2",2],["1",-1]],-1.411,-1.876],["M10",[10,0,0,0,0,0],0,[["M2",5]],-0.141,0.274]],"ref":213,"dmin":-71,"amp":0.78},"hongwon":{"name":"서천 홍원항","lat":36.15,"lon":126.5,"z0":357.47,"cons":[["M2",[2,0,0,0,0,0],0,[["M2",1]],-220.359,-40.174],["S2",[2,2,-2,0,0,0],0,[["1",1]],-46.523,-65.51],["N2",[2,-1,0,1,0,0],0,[["M2",1]],-36.92,4.397],["K2",[2,2,0,0,0,0],0,[["K2",1]],-13.946,-16.658],["K1",[1,1,0,0,0,0],90,[["K1",1]],28.644,-18.181],["O1",[1,-1,0,0,0,0],-90,[["O1",1]],11.508,-21.637],["P1",[1,1,-2,0,0,0],-90,[["1",1]],7.463,-6.474],["Q1",[1,-2,0,1,0,0],-90,[["O1",1]],0.669,-4.536],["M4",[4,0,0,0,0,0],0,[["M2",2]],6.31,-8.893],["MS4",[4,2,-2,0,0,0],0,[["M2",1],["1",1]],4.867,-2.828],["MN4",[4,-1,0,1,0,0],0,[["M2",1],["M2",1]],0.371,-3.754],["M6",[6,0,0,0,0,0],0,[["M2",3]],5.957,4.161],["2MS6",[6,2,-2,0,0,0],0,[["M2",2],["1",1]],-0.399,2.571],["MK3",[3,1,0,0,0,0],90,[["M2",1],["K1",1]],1.4,1.008],["MO3",[3,-1,0,0,0,0],-90,[["M2",1],["O1",1]],0.359,0.39],["2N2",[2,-2,0,2,0,0],0,[["M2",1]],-1.35,-0.081],["MU2",[2,-2,2,0,0,0],0,[["M2",1]],-6.235,-2.404],["NU2",[2,-1,2,-1,0,0],0,[["M2",1]],-3.911,1.564],["L2",[2,1,0,-1,0,0],180,[["M2",1]],-12.362,-0.595],["T2",[2,2,-3,0,0,1],0,[["1",1]],-2.513,-2.543],["2SM2",[2,4,-4,0,0,0],0,[["1",2],["M2",-1]],0.579,4.674],["MSF",[0,2,-2,0,0,0],0,[["MSF",1]],-1.978,-3.256],["MM",[0,1,0,-1,0,0],0,[["MM",1]],-1.976,0.72],["SSA",[0,0,2,0,0,0],0,[["1",1]],-1.067,-1.056],["SA",[0,0,1,0,0,0],0,[["1",1]],-16.873,16.786],["J1",[1,2,0,-1,0,0],90,[["K1",1]],1.729,-0.085],["OO1",[1,3,0,0,0,0],90,[["OO1",1]],0.891,0.494]],"ref":195,"dmin":-79,"amp":0.76},"gunsan":{"name":"군산외항","lat":35.98,"lon":126.56,"z0":360.6,"cons":[["M2",[2,0,0,0,0,0],0,[["M2",1]],-220.528,-26.082],["S2",[2,2,-2,0,0,0],0,[["1",1]],-49.481,-62.774],["N2",[2,-1,0,1,0,0],0,[["M2",1]],-37.774,5.951],["K2",[2,2,0,0,0,0],0,[["K2",1]],-14.685,-15.857],["K1",[1,1,0,0,0,0],90,[["K1",1]],27.435,-19.809],["O1",[1,-1,0,0,0,0],-90,[["O1",1]],11.316,-21.889],["P1",[1,1,-2,0,0,0],-90,[["1",1]],7.045,-6.891],["Q1",[1,-2,0,1,0,0],-90,[["O1",1]],0.619,-4.568],["M4",[4,0,0,0,0,0],0,[["M2",2]],5.277,-9.694],["MS4",[4,2,-2,0,0,0],0,[["M2",1],["1",1]],3.657,-2.788],["MN4",[4,-1,0,1,0,0],0,[["M2",1],["M2",1]],0.13,-4.187],["M6",[6,0,0,0,0,0],0,[["M2",3]],5.434,2.679],["2MS6",[6,2,-2,0,0,0],0,[["M2",2],["1",1]],-0.775,2.493],["MK3",[3,1,0,0,0,0],90,[["M2",1],["K1",1]],1.144,0.667],["MO3",[3,-1,0,0,0,0],-90,[["M2",1],["O1",1]],0.556,0.067],["2N2",[2,-2,0,2,0,0],0,[["M2",1]],-1.391,-0.031],["MU2",[2,-2,2,0,0,0],0,[["M2",1]],-6.501,-2.229],["NU2",[2,-1,2,-1,0,0],0,[["M2",1]],-3.958,1.759],["L2",[2,1,0,-1,0,0],180,[["M2",1]],-12.269,0.178],["T2",[2,2,-3,0,0,1],0,[["1",1]],-2.624,-2.401],["2SM2",[2,4,-4,0,0,0],0,[["1",2],["M2",-1]],0.807,4.615],["MSF",[0,2,-2,0,0,0],0,[["MSF",1]],-1.978,-3.256],["MM",[0,1,0,-1,0,0],0,[["MM",1]],-1.976,0.72],["SSA",[0,0,2,0,0,0],0,[["1",1]],-1.067,-1.056],["SA",[0,0,1,0,0,0],0,[["1",1]],-16.873,16.786],["J1",[1,2,0,-1,0,0],90,[["K1",1]],1.716,-0.187],["OO1",[1,3,0,0,0,0],90,[["OO1",1]],0.916,0.438]],"ref":191,"dmin":-86,"amp":0.75},"gyeokpo":{"name":"부안 격포항","lat":35.62,"lon":126.47,"z0":336.88,"cons":[["M2",[2,0,0,0,0,0],0,[["M2",1]],-210.314,6.396],["S2",[2,2,-2,0,0,0],0,[["1",1]],-55.805,-48.559],["N2",[2,-1,0,1,0,0],0,[["M2",1]],-35.36,10.702],["K2",[2,2,0,0,0,0],0,[["K2",1]],-16.084,-11.89],["K1",[1,1,0,0,0,0],90,[["K1",1]],26.153,-20.103],["O1",[1,-1,0,0,0,0],-90,[["O1",1]],10.429,-23.898],["P1",[1,1,-2,0,0,0],-90,[["1",1]],6.663,-6.92],["Q1",[1,-2,0,1,0,0],-90,[["O1",1]],0.337,-4.866],["M4",[4,0,0,0,0,0],0,[["M2",2]],3.966,-9.7],["MS4",[4,2,-2,0,0,0],0,[["M2",1],["1",1]],3.724,-3.067],["MN4",[4,-1,0,1,0,0],0,[["M2",1],["M2",1]],0.035,-4.429],["M6",[6,0,0,0,0,0],0,[["M2",3]],5.276,-1.465],["2MS6",[6,2,-2,0,0,0],0,[["M2",2],["1",1]],-0.665,0.726],["MK3",[3,1,0,0,0,0],90,[["M2",1],["K1",1]],1.118,0.656],["MO3",[3,-1,0,0,0,0],-90,[["M2",1],["O1",1]],-0.036,-0.05],["2N2",[2,-2,0,2,0,0],0,[["M2",1]],-1.335,0.155],["MU2",[2,-2,2,0,0,0],0,[["M2",1]],-6.517,-1.271],["NU2",[2,-1,2,-1,0,0],0,[["M2",1]],-3.555,2.208],["L2",[2,1,0,-1,0,0],180,[["M2",1]],-11.473,1.883],["T2",[2,2,-3,0,0,1],0,[["1",1]],-2.799,-1.731],["2SM2",[2,4,-4,0,0,0],0,[["1",2],["M2",-1]],1.529,4.057],["MSF",[0,2,-2,0,0,0],0,[["MSF",1]],-1.978,-3.256],["MM",[0,1,0,-1,0,0],0,[["MM",1]],-1.976,0.72],["SSA",[0,0,2,0,0,0],0,[["1",1]],-1.067,-1.056],["SA",[0,0,1,0,0,0],0,[["1",1]],-16.873,16.786],["J1",[1,2,0,-1,0,0],90,[["K1",1]],1.667,-0.233],["OO1",[1,3,0,0,0,0],90,[["OO1",1]],0.906,0.4]],"ref":178,"dmin":-104,"amp":0.71}};
+  function astro(jd) {
+    const T = (jd - 2451545.0) / 36525;
+    const s = 218.3164477 + 481267.88123421 * T, h = 280.46646 + 36000.76983 * T;
+    const p = 83.3532465 + 4069.0137287 * T, N = 125.04452 - 1934.136261 * T, p1 = 282.93735 + 1.71946 * T;
+    const ut = ((jd + 0.5) % 1 + 1) % 1;
+    return { args: [360 * ut + 180 + h - s, s, h, p, -N, p1], N };
+  }
+  function groups(N) {
+    const n = N * D2R, c = Math.cos, s = Math.sin;
+    return {
+      '1': [1, 0],
+      M2: [1.0004 - 0.0373 * c(n) + 0.0002 * c(2 * n), -2.14 * s(n)],
+      K1: [1.0060 + 0.1150 * c(n) - 0.0088 * c(2 * n) + 0.0006 * c(3 * n), -8.86 * s(n) + 0.68 * s(2 * n) - 0.07 * s(3 * n)],
+      O1: [1.0089 + 0.1871 * c(n) - 0.0147 * c(2 * n) + 0.0014 * c(3 * n), 10.80 * s(n) - 1.34 * s(2 * n) + 0.19 * s(3 * n)],
+      K2: [1.0241 + 0.2863 * c(n) + 0.0083 * c(2 * n) - 0.0015 * c(3 * n), -17.74 * s(n) + 0.68 * s(2 * n) - 0.04 * s(3 * n)],
+      MM: [1.0 - 0.1300 * c(n) + 0.0013 * c(2 * n), 0],
+    };
+  }
+  function gf(G, key) {
+    if (key === 'OO1') return [G.O1[0] ** 2, -G.O1[1]];
+    if (key === 'MSF') return [G.M2[0], -G.M2[1]];
+    return G[key];
+  }
+  // ms(UTC 밀리초) 시각의 물 높이(cm, 약최저저조면 기준)와 변화율(cm/시)
+  function at(st, ms) {
+    const jd = ms / DAY + 2440587.5, { args, N } = astro(jd), G = groups(N);
+    let h = st.z0, dh = 0;
+    for (const [, d, c0, recipe, a, b] of st.cons) {
+      let V = c0, w = 0;
+      for (let i = 0; i < 6; i++) { V += d[i] * args[i]; w += d[i] * SPEED[i]; }
+      let f = 1, u = 0;
+      for (const [k, m] of recipe) { const [fk, uk] = gf(G, k); f *= fk ** Math.abs(m); u += m * uk; }
+      const ph = (V + u) * D2R, cs = Math.cos(ph), sn = Math.sin(ph);
+      h += f * (a * cs + b * sn);
+      dh += f * w * D2R * (-a * sn + b * cs);
+    }
+    return { h, dh };
+  }
+  // KST 날짜 일련번호 n(1970-01-01=0) 하루의 만조·간조 [{ms, type:'H'|'L', h}]
+  const cache = new Map();
+  function extremes(stKey, n) {
+    const key = stKey + n;
+    if (cache.has(key)) return cache.get(key);
+    const st = STATIONS[stKey];
+    const start = n * DAY - 9 * 3600000, end = start + DAY, step = 6 * 60000;
+    const out = [];
+    let t = start - step, prev = at(st, t).dh;
+    for (t = start; t <= end + step; t += step) {
+      const cur = at(st, t).dh;
+      if (prev === 0 || prev * cur < 0) {
+        // 변화율이 0이 되는 순간을 이분법으로 1분 이내까지 좁힌다
+        let lo = t - step, hi = t, flo = prev;
+        for (let k = 0; k < 9; k++) {
+          const mid = (lo + hi) / 2, fm = at(st, mid).dh;
+          if (flo * fm <= 0) hi = mid; else { lo = mid; flo = fm; }
+        }
+        const tm = Math.round((lo + hi) / 2 / 60000) * 60000;
+        if (tm >= start && tm < end) out.push({ ms: tm, type: prev > 0 ? 'H' : 'L', h: at(st, tm).h });
+      }
+      prev = cur;
+    }
+    cache.set(key, out);
+    return out;
+  }
+  // 하루(0~24시) 물 높이 곡선: stepMin 간격 [{min, h}]
+  function curve(stKey, n, stepMin = 10) {
+    const st = STATIONS[stKey], start = n * DAY - 9 * 3600000, pts = [];
+    for (let m = 0; m <= 1440; m += stepMin) pts.push({ min: m, h: at(st, start + m * 60000).h });
+    return pts;
+  }
+  const heightAt = (stKey, ms) => at(STATIONS[stKey], ms).h;
+  const rateAt = (stKey, ms) => at(STATIONS[stKey], ms).dh; // 물 높이 변화 속도(cm/시)
+  return { extremes, curve, heightAt, rateAt, STATIONS };
+})();
+/*TIDEHARM-END*/
+
+
+(() => {
+  const $ = id => document.getElementById(id);
+  const DAY = Tide.DAY;
+  const WD = ['일', '월', '화', '수', '목', '금', '토'];
+  const LV = {
+    calm:   { chip: '물 약함', line: '거의 곧게 내려가 바닥에 닿아요',
+              advice: '물이 약하게 흘러요. 채비가 바닥에 곧게 닿아 쭈꾸미·갑오징어 하기 편한 날이에요.' },
+    mid:    { chip: '보통', line: '조금 비스듬히 흘러가요',
+              advice: '물이 적당히 흘러요. 바닥 느낌이 약하면 봉돌을 한 단계 무겁게 바꿔보세요.' },
+    strong: { chip: '물 셈', line: '옆으로 크게 날려요',
+              advice: '사리 무렵이라 물살이 셉니다. 줄이 많이 날려 밑걸림과 옆 사람 줄 엉킴에 주의하세요.' }
+  };
+
+  const ymd = n => { const d = new Date(n * DAY); return { y: d.getUTCFullYear(), m: d.getUTCMonth() + 1, d: d.getUTCDate(), w: d.getUTCDay() }; };
+  const dnOf = (y, m, d) => Math.round(Date.UTC(y, m - 1, d) / DAY);
+  const today = Math.floor((Date.now() + 9 * 3600000) / DAY);
+
+  let region = 'west';
+  try { const r = localStorage.getItem('jjukgap-region'); if (r === 'west' || r === 'south') region = r; } catch (e) {}
+  const WIN = 31;
+  let sel = today, winStart = today - 3;
+  let view = (() => { const v = ymd(today); return { y: v.y, m: v.m }; })();
+
+  function dayData(n) {
+    const i = Tide.info(n);
+    return { ...i, name: Tide.mulName(i.lunarDay, region), lv: Tide.level(i.s) };
+  }
+  function moonName(age) {
+    if (age < 1.8 || age > 28.2) return '삭(새달)';
+    if (age < 6.4) return '초승달';
+    if (age < 8.9) return '상현달';
+    if (age < 13.6) return '차오르는 달';
+    if (age < 16.2) return '보름달';
+    if (age < 21.4) return '기우는 달';
+    if (age < 23.9) return '하현달';
+    return '그믐달';
+  }
+  const fmt = n => { const v = ymd(n); return `${v.m}월 ${v.d}일 (${WD[v.w]})`; };
+  const relText = (from, to) => {
+    const diff = to - from;
+    if (from === today) return diff === 1 ? '내일' : `${diff}일 뒤`;
+    return `선택한 날부터 ${diff}일 뒤`;
+  };
+
+  function select(n) {
+    sel = n;
+    if (n < winStart || n >= winStart + WIN) winStart = n - 3;
+    const v = ymd(n); view = { y: v.y, m: v.m };
+    render();
+  }
+
+  function render() {
+    const dd = dayData(sel), v = ymd(sel);
+    // 날짜
+    $('date-main').textContent = `${v.m}월 ${v.d}일 ${WD[v.w]}요일`;
+    $('date-sub').textContent = `음력 ${dd.lunarDay}일 · ${moonName(dd.age)}`;
+    $('go-today').disabled = sel === today;
+    // 오늘의 물때
+    $('eyebrow').textContent = sel === today ? '오늘의 물때' : sel === today + 1 ? '내일의 물때' : `${v.m}월 ${v.d}일 물때`;
+    const mul = $('mul'); mul.textContent = dd.name; mul.className = 'mul t-' + dd.lv;
+    const chip = $('chip'); chip.textContent = LV[dd.lv].chip; chip.className = 'chip t-' + dd.lv;
+    const bars = Math.max(1, Math.ceil(dd.s * 5));
+    const meter = $('meter'); meter.className = 'meter t-' + dd.lv;
+    meter.setAttribute('aria-label', `물살 세기 5단계 중 ${bars}`);
+    [...meter.children].forEach((b, i) => b.classList.toggle('on', i < bars));
+    $('sea').setAttribute('aria-label', `${dd.name}, ${LV[dd.lv].chip}. 낚싯줄이 ${LV[dd.lv].line}.`);
+    Scene.set(dd.s, dd.age);
+    renderTide();
+    renderChart();
+    renderCal();
+  }
+
+  // ── 물 높이: 바다 그림이 고른 시각의 실제 물 높이 · 물 흐름 · 하늘(낮밤)을 보여준다 (인천) ──
+  const R = Math.PI / 180;
+  // 출항지: 고른 곳은 이 폰에 기억. 조류 100%는 지점마다 2년 치 계산값의 상위 0.5%(사리 때 가장 센 시간)
+  const ST_KEYS = Object.keys(TideHarm.STATIONS).sort((a, b) => TideHarm.STATIONS[b].lat - TideHarm.STATIONS[a].lat);
+  let tideSt = 'incheon';
+  try { const k = localStorage.getItem('jjukgap-station'); if (k && TideHarm.STATIONS[k]) tideSt = k; } catch (e) {}
+  const flowRef = () => TideHarm.STATIONS[tideSt].ref;
+  const FB = 64, FH = 12; // 시간 막대 아래 조류 띠의 기준선과 최대 높이
+  const SX0 = 12, SX1 = 348, SYT = 6, SYB = 46, HMIN = -50, HMAX = 1000;
+  const sx = min => SX0 + (SX1 - SX0) * min / 1440;
+  const sy = h => SYB - (SYB - SYT) * (h - HMIN) / (HMAX - HMIN);
+  const kstMin = ms => { const d = new Date(ms + 9 * 3600000); return d.getUTCHours() * 60 + d.getUTCMinutes() + d.getUTCSeconds() / 60; };
+  const hhmm = min => { const m = Math.round(min) % 1440; return `${String(Math.floor(m / 60)).padStart(2, '0')}:${String(m % 60).padStart(2, '0')}`; };
+  const ampm = min => { const m = Math.round(min) % 1440, h = Math.floor(m / 60); return `${h < 12 ? '오전' : '오후'} ${h % 12 === 0 ? 12 : h % 12}:${String(m % 60).padStart(2, '0')}`; };
+  const meters = cm => (cm / 100).toFixed(1) + 'm';
+  // 인천 하늘의 해 높이(도)와 시간각: 낮·밤·노을을 그리는 데 쓴다
+  function sunAt(n, min) {
+    const v = ymd(n), N = n - Math.round(Date.UTC(v.y, 0, 1) / DAY) + 1;
+    const S = TideHarm.STATIONS[tideSt], lat = S.lat * R, decl = -23.44 * Math.cos(2 * Math.PI / 365 * (N + 10)) * R;
+    const B = 2 * Math.PI / 365 * (N - 81), eot = 9.87 * Math.sin(2 * B) - 7.53 * Math.cos(B) - 1.5 * Math.sin(B);
+    const ha = ((min + 4 * (S.lon - 135) + eot) / 60 - 12) * 15;
+    const alt = Math.asin(Math.sin(lat) * Math.sin(decl) + Math.cos(lat) * Math.cos(decl) * Math.cos(ha * R)) / R;
+    return { alt, ha };
+  }
+  let tMin = kstMin(Date.now()), followNow = true, dayEx = [], dayMaxRate = 1;
+  const dayStartOf = n => n * DAY - 9 * 3600000;
+  function renderTide() {
+    const ex = TideHarm.extremes(tideSt, sel), pts = TideHarm.curve(tideSt, sel, 10), ds = dayStartOf(sel);
+    dayEx = ex.map(e => ({ ...e, min: (e.ms - ds) / 60000 }));
+    dayMaxRate = Math.max(...pts.slice(1).map((p, i) => Math.abs(p.h - pts[i].h) / 10)) || 1;
+    let g = '', ns = null;
+    for (let m = 0; m <= 1440; m += 10) {   // 밤 시간은 막대에 옅게 칠한다
+      const dark = sunAt(sel, m).alt < -0.8;
+      if (dark && ns === null) ns = m;
+      if (ns !== null && (!dark || m === 1440)) { const e = dark ? 1440 : m; g += `<rect class="sc-night" x="${sx(ns).toFixed(1)}" y="0" width="${(sx(e) - sx(ns)).toFixed(1)}" height="${FB + FH + 2}"></rect>`; ns = null; }
+    }
+    const d = pts.map((p, i) => `${i ? 'L' : 'M'}${sx(p.min).toFixed(1)} ${sy(p.h).toFixed(1)}`).join(' ');
+    g += `<path class="sc-area" d="${d} L${SX1} ${SYB} L${SX0} ${SYB} Z"></path><path class="sc-curve" d="${d}"></path>`;
+    // 조류 띠: 10분마다 조류 세기 (위 파랑 = 들물, 아래 갈색 = 날물, 길수록 셈)
+    g += `<line class="sc-base" x1="${SX0}" y1="${FB}" x2="${SX1}" y2="${FB}"></line>`;
+    const bw = (SX1 - SX0) / 144;
+    for (let m = 0; m < 1440; m += 10) {
+      const r = TideHarm.rateAt(tideSt, ds + (m + 5) * 60000), hg = Math.min(1, Math.abs(r) / flowRef()) * FH;
+      if (hg < 0.4) continue;
+      g += `<rect class="sc-flow ${r > 0 ? 'up' : 'down'}" x="${(sx(m) + 0.3).toFixed(1)}" y="${(r > 0 ? FB - hg : FB).toFixed(1)}" width="${(bw - 0.6).toFixed(2)}" height="${hg.toFixed(1)}"></rect>`;
+    }
+    dayEx.forEach(e => { g += `<circle class="sc-dot ${e.type}" cx="${sx(e.min).toFixed(1)}" cy="${sy(e.h).toFixed(1)}" r="3.5"></circle>`; });
+    [0, 6, 12, 18, 24].forEach(h => { g += `<text class="sc-lab" x="${Math.min(SX1 - 8, Math.max(SX0 + 8, sx(h * 60))).toFixed(1)}" y="88">${h}시</text>`; });
+    if (sel === today) { const x = sx(kstMin(Date.now())); g += `<path class="sc-now" d="M${(x - 4).toFixed(1)} 0 L${(x + 4).toFixed(1)} 0 L${x.toFixed(1)} 5 Z"></path>`; }
+    $('scrub-plot').innerHTML = g;
+    $('scrub-cap').textContent = `막대를 밀어 시간 이동 · 아래 띠는 조류 세기 (파랑 들물, 갈색 날물) · ${TideHarm.STATIONS[tideSt].name} 기준`;
+    const list = $('tide-list'), nowMs = Date.now();
+    list.style.setProperty('--n', String(Math.max(3, dayEx.length)));
+    list.innerHTML = dayEx.map(e => `<button class="ti ${e.type}${sel === today && e.ms <= nowMs ? ' past' : ''}" data-min="${e.min.toFixed(2)}" aria-label="${e.type === 'H' ? '만조' : '간조'} ${hhmm(e.min)} ${meters(e.h)}로 이동">`
+      + `<span class="k">${e.type === 'H' ? '▲ 만조' : '▼ 간조'}</span><span class="t">${hhmm(e.min)}</span><span class="v">${meters(e.h)}</span></button>`).join('');
+    $('scrub-svg').setAttribute('aria-label', `하루 물 높이 시간 막대. ${dayEx.map(e => `${e.type === 'H' ? '만조' : '간조'} ${hhmm(e.min)}`).join(', ')}`);
+    updateTime();
+  }
+  function updateTime() {
+    const ds = dayStartOf(sel), ms = ds + tMin * 60000;
+    const h = TideHarm.heightAt(tideSt, ms), rate = TideHarm.rateAt(tideSt, ms);
+    const flowN = Math.max(-1, Math.min(1, rate / flowRef())), sun = sunAt(sel, tMin);
+    const dd = dayData(sel), pct = Math.round(Math.abs(flowN) * 100);
+    Scene.setTime(h, flowN, sun.alt, sun.ha);
+    const x = sx(tMin).toFixed(1);
+    const tl = $('sc-thumb-line'); tl.setAttribute('x1', x); tl.setAttribute('x2', x);
+    const td = $('sc-thumb-dot'); td.setAttribute('cx', x); td.setAttribute('cy', sy(h).toFixed(1));
+    // 만조·간조 25분 안쪽이면 물이 거의 멈추는 정조
+    const near = dayEx.find(e => Math.abs(e.min - tMin) <= 25);
+    const isNow = sel === today && Math.abs(tMin - kstMin(Date.now())) < 2;
+    let state, cls;
+    if (near) { state = `${near.type === 'H' ? '만조' : '간조'} · 정조`; cls = near.type === 'H' ? 'up' : 'down'; }
+    else if (rate > 0) { state = '들물 ↑'; cls = 'up'; } else { state = '날물 ↓'; cls = 'down'; }
+    $('stag-time').textContent = isNow ? `지금 ${ampm(tMin)}` : ampm(tMin);
+    $('stag-state').innerHTML = `<span class="${cls}">${state}</span> · ${meters(h)}`;
+    $('stag-flow').innerHTML = pct < 8 ? '조류 거의 없음' : `조류 <span class="${rate > 0 ? 'up' : 'down'}">${pct}% ${rate > 0 ? '→' : '←'}</span>`;
+    let msg;
+    if (near) msg = near.type === 'H' ? '물이 가장 높이 차오른 만조예요. 물 흐름이 잠시 멈춰요.'
+      : (h < 200 ? '물이 가장 많이 빠진 간조예요. 물가 쪽 갯벌이 드러나고, 물 흐름이 잠시 멈춰요.' : '물이 가장 낮은 간조예요. 물 흐름이 잠시 멈춰요.');
+    else msg = `${rate > 0 ? '물이 들어오는 중(들물)' : '물이 빠지는 중(날물)'}이고, ${pct >= 65 ? `조류가 ${pct}%로 센 시간이에요` : pct >= 35 ? `조류가 ${pct}%로 적당해요` : `조류가 ${pct}%로 약해요`}.`;
+    $('adv-now').textContent = msg;
+    $('adv-day').textContent = `하루 전체로는: ${LV[dd.lv].advice}`;
+    [...$('tide-list').children].forEach(b => b.classList.toggle('active', !!near && Math.abs(+b.dataset.min - near.min) < 0.5));
+    $('now-btn').hidden = !(sel === today && !isNow);
+    $('sea').setAttribute('aria-label', `${ampm(tMin)} 바다 그림. ${state}, 물 높이 ${meters(h)}, 조류 세기 ${pct}%.`);
+  }
+  // 시간 막대 조작: 톡 누르면 그 시각으로, 옆으로 밀면 따라가고, 만조·간조 근처에서 놓으면 그 시각에 착 붙는다
+  {
+    const scrub = $('scrub');
+    let tween = 0, g = null;
+    const clampMin = m => Math.max(0, Math.min(1439, m));
+    const minAt = cx => { const r = scrub.getBoundingClientRect(); return clampMin(((cx - r.left) / r.width * 360 - SX0) / (SX1 - SX0) * 1440); };
+    const snap = m => { const e = dayEx.find(e => Math.abs(e.min - m) <= 15); return e ? e.min : m; };
+    function setTMin(m, animate) {
+      m = clampMin(m); cancelAnimationFrame(tween);
+      if (!animate || matchMedia('(prefers-reduced-motion: reduce)').matches) { tMin = m; updateTime(); return; }
+      const from = tMin, t0 = performance.now(), dur = 360;
+      const step = now => { const k = Math.min(1, (now - t0) / dur); tMin = from + (m - from) * (1 - Math.pow(1 - k, 3)); updateTime(); if (k < 1) tween = requestAnimationFrame(step); };
+      tween = requestAnimationFrame(step);
+    }
+    scrub.addEventListener('pointerdown', e => { g = { id: e.pointerId, x0: e.clientX, y0: e.clientY, mode: 'pending' }; });
+    scrub.addEventListener('pointermove', e => {
+      if (!g || e.pointerId !== g.id) return;
+      const dx = e.clientX - g.x0, dy = e.clientY - g.y0;
+      if (g.mode === 'pending') {
+        if (Math.abs(dx) > 6 && Math.abs(dx) > Math.abs(dy)) { g.mode = 'drag'; followNow = false; cancelAnimationFrame(tween); try { scrub.setPointerCapture(e.pointerId); } catch (_) {} }
+        else if (Math.abs(dy) > 8) { g = null; return; }
+      }
+      if (g.mode === 'drag') { tMin = minAt(e.clientX); updateTime(); }
+    });
+    scrub.addEventListener('pointerup', e => {
+      if (!g || e.pointerId !== g.id) return;
+      const mode = g.mode; g = null; followNow = false;
+      if (mode === 'drag') { const sm = snap(tMin); if (sm !== tMin) setTMin(sm, true); }
+      else setTMin(snap(minAt(e.clientX)), true);
+    });
+    scrub.addEventListener('pointercancel', () => { g = null; });
+    $('tide-list').addEventListener('click', e => { const b = e.target.closest('[data-min]'); if (b) { followNow = false; setTMin(+b.dataset.min, true); } });
+    $('now-btn').onclick = () => { followNow = true; setTMin(kstMin(Date.now()), true); };
+    // 1분마다 '지금'을 따라가는 중이면 시각을 갱신
+    setInterval(() => { if (sel === today) { if (followNow) tMin = kstMin(Date.now()); renderTide(); } }, 60000);
+  }
+
+  // 한 달 물때 파도: 곡선 높이 = 물살 세기, 배 = 고른 날
+  const X0 = 14, X1 = 338, YT = 26, YB = 148;
+  const yOf = s => YB - s * (YB - YT);
+  const f1 = x => (+x).toFixed(1);
+  const stepX = (X1 - X0) / (WIN - 1);
+  let pts = [], chartKey = '', segs = [];
+  // 배: 곡선 위의 x 위치를 따라 움직이고, y와 기울기는 그 x에서의 곡선 값을 그대로 쓴다
+  let boatX = null, boatTarget = 0, dragX = null, boatRaf = 0, lastT = 0;
+  function curveAt(x) {
+    const k = Math.max(0, Math.min(segs.length - 1, Math.floor((x - X0) / stepX)));
+    const [x0, y0, x1, y1, x2, y2, x3, y3] = segs[k];
+    const bx = t => { const u = 1 - t; return u * u * u * x0 + 3 * u * u * t * x1 + 3 * u * t * t * x2 + t * t * t * x3; };
+    const dbx = t => { const u = 1 - t; return 3 * u * u * (x1 - x0) + 6 * u * t * (x2 - x1) + 3 * t * t * (x3 - x2); };
+    let t = Math.max(0, Math.min(1, (x - x0) / (x3 - x0)));
+    for (let n = 0; n < 4; n++) { const dx = dbx(t); if (Math.abs(dx) < 1e-6) break; t = Math.max(0, Math.min(1, t - (bx(t) - x) / dx)); }
+    const u = 1 - t;
+    const y = u * u * u * y0 + 3 * u * u * t * y1 + 3 * u * t * t * y2 + t * t * t * y3;
+    const dy = 3 * u * u * (y1 - y0) + 6 * u * t * (y2 - y1) + 3 * t * t * (y3 - y2);
+    return { y, ang: Math.atan2(dy, dbx(t)) * 180 / Math.PI };
+  }
+  // 돛대 깃발: 배가 지나가는 날짜를 실시간으로 표시. 날짜가 바뀌면 톡 튀고, 움직이는 동안 펄럭인다
+  const MAST = [-2.5, -34], VB_TOP = -12;
+  let boatPos = null, flagN = null, popT = -1e9, flutter = 0, flagRaf = 0;
+  function drawFlag(now) {
+    if (!boatPos) return;
+    const { x, y, tilt } = boatPos;
+    const th = tilt * Math.PI / 180, c = Math.cos(th), s = Math.sin(th);
+    const mx = x + MAST[0] * c - MAST[1] * s, my = y + MAST[0] * s + MAST[1] * c;
+    const n = winStart + Math.max(0, Math.min(WIN - 1, Math.round((x - X0) / stepX)));
+    const txt = $('b-flag-text'), cloth = $('b-flag-cloth');
+    if (n !== flagN) {
+      const v = ymd(n);
+      txt.textContent = `${v.m}/${v.d} ${WD[v.w]}`;
+      cloth.setAttribute('class', 'b-cloth ' + Tide.level(Tide.info(n).s));
+      if (flagN !== null) popT = now;
+      flagN = n;
+    }
+    const w = Math.ceil(txt.getComputedTextLength()) + 13, h = 15;
+    const left = mx + w > 376;
+    cloth.setAttribute('d', left
+      ? `M0 0 L${-w} 0 L${-w + 5} ${h / 2} L${-w} ${h} L0 ${h} Z`
+      : `M0 0 L${w} 0 L${w - 5} ${h / 2} L${w} ${h} L0 ${h} Z`);
+    txt.setAttribute('x', left ? -w + 9 : 4); txt.setAttribute('y', h / 2);
+    const k = Math.min(1, (now - popT) / 260), sc = 1 + 0.28 * (1 - k) * (1 - k);
+    const sk = Math.sin(now / 55) * flutter;
+    $('b-flag').setAttribute('transform', `translate(${f1(mx)} ${f1(my)}) scale(${sc.toFixed(3)}) skewY(${sk.toFixed(1)})`);
+    if (k < 1 && !flagRaf) flagRaf = requestAnimationFrame(t => { flagRaf = 0; drawFlag(t); });
+  }
+  function placeBoat(x, now) {
+    const { y, ang } = curveAt(x);
+    const tilt = Math.max(-18, Math.min(18, ang * 0.35));
+    $('b-ship').setAttribute('transform', `translate(${f1(x)} ${f1(y)}) rotate(${tilt.toFixed(1)})`);
+    const gl = $('b-guide');
+    gl.setAttribute('x1', f1(x)); gl.setAttribute('x2', f1(x)); gl.setAttribute('y1', f1(y + 3)); gl.setAttribute('y2', YB);
+    boatPos = { x, y, tilt };
+    drawFlag(now ?? performance.now());
+    // 배와 깃발을 덮는 넓은 손잡이 영역도 배를 따라 움직인다
+    const sc = $('chart').getBoundingClientRect().width / 380;
+    $('boat-handle').style.transform = `translate(${(x * sc).toFixed(1)}px, ${((y - 14 - VB_TOP) * sc).toFixed(1)}px)`;
+  }
+  function boatTick(now) {
+    const dt = Math.min(0.05, Math.max(0.001, (now - lastT) / 1000)); lastT = now;
+    const diff = boatTarget - boatX;
+    if (Math.abs(diff) < 0.05) { boatX = boatTarget; flutter = 0; placeBoat(boatX, now); boatRaf = 0; return; }
+    boatX += diff * Math.min(1, dt * 14);
+    flutter = Math.min(7, Math.abs(diff) * 0.5);
+    placeBoat(boatX, now);
+    boatRaf = requestAnimationFrame(boatTick);
+  }
+  function moveBoat() {
+    if (boatX === null || matchMedia('(prefers-reduced-motion: reduce)').matches) { boatX = boatTarget; placeBoat(boatX); return; }
+    if (!boatRaf) { lastT = performance.now(); boatRaf = requestAnimationFrame(boatTick); }
+  }
+  function renderChart() {
+    const first = winStart;
+    const A = ymd(first), B = ymd(first + WIN - 1);
+    // 기간이나 지역이 바뀔 때만 곡선을 다시 그리고, 날짜만 바뀌면 배만 옮긴다 (터치 중 깜빡임 방지)
+    const key = first + '|' + region;
+    if (key !== chartKey) {
+    chartKey = key;
+    pts = []; segs = [];
+    for (let i = 0; i < WIN; i++) { const d = dayData(first + i); pts.push({ x: X0 + i * stepX, y: yOf(d.s), d }); }
+    let g = '';
+    g += `<rect class="band-strong" x="${X0}" y="${YT}" width="${X1 - X0}" height="${f1(yOf(.76) - YT)}"></rect>`;
+    g += `<rect class="band-mid" x="${X0}" y="${f1(yOf(.76))}" width="${X1 - X0}" height="${f1(yOf(.3) - yOf(.76))}"></rect>`;
+    g += `<rect class="band-calm" x="${X0}" y="${f1(yOf(.3))}" width="${X1 - X0}" height="${f1(YB - yOf(.3))}"></rect>`;
+    g += `<text class="lbl strong" x="376" y="${f1((YT + yOf(.76)) / 2)}">물 셈</text>`;
+    g += `<text class="lbl mid" x="376" y="${f1((yOf(.76) + yOf(.3)) / 2)}">보통</text>`;
+    g += `<text class="lbl calm" x="376" y="${f1((yOf(.3) + YB) / 2)}">물 약함</text>`;
+    // 한 주(일~토)씩 번갈아 옅은 띠: 이번 주가 칠해지고, 주가 하나씩 넘어가는 흐름이 보이게
+    const wkOf = n => Math.floor((n - 3) / 7); // 1970-01-04(일) 기준 주 번호
+    const thisWk = wkOf(today) % 2;
+    for (let i = 0; i < WIN; i++) {
+      const n = first + i, w = ymd(n).w;
+      if (i > 0 && w !== 0) continue;
+      if (Math.abs(wkOf(n) % 2) !== Math.abs(thisWk)) continue;
+      const end = Math.min(WIN - 1, i + 6 - w);
+      // 띠의 오른쪽 끝 = 그 주 토요일 날짜 점, 왼쪽 끝 = 지난 주 토요일 점 (날짜 점과 경계가 정확히 일치)
+      const xa = Math.max(X0, X0 + (i - (i === 0 ? w : 0) - 1) * stepX), xb = Math.min(X1, X0 + end * stepX);
+      g += `<rect class="wkband" x="${f1(xa)}" y="${YT}" width="${f1(xb - xa)}" height="${YB + 20 - YT}"></rect>`;
+    }
+    g += `<line class="gridl" x1="${X0}" y1="${YB}" x2="${X1}" y2="${YB}"></line>`;
+    const ti = today - first;
+    if (ti >= 0 && ti < WIN) g += `<line class="todayline" x1="${f1(pts[ti].x)}" y1="${YT - 2}" x2="${f1(pts[ti].x)}" y2="${YB}"></line>`;
+    let d = `M${f1(pts[0].x)} ${f1(pts[0].y)}`;
+    for (let i = 0; i < WIN - 1; i++) {
+      const p0 = pts[i - 1] || pts[i], p1 = pts[i], p2 = pts[i + 1], p3 = pts[i + 2] || p2;
+      const c1x = p1.x + (p2.x - p0.x) / 6, c1y = p1.y + (p2.y - p0.y) / 6, c2x = p2.x - (p3.x - p1.x) / 6, c2y = p2.y - (p3.y - p1.y) / 6;
+      segs.push([p1.x, p1.y, c1x, c1y, c2x, c2y, p2.x, p2.y]);
+      d += ` C${f1(c1x)} ${f1(c1y)} ${f1(c2x)} ${f1(c2y)} ${f1(p2.x)} ${f1(p2.y)}`;
+    }
+    g += `<path class="area" d="${d} L${X1} ${YB} L${X0} ${YB} Z"></path><path class="curve" d="${d}"></path>`;
+    pts.forEach(p => {
+      const c = Tide.cycleDay(p.d.lunarDay);
+      if (c === 1) g += `<circle class="pt-sa" cx="${f1(p.x)}" cy="${f1(p.y)}" r="3.5"></circle><text class="mk sa" x="${f1(p.x)}" y="12">사리</text>`;
+      if (c === 8) g += `<circle class="pt-jo" cx="${f1(p.x)}" cy="${f1(p.y)}" r="3.5"></circle><text class="mk jo" x="${f1(p.x)}" y="178">조금</text>`;
+    });
+    for (let i = 0; i < WIN; i++) {
+      const v = ymd(first + i), x = f1(pts[i].x);
+      if (i === ti) g += `<g class="tp"><rect x="${f1(pts[i].x - 12)}" y="156" width="24" height="14" rx="7"></rect><text x="${x}" y="163">오늘</text></g>`;
+      else if ((v.d === 1 || v.d % 5 === 0) && !(ti >= 0 && ti < WIN && Math.abs(i - ti) <= 2)) g += `<text class="dn${v.d === 1 ? ' mo' : ''}" x="${x}" y="163">${v.d === 1 ? v.m + '월' : v.d}</text>`;
+      // 달이 바뀌는 날이 오늘과 붙어 있으면 '오늘' 옆으로 비켜서 표시
+      if (v.d === 1 && ti >= 0 && ti < WIN && Math.abs(i - ti) <= 2) {
+        const right = i >= ti;
+        g += `<text class="dn mo" x="${f1(pts[ti].x + (right ? 15 : -15))}" y="163" style="text-anchor:${right ? 'start' : 'end'}">${v.m}월</text>`;
+      }
+    }
+    $('plot').innerHTML = g;
+    $('win-title').textContent = `${A.m}/${A.d} ~ ${B.m}/${B.d}`;
+    }
+    const sd = dayData(sel), sv = ymd(sel);
+    $('chart').setAttribute('aria-label', `${A.m}월 ${A.d}일부터 30일 물때 곡선. 고른 날 ${sv.m}월 ${sv.d}일 ${sd.name}, ${LV[sd.lv].chip}`);
+    boatTarget = dragX !== null ? dragX : pts[sel - first].x;
+    moveBoat();
+  }
+
+  // 달력: 지난달 · 이번 달 · 다음 달 판을 나란히 두고 가운데를 보여준다 (좌우로 밀어 달 이동)
+  const calStage = $('cal-stage'), calTrack = $('cal-track');
+  let calAnim = null;
+  const monthStep = (v, d) => d > 0 ? (v.m === 12 ? { y: v.y + 1, m: 1 } : { y: v.y, m: v.m + 1 }) : (v.m === 1 ? { y: v.y - 1, m: 12 } : { y: v.y, m: v.m - 1 });
+  function calPlace(dx, ms) {
+    calTrack.style.transition = ms ? `transform ${ms}ms cubic-bezier(.25,.8,.25,1)` : 'none';
+    calTrack.style.transform = `translateX(${-calStage.clientWidth + dx}px)`;
+  }
+  function calFit(el, ms) {
+    calStage.style.transition = ms ? `height ${ms}ms cubic-bezier(.25,.8,.25,1)` : 'none';
+    calStage.style.height = el.offsetHeight + 'px';
+  }
+  function calFinish() { if (!calAnim) return; clearTimeout(calAnim); calAnim = null; renderCal(); }
+  function calGo(dir) {
+    calFinish();
+    view = monthStep(view, dir);
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) { renderCal(); return; }
+    $('cal-title').textContent = `${view.y}년 ${view.m}월`;
+    calPlace(-dir * calStage.clientWidth, 190);
+    calFit(dir > 0 ? $('cal-next') : $('cal-prev'), 190);
+    calAnim = setTimeout(calFinish, 195);
+  }
+  function renderCal() {
+    if (calAnim) { clearTimeout(calAnim); calAnim = null; }
+    $('cal-title').textContent = `${view.y}년 ${view.m}월`;
+    const p = monthStep(view, -1), q = monthStep(view, 1);
+    $('cal-prev').innerHTML = calHTML(p.y, p.m);
+    $('cal').innerHTML = calHTML(view.y, view.m);
+    $('cal-next').innerHTML = calHTML(q.y, q.m);
+    calPlace(0, 0); calFit($('cal'), 0);
+  }
+  function calHTML(y, m) {
+    const first = dnOf(y, m, 1);
+    const len = dnOf(y, m + 1, 1) - first;
+    const w0 = ymd(first).w;
+    let html = '';
+    for (let i = 0; i < w0; i++) html += '<span class="cell blank" aria-hidden="true"></span>';
+    for (let n = first; n < first + len; n++) {
+      const dd = dayData(n), v = ymd(n);
+      const cls = ['cell', 'lv-' + dd.lv];
+      if (v.w === 6) cls.push('sat'); if (v.w === 0) cls.push('sun');
+      if (n === today) cls.push('is-today'); if (n === sel) cls.push('is-sel');
+      html += `<button class="${cls.join(' ')}" data-dn="${n}" aria-label="${v.m}월 ${v.d}일 ${dd.name}, ${LV[dd.lv].chip}">`
+        + `<span class="c-n">${v.d}</span><span class="c-m">${dd.name}</span></button>`;
+    }
+    return html;
+  }
+
+  // 바다 장면: 고른 시각의 물 높이(수면·갯벌·눈금 막대), 물 흐름(방향·세기), 하늘(낮·노을·밤)을 그린다
+  const Scene = (() => {
+    const cv = $('sea'), ctx = cv.getContext('2d');
+    const reduce = matchMedia('(prefers-reduced-motion: reduce)');
+    let W = 0, H = 0, C = {}, running = false, last = 0;
+    let sCur = null, sTarget = 0, age = 0;
+    let lev = null, levT = 450, flow = 0, flowT = 0, alt = 30, altT = 30, ha = 0, haT = 0;
+    const KEYS = ['sea', 'sea-deep', 'mud', 'mud-deep', 'hull', 'hull-line', 'streak', 'moon-lit', 'moon-dark', 'pe', 'jig', 'strong'];
+    let seed = 7; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+    const parts = Array.from({ length: 40 }, () => ({ x: rnd(), y: rnd(), l: 0.6 + rnd() * 0.8, v: 0.7 + rnd() * 0.6, a: rnd() }));
+    const stars = Array.from({ length: 26 }, () => ({ x: rnd(), y: rnd(), r: 0.6 + rnd() * 1.1, a: 0.4 + rnd() * 0.6 }));
+    const LV_MIN = -50, LV_MAX = 1000;
+    const surfOf = l => H * (0.16 + 0.5 * (1 - (l - LV_MIN) / (LV_MAX - LV_MIN)));
+    // 바닥: 왼쪽은 깊은 바다, 오른쪽으로 갈수록 얕아져 물가(갯벌)로 올라간다
+    const bedOf = x => { const r = Math.max(0, Math.min(1, (x - W * 0.48) / (W * 0.52))); return H * 0.88 - Math.pow(r, 1.15) * H * 0.5 + 2.5 * Math.sin(x / 23); };
+    // 하늘색: 해 높이에 따라 밤 → 노을 → 낮
+    const hex = c => [1, 3, 5].map(i => parseInt(c.slice(i, i + 2), 16));
+    const mix = (a, b, t) => { const A = hex(a), B = hex(b); return `rgb(${A.map((v, i) => Math.round(v + (B[i] - v) * t)).join(',')})`; };
+    const SKY = { night: ['#0A1428', '#1A2A44'], dusk: ['#33457A', '#EE9F6E'], day: ['#79B6E2', '#D6EDF7'] };
+    function sky(a) {
+      if (a <= -8) return SKY.night.map(c => mix(c, c, 0));
+      if (a <= 0) { const t = (a + 8) / 8; return [mix(SKY.night[0], SKY.dusk[0], t), mix(SKY.night[1], SKY.dusk[1], t)]; }
+      if (a <= 12) { const t = a / 12; return [mix(SKY.dusk[0], SKY.day[0], t), mix(SKY.dusk[1], SKY.day[1], t)]; }
+      return SKY.day.map(c => mix(c, c, 0));
+    }
+    function readColors() { const cs = getComputedStyle(document.documentElement); KEYS.forEach(k => { C[k] = cs.getPropertyValue('--' + k).trim(); }); C.font = getComputedStyle(document.body).fontFamily; }
+    function resize() {
+      const r = cv.getBoundingClientRect(), dpr = Math.min(2, window.devicePixelRatio || 1);
+      W = r.width; H = r.height; cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      if (!running) draw(0);
+    }
+    function moon(cx, cy, r, a) {
+      const ph = (a / 29.530588861) * 2 * Math.PI, k = Math.cos(ph), waxing = a < 14.765;
+      ctx.beginPath(); ctx.arc(cx, cy, r, 0, 2 * Math.PI); ctx.fillStyle = C['moon-dark']; ctx.fill();
+      ctx.beginPath();
+      if (waxing) { ctx.arc(cx, cy, r, -Math.PI / 2, Math.PI / 2, false); ctx.ellipse(cx, cy, r * Math.abs(k), r, 0, Math.PI / 2, -Math.PI / 2, k > 0); }
+      else { ctx.arc(cx, cy, r, Math.PI / 2, 3 * Math.PI / 2, false); ctx.ellipse(cx, cy, r * Math.abs(k), r, 0, -Math.PI / 2, Math.PI / 2, k > 0); }
+      ctx.fillStyle = C['moon-lit']; ctx.fill();
+    }
+    function draw(t) {
+      if (!W || !H || lev === null) return;
+      const s = sCur ?? sTarget, eff = Math.min(1, Math.abs(flow)), dir = flow >= 0 ? 1 : -1;
+      const surf = surfOf(lev);
+      ctx.clearRect(0, 0, W, H);
+      // 하늘 · 별 · 해 · 달
+      const [top, bot] = sky(alt);
+      let g = ctx.createLinearGradient(0, 0, 0, H * 0.7); g.addColorStop(0, top); g.addColorStop(1, bot);
+      ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+      const nf = Math.max(0, Math.min(1, (-alt - 3) / 8));
+      if (nf > 0) { ctx.fillStyle = '#FFFFFF'; stars.forEach(st => { ctx.globalAlpha = nf * st.a; ctx.beginPath(); ctx.arc(st.x * W, st.y * H * 0.5, st.r, 0, 2 * Math.PI); ctx.fill(); }); ctx.globalAlpha = 1; }
+      if (alt > -5) {
+        const sxp = W * (0.5 + ha / 200), syp = H * 0.62 - Math.max(-6, alt) / 70 * (H * 0.62 - 24);
+        const glow = ctx.createRadialGradient(sxp, syp, 4, sxp, syp, 34);
+        glow.addColorStop(0, 'rgba(255,220,140,.55)'); glow.addColorStop(1, 'rgba(255,220,140,0)');
+        ctx.fillStyle = glow; ctx.beginPath(); ctx.arc(sxp, syp, 34, 0, 2 * Math.PI); ctx.fill();
+        ctx.fillStyle = '#FFD97E'; ctx.beginPath(); ctx.arc(sxp, syp, 10, 0, 2 * Math.PI); ctx.fill();
+      }
+      if (alt < 4) { ctx.globalAlpha = Math.max(0, Math.min(1, (4 - alt) / 8)); moon(W - 36, 30, 12, age); ctx.globalAlpha = 1; }
+      // 바다 (수면 높이 = 그 시각의 물 높이)
+      const A = 1.5 + 7 * s, om = 0.7 + 2.2 * s, lam = 150;
+      const waveY = x => surf + A * Math.sin(x / lam * 2 * Math.PI + t * om) + A * 0.35 * Math.sin(x / (lam * 0.47) * 2 * Math.PI - t * om * 1.4);
+      ctx.beginPath(); ctx.moveTo(0, waveY(0));
+      for (let x = 6; x <= W + 6; x += 6) ctx.lineTo(x, waveY(x));
+      ctx.lineTo(W, H); ctx.lineTo(0, H); ctx.closePath();
+      g = ctx.createLinearGradient(0, surf, 0, H); g.addColorStop(0, C.sea); g.addColorStop(1, C['sea-deep']);
+      ctx.fillStyle = g; ctx.fill();
+      ctx.beginPath(); ctx.moveTo(0, waveY(0));
+      for (let x = 6; x <= W + 6; x += 6) ctx.lineTo(x, waveY(x));
+      ctx.strokeStyle = C.streak; ctx.lineWidth = 1.5; ctx.stroke();
+      // 물 흐름: 들물이면 물가 쪽(오른쪽), 날물이면 바다 쪽(왼쪽)으로. 정조 때는 거의 멈춘다
+      const n = Math.round(3 + eff * 32), speed = (6 + eff * 180) * dir;
+      ctx.lineCap = 'round'; ctx.strokeStyle = C.streak; ctx.lineWidth = 1.3;
+      for (let i = 0; i < n; i++) {
+        const p = parts[i], y = surf + 12 + p.y * (H * 0.86 - surf - 18), len = (6 + eff * 30) * p.l;
+        const x = ((((p.x * (W + 80) + t * speed * p.v) % (W + 80)) + (W + 80)) % (W + 80)) - 40;
+        if (y > bedOf(x + len / 2) - 6) continue;
+        ctx.globalAlpha = 0.25 + 0.5 * p.a;
+        ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x + len, y); ctx.stroke();
+      }
+      ctx.globalAlpha = 1;
+      // 바닥과 갯벌 (물이 빠지면 물가 쪽이 드러난다)
+      ctx.beginPath(); ctx.moveTo(0, H);
+      for (let x = 0; x <= W + 6; x += 6) ctx.lineTo(x, bedOf(x));
+      ctx.lineTo(W, H); ctx.closePath();
+      g = ctx.createLinearGradient(0, H * 0.38, 0, H); g.addColorStop(0, C.mud); g.addColorStop(1, C['mud-deep']);
+      ctx.fillStyle = g; ctx.fill();
+      ctx.beginPath(); let on = false;
+      for (let x = 0; x <= W + 6; x += 6) { const y = bedOf(x); if (y < surf - 1) { on ? ctx.lineTo(x, y) : ctx.moveTo(x, y); on = true; } else on = false; }
+      ctx.strokeStyle = 'rgba(255,255,255,.28)'; ctx.lineWidth = 1.4; ctx.stroke();   // 드러난 갯벌의 젖은 윤기
+      // 물 높이 눈금 막대 (0~9m)
+      const px = W * 0.72, pTop = surfOf(950) - 6, pBot = bedOf(px) + 6;
+      ctx.fillStyle = C.hull; ctx.strokeStyle = C['hull-line']; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.rect(px - 3, pTop, 6, pBot - pTop); ctx.fill(); ctx.stroke();
+      ctx.font = `700 10px ${C.font}`; ctx.textBaseline = 'middle';
+      for (let m = 0; m <= 9; m++) {
+        const y = surfOf(m * 100), big = m % 3 === 0;
+        ctx.strokeStyle = C['hull-line']; ctx.lineWidth = big ? 1.6 : 1;
+        ctx.beginPath(); ctx.moveTo(px - 3, y); ctx.lineTo(px - (big ? 10 : 7), y); ctx.stroke();
+        if (big) { ctx.lineWidth = 3; ctx.strokeStyle = 'rgba(0,0,0,.5)'; ctx.strokeText(`${m}m`, px + 6, y); ctx.fillStyle = '#FFFFFF'; ctx.fillText(`${m}m`, px + 6, y); }
+      }
+      // 조류 화살표: 길이·진하기 = 조류 세기(%), 방향 = 들물(→ 물가 쪽) / 날물(← 바다 쪽)
+      {
+        const pct = Math.round(eff * 100), cxm = W * 0.36;
+        const ay = Math.max(surf + 28, Math.min(H * 0.86 - 22, (surf + H * 0.86) / 2));
+        ctx.font = `700 13px ${C.font}`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        if (pct >= 8) {
+          const len = W * (0.2 + 0.38 * eff), x0 = cxm - len / 2, x1 = cxm + len / 2, sh = 12, hh = 19, hl = 18;
+          ctx.beginPath();
+          if (dir > 0) { ctx.moveTo(x0, ay - sh); ctx.lineTo(x1 - hl, ay - sh); ctx.lineTo(x1 - hl, ay - hh); ctx.lineTo(x1, ay); ctx.lineTo(x1 - hl, ay + hh); ctx.lineTo(x1 - hl, ay + sh); ctx.lineTo(x0, ay + sh); }
+          else { ctx.moveTo(x1, ay - sh); ctx.lineTo(x0 + hl, ay - sh); ctx.lineTo(x0 + hl, ay - hh); ctx.lineTo(x0, ay); ctx.lineTo(x0 + hl, ay + hh); ctx.lineTo(x0 + hl, ay + sh); ctx.lineTo(x1, ay + sh); }
+          ctx.closePath();
+          ctx.fillStyle = `rgba(255,255,255,${(0.12 + 0.22 * eff).toFixed(3)})`; ctx.fill();
+          ctx.strokeStyle = 'rgba(255,255,255,.5)'; ctx.lineWidth = 1.2; ctx.stroke();
+          ctx.fillStyle = '#FFFFFF'; ctx.fillText(`조류 ${pct}%`, cxm - dir * hl / 2, ay + 0.5);
+        } else {
+          ctx.fillStyle = 'rgba(255,255,255,.85)'; ctx.fillText('정조 · 조류 거의 없음', cxm, ay);
+        }
+        ctx.textAlign = 'start';
+      }
+      // 배
+      const bx = Math.min(W * 0.24, 130), by = waveY(bx);
+      const ang = Math.atan((waveY(bx + 8) - waveY(bx - 8)) / 16) * 0.8;
+      ctx.save(); ctx.translate(bx, by); ctx.rotate(ang);
+      ctx.lineJoin = 'round'; ctx.lineWidth = 1.5; ctx.strokeStyle = C['hull-line'];
+      ctx.beginPath(); ctx.rect(-18, -25, 26, 18); ctx.fillStyle = C.hull; ctx.fill(); ctx.stroke();
+      ctx.fillStyle = C.sea; ctx.fillRect(-13, -21, 7, 6); ctx.fillRect(-2, -21, 7, 6);
+      ctx.beginPath(); ctx.moveTo(-42, -7); ctx.lineTo(44, -7); ctx.lineTo(33, 9); ctx.quadraticCurveTo(0, 13, -32, 9); ctx.closePath();
+      ctx.fillStyle = C.hull; ctx.fill(); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(-38, -2); ctx.lineTo(40, -2); ctx.strokeStyle = C.strong; ctx.lineWidth = 2.5; ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(30, -8); ctx.lineTo(60, -44); ctx.strokeStyle = C['hull-line']; ctx.lineWidth = 1.8; ctx.stroke();
+      ctx.restore();
+      const tx = bx + Math.cos(ang) * 60 + Math.sin(ang) * 44, ty = by + Math.sin(ang) * 60 - Math.cos(ang) * 44;
+      // 낚싯줄: 물이 흐르는 쪽으로 날리고, 셀수록 바닥에서 뜬다. 정조 때는 곧게 내려간다
+      const drift = dir * eff * Math.min(W * 0.42, 230);
+      const endX = Math.max(16, Math.min(px - 16, tx + 4 + drift + Math.sin(t * 1.3) * (1 + eff * 4)));
+      const bed = bedOf(endX), endY = Math.max(surf + 16, bed - 7 - eff * (bed - surf) * 0.42);
+      const cx = tx + drift * 0.15, cy = surf + (endY - surf) * 0.75;
+      ctx.beginPath(); ctx.moveTo(tx, ty); ctx.quadraticCurveTo(cx, cy, endX, endY);
+      ctx.strokeStyle = C.pe; ctx.lineWidth = 1.6; ctx.stroke();
+      const ja = Math.atan2(endY - cy, endX - cx);
+      ctx.save(); ctx.translate(endX, endY); ctx.rotate(ja - Math.PI / 2);
+      ctx.beginPath(); ctx.ellipse(0, 5, 3.6, 8, 0, 0, 2 * Math.PI); ctx.fillStyle = C.jig; ctx.fill();
+      ctx.beginPath(); ctx.moveTo(-3, 12); ctx.lineTo(0, 16); ctx.lineTo(3, 12);
+      ctx.strokeStyle = C['hull-line']; ctx.lineWidth = 1; ctx.stroke();
+      ctx.restore();
+    }
+    function frame(now) {
+      if (!running) return;
+      const dt = Math.min(0.05, (now - last) / 1000); last = now;
+      sCur += (sTarget - sCur) * Math.min(1, dt * 2.5);
+      lev += (levT - lev) * Math.min(1, dt * 9);
+      flow += (flowT - flow) * Math.min(1, dt * 6);
+      alt += (altT - alt) * Math.min(1, dt * 8);
+      ha += (haT - ha) * Math.min(1, dt * 8);
+      draw(now / 1000);
+      requestAnimationFrame(frame);
+    }
+    function start() {
+      if (reduce.matches) { running = false; sCur = sTarget; lev = levT; flow = flowT; alt = altT; ha = haT; draw(0); return; }
+      if (!running) { running = true; last = performance.now(); requestAnimationFrame(frame); }
+    }
+    readColors();
+    new ResizeObserver(resize).observe(cv);
+    const recolor = () => { readColors(); if (!running) draw(0); };
+    matchMedia('(prefers-color-scheme: dark)').addEventListener('change', recolor);
+    new MutationObserver(recolor).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme', 'data-app'] });
+    reduce.addEventListener('change', () => { running = false; start(); });
+    return {
+      set(s, a) { sTarget = s; age = a; if (sCur === null) sCur = s; start(); },
+      setTime(level, fl, sunAlt, sunHa) {
+        levT = level; flowT = fl; altT = sunAlt; haT = sunHa;
+        if (lev === null) { lev = level; flow = fl; alt = sunAlt; ha = sunHa; }
+        start();
+      }
+    };
+  })();
+
+  // 조작
+  $('prev-day').onclick = () => select(sel - 1);
+  $('next-day').onclick = () => select(sel + 1);
+  $('go-today').onclick = () => { winStart = today - 3; select(today); };
+  $('prev-month').onclick = () => calGo(-1);
+  $('next-month').onclick = () => calGo(1);
+  // 달력 좌우 스와이프: 손가락에 붙어 움직이고, 충분히 밀거나 튕기면 이전/다음 달로 착 넘어간다
+  {
+    let g = null, dragged = false;
+    calStage.addEventListener('pointerdown', e => {
+      calFinish();
+      g = { id: e.pointerId, x0: e.clientX, y0: e.clientY, mode: 'pending', lx: e.clientX, lt: e.timeStamp, vx: 0 };
+      dragged = false;
+    });
+    calStage.addEventListener('pointermove', e => {
+      if (!g || e.pointerId !== g.id) return;
+      const dx = e.clientX - g.x0, dy = e.clientY - g.y0;
+      if (g.mode === 'pending') {
+        if (Math.abs(dx) > 8 && Math.abs(dx) > Math.abs(dy)) { g.mode = 'drag'; dragged = true; try { calStage.setPointerCapture(e.pointerId); } catch (_) {} }
+        else if (Math.abs(dy) > 8) { g = null; return; }
+      }
+      if (g.mode !== 'drag') return;
+      const dt = e.timeStamp - g.lt;
+      if (dt > 0) g.vx = (e.clientX - g.lx) / dt;
+      g.lx = e.clientX; g.lt = e.timeStamp;
+      calPlace(dx, 0);
+    });
+    calStage.addEventListener('pointerup', e => {
+      if (!g || e.pointerId !== g.id) return;
+      const dx = e.clientX - g.x0, { mode, vx } = g; g = null;
+      if (mode !== 'drag') return;
+      const flick = Math.abs(vx) > 0.35 && Math.abs(dx) > 16;
+      if (Math.abs(dx) > calStage.clientWidth * 0.2 || flick) calGo(dx < 0 ? 1 : -1); else calPlace(0, 160);
+    });
+    calStage.addEventListener('pointercancel', () => { if (g && g.mode === 'drag') calPlace(0, 160); g = null; });
+    // 밀다가 손을 뗀 자리의 날짜가 눌리지 않게
+    calStage.addEventListener('click', e => { if (dragged) { e.stopPropagation(); e.preventDefault(); dragged = false; } }, true);
+    // 달력이 가려졌다 다시 보이거나 화면 폭이 바뀌면 가운데 판에 다시 맞춘다
+    new ResizeObserver(() => { if (!calAnim) { calPlace(0, 0); calFit($('cal'), 0); } }).observe(calStage);
+  }
+
+  // 달력을 원하는 연·월로 옮기고 살짝 떠오르듯 바꿔 보여준다
+  function goMonth(y, m) {
+    view = { y, m };
+    renderCal();
+    const c = $('cal'); c.classList.remove('swap'); void c.offsetWidth; c.classList.add('swap');
+  }
+
+  // 1안: 제목을 누르면 달력 자리가 열두 달 판으로 바뀐다. 좌우로 밀거나 화살표로 연도 이동, '이번 달'로 바로 복귀
+  (() => {
+    const btn = $('cal-pick'), panel = $('mpanel'), stage = $('mp-stage'), track = $('mp-track'), ytxt = $('mp-ytxt');
+    const wk = document.querySelector('.cal-week'), cal = $('cal-stage');
+    const tv = ymd(today);
+    const reduceM = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
+    let py = view.y, anim = null;
+    // 이전 해 · 이번 해 · 다음 해 판을 나란히 깔아 두고, 가운데 판을 보여준다
+    function page(y) {
+      let h = `<div class="mp-page"${y !== py ? ' aria-hidden="true"' : ''}>`;
+      for (let m = 1; m <= 12; m++) {
+        const cls = ['mp-m'];
+        if (y === view.y && m === view.m) cls.push('cur');
+        if (y === tv.y && m === tv.m) cls.push('now');
+        h += `<button class="${cls.join(' ')}" data-y="${y}" data-m="${m}" aria-label="${y}년 ${m}월"${y !== py ? ' tabindex="-1"' : ''}><span>${m}월</span></button>`;
+      }
+      return h + '</div>';
+    }
+    function place(dx, ms) {
+      track.style.transition = ms ? `transform ${ms}ms cubic-bezier(.25,.8,.25,1)` : 'none';
+      track.style.transform = `translateX(${-stage.clientWidth + dx}px)`;
+    }
+    function paint() { ytxt.textContent = `${py}년`; track.innerHTML = page(py - 1) + page(py) + page(py + 1); place(0, 0); }
+    // 넘어가는 중이던 움직임은 즉시 끝낸다 (연속으로 빠르게 밀어도 바로바로 넘어가게)
+    function finish() { if (!anim) return; clearTimeout(anim.timer); const d = anim.dir; anim = null; py += d; paint(); }
+    function go(dir) {
+      finish();
+      if (reduceM()) { py += dir; paint(); return; }
+      ytxt.textContent = `${py + dir}년`;
+      place(-dir * stage.clientWidth, 190);
+      anim = { dir, timer: setTimeout(finish, 195) };
+    }
+    function open() {
+      py = view.y;
+      panel.style.minHeight = (wk.offsetHeight + cal.offsetHeight + 10) + 'px';
+      wk.hidden = true; cal.hidden = true; panel.hidden = false;
+      paint();
+      btn.setAttribute('aria-expanded', 'true');
+    }
+    function close() {
+      if (panel.hidden) return;
+      finish();
+      panel.hidden = true; wk.hidden = false; cal.hidden = false;
+      btn.setAttribute('aria-expanded', 'false');
+    }
+    btn.onclick = () => panel.hidden ? open() : close();
+    $('mp-prev').onclick = () => go(-1);
+    $('mp-next').onclick = () => go(1);
+    $('mp-today').onclick = () => { close(); goMonth(tv.y, tv.m); };
+    track.addEventListener('click', e => { const b = e.target.closest('[data-m]'); if (!b) return; close(); goMonth(+b.dataset.y, +b.dataset.m); });
+    new ResizeObserver(() => { if (!panel.hidden && !anim) place(0, 0); }).observe(stage);
+
+    // 좌우 스와이프: 판이 손가락에 붙어 움직이고, 충분히 밀거나 빠르게 튕기면 옆 해로 착 넘어간다
+    let g = null, dragged = false;
+    panel.addEventListener('pointerdown', e => {
+      finish();
+      g = { id: e.pointerId, x0: e.clientX, y0: e.clientY, mode: 'pending', lx: e.clientX, lt: e.timeStamp, vx: 0 };
+      dragged = false;
+    });
+    panel.addEventListener('pointermove', e => {
+      if (!g || e.pointerId !== g.id) return;
+      const dx = e.clientX - g.x0, dy = e.clientY - g.y0;
+      if (g.mode === 'pending') {
+        if (Math.abs(dx) > 8 && Math.abs(dx) > Math.abs(dy)) { g.mode = 'drag'; dragged = true; try { panel.setPointerCapture(e.pointerId); } catch (_) {} }
+        else if (Math.abs(dy) > 8) { g = null; return; }
+      }
+      if (g.mode !== 'drag') return;
+      const dt = e.timeStamp - g.lt;
+      if (dt > 0) g.vx = (e.clientX - g.lx) / dt;
+      g.lx = e.clientX; g.lt = e.timeStamp;
+      place(dx, 0);
+    });
+    panel.addEventListener('pointerup', e => {
+      if (!g || e.pointerId !== g.id) return;
+      const dx = e.clientX - g.x0, { mode, vx } = g; g = null;
+      if (mode !== 'drag') return;
+      const flick = Math.abs(vx) > 0.35 && Math.abs(dx) > 16;
+      if (Math.abs(dx) > stage.clientWidth * 0.2 || flick) go(dx < 0 ? 1 : -1); else place(0, 160);
+    });
+    panel.addEventListener('pointercancel', () => { if (g && g.mode === 'drag') place(0, 160); g = null; });
+    // 밀다가 손을 뗀 자리의 달이 눌리지 않게
+    panel.addEventListener('click', e => { if (dragged) { e.stopPropagation(); e.preventDefault(); dragged = false; } }, true);
+
+    const pm = $('prev-month').onclick, nm = $('next-month').onclick;
+    $('prev-month').onclick = () => { close(); pm(); };
+    $('next-month').onclick = () => { close(); nm(); };
+  })();
+
+  // 출항지 고르기: 아래에서 판이 올라오고, 고르면 물 높이·조류·하늘이 그 지점 기준으로 바뀐다
+  {
+    const btn = $('st-btn'), sheet = $('st-sheet'), back = $('st-back'), list = $('st-list');
+    const reduceM = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const diffText = S => {
+      const m = Math.abs(S.dmin), t = m >= 60 ? `${Math.floor(m / 60)}시간 ${m % 60 ? (m % 60) + '분' : ''}`.trim() : `${m}분`;
+      return S.dmin === 0 && S.amp === 1 ? '기준 지점' : `${m < 8 ? '만조 시각이 인천과 비슷' : `인천보다 만조 약 ${t} ${S.dmin < 0 ? '빠름' : '늦음'}`} · 물 높이 차 ${Math.round(S.amp * 100)}%`;
+    };
+    function paintBtn() { $('st-name').textContent = TideHarm.STATIONS[tideSt].name; }
+    function paintList() {
+      list.innerHTML = ST_KEYS.map(k => { const S = TideHarm.STATIONS[k];
+        return `<button class="st-item${k === tideSt ? ' on' : ''}" data-k="${k}"><span class="nm"><b>${S.name}</b><span>${diffText(S)}</span></span><span class="ck" aria-hidden="true">✓</span></button>`; }).join('');
+    }
+    function open() { paintList(); back.classList.remove('closing'); sheet.classList.remove('closing'); back.hidden = false; sheet.hidden = false; }
+    function close() {
+      if (reduceM()) { back.hidden = true; sheet.hidden = true; return; }
+      back.classList.add('closing'); sheet.classList.add('closing');
+      setTimeout(() => { back.hidden = true; sheet.hidden = true; }, 200);
+    }
+    btn.onclick = open; back.onclick = close;
+    document.addEventListener('keydown', e => { if (e.key === 'Escape' && !sheet.hidden) close(); });
+    function choose(k, delay) {
+      tideSt = k;
+      try { localStorage.setItem('jjukgap-station', tideSt); } catch (_) {}
+      paintBtn(); paintList(); renderTide();
+      setTimeout(close, delay);
+    }
+    list.addEventListener('click', e => {
+      const b = e.target.closest('[data-k]'); if (!b) return;
+      choose(b.dataset.k, 140);
+    });
+    // 내 위치(GPS)로 가장 가까운 출항지 고르기: 누를 때만 위치를 묻는다
+    const gpsBtn = $('st-gps'), gpsMsg = $('st-gps-msg');
+    const say = t => { gpsMsg.textContent = t; gpsMsg.hidden = !t; };
+    const distKm = (a1, o1, a2, o2) => {
+      const R = Math.PI / 180, dA = (a2 - a1) * R, dO = (o2 - o1) * R;
+      const h = Math.sin(dA / 2) ** 2 + Math.cos(a1 * R) * Math.cos(a2 * R) * Math.sin(dO / 2) ** 2;
+      return 12742 * Math.asin(Math.sqrt(h));
+    };
+    let inFrame = false;
+    try { inFrame = window.top !== window.self; } catch (_) { inFrame = true; }
+    gpsBtn.onclick = () => {
+      if (!('geolocation' in navigator)) { say('이 기기에서는 위치를 쓸 수 없어요.'); return; }
+      gpsBtn.setAttribute('aria-busy', 'true'); say('위치를 찾는 중이에요…');
+      navigator.geolocation.getCurrentPosition(pos => {
+        gpsBtn.removeAttribute('aria-busy');
+        const { latitude: la, longitude: lo } = pos.coords;
+        let best = ST_KEYS[0], bd = Infinity;
+        for (const k of ST_KEYS) { const S = TideHarm.STATIONS[k], d = distKm(la, lo, S.lat, S.lon); if (d < bd) { bd = d; best = k; } }
+        const km = bd < 10 ? bd.toFixed(1) : Math.round(bd);
+        say(`가장 가까운 곳은 ${TideHarm.STATIONS[best].name}이에요 (약 ${km}km)` + (bd > 80 ? ' · 등록된 출항지와는 꽤 멀어요' : ''));
+        choose(best, 1400);
+      }, err => {
+        gpsBtn.removeAttribute('aria-busy');
+        if (inFrame) say('이 미리보기 화면에서는 위치를 쓸 수 없어요. 폰에 설치한 앱에서 눌러 주세요.');
+        else if (err.code === 1) say('위치 권한이 꺼져 있어요. 브라우저나 폰 설정에서 이 앱의 위치 접근을 허용해 주세요.');
+        else say('위치를 찾지 못했어요. 잠시 후 다시 눌러 주세요.');
+      }, { enableHighAccuracy: false, timeout: 15000, maximumAge: 600000 });
+    };
+    btn.addEventListener('click', () => say(''));
+    paintBtn();
+  }
+  const chart = $('chart');
+  let dragging = false;
+  // 손가락을 따라 배가 곡선 위를 미끄러지고, 손을 떼면 가장 가까운 날짜에 멈춘다
+  function pick(e) {
+    const r = chart.getBoundingClientRect();
+    dragX = Math.max(X0, Math.min(X1, (e.clientX - r.left) / r.width * 380));
+    const n = winStart + Math.round((dragX - X0) / stepX);
+    if (n !== sel) select(n); else { boatTarget = dragX; moveBoat(); }
+  }
+  function release() {
+    if (!dragging) return;
+    dragging = false; dragX = null;
+    boatTarget = pts[sel - winStart].x; moveBoat();
+  }
+  // 손가락 동작 구분: 위아래로 쓸면 화면 스크롤만, 톡 누르면 그 날짜, 옆으로 밀면 배 끌기
+  const TAP_MOVE = 10, TAP_TIME = 600;
+  let gesture = null;
+  chart.addEventListener('pointerdown', e => {
+    gesture = { id: e.pointerId, x0: e.clientX, y0: e.clientY, t0: performance.now(), mode: 'pending' };
+  });
+  chart.addEventListener('pointermove', e => {
+    if (!gesture || e.pointerId !== gesture.id) return;
+    const dx = e.clientX - gesture.x0, dy = e.clientY - gesture.y0;
+    if (gesture.mode === 'pending') {
+      if (Math.abs(dx) > TAP_MOVE && Math.abs(dx) > Math.abs(dy) * 1.2) {
+        gesture.mode = 'drag'; dragging = true;
+        try { chart.setPointerCapture(e.pointerId); } catch (_) {}
+      } else if (Math.abs(dy) > TAP_MOVE) { gesture = null; return; }
+    }
+    if (gesture.mode === 'drag') pick(e);
+  });
+  chart.addEventListener('pointerup', e => {
+    if (!gesture || e.pointerId !== gesture.id) return;
+    const g = gesture; gesture = null;
+    if (g.mode === 'drag') { release(); return; }
+    const moved = Math.hypot(e.clientX - g.x0, e.clientY - g.y0);
+    if (moved < TAP_MOVE && performance.now() - g.t0 < TAP_TIME) {
+      const r = chart.getBoundingClientRect();
+      const x = Math.max(X0, Math.min(X1, (e.clientX - r.left) / r.width * 380));
+      select(winStart + Math.round((x - X0) / stepX));
+    }
+  });
+  chart.addEventListener('pointercancel', () => { if (gesture && gesture.mode === 'drag') release(); gesture = null; });
+
+  // 배 손잡이: 여기서 시작한 터치는 화면 스크롤 없이 바로 배 끌기
+  const handle = $('boat-handle');
+  let grab = null;
+  handle.addEventListener('pointerdown', e => {
+    e.preventDefault();
+    grab = e.pointerId; dragging = true;
+    try { handle.setPointerCapture(e.pointerId); } catch (_) {}
+    handle.classList.add('grabbing'); chart.classList.add('grabbing');
+  });
+  handle.addEventListener('pointermove', e => { if (grab === e.pointerId) pick(e); });
+  const letGo = e => {
+    if (grab !== e.pointerId) return;
+    grab = null;
+    handle.classList.remove('grabbing'); chart.classList.remove('grabbing');
+    release();
+  };
+  handle.addEventListener('pointerup', letGo);
+  handle.addEventListener('pointercancel', letGo);
+  new ResizeObserver(() => { if (boatX !== null && segs.length) placeBoat(boatX); }).observe(chart);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => drawFlag(performance.now()));
+  chart.addEventListener('keydown', e => {
+    if (e.key === 'ArrowLeft') { e.preventDefault(); select(sel - 1); }
+    if (e.key === 'ArrowRight') { e.preventDefault(); select(sel + 1); }
+  });
+  const shiftWin = dir => { winStart += dir * 30; select(today >= winStart && today < winStart + WIN ? today : winStart); };
+  $('prev-win').onclick = () => shiftWin(-1);
+  $('next-win').onclick = () => shiftWin(1);
+  // 날짜를 누르면 달력으로, 달력에서 날짜를 고르면 다시 맨 위 바다 그림으로
+  const motion = () => matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth';
+  // 날짜를 누르면 달력으로: 0.38초 만에 내려가고, 화면 가운데보다 살짝(20px) 위에 멈춘다
+  const CAL_LIFT = 20, CAL_SCROLL_MS = 380;
+  let scrollRaf = 0;
+  function scrollToY(y, ms) {
+    const max = document.documentElement.scrollHeight - innerHeight;
+    y = Math.max(0, Math.min(max, y));
+    if (motion() === 'auto') { window.scrollTo(0, y); return; }
+    const y0 = window.scrollY, d = y - y0, t0 = performance.now();
+    const ease = t => t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+    cancelAnimationFrame(scrollRaf);
+    const step = now => {
+      const k = Math.min(1, (now - t0) / ms);
+      window.scrollTo(0, y0 + d * ease(k));
+      if (k < 1) scrollRaf = requestAnimationFrame(step);
+    };
+    scrollRaf = requestAnimationFrame(step);
+  }
+  $('date-btn').onclick = () => {
+    const sec = $('cal-section');
+    if (document.documentElement.scrollHeight > innerHeight + 1) {
+      const r = sec.getBoundingClientRect();
+      scrollToY(window.scrollY + r.top - (innerHeight - r.height) / 2 + CAL_LIFT, CAL_SCROLL_MS);
+    } else {
+      // 페이지 바깥(앱 화면)이 스크롤을 맡는 경우: 브라우저 기본 이동 + 같은 만큼 위로
+      sec.scrollIntoView({ behavior: motion(), block: 'center' });
+    }
+  };
+  // 휠·터치로 직접 스크롤하면 진행 중이던 자동 이동은 멈춘다
+  ['wheel', 'touchstart'].forEach(ev => addEventListener(ev, () => cancelAnimationFrame(scrollRaf), { passive: true }));
+  $('cal').addEventListener('click', e => {
+    const b = e.target.closest('[data-dn]');
+    if (b) { select(+b.dataset.dn); window.scrollTo({ top: 0, behavior: motion() }); }
+  });
+  function setRegion(r) {
+    region = r;
+    try { localStorage.setItem('jjukgap-region', r); } catch (e) {}
+    $('reg-west').setAttribute('aria-pressed', r === 'west');
+    $('reg-south').setAttribute('aria-pressed', r === 'south');
+    $('brand-sub').textContent = r === 'west' ? '서해 7물때 기준' : '남해 8물때 기준';
+    render();
+  }
+  $('reg-west').onclick = () => setRegion('west');
+  $('reg-south').onclick = () => setRegion('south');
+
+  // 다크 / 라이트 모드 전환 (기본은 다크, 고른 모드는 이 폰에 기억)
+  const themeBtn = $('theme-btn'), root = document.documentElement;
+  let themeT = 0;
+  const paintThemeBtn = () => themeBtn.setAttribute('aria-label', root.getAttribute('data-app') === 'light' ? '다크 모드로 바꾸기' : '라이트 모드로 바꾸기');
+  themeBtn.onclick = () => {
+    const next = root.getAttribute('data-app') === 'light' ? 'dark' : 'light';
+    if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      root.classList.add('theme-anim'); clearTimeout(themeT);
+      themeT = setTimeout(() => root.classList.remove('theme-anim'), 350);
+    }
+    root.setAttribute('data-app', next);
+    try { localStorage.setItem('jjukgap-theme', next); } catch (e) {}
+    paintThemeBtn();
+    themeBtn.classList.remove('spin'); void themeBtn.offsetWidth; themeBtn.classList.add('spin');
+  };
+  paintThemeBtn();
+
+  setRegion(region);
+  requestAnimationFrame(() => chart.classList.add('ready'));
+})();
+</script>
+
+<script>
+if ('serviceWorker' in navigator) addEventListener('load', () => navigator.serviceWorker.register('sw.js?v=ab139d2b').catch(() => {}));
+</script>
