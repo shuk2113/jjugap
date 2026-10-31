@@ -43,7 +43,7 @@
     --calm:#45C59A; --mid:#EDB43C; --strong:#F2745C;
     --calm-soft:rgba(69,197,154,.16); --mid-soft:rgba(237,180,60,.16); --strong-soft:rgba(242,116,92,.16);
     --sat:#7AA2F0; --sun:#F2745C; --hi:#7FB2EE; --lo:#EACB52; --moon-ic:#E8D9A8;
-  --map-sea:#0D2328; --map-shallow:rgba(120,200,210,.09); --map-land:#27302D; --map-shade:rgba(0,0,0,.35); --map-coast:#3F504B; --map-flat:#17312F; --map-isl:#93A8A1; --map-bay:#62AAB6; --map-lab:#B4C8C3; --map-cur:#63CDD4;
+  --map-sea:#2B4A55; --map-shallow:rgba(170,222,230,.12); --map-land:#5A574D; --map-shade:rgba(0,0,0,.16); --map-coast:#86816F; --map-flat:#2E4A4C; --map-isl:#DAD9CF; --map-bay:#A3D8E0; --map-lab:#D3DEDA; --map-cur:#8EE3E8;
     color-scheme:dark;
   }
 }
@@ -56,7 +56,7 @@
   --calm:#45C59A; --mid:#EDB43C; --strong:#F2745C;
   --calm-soft:rgba(69,197,154,.16); --mid-soft:rgba(237,180,60,.16); --strong-soft:rgba(242,116,92,.16);
   --sat:#7AA2F0; --sun:#F2745C; --hi:#7FB2EE; --lo:#EACB52; --moon-ic:#E8D9A8;
-  --map-sea:#0D2328; --map-shallow:rgba(120,200,210,.09); --map-land:#27302D; --map-shade:rgba(0,0,0,.35); --map-coast:#3F504B; --map-flat:#17312F; --map-isl:#93A8A1; --map-bay:#62AAB6; --map-lab:#B4C8C3; --map-cur:#63CDD4;
+  --map-sea:#2B4A55; --map-shallow:rgba(170,222,230,.12); --map-land:#5A574D; --map-shade:rgba(0,0,0,.16); --map-coast:#86816F; --map-flat:#2E4A4C; --map-isl:#DAD9CF; --map-bay:#A3D8E0; --map-lab:#D3DEDA; --map-cur:#8EE3E8;
   color-scheme:dark;
 }
 /* 앱 안의 모드 전환 버튼으로 고른 모드가 기기·뷰어 설정보다 우선한다 (기본은 다크) */
@@ -69,7 +69,7 @@ html:root[data-app="dark"]{
   --calm:#45C59A; --mid:#EDB43C; --strong:#F2745C;
   --calm-soft:rgba(69,197,154,.16); --mid-soft:rgba(237,180,60,.16); --strong-soft:rgba(242,116,92,.16);
   --sat:#7AA2F0; --sun:#F2745C; --hi:#7FB2EE; --lo:#EACB52; --moon-ic:#E8D9A8;
-  --map-sea:#0D2328; --map-shallow:rgba(120,200,210,.09); --map-land:#27302D; --map-shade:rgba(0,0,0,.35); --map-coast:#3F504B; --map-flat:#17312F; --map-isl:#93A8A1; --map-bay:#62AAB6; --map-lab:#B4C8C3; --map-cur:#63CDD4;
+  --map-sea:#2B4A55; --map-shallow:rgba(170,222,230,.12); --map-land:#5A574D; --map-shade:rgba(0,0,0,.16); --map-coast:#86816F; --map-flat:#2E4A4C; --map-isl:#DAD9CF; --map-bay:#A3D8E0; --map-lab:#D3DEDA; --map-cur:#8EE3E8;
   color-scheme:dark;
 }
 html:root[data-app="light"]{
@@ -207,11 +207,17 @@ h2{margin:0; font-size:16px; font-weight:700; text-wrap:balance}
 .mv-tools{position:absolute; right:10px; top:10px; display:flex; flex-direction:column; gap:8px}
 .mv-tools button{width:42px; height:42px; display:grid; place-items:center; padding:0; border:1px solid var(--line); border-radius:12px; background:var(--card); font:inherit; font-size:22px; line-height:1; color:var(--ink); box-shadow:0 2px 8px rgba(0,0,0,.12); -webkit-tap-highlight-color:transparent}
 .mv-tools button svg{width:20px; height:20px; color:var(--ink-2)} .mv-tools button.on svg{color:#2F7DF6}
-.mv-scale{position:absolute; left:10px; bottom:10px; display:flex; flex-direction:column; gap:2px; font-size:10.5px; font-weight:700; color:var(--map-lab); pointer-events:none}
+.mv-scale{position:absolute; left:10px; bottom:26px; display:flex; flex-direction:column; gap:2px; font-size:10.5px; font-weight:700; color:var(--map-lab); pointer-events:none}
 .mv-scale i{display:block; height:5px; border:1.5px solid var(--map-lab); border-top:0}
-.mv-attr{position:absolute; right:6px; bottom:5px; padding:1px 6px; border-radius:7px; background:var(--map-sea); font-size:9.5px; color:var(--map-lab); opacity:.85; pointer-events:none}
+.mv-attr{position:absolute; right:6px; bottom:21px; padding:1px 6px; border-radius:7px; background:var(--map-sea); font-size:9.5px; color:var(--map-lab); opacity:.85; pointer-events:none}
 .mv-toast{position:absolute; left:50%; top:12px; transform:translateX(-50%); max-width:calc(100% - 90px); padding:8px 14px; border-radius:999px; background:rgba(8,20,24,.82); color:#fff; font-size:12.5px; font-weight:600; text-align:center; pointer-events:none}
-.mv-panel{flex:none; max-height:48vh; overflow-y:auto; padding:12px 14px calc(12px + env(safe-area-inset-bottom, 0px)); background:var(--card); border-top:1px solid var(--line); overscroll-behavior:contain}
+.mv-sheet{flex:none; position:relative; z-index:2; display:flex; flex-direction:column; margin-top:-16px; background:var(--card); border-radius:18px 18px 0 0; box-shadow:0 -4px 16px rgba(0,0,0,.12)}
+.mv-grab{flex:none; height:22px; display:flex; align-items:center; justify-content:center; touch-action:none; cursor:grab; -webkit-tap-highlight-color:transparent}
+.mv-grab i{width:40px; height:5px; border-radius:3px; background:var(--ink-2); opacity:.32}
+.mv-grab:focus-visible{outline:2px solid #2F7DF6; outline-offset:-4px; border-radius:18px 18px 0 0}
+.mv-panel{position:relative; flex:none; max-height:46vh; overflow-y:auto; padding:2px 14px calc(12px + env(safe-area-inset-bottom, 0px)); overscroll-behavior:contain}
+.mv-panel.sized{max-height:none} .mv-panel.anim{transition:height .24s cubic-bezier(.2,.8,.2,1)}
+.mv-panel .mv-where, .mv-panel .mv-h{touch-action:none}
 .mv-where{display:flex; align-items:baseline; justify-content:space-between; gap:8px; flex-wrap:wrap}
 .mv-where b{font-size:15.5px} .mv-where span{font-size:11.5px; color:var(--ink-2); font-variant-numeric:tabular-nums}
 .mv-grid{display:grid; grid-template-columns:1fr 1fr; gap:6px; margin:10px 0 8px}
@@ -689,7 +695,10 @@ h2{margin:0; font-size:16px; font-weight:700; text-wrap:balance}
     <div class="mv-attr">지도 © OpenStreetMap 기여자</div>
     <div class="mv-toast" id="mv-toast" hidden></div>
   </div>
-  <div class="mv-panel" id="mv-panel"></div>
+  <div class="mv-sheet" id="mv-sheet">
+    <div class="mv-grab" id="mv-grab" role="button" tabindex="0" aria-label="정보 판 크기 바꾸기 (끌어서 올리고 내리기)"><i></i></div>
+    <div class="mv-panel" id="mv-panel"></div>
+  </div>
 </div>
 <div class="pc-back" id="pc-back" hidden></div>
 <div class="pcal" id="pcal" role="dialog" aria-modal="true" aria-label="날짜 고르기" tabindex="-1" hidden>
@@ -2554,7 +2563,7 @@ const TideHarm = (() => {
       g.restore();
       // 이름표: 큰 섬·만부터, 다른 이름표·출항지와 겹치면 뺀다. 작은 섬은 섬 아래쪽 바다에
       // 확대·축소 단추, 축척, 출처 글씨 자리도 비워 둔다
-      const placed = [[W - 64, 0, W, 165], [0, H - 42, 112, H], [W - 175, H - 26, W, H], ...portBoxes(g, font).map(b => [b.bx - 3, b.by - 3, b.bx + b.w + 3, b.by + b.h + 3])];
+      const placed = [[W - 64, 0, W, 165], [0, H - 58, 112, H], [W - 175, H - 42, W, H], ...portBoxes(g, font).map(b => [b.bx - 3, b.by - 3, b.bx + b.w + 3, b.by + b.h + 3])];
       const hit = a => placed.some(b => a[0] < b[2] && a[2] > b[0] && a[1] < b[3] && a[3] > b[1]);
       g.textAlign = 'center'; g.textBaseline = 'middle'; g.lineJoin = 'round';
       for (const [name, lon, lat, minS, kind] of basemap.lab) {
@@ -2895,6 +2904,7 @@ const TideHarm = (() => {
     }
     // ---------- 포인트 저장 · 목록 · 보기
     function showSave() {
+      sheetAtLeast('mid');
       if (!me) return;
       const i = infoAt(me); form = { jj: 0, gap: 0, i, at: Date.now(), lat: me.lat, lon: me.lon, acc: me.acc || 0, virtual: !!me.virtual };
       mode = 'save';
@@ -2918,6 +2928,7 @@ const TideHarm = (() => {
     const pctTxt = p => (p.cur ? (p.cur.calm ? '물돌이' : `${toward(p.cur.dir)} ${p.cur.kn.toFixed(1)}노트`) : p.pct < 8 ? '정조' : `${p.pct}%`);
     const catchTxt = p => (p.jj || p.gap) ? [p.jj ? `쭈꾸미 ${p.jj}` : '', p.gap ? `갑오징어 ${p.gap}` : ''].filter(Boolean).join(' · ') : '조과 없음';
     function showList() {
+      sheetAtLeast('mid');
       mode = 'list';
       panel.innerHTML = `<div class="mv-h"><b>저장한 포인트 ${points.length}곳</b><span>이 폰에만 저장돼요</span></div>` +
         (points.length ? `<ul class="mv-list">${points.map(p => { const S = TideHarm.STATIONS[p.port] || TideHarm.STATIONS[nearest(p).k];
@@ -2926,6 +2937,7 @@ const TideHarm = (() => {
         `<div class="mv-btns"><button data-act="back">닫기</button></div>`;
     }
     function showDetail(id, ask) {
+      sheetAtLeast('mid');
       const p = points.find(q => q.id === id); if (!p) { mode = 'info'; selId = null; paintPanel(true); return; }
       mode = 'detail'; selId = id; const S = TideHarm.STATIONS[p.port];
       panel.innerHTML = `
@@ -2994,11 +3006,63 @@ const TideHarm = (() => {
     function wakeOff() { try { wake && wake.release(); } catch (_) {} wake = null; }
     document.addEventListener('visibilitychange', () => { if (isOpen && document.visibilityState === 'visible') { wakeOn(); paintPanel(true); } });
 
+    // ---------- 아래 정보 판: 손잡이나 맨 윗줄을 끌어 올리고 내린다 (작게 · 가운데 · 크게, 놓으면 가까운 높이로)
+    const sheet = $('mv-sheet'), grab = $('mv-grab'), SHEET_KEY = 'jjukgap-sheet', ORDER = ['peek', 'mid', 'full'];
+    let sheetMode = 'mid', drag = null;
+    try { const m = localStorage.getItem(SHEET_KEY); if (ORDER.includes(m)) sheetMode = m; } catch (_) {}
+    function sheetHeights() {
+      const vh = view.clientHeight || innerHeight, top = panel.firstElementChild;
+      const padB = parseFloat(getComputedStyle(panel).paddingBottom) || 12;
+      const peek = Math.round(Math.min(150, (top ? top.offsetTop + top.offsetHeight : 30) + padB + 6));
+      return { peek, mid: Math.round(vh * 0.44), full: Math.round(vh * 0.78) };
+    }
+    function setH(h, anim) {
+      panel.classList.add('sized'); panel.classList.toggle('anim', !!anim);
+      panel.style.height = Math.round(h) + 'px';
+    }
+    function applySheet(anim) {
+      const hs = sheetHeights(); setH(hs[sheetMode], anim);
+      grab.setAttribute('aria-label', sheetMode === 'peek' ? '정보 판 펼치기' : '정보 판 접기');
+    }
+    function setMode(m, anim = true) {
+      sheetMode = m; try { localStorage.setItem(SHEET_KEY, m); } catch (_) {}
+      applySheet(anim);
+    }
+    function sheetAtLeast(m) { if (ORDER.indexOf(sheetMode) < ORDER.indexOf(m)) { sheetMode = m; applySheet(true); } }
+    function dragStart(e) {
+      if (e.button > 0) return;
+      drag = { id: e.pointerId, y0: e.clientY, h0: panel.getBoundingClientRect().height, t0: performance.now(), y: e.clientY, t: performance.now(), v: 0, moved: false };
+      try { e.currentTarget.setPointerCapture(e.pointerId); } catch (_) {}
+    }
+    function dragMove(e) {
+      if (!drag || e.pointerId !== drag.id) return;
+      const dy = e.clientY - drag.y0; if (Math.abs(dy) > 5) drag.moved = true;
+      if (!drag.moved) return;
+      const now = performance.now(), dt = Math.max(1, now - drag.t); drag.v = 0.5 * drag.v + 0.5 * ((e.clientY - drag.y) / dt); drag.y = e.clientY; drag.t = now;
+      const hs = sheetHeights(); setH(Math.max(hs.peek - 20, Math.min(hs.full + 20, drag.h0 - dy)), false);
+      e.preventDefault();
+    }
+    function dragEnd(e) {
+      if (!drag || e.pointerId !== drag.id) return;
+      const d = drag; drag = null;
+      if (!d.moved) { if (e.type === 'pointerup' && d.tap) setMode(sheetMode === 'peek' ? 'mid' : sheetMode === 'mid' ? 'peek' : 'mid'); else applySheet(true); return; }
+      const hs = sheetHeights(), h = panel.getBoundingClientRect().height;
+      let m = ORDER.reduce((a, b) => (Math.abs(hs[b] - h) < Math.abs(hs[a] - h) ? b : a));
+      if (Math.abs(d.v) > 0.35) { const i = ORDER.indexOf(sheetMode), j = Math.max(0, Math.min(2, i + (d.v > 0 ? -1 : 1))); if ((d.v > 0 && hs[ORDER[j]] < h + 40) || (d.v < 0 && hs[ORDER[j]] > h - 40)) m = ORDER[j]; }
+      setMode(m, true);
+    }
+    // 손잡이: 톡 누르면 접기·펼치기, 끌면 높이 바꾸기
+    grab.addEventListener('pointerdown', e => { dragStart(e); if (drag) drag.tap = true; });
+    for (const el of [grab, panel]) { el.addEventListener('pointermove', dragMove); el.addEventListener('pointerup', dragEnd); el.addEventListener('pointercancel', dragEnd); }
+    grab.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setMode(sheetMode === 'peek' ? 'mid' : 'peek'); } });
+    // 판의 맨 윗줄(어디서 몇 km · 제목)을 잡아도 끌 수 있다
+    panel.addEventListener('pointerdown', e => { if (e.target.closest('.mv-where, .mv-h')) dragStart(e); });
+    addEventListener('resize', () => { if (isOpen) applySheet(false); });
     // ---------- 열기 · 닫기
     function open() {
       if (isOpen) return; isOpen = true; view.hidden = false; mode = 'info'; selId = null; form = null;
       if (!me) { const S = TideHarm.STATIONS[tideSt]; v = { lon: S.lon - 0.05, lat: S.lat - 0.02, s: 1400 }; }
-      resize(); loadLand(); loadSpots(); startGps(); wakeOn(); paintPanel(true); kick();
+      loadLand(); loadSpots(); startGps(); wakeOn(); paintPanel(true); applySheet(false); resize(); kick();
       if (useHist) { try { history.pushState({ mapv: 1 }, ''); } catch (_) {} }
     }
     function close(fromPop) {
@@ -3308,7 +3372,7 @@ if ('serviceWorker' in navigator) addEventListener('load', () => {
   const sw = navigator.serviceWorker; let ctl = sw.controller, reloading = false;
   // 새 버전이 올라오면 한 번 새로 열어 바로 반영 (처음 설치할 때는 제외)
   sw.addEventListener('controllerchange', () => { if (ctl && !reloading) { reloading = true; location.reload(); } ctl = sw.controller; });
-  sw.register('sw.js?v=5c76dd41').then(reg => {
+  sw.register('sw.js?v=84dc7c79').then(reg => {
     // 앱을 켜 둔 채 다른 화면에 갔다 돌아오면 새 버전이 있는지 확인
     document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') reg.update().catch(() => {}); });
   }).catch(() => {});
