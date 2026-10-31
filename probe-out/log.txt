@@ -1,1 +1,18 @@
-done 2s
+$ sudo apt-get -qq update && sudo apt-get -qq install -y osmium-tool > /dev/null → 0 
+Running kernel seems to be up-to-date.
+
+No services need to be restarted.
+
+No containers need to be restarted.
+
+No user sessions are running outdated binaries.
+
+No VM guests are running outdated hypervisor (qemu) binaries on this host.
+
+$ /usr/bin/python3 -m pip install -q --user --break-system-packages shapely → 0 
+$ wget -q https://download.geofabrik.de/asia/south-korea-latest.osm.pbf -O kr.pbf → 0 
+$ osmium extract -b 125.3,35.1,127.4,38.1 kr.pbf -o box.pbf --overwrite → 0 
+$ osmium tags-filter box.pbf nwr/natural=water nwr/waterway=riverbank nwr/landuse=reservoir,basin -o water.pbf --overwrite → 0 
+$ osmium export water.pbf -f geojsonseq -o water.geojsonseq --overwrite --geometry-types=polygon → 0 
+물 다각형 1490개, 이름 51
+water_union 4689 KB, 46s
