@@ -1,25 +1,14 @@
-조석예보 시계열: HTTP 403 {
+1192136/roms/GetRomsApiService: 200 0.8s {"header":{"resultCode":"00","resultMsg":"NORMAL_SERVICE"},"body":{"items":{"item":[{"predcDt":"2026-10-31 00:00:00","lat":36.26030,"lot":126.20696,"crdir":179.91,"crsp":0.57,"wtem":17.92},{"predcDt":"2026-10-31 01:00:00","lat":36.26030,"lot":126.20696,"crdir":164.24,"crsp":0.52,"wtem":17.88},{"predcDt":"2026-10-31 02:00:00","lat":36.26030,"lot":126.20696,"crdir":145.05,"crsp":0.52,"wtem":17.89},{"predcDt":"2026-10-31 03:00:00","lat":36.26030,"lot":126.20696,"crdir":123.66,"crsp":0.45,"wtem":17.
+1192000/service/OceansData/roms/GetRomsApiService: 400 0.7s {
   "OpenAPI_ServiceResponse": {
     "cmmMsgHeader": {
-      "errMsg": "SERVICE_KEY_IS_NOT_REGISTERED_ERROR",
-      "returnAuthMsg": "등록되지 않은 서비스키",
- 
-조석예보 고저조: HTTP 403 {
-  "OpenAPI_ServiceResponse": {
-    "cmmMsgHeader": {
-      "errMsg": "SERVICE_KEY_IS_NOT_REGISTERED_ERROR",
-      "returnAuthMsg": "등록되지 않은 서비스키",
- 
-부이 최신: HTTP 403 {
-  "OpenAPI_ServiceResponse": {
-    "cmmMsgHeader": {
-      "errMsg": "SERVICE_KEY_IS_NOT_REGISTERED_ERROR",
-      "returnAuthMsg": "등록되지 않은 서비스키",
- 
-1시간 조위: HTTP 403 {
-  "OpenAPI_ServiceResponse": {
-    "cmmMsgHeader": {
-      "errMsg": "SERVICE_KEY_IS_NOT_REGISTERED_ERROR",
-      "returnAuthMsg": "등록되지 않은 서비스키",
- 
-refs 42 days 45 bad 0 371s
+      "errMsg": "NO_OPENAPI_SERVICE_ERROR",
+      "returnAuthMsg": "해당 오픈API 서비스가 없거나 폐기됨",
+      "returnReasonCode": "12"
+    }
+  }
+}
+
+parse fail 'items' {"header":{"resultCode":"10","resultMsg":"INVALID_REQUEST_PARAMETER_ERROR"}}
+서해 큰 상자 total: 200 0.7s {"header":{"resultCode":"10","resultMsg":"INVALID_REQUEST_PARAMETER_ERROR"}}
+reqDate 넣음: 200 {"header":{"resultCode":"00","resultMsg":"NORMAL_SERVICE"},"body":{"items":{"item":[{"predcDt":"2026-10-31 00:00:00","lat":36.26030,"lot":126.20696,"crdir":179.91,"crsp":0.57,"wtem":17.92},{"predcDt":"2026-10-31 01:00:00","lat":36.26030,"lot":126.20696,"crdir":164.24,"crsp":0.52,"wtem":17.88},{"pred
