@@ -607,6 +607,8 @@ h2{margin:0; font-size:16px; font-weight:700; text-wrap:balance}
         <p style="margin:0"><b class="t-strong">빨강 · 물 셈</b><span>사리 전후. 줄이 많이 날리고 밑걸림이 잦아요.</span></p></li>
       <li><span class="sw" style="display:grid;place-items:center;font-size:10px;font-weight:700;color:var(--strong)">1.5m</span>
         <p style="margin:0"><b>날씨 아이콘 · 파도 높이</b><span>칸 아래 줄은 낮 날씨와 그날 가장 높은 파도예요. 글자 색은 바람까지 함께 본 바다 상태로, 노랑은 주의, 빨강(테두리)은 출항이 어려울 수 있는 날. 3일까지는 출항지 앞바다의 시간별 예보예요. 그 뒤 10일까지는 기상청 중기 해상예보로, 서해 바다 전체를 묶은 예보라 앞바다에 가까운 낮은 쪽 파도를 보여줘요. 날이 가까워질수록 더 정확해져요.</span></p></li>
+      <li><span class="sw" style="display:grid;place-items:center;background:var(--well)"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><g stroke="#9C4F3E" stroke-width="1.8" stroke-linecap="round" fill="none"><path d="M12 14q-4 2-8 3"/><path d="M12 14q-2 3-5 5"/><path d="M12 14q4 2 8 3"/><path d="M12 14q2 3 5 5"/></g><ellipse cx="12" cy="10" rx="5.6" ry="5" fill="#B9644C" stroke="#5E2E22" stroke-width="1"/><circle cx="14.2" cy="9.4" r="1.5" fill="#FFF4DC"/><circle cx="14.5" cy="9.4" r=".8" fill="#1B1B1B"/><circle cx="14.8" cy="13" r="1.2" fill="#E3B04B"/></svg></span>
+        <p style="margin:0"><b>바다 그림 속 쭈꾸미 · 갑오징어</b><span>그 시각의 조류 세기와 지금 수온이 낚시에 알맞을수록 여러 마리가 바닥을 활발하게 돌아다니고 에기에 다가가요. 조류가 너무 세거나 수온이 적정 범위를 벗어나면 한 마리만 바닥에 반쯤 숨어 있어요. 실제 마릿수나 확률이 아니라 조건을 그림으로 보여주는 거예요. 수온은 오늘 날짜에만 반영돼요.</span></p></li>
     </ul>
     <p class="note">그림 속 주황 낚싯줄이 곧게 내려갈수록 물이 약한 날이에요. 사리는 보름달·그믐 무렵, 조금은 반달 무렵에 옵니다.</p>
   </section>
@@ -1102,7 +1104,7 @@ const TideHarm = (() => {
     const src = `${o.name || ''}${o.near ? '(근처)' : ''}${when}`.trim();
     // 자리가 모자라면: 근처 관측소 값이거나 오래된 값이면 '어디·언제'를, 아니면 '어제와 차이'를 남긴다
     const first = o.near || when ? [src, trend] : [trend, src];
-    return { main: `수온 ${o.wtem.toFixed(1)}℃`, subs: [[trend, src].filter(Boolean).join(' · '), ...first].filter(Boolean), d };
+    return { main: `수온 ${o.wtem.toFixed(1)}℃`, subs: [[trend, src].filter(Boolean).join(' · '), ...first].filter(Boolean), d, v: o.wtem };
   }
   // ---------- 지금 바다 수온 카드: 쭈꾸미·갑오징어 적정 수온 막대 위에 지금 수온, 48시간 흐름, 한 줄 해석
   const WT_SP = [{ name: '쭈꾸미', lo: 10, hi: 22 }, { name: '갑오징어', lo: 12, hi: 24 }];
@@ -1190,6 +1192,9 @@ const TideHarm = (() => {
     const st = WX && WX.stations && WX.stations[tideSt];
     const r = wxRow(st, sel, hour);
     const temp = tempHud(st);
+    // 바다 그림 바닥의 쭈꾸미·갑오징어: 지금 수온이 적정 범위 안이면 활발, 끝자락이면 조금, 벗어나면 거의 숨는다
+    const TFIT = { in: 1, edge: 0.65, low: 0.25, high: 0.25 };
+    Scene.setLife(temp ? { jj: TFIT[wtStatus(WT_SP[0], temp.v)[0]], gap: TFIT[wtStatus(WT_SP[1], temp.v)[0]] } : null);
     const cs = getComputedStyle(document.documentElement), col = k => cs.getPropertyValue(k).trim();
     let line;
     if (!r) {
@@ -1505,6 +1510,15 @@ const TideHarm = (() => {
     const clouds = Array.from({ length: 7 }, (_, i) => ({ x: (i * 0.37 + rnd() * 0.2) % 1, y: 0.06 + rnd() * 0.26, k: 0.75 + rnd() * 0.5, v: 0.7 + rnd() * 0.6 }));
     const gusts = Array.from({ length: 12 }, () => ({ x: rnd(), y: rnd(), l: 0.6 + rnd() * 0.8, v: 0.8 + rnd() * 0.5 }));
     const drops = Array.from({ length: 90 }, () => ({ x: rnd(), y: rnd(), v: 0.8 + rnd() * 0.4 }));
+    // 바닥의 쭈꾸미·갑오징어: 그 시각 조류 세기와 지금 수온이 낚시에 알맞을수록 여러 마리가 활발하게 돌아다닌다
+    // (실제 마릿수·확률이 아니라 조건을 그림으로 보여주는 것)
+    const critters = [
+      ...[0, 1, 2].map(i => ({ kind: 'jj', i, n: 3 })),
+      ...[0, 1].map(i => ({ kind: 'gap', i, n: 2 }))
+    ].map((c, k) => ({ ...c, x: null, tx: null, dir: k % 2 ? -1 : 1, a: 0, ph: rnd() * 6.28, rest: rnd() * 2, hold: 0 }));
+    let lifeT = { jj: 0.85, gap: 0.85 }, lifeLast = 0;
+    // 조류 세기(0~1) → 낚시하기 알맞은 정도: 정조 0.7, 약~보통 1, 셀수록 낮아진다
+    const flowFit = e => e < 0.08 ? 0.7 + 0.3 * (e / 0.08) : e <= 0.45 ? 1 : e <= 0.7 ? 1 - 0.45 * (e - 0.45) / 0.25 : Math.max(0.25, 0.55 - 0.3 * (e - 0.7) / 0.3);
     const LV_MIN = -50, LV_MAX = 1000;
     const surfOf = l => H * (0.16 + 0.5 * (1 - (l - LV_MIN) / (LV_MAX - LV_MIN)));
     // 바닥: 왼쪽은 깊은 바다, 오른쪽으로 갈수록 얕아져 물가(갯벌)로 올라간다
@@ -1585,6 +1599,96 @@ const TideHarm = (() => {
       ctx.font = fM; ctx.fillStyle = '#FFFFFF'; ctx.fillText(T.main, x + 22, y + 12.5);
       if (sub) { ctx.font = fS; ctx.fillStyle = 'rgba(255,255,255,.75)'; ctx.fillText(sub, x + 30 + mw, y + 12.5); }
       ctx.restore();
+    }
+    // 쭈꾸미: 둥근 머리, 금테 무늬, 바닥에 펼친 여덟 다리가 꿈틀
+    function drawJJ(x, y, k, dir, t, act, reach) {
+      ctx.save(); ctx.translate(x, y); ctx.scale(k * dir, k);
+      ctx.lineCap = 'round'; ctx.strokeStyle = '#9C4F3E'; ctx.lineWidth = 2.1;
+      for (let j = 0; j < 4; j++) {
+        const sp = 3 + j * 3.2, w = Math.sin(t * (3 + act * 3) + j * 1.3) * (0.8 + act * 1.6);
+        ctx.beginPath(); ctx.moveTo(1, 2); ctx.quadraticCurveTo(sp * 0.6, 5 + w * 0.3, sp + 2, 6.5 + w * 0.4); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(-1, 2); ctx.quadraticCurveTo(-sp * 0.6, 5 - w * 0.3, -sp - 2, 6.5 - w * 0.4); ctx.stroke();
+      }
+      if (reach) { ctx.beginPath(); ctx.moveTo(2, 0); ctx.quadraticCurveTo(reach.x * 0.5 / k, reach.y * 0.2 / k - 4, reach.x / k * dir, reach.y / k); ctx.lineWidth = 1.8; ctx.stroke(); }
+      const bob = Math.sin(t * (2 + act * 2)) * 0.6;
+      ctx.beginPath(); ctx.ellipse(-0.5, -3.5 + bob, 6.2, 5.4, -0.15, 0, 2 * Math.PI);
+      ctx.fillStyle = '#B9644C'; ctx.fill(); ctx.strokeStyle = '#5E2E22'; ctx.lineWidth = 1; ctx.stroke();
+      ctx.fillStyle = '#E3B04B'; ctx.beginPath(); ctx.arc(3.2, 0.2 + bob, 1.5, 0, 2 * Math.PI); ctx.fill();   // 금테 무늬
+      ctx.fillStyle = '#FFF4DC'; ctx.beginPath(); ctx.arc(2.6, -4.2 + bob, 1.7, 0, 2 * Math.PI); ctx.fill();
+      ctx.fillStyle = '#1B1B1B'; ctx.beginPath(); ctx.arc(3, -4.2 + bob, 0.85, 0, 2 * Math.PI); ctx.fill();
+      ctx.restore();
+    }
+    // 갑오징어: 줄무늬 몸통, 가장자리 지느러미가 물결치며 바닥 위를 떠간다
+    function drawGap(x, y, k, dir, t, act) {
+      ctx.save(); ctx.translate(x, y); ctx.scale(k * dir, k);
+      const r = t * (5 + act * 5);
+      ctx.beginPath();
+      for (let j = 0; j <= 40; j++) { const a = j / 40 * 2 * Math.PI, q = 1 + 0.07 * Math.sin(a * 9 + r); ctx.lineTo(-1 + 12.2 * Math.cos(a) * q, 6.4 * Math.sin(a) * q); }
+      ctx.closePath(); ctx.fillStyle = 'rgba(236,220,196,.7)'; ctx.fill();
+      ctx.beginPath(); ctx.ellipse(-1, 0, 10.5, 4.8, 0, 0, 2 * Math.PI); ctx.fillStyle = '#C9A27A'; ctx.fill();
+      ctx.strokeStyle = '#6E5236'; ctx.lineWidth = 1; ctx.stroke();
+      ctx.strokeStyle = 'rgba(110,82,54,.55)'; ctx.lineWidth = 1.1;
+      for (let j = 0; j < 4; j++) { const xx = -7 + j * 3.4; ctx.beginPath(); ctx.moveTo(xx, -3.6); ctx.quadraticCurveTo(xx + 1, -1.5, xx, 0); ctx.stroke(); }
+      ctx.strokeStyle = '#B08A63'; ctx.lineWidth = 1.5; ctx.lineCap = 'round';
+      for (let j = -1; j <= 1; j++) { const w = Math.sin(r * 0.6 + j) * 0.8; ctx.beginPath(); ctx.moveTo(9, j * 1.2); ctx.quadraticCurveTo(12, j * 1.6 + w, 15, j * 2 + w); ctx.stroke(); }
+      ctx.fillStyle = '#FFF4DC'; ctx.beginPath(); ctx.arc(7.4, -1.6, 1.6, 0, 2 * Math.PI); ctx.fill();
+      ctx.fillStyle = '#1B1B1B'; ctx.beginPath(); ctx.ellipse(7.6, -1.6, 0.9, 0.5, 0, 0, 2 * Math.PI); ctx.fill();
+      ctx.restore();
+    }
+    // 바닥 친구들 움직이기 + 그리기. 조건이 나쁘면 한 마리만 바닥에 숨어 눈만 내놓는다
+    function drawCritters(t, surf, jig, maxX) {
+      const dt = running ? Math.max(0, Math.min(0.05, t - lifeLast)) : 0; lifeLast = t;
+      const fit = flowFit(Math.min(1, Math.abs(flow))), k = Math.max(0.85, Math.min(1.15, W / 390));
+      // 물속(바닥이 수면보다 22px 넘게 깊은 곳)에서만 다닌다
+      let xMax = Math.min(maxX, W - 10); while (xMax > 40 && bedOf(xMax) - surf < 22) xMax -= 6;
+      const xMin = 14;
+      ['jj', 'gap'].forEach(kind => {
+        const score = fit * lifeT[kind], group = critters.filter(c => c.kind === kind), act = Math.max(0.15, score);
+        group.forEach(c => {
+          const on = score >= (c.i + 1) / (c.n + 1) - 0.02;
+          const hide = !on && c.i === 0 && !group.some(o => o !== c && o.a > 0.5);   // 아무도 안 나오면 첫째가 숨어 있는 모습
+          c.a += ((on || hide ? 1 : 0) - c.a) * Math.min(1, dt * 2.5);
+          if (!running) c.a = on || hide ? 1 : 0;
+          c.hidden = hide;
+          if (c.x === null || c.x > xMax) { c.x = xMin + (xMax - xMin) * (kind === 'jj' ? [0.1, 0.46, 0.8][c.i] : [0.28, 0.64][c.i]); c.tx = c.x; }
+          if (c.a < 0.02) return;
+          // 다음 목적지: 활발할수록 자주 움직이고, 가끔은 지그(애기)로 다가간다
+          if (on && running) {
+            if (c.rest > 0) c.rest -= dt;
+            else if (Math.abs(c.tx - c.x) < 1.5) {
+              const others = critters.filter(o => o !== c && o.a > 0.3 && o.tx != null);
+              const toJig = jig && !others.some(o => o.jig || Math.abs(o.x - jig.x) < 20 * k) && Math.random() < 0.25 + 0.35 * act;
+              c.jig = toJig;
+              if (toJig) c.tx = Math.max(xMin, Math.min(xMax, jig.x - Math.sign(jig.x - c.x || 1) * (kind === 'jj' ? 9 : 15)));
+              else {
+                for (let tries = 0; tries < 6; tries++) {
+                  c.tx = xMin + Math.random() * (xMax - xMin);
+                  if (!others.some(o => Math.abs(o.tx - c.tx) < 26 * k || Math.abs(o.x - c.tx) < 26 * k)) break;
+                }
+              }
+              c.rest = (kind === 'jj' ? 0.8 : 0.5) + Math.random() * (2.4 - 1.6 * act);
+            } else {
+              const v = (kind === 'jj' ? 9 : 16) * (0.4 + 0.9 * act) * k;
+              const d = Math.sign(c.tx - c.x); c.dir = d || c.dir; c.x += d * Math.min(Math.abs(c.tx - c.x), v * dt);
+            }
+          }
+          const bed = bedOf(c.x), act2 = c.hidden ? 0.1 : act;
+          ctx.save(); ctx.globalAlpha = Math.min(1, c.a);
+          if (c.hidden) {   // 바닥선 위만 보이게 잘라서 반쯤 묻힌 모습
+            ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(W, 0);
+            for (let x = W; x >= 0; x -= 6) ctx.lineTo(x, bedOf(x) - 0.5);
+            ctx.closePath(); ctx.clip();
+          }
+          if (kind === 'jj') {
+            const near = jig && !c.hidden && Math.abs(jig.x - c.x) < 22 && jig.y > bed - 26;
+            drawJJ(c.x, bed - (c.hidden ? -1.5 : 6) * k, k, c.dir, t + c.ph, act2, near ? { x: (jig.x - c.x) * c.dir, y: jig.y - (bed - 6 * k) } : null);
+          } else {
+            const hover = c.hidden ? -1 : 9 + Math.sin(t * 1.6 + c.ph) * 1.6;
+            drawGap(c.x, bed - hover * k, k, c.dir, t + c.ph, act2);
+          }
+          ctx.restore();
+        });
+      });
     }
     function draw(t) {
       if (!W || !H || lev === null) return;
@@ -1677,6 +1781,11 @@ const TideHarm = (() => {
       ctx.strokeStyle = 'rgba(255,255,255,.28)'; ctx.lineWidth = 1.4; ctx.stroke();   // 드러난 갯벌의 젖은 윤기
       // 물 높이 눈금 막대 (0~9m)
       const px = W * 0.72, pTop = surfOf(950) - 6, pBot = bedOf(px) + 6;
+      // 지그(애기) 위치를 미리 구해 바닥 친구들이 다가갈 수 있게
+      const bx0 = Math.min(W * 0.24, 130), by0 = waveY(bx0), ang0 = Math.max(-0.26, Math.min(0.26, Math.atan((waveY(bx0 + 8) - waveY(bx0 - 8)) / 16) * 0.8));
+      const tx0 = bx0 + Math.cos(ang0) * 60 + Math.sin(ang0) * 44, drift0 = dir * eff * Math.min(W * 0.42, 230);
+      const jx = Math.max(16, Math.min(px - 16, tx0 + 4 + drift0 + Math.sin(t * 1.3) * (1 + eff * 4))), jbed = bedOf(jx);
+      drawCritters(t, surf, { x: jx, y: Math.max(surf + 16, jbed - 7 - eff * (jbed - surf) * 0.42) + 8 }, px - 16);
       ctx.fillStyle = C.hull; ctx.strokeStyle = C['hull-line']; ctx.lineWidth = 1;
       ctx.beginPath(); ctx.rect(px - 3, pTop, 6, pBot - pTop); ctx.fill(); ctx.stroke();
       ctx.font = `700 10px ${C.font}`; ctx.textBaseline = 'middle';
@@ -1788,6 +1897,8 @@ const TideHarm = (() => {
         if (lev === null) { lev = level; flow = fl; alt = sunAlt; ha = sunHa; }
         start();
       },
+      // 수온이 쭈꾸미·갑오징어에 알맞은 정도 (0~1). 오늘이 아니거나 수온이 없으면 0.85
+      setLife(l) { lifeT = { jj: l && l.jj != null ? l.jj : 0.85, gap: l && l.gap != null ? l.gap : 0.85 }; if (!running) draw(0); },
       // w: null 이면 날씨 없음. {wind, vec, wave, sky, pty, hud:{sig, color, line}}
       setWeather(w) {
         const was = wxOn; wxOn = !!w; hud = w ? w.hud : null;
@@ -2398,7 +2509,7 @@ if ('serviceWorker' in navigator) addEventListener('load', () => {
   const sw = navigator.serviceWorker; let ctl = sw.controller, reloading = false;
   // 새 버전이 올라오면 한 번 새로 열어 바로 반영 (처음 설치할 때는 제외)
   sw.addEventListener('controllerchange', () => { if (ctl && !reloading) { reloading = true; location.reload(); } ctl = sw.controller; });
-  sw.register('sw.js?v=6307a17c').then(reg => {
+  sw.register('sw.js?v=f6e35887').then(reg => {
     // 앱을 켜 둔 채 다른 화면에 갔다 돌아오면 새 버전이 있는지 확인
     document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') reg.update().catch(() => {}); });
   }).catch(() => {});
