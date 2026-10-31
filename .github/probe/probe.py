@@ -1,4 +1,4 @@
-"""자료 받기 6: 바다 격자 조석(TideBED) 2일치, 조류 지점 최강창낙조 전체 (인증키는 결과에 남기지 않는다)"""
+"""자료 받기 7: 바다 격자 조석(TideBED) 이틀 더, 기상청 바다 격자 시험 (인증키는 결과에 남기지 않는다)"""
 import json, os, re, time, urllib.parse, urllib.request
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timedelta, timezone
@@ -6,7 +6,7 @@ KST = timezone(timedelta(hours=9))
 KEY = re.sub(r'\s+', '', os.environ.get('DATA_GO_KR_KEY', ''))
 OUT = 'probe-out'; os.makedirs(OUT, exist_ok=True)
 now = datetime.now(KST)
-DAYS = [now.strftime('%Y%m%d'), (now + timedelta(days=7)).strftime('%Y%m%d')]
+DAYS = ['20261103', '20261114']
 B = 'https://apis.data.go.kr/1192136/'
 def get(path, params, tries=3):
     q = f'?serviceKey={KEY}&' + urllib.parse.urlencode(params, safe='')
@@ -44,20 +44,32 @@ def fe(code):
         pg += 1
     return code, rows, 'ok'
 t0 = time.time()
-grid = [tuple(p) for p in json.load(open('.github/probe/grid.json'))]
-ports = [(37.45, 126.6), (37.25, 126.47), (37.29, 126.57), (36.67, 126.13), (36.44, 126.52), (36.15, 126.5), (35.98, 126.56), (35.62, 126.47),
-         (36.406, 126.486), (36.674, 126.129), (35.975, 126.563), (37.238, 126.428), (36.128, 126.495), (35.618, 126.301), (37.451, 126.592)]
-crnt = json.load(open('.github/probe/crnt_west.json'))
+prev = json.load(open('probe-out/tidebed_grid.json'))
+grid = [tuple(map(float, k.split(','))) for k, v in prev.items() if isinstance(v, dict)]
 with ThreadPoolExecutor(6) as ex:
-    fut_tb = ex.map(tb, ports + grid)
-    fut_fe = ex.map(fe, list(crnt))
-    tbres = {f'{p[0]},{p[1]}': r for p, r in fut_tb}
-    feres = {}; felog = []
-    for code, rows, why in fut_fe:
-        feres[code] = {'name': crnt[code]['name'], 'lat': crnt[code]['lat'], 'lon': crnt[code]['lon'], 'ev': rows}; felog.append(f'{code} {len(rows)} {why}')
-with open(f'{OUT}/tidebed_grid.json', 'w') as f: json.dump(tbres, f, ensure_ascii=False, separators=(',', ':'))
-with open(f'{OUT}/fldebb_all.json', 'w') as f: json.dump(feres, f, ensure_ascii=False, separators=(',', ':'))
-ok = sum(1 for v in tbres.values() if isinstance(v, dict)); bad = [k for k, v in tbres.items() if not isinstance(v, dict)]
-log = [f'days {DAYS}', f'tidebed ok {ok} / {len(tbres)}  none/fail {len(bad)} {bad[:20]}', *felog, f'{time.time()-t0:.0f}s']
+    tbres = {f'{p[0]},{p[1]}': r for p, r in ex.map(tb, grid)}
+with open(f'{OUT}/tidebed_grid2.json', 'w') as f: json.dump(tbres, f, ensure_ascii=False, separators=(',', ':'))
+ok = sum(1 for v in tbres.values() if isinstance(v, dict))
+log = [f'days {DAYS}', f'tidebed ok {ok} / {len(tbres)}']
+# 기상청 바다 격자: 파고가 나오는지
+KMA = 'https://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getVilageFcst'
+c = now - timedelta(minutes=12); hs = [h for h in (2, 5, 8, 11, 14, 17, 20, 23) if h <= c.hour]
+bd, bt = (c.strftime('%Y%m%d'), f'{max(hs):02d}00') if hs else ((c - timedelta(days=1)).strftime('%Y%m%d'), '2300')
+cells = json.load(open('.github/probe/kma_cells.json'))
+def kma(cell):
+    x, y, la, lo = cell
+    q = f'?serviceKey={KEY}&' + urllib.parse.urlencode({'pageNo': 1, 'numOfRows': 1500, 'dataType': 'JSON', 'base_date': bd, 'base_time': bt, 'nx': x, 'ny': y})
+    t = time.time()
+    try:
+        with urllib.request.urlopen(KMA + q, timeout=30) as r: d = json.loads(r.read().decode())
+        it = d['response']['body']['items']['item']
+        w = [i for i in it if i['category'] == 'WAV']; ws = [i for i in it if i['category'] == 'WSD']
+        return f'{x},{y} ({la},{lo}) n={len(it)} wav={len(w)} {[i["fcstValue"] for i in w[:4]]} wsd={[i["fcstValue"] for i in ws[:4]]} {time.time()-t:.1f}s'
+    except Exception as e:
+        return f'{x},{y} ERR {type(e).__name__} {time.time()-t:.1f}s'
+t1 = time.time()
+with ThreadPoolExecutor(4) as ex: log += list(ex.map(kma, cells))
+log.append(f'kma {len(cells)} cells {time.time()-t1:.0f}s')
+log.append(f'{time.time()-t0:.0f}s')
 with open(f'{OUT}/log.txt', 'w') as f: f.write('\n'.join(log))
 print('\n'.join(log))
