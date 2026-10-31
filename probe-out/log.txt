@@ -1,32 +1,37 @@
-obs DT_0065: n=20 last={'obsvtrNm': '덕적도', 'obsrvnDt': '2026-10-31 00:00', 'wtem': None, 'bscTdlvHgt': 314.0} wtem_n=3 sample=[0.0, 0.0, 0.0]
-obs DT_0017: n=20 last={'obsvtrNm': '대산', 'obsrvnDt': '2026-10-31 00:00', 'wtem': 18.9, 'bscTdlvHgt': 292.0} wtem_n=20 sample=[18.8, 18.8, 18.9]
-obs DT_0050: n=20 last={'obsvtrNm': '태안', 'obsrvnDt': '2026-10-31 00:00', 'wtem': None, 'bscTdlvHgt': 270.0} wtem_n=3 sample=[0.0, 0.0, 0.0]
-obs DT_0037: n=20 last={'obsvtrNm': '어청도', 'obsrvnDt': '2026-10-31 00:00', 'wtem': 17.3, 'bscTdlvHgt': 169.0} wtem_n=20 sample=[17.3, 17.3, 17.3]
-obs DT_0024: n=20 last={'obsvtrNm': '장항', 'obsrvnDt': '2026-10-31 00:00', 'wtem': None, 'bscTdlvHgt': 204.0} wtem_n=3 sample=[0.0, 0.0, 0.0]
-obs DT_0003: n=20 last={'obsvtrNm': '영광', 'obsrvnDt': '2026-10-31 00:00', 'wtem': None, 'bscTdlvHgt': 171.0} wtem_n=3 sample=[0.0, 0.0, 0.0]
-obs DT_0093: n=20 last={'obsvtrNm': '소무의도', 'obsrvnDt': '2026-10-31 00:00', 'wtem': None, 'bscTdlvHgt': 353.0} wtem_n=3 sample=[0.0, 0.0, 0.0]
-obs DT_0052: n=20 last={'obsvtrNm': '인천송도', 'obsrvnDt': '2026-10-31 00:00', 'wtem': None, 'bscTdlvHgt': 367.0} wtem_n=3 sample=[0.0, 0.0, 0.0]
-obs DT_0032: n=20 last={'obsvtrNm': '강화대교', 'obsrvnDt': '2026-10-31 00:00', 'wtem': None, 'bscTdlvHgt': 425.0} wtem_n=3 sample=[0.0, 0.0, 0.0]
-obs DT_0044: n=20 last={'obsvtrNm': '영종대교', 'obsrvnDt': '2026-10-31 00:00', 'wtem': None, 'bscTdlvHgt': 404.0} wtem_n=3 sample=[0.0, 0.0, 0.0]
-obs DT_0002: n=20 last={'obsvtrNm': '평택', 'obsrvnDt': '2026-10-31 00:00', 'wtem': 18.1, 'bscTdlvHgt': 382.0} wtem_n=20 sample=[17.8, 18.0, 18.1]
-obs TW_0079: {"header":{"resultCode":"10","resultMsg":"INVALID_REQUEST_PARAMETER_ERROR"}}
-obs TW_0069: {"header":{"resultCode":"10","resultMsg":"INVALID_REQUEST_PARAMETER_ERROR"}}
-obs TW_0072: {"header":{"resultCode":"10","resultMsg":"INVALID_REQUEST_PARAMETER_ERROR"}}
-obs TW_0082: {"header":{"resultCode":"10","resultMsg":"INVALID_REQUEST_PARAMETER_ERROR"}}
-obs TW_0070: {"header":{"resultCode":"10","resultMsg":"INVALID_REQUEST_PARAMETER_ERROR"}}
-obs TW_0076: {"header":{"resultCode":"10","resultMsg":"INVALID_REQUEST_PARAMETER_ERROR"}}
-obs TW_0077: {"header":{"resultCode":"10","resultMsg":"INVALID_REQUEST_PARAMETER_ERROR"}}
-obs KG_0202: {"header":{"resultCode":"10","resultMsg":"INVALID_REQUEST_PARAMETER_ERROR"}}
-obs HF_0070: {"header":{"resultCode":"10","resultMsg":"INVALID_REQUEST_PARAMETER_ERROR"}}
-obs HF_0076: {"header":{"resultCode":"10","resultMsg":"INVALID_REQUEST_PARAMETER_ERROR"}}
-fldebb {'numOfRows': 1000, 'pageNo': 1}: {"header":{"resultCode":"10","resultMsg":"INVALID_REQUEST_PARAMETER_ERROR"}}
-fldebb {'numOfRows': 1000, 'pageNo': 6}: {"header":{"resultCode":"10","resultMsg":"INVALID_REQUEST_PARAMETER_ERROR"}}
-fldebb {'numOfRows': 500, 'pageNo': 11}: {"header":{"resultCode":"10","resultMsg":"INVALID_REQUEST_PARAMETER_ERROR"}}
-fldebb {'numOfRows': 100, 'pageNo': 57}: total=5642 n=42 2026-12-26 14:16 .. 2026-12-31 21:50 (1.2s)
-fldebb reqDate: {"header":{"resultCode":"00","resultMsg":"NORMAL_SERVICE"},"body":{"items":{"item":[{"obsvtrNm":"천수만","lot":126.46652,"lat":36.37794,"predcDt":"2025-01-01 01:28","crdir":350.20,"crsp":123.15},{"obsvtrNm":"천수만","lot":126.46652,"lat":36.37794,"predcDt":"2025-01-
-tidebed 36.3,126.2: n=144 ref=호도 jogo=0.980 josi=+1분 msl=338.9 (1.65s)
-tidebed 36.0,125.5: n=144 ref=어청도 jogo=0.839 josi=-2분 msl=260.7 (1.71s)
-tidebed 36.6,126.8: {"header":{"resultCode":"10","resultMsg":"INVALID_REQUEST_PARAMETER_ERROR"}} (0.53s)
-tidebed 36.25,126.1: n=144 ref=외연도항 jogo=1.010 josi=+1분 msl=329.9 (1.91s)
-tidebed 37.1,126.1: n=144 ref=울도 jogo=1.062 josi=+1분 msl=391.1 (1.45s)
-tidebed 35.7,126.2: n=144 ref=상왕등도 jogo=1.036 josi=+3분 msl=321.6 (1.74s)
+days ['20261031', '20261107']
+tidebed ok 657 / 697  none/fail 40 ['37.45,126.6', '37.25,126.47', '36.15,126.5', '35.62,126.47', '35.975,126.563', '35.618,126.301', '37.451,126.592', '35.46,126.45', '35.54,126.6', '35.74,126.55', '35.74,126.6', '35.78,126.5', '35.78,126.55', '35.78,126.6', '35.82,126.5', '35.82,126.55', '35.82,126.6', '35.82,126.65', '35.82,126.7', '35.86,126.55']
+15LTC01 5643 ok
+16LTC01 5643 ok
+17LTC01 5643 ok
+18LTC01 5634 ok
+19LTC01 5643 ok
+15LTC02 7317 ok
+15LTC03 6898 ok
+16LTC02 6303 ok
+16LTC03 5642 ok
+17LTC02 5643 ok
+17LTC03 5642 ok
+17LTC04 5919 ok
+17LTC05 5632 ok
+17LTC06 6008 ok
+17LTC07 5627 ok
+17LTC08 5896 ok
+17LTC09 5608 ok
+17LTC10 5630 ok
+18LTC02 5643 ok
+19LTC02 6047 ok
+20LTC04 5643 ok
+20LTC07 8464 ok
+20LTC09 5636 ok
+20LTC11 8463 ok
+20LTC13 5596 ok
+20LTC14 5642 ok
+24LTC04 2821 ok
+24LTC05 2805 ok
+24LTC06 2821 ok
+24LTC07 2811 ok
+24LTC08 2801 ok
+24LTC09 2821 ok
+24LTC10 2802 ok
+24LTC11 2821 ok
+614s
