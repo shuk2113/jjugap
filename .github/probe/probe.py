@@ -1,29 +1,35 @@
-"""이름으로 위치 찾기 (OSM): 백사장·드르니·시화나래·큰가리섬·방조제 선착장 등"""
-import json, os, re, subprocess, sys, time, importlib, site, traceback
+"""출항지 목록의 행정구역(시·군·구) 이름 붙이기 (OSM 행정경계)"""
+import json, os, subprocess, sys, importlib, site, traceback
 log = []
 try:
-    subprocess.run(f'{sys.executable} -m pip install -q --user --break-system-packages osmium', shell=True)
+    subprocess.run(f'{sys.executable} -m pip install -q --user --break-system-packages shapely', shell=True)
     importlib.invalidate_caches(); site.addsitedir(site.getusersitepackages())
-    import osmium
-    subprocess.run('wget -q https://download.geofabrik.de/asia/south-korea-latest.osm.pbf -O kr.pbf', shell=True)
-    Q = re.compile(r'백사장|드르니|시화나래|큰가리|작은가리|시화방조제|조력|방조제.*선착|선착.*방조제|오이도|탄도항|전곡항|궁평항|영흥|진두|남항|연안부두|대천항|무창포|홍원|마량|격포|안흥|신진도|마검포|영목|구매항|모항|천리포|만리포|삽시도|원산도|오천')
-    class H(osmium.SimpleHandler):
-        def __init__(s): super().__init__(); s.out = []
-        def take(s, o, lon, lat, typ):
-            nm = o.tags.get('name:ko') or o.tags.get('name')
-            if nm and Q.search(nm) and 35.1 < lat < 38.1 and 125.3 < lon < 127.4:
-                s.out.append([nm, round(lat, 5), round(lon, 5), typ, ';'.join(f'{t.k}={t.v}' for t in o.tags if t.k not in ('name', 'name:ko', 'name:en'))[:80]])
-        def node(s, n):
-            if n.location.valid(): s.take(n, n.location.lon, n.location.lat, 'n')
-        def way(s, w):
-            try:
-                xs = [nd.lon for nd in w.nodes]; ys = [nd.lat for nd in w.nodes]
-                if xs: s.take(w, sum(xs) / len(xs), sum(ys) / len(ys), 'w')
-            except osmium.InvalidLocationError: pass
-    h = H(); h.apply_file('kr.pbf', locations=True)
-    h.out.sort(key=lambda x: x[0])
-    json.dump(h.out, open('probe-out/osm/names_found.json', 'w'), ensure_ascii=False)
-    log += [' | '.join(map(str, x)) for x in h.out if x[4] and 'highway=bus_stop' not in x[4]]
+    from shapely.geometry import shape, Point
+    subprocess.run('sudo apt-get -qq install -y osmium-tool > /dev/null; wget -q https://download.geofabrik.de/asia/south-korea-latest.osm.pbf -O kr.pbf', shell=True)
+    subprocess.run('osmium extract -b 125.3,35.1,127.4,38.1 kr.pbf -o box.pbf --overwrite --strategy=smart', shell=True)
+    subprocess.run('osmium tags-filter box.pbf r/boundary=administrative -o adm.pbf --overwrite && osmium export adm.pbf -f geojsonseq -o adm.geojsonseq --overwrite --geometry-types=polygon', shell=True)
+    lv = {4: [], 6: [], 7: []}
+    for l in open('adm.geojsonseq'):
+        l = l.strip().strip('\x1e')
+        if not l: continue
+        f = json.loads(l); p = f['properties']
+        try: a = int(p.get('admin_level', 0))
+        except ValueError: continue
+        if a in lv: lv[a].append((p.get('name:ko') or p.get('name'), shape(f['geometry'])))
+    log.append({k: len(v) for k, v in lv.items()}.__repr__())
+    ports = json.load(open('.github/probe/ports_pre.json'))
+    out = []
+    for n, la, lo, _ in ports:
+        pt = Point(lo, la)
+        def find(level):
+            for nm, g in lv[level]:
+                if g.contains(pt): return nm
+            # 바다 쪽 점이면 가장 가까운 경계
+            best = min(lv[level], key=lambda x: x[1].distance(pt)) if lv[level] else (None, None)
+            return best[0] if best[1] is not None and best[1].distance(pt) < 0.03 else None
+        out.append([n, la, lo, find(4), find(6), find(7)])
+    json.dump(out, open('probe-out/osm/ports_adm.json', 'w'), ensure_ascii=False)
+    log += [str(x) for x in out[:400]]
 except Exception:
     log.append(traceback.format_exc())
 open('probe-out/log.txt', 'w').write('\n'.join(log))
