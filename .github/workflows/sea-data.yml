@@ -31,11 +31,6 @@ jobs:
           ref: gh-pages
           path: site
 
-      - name: 연결 점검
-        env:
-          DATA_GO_KR_KEY: ${{ secrets.DATA_GO_KR_KEY }}
-        run: python3 .github/scripts/collect.py --diag
-
       - name: 예보·수온 받기
         env:
           DATA_GO_KR_KEY: ${{ secrets.DATA_GO_KR_KEY }}
