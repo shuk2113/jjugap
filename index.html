@@ -2530,7 +2530,7 @@ const TideHarm = (() => {
           }
           return [...cells.values()];
         };
-        basemap = { L: d.L.map(build), F: d.F.map(build), lab: d.lab };
+        basemap = { L: d.L.map(build), F: d.F.map(build), W: (d.W || [[], []]).map(build), lab: d.lab };
         landState = 'ok'; bkey = ''; draw();
       }).catch(() => { landState = 'error'; bkey = ''; draw(); });
     }
@@ -2565,7 +2565,7 @@ const TideHarm = (() => {
       const lod = v.s < 2600 ? 0 : 1, m = 30 / v.s;
       const vx0 = v.lon * KX - W / 2 / v.s - m, vx1 = v.lon * KX + W / 2 / v.s + m, vy0 = -v.lat - H / 2 / v.s - m, vy1 = -v.lat + H / 2 / v.s + m;
       const vis = cs => cs.filter(c => c.x1 >= vx0 && c.x0 <= vx1 && c.y1 >= vy0 && c.y0 <= vy1);
-      const lands = vis(basemap.L[lod]), flats = vis(basemap.F[lod]);
+      const lands = vis(basemap.L[lod]), flats = vis(basemap.F[lod]), waters = vis(basemap.W[lod]);
       g.save(); g.setTransform(dpr * v.s, 0, 0, dpr * v.s, dpr * (W / 2 - v.lon * KX * v.s), dpr * (H / 2 + v.lat * v.s));
       g.lineJoin = 'round'; g.lineCap = 'round';
       // 해안 가까운 얕은 물: 육지 둘레를 넓게 두 번 그어 바깥으로 갈수록 옅어지게
@@ -2577,6 +2577,9 @@ const TideHarm = (() => {
       g.save(); g.translate(0, 1.6 / v.s); g.fillStyle = C.shade; for (const c of lands) g.fill(c.p, 'evenodd'); g.restore();
       g.fillStyle = C.land; for (const c of lands) g.fill(c.p, 'evenodd');
       g.strokeStyle = C.coast; g.lineWidth = 0.9 / v.s; for (const c of lands) g.stroke(c.p);
+      // 방조제 안 호수·저수지·큰 강은 물빛으로 (가장자리는 해안선처럼 가늘게)
+      g.fillStyle = C.sea; for (const c of waters) g.fill(c.p, 'evenodd');
+      g.lineWidth = 0.7 / v.s; for (const c of waters) g.stroke(c.p);
       g.restore();
       // 이름표: 큰 섬·만부터, 다른 이름표·출항지와 겹치면 뺀다. 작은 섬은 섬 아래쪽 바다에
       // 확대·축소 단추, 축척, 출처 글씨 자리도 비워 둔다
@@ -3470,7 +3473,7 @@ if ('serviceWorker' in navigator) addEventListener('load', () => {
   const sw = navigator.serviceWorker; let ctl = sw.controller, reloading = false;
   // 새 버전이 올라오면 한 번 새로 열어 바로 반영 (처음 설치할 때는 제외)
   sw.addEventListener('controllerchange', () => { if (ctl && !reloading) { reloading = true; location.reload(); } ctl = sw.controller; });
-  sw.register('sw.js?v=817d7b90').then(reg => {
+  sw.register('sw.js?v=6906fbd9').then(reg => {
     // 앱을 켜 둔 채 다른 화면에 갔다 돌아오면 새 버전이 있는지 확인
     document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') reg.update().catch(() => {}); });
   }).catch(() => {});
