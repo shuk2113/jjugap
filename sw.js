@@ -1,5 +1,5 @@
 // 쭈갑 물때 오프라인 지원: 앱 화면은 인터넷이 되면 새로 받고, 안 되면 저장해 둔 것으로 연다
-const CACHE = 'jjugap-de1e6baa';
+const CACHE = 'jjugap-cd7af5ea';
 const CORE = ['./', './index.html', './manifest.webmanifest', './icon-192.png', './icon-512.png', './icon-180.png', './data/coast.json', './data/spots.json'];
 const FIXED = ['/data/coast.json', '/data/spots.json'];   // 앱과 함께 바뀌는 고정 자료 (해안선, 이 자리 계산 자료)
 self.addEventListener('install', e => { e.waitUntil(caches.open(CACHE).then(c => c.addAll(CORE)).then(() => self.skipWaiting())); });

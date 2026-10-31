@@ -2515,13 +2515,20 @@ const TideHarm = (() => {
       // 조류예보 지점의 지금 흐름: 흘러가는 쪽으로 화살표, 셀수록 길게 (30초마다 다시 계산)
       if (SP && v.s > 420) {
         const now = Date.now();
-        if (!arrows || now - arrows.t > 30000) arrows = { t: now, a: SP.cur.map(c => ({ c, k: curNow(c, now) })) };
+        if (!arrows || now - arrows.t > 30000) {
+          const m = [];
+          if (SEA) for (const cell of SEA.c) {
+            const q = { lat: cell[0], lon: cell[1] }; if (SP.cur.some(c => distKm(q, c) <= 8)) continue;
+            const r = romsAt(cell, now); if (r) m.push({ c: { lat: cell[0], lon: cell[1], mx: 0 }, k: r, model: true });
+          }
+          arrows = { t: now, a: [...m, ...SP.cur.map(c => ({ c, k: curNow(c, now) }))] };
+        }
         ctx.save(); ctx.strokeStyle = C.cur; ctx.fillStyle = C.cur; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
-        for (const { c, k } of arrows.a) {
+        for (const { c, k, model } of arrows.a) {
           const [x, y] = toS(c.lon, c.lat); if (x < -40 || x > W + 40 || y < -40 || y > H + 40) continue;
           const calm = k.sp < Math.max(8, c.mx * 0.08), r = k.dir * Math.PI / 180, ux = Math.sin(r), uy = -Math.cos(r);
-          const L = 12 + Math.min(1, k.sp / 160) * 22;
-          ctx.globalAlpha = 0.92;
+          const L = (model ? 10 : 12) + Math.min(1, k.sp / 160) * 22;
+          ctx.globalAlpha = model ? 0.42 : 0.92;
           if (calm) { ctx.lineWidth = 1.8; ctx.beginPath(); ctx.arc(x, y, 4, 0, 2 * Math.PI); ctx.stroke(); }
           else {
             const x1 = x + ux * L / 2, y1 = y + uy * L / 2;
@@ -2530,7 +2537,7 @@ const TideHarm = (() => {
           }
           if (v.s > 1100) {
             const t = calm ? '물돌이' : `${(k.sp / KN).toFixed(1)}노트`, ty = y + (uy > 0.3 ? -L / 2 - 6 : L / 2 + 13);
-            ctx.font = `700 10.5px ${font}`; ctx.textAlign = 'center'; ctx.globalAlpha = 1;
+            ctx.font = `${model ? 600 : 700} 10.5px ${font}`; ctx.textAlign = 'center'; ctx.globalAlpha = model ? 0.6 : 1;
             ctx.lineWidth = 3; ctx.strokeStyle = C.sea; ctx.strokeText(t, x, ty); ctx.fillText(t, x, ty); ctx.strokeStyle = C.cur; ctx.textAlign = 'start';
           }
         }
@@ -2608,8 +2615,8 @@ const TideHarm = (() => {
       if (seaState !== 'loading' && (!SEA || Date.now() - seaAt > 20 * 60000)) {
         seaState = 'loading';
         fetch('data/seagrid.json', { cache: 'no-cache' }).then(r => { if (!r.ok) throw new Error(r.status); return r.json(); }).then(j => {
-          if (j && j.c && j.t0) { SEA = j; seaAt = Date.now(); }
-          seaState = 'done'; paintPanel(true);
+          if (j && j.c && j.t0) { SEA = j; seaAt = Date.now(); arrows = null; }
+          seaState = 'done'; paintPanel(true); draw();
         }).catch(() => { seaState = 'done'; });
       }
     }
@@ -2683,18 +2690,49 @@ const TideHarm = (() => {
       return { slack, peak };
     }
     // 바람·파도: 가까운 바다 격자 (15km 안), 지금 시각에 가까운 예보
-    function seaWx(p, ms) {
+    const seaT0 = () => Date.parse(`${SEA.t0.slice(0, 4)}-${SEA.t0.slice(4, 6)}-${SEA.t0.slice(6, 8)}T${SEA.t0.slice(8, 10)}:00:00+09:00`);
+    function seaCell(p, lim) {
       if (!SEA) return null;
-      const t0 = Date.parse(`${SEA.t0.slice(0, 4)}-${SEA.t0.slice(4, 6)}-${SEA.t0.slice(6, 8)}T${SEA.t0.slice(8, 10)}:00:00+09:00`);
       let best = null;
       for (const c of SEA.c) { const d = distKm(p, { lat: c[0], lon: c[1] }); if (!best || d < best.d) best = { c, d }; }
-      if (!best || best.d > 15) return null;
-      const i = Math.floor((ms - t0) / 3600000), c = best.c;
+      return best && best.d <= lim ? best : null;
+    }
+    function seaWx(p, ms) {
+      const b = seaCell(p, 15); if (!b) return null;
+      const i = Math.floor((ms - seaT0()) / 3600000), c = b.c;
       for (const k of [0, 1, -1, 2, -2, 3]) {
         const j = i + k; if (j < 0 || j >= c[2].length || c[2][j] == null) continue;
-        return { d: best.d, wind: Math.round(c[2][j]), vec: c[3][j] == null ? null : c[3][j] * 10, wave: c[4][j] == null ? null : Math.round(c[4][j] * 10) / 10 };
+        return { d: b.d, wind: Math.round(c[2][j]), vec: c[3][j] == null ? null : c[3][j] * 10, wave: c[4][j] == null ? null : Math.round(c[4][j] * 10) / 10 };
       }
       return null;
+    }
+    // ROMS(해양조사원 수치예측모델): 칸마다 1시간 간격 흐름(방향/5, cm/s)·수온(×10). 시각 사이는 동·북 성분으로 이어 붙인다
+    function romsEN(c, j) {
+      if (!c[5] || j < 0 || j >= c[5].length || c[5][j] == null || c[6][j] == null) return null;
+      const r = c[5][j] * 5 * Math.PI / 180; return [c[6][j] * Math.sin(r), c[6][j] * Math.cos(r)];
+    }
+    function romsAt(c, ms) {
+      const f = (ms - seaT0()) / 3600000, j = Math.floor(f), w = f - j, a = romsEN(c, j), b = romsEN(c, j + 1);
+      if (!a || !b) return null;
+      const e = a[0] + (b[0] - a[0]) * w, n = a[1] + (b[1] - a[1]) * w, sp = Math.hypot(e, n);
+      const ta = c[7] && c[7][j], tb = c[7] && c[7][j + 1];
+      return { e, n, sp, dir: (Math.atan2(e, n) * 180 / Math.PI + 360) % 360, wt: ta != null && tb != null ? (ta + (tb - ta) * w) / 10 : null };
+    }
+    // ROMS 흐름의 주된 방향축(두 배 각도 평균)으로 물돌이·최강을 찾는다 (10분 간격)
+    function romsNext(c, ms) {
+      let zx = 0, zy = 0, mx = 0;
+      for (let j = 0; j < c[5].length; j++) { const v = romsEN(c, j); if (!v) continue; const s2 = v[0] * v[0] + v[1] * v[1], a = 2 * Math.atan2(v[0], v[1]); zx += s2 * Math.cos(a); zy += s2 * Math.sin(a); mx = Math.max(mx, Math.sqrt(s2)); }
+      const ax = Math.atan2(zy, zx) / 2, ua = r => r.e * Math.sin(ax) + r.n * Math.cos(ax);
+      const step = 10 * 60000; let slack = null, peak = null, a = romsAt(c, ms); if (!a) return { slack, peak, mx };
+      let prevU = null;
+      for (let t = ms + step, k = 0; k < 90 && !(slack && peak); t += step, k++) {
+        const b = romsAt(c, t); if (!b) break;
+        const u0 = ua(a), u1 = ua(b);
+        if (!slack && u0 * u1 < 0) slack = Math.round((t - step + step * Math.abs(u0) / (Math.abs(u0) + Math.abs(u1))) / 60000) * 60000;
+        if (!peak && prevU != null && prevU * u0 > 0 && u0 * u1 > 0 && Math.abs(u0) >= Math.abs(prevU) && Math.abs(u0) > Math.abs(u1) && Math.abs(u0) > mx * 0.25) peak = { ms: t - step, sp: a.sp };
+        prevU = u0; a = b;
+      }
+      return { slack, peak, mx };
     }
     // 수온: 12시간 안에 잰 값이 있는 관측소 중 가장 가까운 곳
     function nearTemp(p, ms) {
@@ -2724,16 +2762,23 @@ const TideHarm = (() => {
         i.stand = ne ? (ne.type === 'H' ? '만조 · 정조' : '간조 · 정조') : null;
         i.spot = { d: m.d, ref: m.ref };
       }
-      const cc = spotCur(p);
-      if (cc) {
+      // 조류: 조류예보 지점이 8km 안이면 그 표 값, 아니면 이 자리 모델 예측(ROMS), 둘 다 없으면 먼 지점 표 값
+      const cc = spotCur(p), rc = seaCell(p, 8), ro = rc && romsAt(rc.c, now);
+      if (cc && (cc.d <= 8 || !ro)) {
         const c = cc.c, k = curNow(c, now), nx = curNext(c, now);
         i.cur = { name: c.name, d: cc.d, sp: k.sp, dir: k.dir, grow: k.dsp > 0, calm: k.sp < Math.max(8, c.mx * 0.08), pct: Math.round(Math.min(1, k.sp / c.mx) * 100), slack: nx.slack, peak: nx.peak };
+        i.pct = i.cur.pct;
+      } else if (ro) {
+        const nx = romsNext(rc.c, now), r2 = romsAt(rc.c, now + 10 * 60000);
+        i.cur = { name: '모델 예측', model: true, d: rc.d, sp: ro.sp, dir: ro.dir, grow: r2 ? r2.sp > ro.sp : false, calm: ro.sp < Math.max(8, nx.mx * 0.08), pct: nx.mx ? Math.round(Math.min(1, ro.sp / nx.mx) * 100) : null, slack: nx.slack, peak: nx.peak };
         i.pct = i.cur.pct;
       }
       const sw = seaWx(p, now);
       if (sw) { i.wind = sw.wind; i.vec = sw.vec; i.wave = sw.wave; i.wxSpot = sw.d; }
+      // 수온: 이 자리 모델 예측(ROMS)이 있으면 그 값, 가장 가까운 관측소 값은 참고로 함께
       const wt = nearTemp(p, now);
-      if (wt) { i.wt = wt.w; i.wtName = `${wt.name} ${kmTxt(wt.d)}`; }
+      if (wt) { i.wt = wt.w; i.wtName = `${wt.name} ${kmTxt(wt.d)}`; i.wtObs = wt; }
+      if (ro && ro.wt != null) { i.wt = Math.round(ro.wt * 10) / 10; i.wtName = '이 자리 예측'; i.wtModel = true; }
       return i;
     }
     // ---------- 가장 가까운 출항지 기준 값 (계산 자료가 없을 때·출항지 보기용)
@@ -2762,18 +2807,20 @@ const TideHarm = (() => {
       const tod = ms => { const k = Math.floor((ms - d0) / DAY); return `${k === 1 ? '내일 ' : k > 1 ? '모레 ' : ''}${ampm((ms - d0) / 60000 - k * 1440)}`; };
       const wx = WX && WX.stations ? '' : wxState === 'frame' ? ' 바다 날씨·수온은 폰에 설치한 앱에서 보여요.' : ' 바다 날씨 자료를 아직 받지 못했어요.';
       const src = i.spot ? `물 높이·만조·간조: 이 자리 바다 격자 (해양조사원 TideBED·${esc(i.spot.ref)} 기준).` : `물 높이·만조·간조: 가장 가까운 출항지(${esc(TideHarm.STATIONS[i.k].name)}) 기준${spState === 'loading' ? ' (이 자리 자료를 불러오는 중)' : ''}.`;
-      const csrc = c ? ` 조류: 가장 가까운 조류예보 지점 값${c.d > 8 ? `이라 ${kmTxt(c.d)} 떨어진 만큼 다를 수 있어요` : ''}. 지도의 청록 화살표가 지금 흐름이에요.` : '';
+      const csrc = (c ? (c.model ? ' 조류: 수치예측모델(ROMS) 값 — 시각은 잘 맞지만 세기는 다를 수 있어요.'
+        : ` 조류: 가장 가까운 조류예보 지점 값${c.d > 8 ? ` (${kmTxt(c.d)} 떨어져 다를 수 있어요)` : ''}.`) : '')
+        + (i.wtModel ? ' 수온: 모델 예측이라 관측과 1℃쯤 다를 수 있어요.' : '') + (SP ? ' 화살표: 진한 것 조류예보 지점, 옅은 것 모델.' : '');
       panel.innerHTML = `
         <div class="mv-where"><b>${esc(short(i.k))}에서 ${i.dir}쪽 ${kmTxt(i.d)}</b><span>${dm(me.lat, 'N', 'S')} ${dm(me.lon, 'E', 'W')}</span></div>
         <div class="mv-grid">
           <div class="mv-c"><small>물때</small><b class="t-${i.dd.lv}">${i.dd.name} · ${LV[i.dd.lv].chip}</b></div>
           <div class="mv-c"><small>지금 물${i.spot ? ' · 이 자리' : ''}</small><b>${i.stand || (i.rising ? '들물 ↑' : '날물 ↓')} ${meters(i.h)}</b></div>
-          ${c ? `<div class="mv-c"><small>조류 · ${esc(c.name)} ${kmTxt(c.d)}</small><b>${c.calm ? '물돌이 · 거의 멈춤' : `${arw(c.dir)} ${toward(c.dir)}쪽 ${knTxt(c.sp)}`}</b><i>${c.calm ? '곧 흐름 방향이 바뀌어요' : `${c.grow ? '세지는 중' : '약해지는 중'} · 사리 최강의 ${c.pct}%`}</i></div>
+          ${c ? `<div class="mv-c"><small>조류 · ${c.model ? '이 자리 모델 예측' : `${esc(c.name)} ${kmTxt(c.d)}`}</small><b>${c.calm ? '물돌이 · 거의 멈춤' : `${arw(c.dir)} ${toward(c.dir)}쪽 ${knTxt(c.sp)}`}</b><i>${c.calm ? '곧 흐름 방향이 바뀌어요' : `${c.grow ? '세지는 중' : '약해지는 중'}${c.model ? '' : ` · 사리 최강의 ${c.pct}%`}`}</i></div>
           <div class="mv-c"><small>다음 물돌이</small><b>${c.slack ? tod(c.slack) : '–'}</b><i>${c.slack ? inTxt(c.slack - now) : ''}</i></div>`
           : `<div class="mv-c"><small>조류 세기</small><b>${flowTxt(i)}</b></div><div class="mv-c"><small>다음 물돌이</small><b>–</b></div>`}
           <div class="mv-c"><small>다음 ${i.ex ? (i.ex.type === 'H' ? '만조' : '간조') : '만조·간조'}${i.spot ? ' · 이 자리' : ''}</small><b>${i.ex ? `${tod(i.ex.ms)} · ${meters(i.ex.h)}` : '–'}</b>${i.ex ? `<i>${inTxt(i.ex.ms - now)}</i>` : ''}</div>
           <div class="mv-c"><small>바람 · 파도${i.wxSpot != null ? ' · 이 바다' : ''}</small><b>${i.wind == null ? '예보 없음' : `${i.vec == null ? '' : wxDir(i.vec).replace(/풍$/, '') + ' '}${i.wind}m/s${i.wave == null ? '' : ` · ${i.wave.toFixed(1)}m`}`}</b></div>
-          <div class="mv-c"><small>수온${i.wtName ? ` · ${esc(i.wtName)}` : ''}</small><b>${i.wt == null ? '자료 없음' : `${i.wt.toFixed(1)}℃`}</b></div>
+          <div class="mv-c"><small>수온${i.wtName ? ` · ${esc(i.wtName)}` : ''}</small><b>${i.wt == null ? '자료 없음' : `${i.wt.toFixed(1)}℃`}</b>${i.wtModel && i.wtObs ? `<i>관측 ${esc(i.wtObs.name)} ${i.wtObs.w.toFixed(1)}℃ · ${kmTxt(i.wtObs.d)}</i>` : ''}</div>
           <div class="mv-c"><small>다음 최강 조류</small><b>${c && c.peak ? `${tod(c.peak.ms)} · ${knTxt(c.peak.sp)}` : '–'}</b></div>
         </div>
         <p class="mv-note">${src}${csrc}${wx}</p>
@@ -2798,7 +2845,7 @@ const TideHarm = (() => {
       const f = form, i = f.i, memo = ($('mv-memo') || {}).value || '';
       points.unshift({ id: String(f.at), t: f.at, lat: +f.lat.toFixed(6), lon: +f.lon.toFixed(6), acc: Math.round(f.acc), virtual: f.virtual,
         port: i.k, mul: i.dd.name, lv: i.dd.lv, h: Math.round(i.h), rising: i.rising, stand: i.stand, pct: i.pct, wind: i.wind, wave: i.wave, wt: i.wt, jj: f.jj, gap: f.gap, memo: memo.trim(),
-        spot: !!i.spot, cur: i.cur ? { kn: +(i.cur.sp / KN).toFixed(1), dir: Math.round(i.cur.dir), calm: i.cur.calm, at: i.cur.name } : null, wtAt: i.wtName || null });
+        spot: !!i.spot, cur: i.cur ? { kn: +(i.cur.sp / KN).toFixed(1), dir: Math.round(i.cur.dir), calm: i.cur.calm, at: i.cur.name, model: !!i.cur.model } : null, wtAt: i.wtName || null });
       savePts(); form = null; mode = 'info'; toast('포인트를 저장했어요'); paintPanel(true); draw();
     }
     const when = t => { const d = new Date(t + 9 * 3600000); return `${d.getUTCMonth() + 1}/${d.getUTCDate()} ${ampm(d.getUTCHours() * 60 + d.getUTCMinutes())}`; };
@@ -3195,7 +3242,7 @@ if ('serviceWorker' in navigator) addEventListener('load', () => {
   const sw = navigator.serviceWorker; let ctl = sw.controller, reloading = false;
   // 새 버전이 올라오면 한 번 새로 열어 바로 반영 (처음 설치할 때는 제외)
   sw.addEventListener('controllerchange', () => { if (ctl && !reloading) { reloading = true; location.reload(); } ctl = sw.controller; });
-  sw.register('sw.js?v=de1e6baa').then(reg => {
+  sw.register('sw.js?v=cd7af5ea').then(reg => {
     // 앱을 켜 둔 채 다른 화면에 갔다 돌아오면 새 버전이 있는지 확인
     document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') reg.update().catch(() => {}); });
   }).catch(() => {});
