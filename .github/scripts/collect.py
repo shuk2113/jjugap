@@ -299,25 +299,19 @@ def diag():
     now = datetime.now(KST); d, t = kma_base(now)
     hr = (now - timedelta(hours=1)).strftime('%Y%m%d%H')
     td = now.strftime('%Y%m%d')
-    tests = [
-        ('dtRecent 기본(관측소만)', OBS_URL, {'type': 'json', 'obsCode': 'DT_0001'}),
-        ('dtRecent 오늘 min=1', OBS_URL, {'type': 'json', 'obsCode': 'DT_0001', 'reqDate': td, 'min': 1, 'pageNo': 1, 'numOfRows': 5}),
-        ('dtRecent 오늘 min=10', OBS_URL, {'type': 'json', 'obsCode': 'DT_0001', 'reqDate': td, 'min': 10, 'pageNo': 1, 'numOfRows': 5}),
-        ('dtRecent 오늘 min=60', OBS_URL, {'type': 'json', 'obsCode': 'DT_0001', 'reqDate': td, 'min': 60, 'pageNo': 1, 'numOfRows': 5}),
-        ('dtRecent 보령 기본', OBS_URL, {'type': 'json', 'obsCode': 'DT_0025'}),
-        ('KHOA 실측수온 surveyWaterTemp', 'https://apis.data.go.kr/1192136/surveyWaterTemp/GetSurveyWaterTempApiService', {'type': 'json', 'obsCode': 'DT_0001', 'reqDate': td, 'min': 60, 'pageNo': 1, 'numOfRows': 5}),
-        ('KHOA 실측수온 surveyWaterTemp(경로만)', 'https://apis.data.go.kr/1192136/surveyWaterTemp', {'type': 'json', 'obsCode': 'DT_0001', 'pageNo': 1, 'numOfRows': 5}),
-        ('KMA 파고부이 getWhBuoy', 'https://apis.data.go.kr/1360000/OceanInfoService/getWhBuoy', {'dataType': 'JSON', 'pageNo': 1, 'numOfRows': 100, 'searchTime': hr}),
-        ('KMA 부이 getBuoy', 'https://apis.data.go.kr/1360000/OceanInfoService/getBuoy', {'dataType': 'JSON', 'pageNo': 1, 'numOfRows': 100, 'searchTime': hr}),
-        ('KMA 등표 getLhBuoy', 'https://apis.data.go.kr/1360000/OceanInfoService/getLhBuoy', {'dataType': 'JSON', 'pageNo': 1, 'numOfRows': 100, 'searchTime': hr}),
-    ]
+    tests = [(f'dtRecent 인천 min=60 rows={n}', OBS_URL, {'type': 'json', 'obsCode': 'DT_0001', 'reqDate': td, 'min': 60, 'pageNo': 1, 'numOfRows': n}) for n in (24, 60, 100, 200, 300)]
+    tests += [(f'dtRecent {c} min=60 rows=24', OBS_URL, {'type': 'json', 'obsCode': c, 'reqDate': td, 'min': 60, 'pageNo': 1, 'numOfRows': 24}) for c in ('DT_0008', 'DT_0043', 'DT_0067', 'DT_0025', 'DT_0051', 'DT_0018', 'DT_0068')]
     for name, url, params in tests:
         t0 = time.time()
         q = urllib.parse.urlencode(params, safe='')
         try:
             with urllib.request.urlopen(f'{url}?serviceKey={KEY}&{q}', timeout=15) as r:
                 body = r.read().decode('utf-8', 'replace')
-            note(f'{name}: HTTP {r.status} {time.time() - t0:.1f}s :: {re.sub(r"\s+", " ", body)[:900].replace(KEY, "***")}')
+            try:
+                js = json.loads(body); its = js['body']['items']['item']; its = its if isinstance(its, list) else [its]
+                note(f'{name}: HTTP {r.status} {time.time() - t0:.1f}s :: {js["header"]["resultCode"]} {len(its)}건, 최신 {its[0].get("obsrvnDt")} 수온 {its[0].get("wtem")} ({its[0].get("obsvtrNm")}), 가장 옛것 {its[-1].get("obsrvnDt")}')
+            except Exception:
+                note(f'{name}: HTTP {r.status} {time.time() - t0:.1f}s :: {re.sub(r"\s+", " ", body)[:300].replace(KEY, "***")}')
         except Exception as e:
             note(f'{name}: 실패 {time.time() - t0:.1f}s :: {type(e).__name__} {str(e)[:200].replace(KEY, "***")}', 'warning')
 
