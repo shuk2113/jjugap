@@ -139,11 +139,12 @@ def fetch_obs(code, now):
     rows = []
     for day in (now - timedelta(days=1), now):
         try:
-            c, msg, items = unwrap(get_json(OBS_URL, {'type': 'json', 'obsCode': code, 'reqDate': day.strftime('%Y%m%d'), 'min': 60, 'pageNo': 1, 'numOfRows': 300}))
+            raw = get_json(OBS_URL, {'type': 'json', 'obsCode': code, 'reqDate': day.strftime('%Y%m%d'), 'min': 60, 'pageNo': 1, 'numOfRows': 300})
+            c, msg, items = unwrap(raw)
         except RuntimeError as e:
             log('  관측 오류', e); continue
-        if c not in ('00', '0'):
-            note(f'관측 {code} {day:%Y%m%d}: 결과코드 {c} {msg}', 'warning')
+        if c not in ('00', '0') and not items:
+            note(f'관측 {code} {day:%Y%m%d}: 결과코드 {c} {msg} :: {json.dumps(raw, ensure_ascii=False)[:300]}', 'warning')
         rows += items
     def f(v):
         try:
@@ -234,7 +235,7 @@ def diag():
         try:
             with urllib.request.urlopen(f'{url}?serviceKey={KEY}&{q}', timeout=15) as r:
                 body = r.read().decode('utf-8', 'replace')
-            note(f'{name}: HTTP {r.status} {time.time() - t0:.1f}s :: {re.sub(r"\\s+", " ", body)[:320].replace(KEY, "***")}')
+            note(f'{name}: HTTP {r.status} {time.time() - t0:.1f}s :: {re.sub(r"\s+", " ", body)[:320].replace(KEY, "***")}')
         except Exception as e:
             note(f'{name}: 실패 {time.time() - t0:.1f}s :: {type(e).__name__} {str(e)[:200].replace(KEY, "***")}', 'warning')
 
