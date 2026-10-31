@@ -240,7 +240,7 @@ h2{margin:0; font-size:16px; font-weight:700; text-wrap:balance}
 .mv-num button:active{background:var(--well)}
 .mv-n{width:52px; height:38px; padding:0; border:1px solid transparent; border-radius:10px; background:var(--well); font:inherit; font-size:18px; font-weight:700; text-align:center; color:var(--ink); font-variant-numeric:tabular-nums; -webkit-appearance:none; appearance:none}
 .mv-n:focus{outline:none; border-color:#2F7DF6; background:var(--card)}
-.mv-step.etc .mv-sp{flex:1; min-width:0; height:38px; padding:0 10px; border:1px solid var(--line); border-radius:10px; background:var(--paper); font:inherit; font-size:14px; font-weight:700; color:var(--ink)}
+.mv-step.etc .mv-sp{flex:1; min-width:0; height:38px; padding:0 10px; border:1px solid var(--line); border-radius:10px; background:var(--paper); font:inherit; font-size:16px; font-weight:700; color:var(--ink)}
 .mv-step.etc .mv-sp:focus{outline:none; border-color:#2F7DF6}
 .mv-rm{flex:none; width:30px; height:30px; padding:0; border:0; border-radius:50%; background:transparent; font:inherit; font-size:18px; color:var(--ink-2); -webkit-tap-highlight-color:transparent}
 .mv-etc-h{display:flex; align-items:center; justify-content:space-between; gap:8px; padding:10px 0 2px}
@@ -249,7 +249,7 @@ h2{margin:0; font-size:16px; font-weight:700; text-wrap:balance}
 .mv-chips button{height:28px; padding:0 11px; border:1px solid var(--line); border-radius:999px; background:var(--card); font:inherit; font-size:12.5px; font-weight:600; color:var(--ink); -webkit-tap-highlight-color:transparent}
 .mv-chips button:active{background:var(--well)}
 .mv-add{display:block; margin:6px 0 0; padding:6px 2px; border:0; background:none; font:inherit; font-size:13px; font-weight:700; color:#2F7DF6; -webkit-tap-highlight-color:transparent}
-.mv-memo{width:100%; margin:10px 0; padding:10px 12px; border:1px solid var(--line); border-radius:12px; background:var(--paper); font:inherit; font-size:14px; color:var(--ink)}
+.mv-memo{width:100%; margin:10px 0; padding:10px 12px; border:1px solid var(--line); border-radius:12px; background:var(--paper); font:inherit; font-size:16px; color:var(--ink)}
 .mv-list{list-style:none; margin:0 0 10px; padding:0; display:flex; flex-direction:column; gap:6px}
 .mv-list button{width:100%; display:flex; flex-direction:column; align-items:flex-start; gap:2px; padding:9px 12px; border:0; border-radius:12px; background:var(--well); font:inherit; text-align:left; color:var(--ink); -webkit-tap-highlight-color:transparent}
 .mv-list b{font-size:13.5px} .mv-list span{font-size:11.5px; color:var(--ink-2)}
@@ -258,6 +258,7 @@ h2{margin:0; font-size:16px; font-weight:700; text-wrap:balance}
 .sheet{position:fixed; left:0; right:0; bottom:0; z-index:41; max-width:520px; max-height:85vh; overflow-y:auto; margin:0 auto; border-radius:24px 24px 0 0; background:var(--card); box-shadow:0 -10px 30px rgba(0,0,0,.2);
   padding:0 max(16px, env(safe-area-inset-right, 0px)) calc(18px + env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px)); animation:sheetUp .3s cubic-bezier(.2,.8,.2,1);
   overscroll-behavior:contain; will-change:transform}
+.sheet.searching{max-height:none; height:var(--sh-h, 85vh); bottom:var(--sh-b, 0px)}
 .sheet.closing{animation:sheetDown .22s cubic-bezier(.4,0,1,1) forwards} .sheet-back.closing{animation:fadeOut .22s ease forwards}
 .sheet.closing.fast, .sheet-back.closing.fast{animation-duration:.15s}
 @keyframes sheetUp{from{transform:translateY(100%)}} @keyframes sheetDown{to{transform:translateY(100%)}}
@@ -272,7 +273,7 @@ h2{margin:0; font-size:16px; font-weight:700; text-wrap:balance}
 .st-list{display:flex; flex-direction:column; gap:6px}
 .st-search{position:relative; display:flex; align-items:center; margin:0 0 10px}
 .st-search svg{position:absolute; left:13px; width:18px; height:18px; color:var(--ink-2); pointer-events:none}
-.st-search input{width:100%; height:46px; padding:0 40px 0 40px; border:1.5px solid var(--line); border-radius:14px; background:var(--paper); font:inherit; font-size:15px; color:var(--ink); -webkit-appearance:none; appearance:none}
+.st-search input{width:100%; height:46px; padding:0 40px 0 40px; border:1.5px solid var(--line); border-radius:14px; background:var(--paper); font:inherit; font-size:16px; color:var(--ink); -webkit-appearance:none; appearance:none}
 .st-search input:focus{outline:none; border-color:var(--hi)}
 .st-search input::-webkit-search-cancel-button{display:none}
 .st-search button{position:absolute; right:6px; width:34px; height:34px; padding:0; border:0; border-radius:50%; background:transparent; font:inherit; font-size:20px; color:var(--ink-2)}
@@ -2350,7 +2351,29 @@ const TideHarm = (() => {
           : `<button class="st-item" data-r="${i}"><span class="nm"><b>${hl(x.name, q)}</b><span>${esc(x.sub)}</span></span><span class="ck" aria-hidden="true">✓</span></button>`).join('')
         : `<p class="st-none">'${esc(raw)}'에 맞는 항·포구를 못 찾았어요. 아래 <b>지도에서 직접 고르기</b>로 배 타는 곳을 찍어 주세요.</p>`;
     }
-    qEl.addEventListener('input', () => { loadPorts(); paintList(); });
+    qEl.addEventListener('input', () => { loadPorts(); paintList(); if (qEl.value.trim()) setSearching(true); });
+    // ---------- 검색할 때 흔들리지 않게: 판 높이를 고정(결과 수가 바뀌어도 그대로)하고, 키보드가 올라오면 그 위 보이는 곳에 맞춘다.
+    //            판이 열려 있는 동안 뒤 화면은 고정해 두어 키보드가 오르내려도 움직이지 않는다
+    const vv = window.visualViewport;
+    let fitRaf = 0, lockY = null;
+    function fitSearch() {
+      fitRaf = 0;
+      if (!sheet.classList.contains('searching')) return;
+      const vh = vv ? vv.height : innerHeight, top = vv ? vv.offsetTop : 0, kb = Math.max(0, Math.round(innerHeight - (top + vh)));
+      sheet.style.setProperty('--sh-b', kb + 'px');
+      sheet.style.setProperty('--sh-h', Math.round(Math.min(vh - 12, innerHeight * 0.85)) + 'px');
+    }
+    const fitSoon = () => { if (!fitRaf) fitRaf = requestAnimationFrame(fitSearch); };
+    if (vv) { vv.addEventListener('resize', fitSoon); vv.addEventListener('scroll', fitSoon); }
+    function setSearching(on) { sheet.classList.toggle('searching', !!on); if (on) fitSearch(); }
+    qEl.addEventListener('focus', () => setSearching(true));
+    qEl.addEventListener('blur', () => setTimeout(() => { if (document.activeElement !== qEl) { setSearching(!!qEl.value.trim()); fitSoon(); } }, 60));
+    try { history.scrollRestoration = 'manual'; } catch (_) {}   // 뒤로가기로 판을 닫을 때 브라우저가 화면 위치를 멋대로 되돌리지 않게
+    function lockPage(on) {
+      const b = document.body;
+      if (on && lockY == null) { lockY = scrollY; Object.assign(b.style, { position: 'fixed', top: -lockY + 'px', left: '0', right: '0', width: '100%' }); }
+      else if (!on && lockY != null) { const y = lockY; lockY = null; Object.assign(b.style, { position: '', top: '', left: '', right: '', width: '' }); scrollTo(0, y); setTimeout(() => scrollTo(0, y), 30); }
+    }
     qEl.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); qEl.blur(); } });
     qX.onclick = () => { qEl.value = ''; paintList(); qEl.focus(); };
     // 검색 결과(아직 등록 안 된 곳)를 고르면: 그 자리 물때 계산식을 만들어 이 폰에 저장하고 출항지로
@@ -2388,7 +2411,7 @@ const TideHarm = (() => {
     let isOpen = false, closeT = 0, skipPop = false;
     const resetDrag = () => { sheet.style.transform = sheet.style.transition = back.style.opacity = back.style.transition = ''; };
     function open() {
-      clearTimeout(closeT); paintList(); resetDrag();
+      clearTimeout(closeT); lockPage(true); paintList(); resetDrag();
       back.classList.remove('closing', 'fast'); sheet.classList.remove('closing', 'fast');
       back.hidden = false; sheet.hidden = false; sheet.scrollTop = 0; isOpen = true;
       if (useHist) { try { history.pushState({ stSheet: 1 }, ''); } catch (_) {} }
@@ -2396,7 +2419,7 @@ const TideHarm = (() => {
     // fast: X 버튼처럼 짧고 빠르게 / fromPop: 폰 뒤로가기로 닫힌 경우
     // slide: 손가락으로 끌다 놓았을 때 {d: 내려간 거리, v: 놓을 때 속도(px/ms)} → 그 속도를 이어받아 한 번에 미끄러져 내려간다
     function close(fast, fromPop, slide) {
-      if (!isOpen) return; isOpen = false; drag = null;
+      if (!isOpen) return; isOpen = false; drag = null; lockPage(false); setSearching(false); if (document.activeElement === qEl) qEl.blur();
       if (useHist && !fromPop && history.state && history.state.stSheet) { skipPop = true; history.back(); }
       if (reduceM()) { back.hidden = true; sheet.hidden = true; resetDrag(); return; }
       if (slide) {
@@ -3662,7 +3685,7 @@ if ('serviceWorker' in navigator) addEventListener('load', () => {
   const sw = navigator.serviceWorker; let ctl = sw.controller, reloading = false;
   // 새 버전이 올라오면 한 번 새로 열어 바로 반영 (처음 설치할 때는 제외)
   sw.addEventListener('controllerchange', () => { if (ctl && !reloading) { reloading = true; location.reload(); } ctl = sw.controller; });
-  sw.register('sw.js?v=d6767175').then(reg => {
+  sw.register('sw.js?v=a75ac5f5').then(reg => {
     // 앱을 켜 둔 채 다른 화면에 갔다 돌아오면 새 버전이 있는지 확인
     document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') reg.update().catch(() => {}); });
   }).catch(() => {});
