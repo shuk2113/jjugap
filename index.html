@@ -155,6 +155,26 @@ h2{margin:0; font-size:16px; font-weight:700; text-wrap:balance}
 
 /* 한 달 물때 파도 */
 #wave-section{margin-block:3mm}
+/* 지금 바다 수온: 적정 수온 막대 + 48시간 흐름 + 한 줄 해석 */
+.wt-card{display:flex; flex-direction:column; gap:6px; padding:14px 14px 12px; border-radius:18px; border:1px solid var(--line); background:var(--card)}
+.wt-now{display:flex; align-items:baseline; gap:10px; min-height:34px}
+#wt-val{font-size:28px; font-weight:700; letter-spacing:-.01em; font-variant-numeric:tabular-nums}
+.wt-chg{font-size:13px; font-weight:600; color:var(--ink-2)}
+.wt-chg i{font-style:normal; display:inline-block; margin-left:6px; padding:2px 8px; border-radius:999px; font-size:11.5px; font-weight:700}
+.wt-chg .ok{background:var(--calm-soft); color:var(--calm)} .wt-chg .warn{background:var(--mid-soft); color:var(--mid)}
+.wt-gauge, .wt-spark{display:block; width:100%; height:auto; overflow:visible}
+.wt-lab{font-family:var(--font-body); font-size:12px; font-weight:700; fill:var(--ink); dominant-baseline:central}
+.wt-st{font-family:var(--font-body); font-size:10.5px; font-weight:700; dominant-baseline:central}
+.wt-st.in{fill:var(--calm)} .wt-st.edge{fill:var(--mid)} .wt-st.low{fill:var(--hi)} .wt-st.high{fill:var(--strong)} .wt-st.none{fill:var(--ink-2)}
+.wt-track{fill:var(--well)} .wt-band{fill:var(--calm); opacity:.42}
+.wt-tick{font-family:var(--font-body); font-size:9.5px; fill:var(--ink-2); text-anchor:middle; dominant-baseline:central; font-variant-numeric:tabular-nums}
+.wt-mk{stroke:var(--ink); stroke-width:1.6} .wt-mkdot{fill:var(--ink); stroke:var(--card); stroke-width:1.5}
+.wt-tagbg{fill:var(--ink)} .wt-tagtx{font-family:var(--font-body); font-size:10px; font-weight:700; fill:var(--card); text-anchor:middle; dominant-baseline:central; font-variant-numeric:tabular-nums}
+.wt-line{fill:none; stroke:var(--hi); stroke-width:1.8; stroke-linejoin:round} .wt-area{fill:var(--hi); opacity:.12}
+.wt-grid{stroke:var(--line); stroke-width:1} .wt-cap{font-family:var(--font-body); font-size:9.5px; fill:var(--ink-2); dominant-baseline:central; font-variant-numeric:tabular-nums}
+.wt-dot{fill:var(--hi); stroke:var(--card); stroke-width:1.5} .wt-ydot{fill:var(--card); stroke:var(--ink-2); stroke-width:1.3}
+.wt-msg{margin:2px 0 0; min-height:3.1em; font-size:13.5px; line-height:1.55; word-break:keep-all}
+.wt-note{margin:0; font-size:11px; line-height:1.5; color:var(--ink-2); word-break:keep-all}
 /* 출항지 버튼과 고르기 판 */
 .st-btn{align-self:flex-start; display:inline-flex; align-items:center; gap:7px; height:36px; padding:0 14px 0 11px; border:1px solid var(--line); border-radius:999px; background:var(--card); font:inherit; font-size:14px; color:var(--ink); -webkit-tap-highlight-color:transparent; transition:transform .12s}
 .st-btn:active{transform:scale(.97)}
@@ -503,6 +523,17 @@ h2{margin:0; font-size:16px; font-weight:700; text-wrap:balance}
       <div class="tide-list" id="tide-list"></div>
     </div>
     <p class="advice" id="advice"><b id="adv-now"></b><span class="adv-rest" id="adv-rest"><span id="adv-day"></span><span class="adv-wx" id="adv-wx"></span></span></p>
+  </section>
+
+  <section class="block" id="wt-section">
+    <div class="block-head"><h2>지금 바다 수온</h2><span class="hint" id="wt-src"></span></div>
+    <div class="wt-card">
+      <div class="wt-now"><b id="wt-val">–</b><span class="wt-chg" id="wt-chg"></span></div>
+      <svg class="wt-gauge" id="wt-gauge" viewBox="0 0 340 92" role="img" aria-label="쭈꾸미·갑오징어 적정 수온과 지금 수온"></svg>
+      <svg class="wt-spark" id="wt-spark" viewBox="0 0 340 70" role="img" aria-label="최근 48시간 수온 흐름"></svg>
+      <p class="wt-msg" id="wt-msg"></p>
+      <p class="wt-note">적정 수온은 바다낚시 정보 사이트에서 흔히 쓰는 범위(쭈꾸미 10~22℃, 갑오징어 12~24℃)예요. 자료마다 조금씩 다르니 흐름을 함께 보세요.</p>
+    </div>
   </section>
 
   <section class="block" id="wave-section">
@@ -1062,7 +1093,7 @@ const TideHarm = (() => {
   // 수온: 오늘을 볼 때만, 12시간 안에 잰 값만. 하루 전과의 차이와 어느 관측소 값인지 함께
   function tempHud(st) {
     const o = st && st.obs;
-    if (!o || o.wtem == null || !o.t || sel !== today) return null;
+    if (!o || !(o.wtem > 0.5) || !o.t || sel !== today) return null;   // 0.0℃ 같은 센서 이상값은 보이지 않는다
     const at = Date.parse(o.t.replace(' ', 'T') + ':00+09:00'), age = (Date.now() - at) / 3600000;
     if (!(age <= 12)) return null;
     const d = o.wtem24 == null ? null : Math.round((o.wtem - o.wtem24) * 10) / 10;
@@ -1072,6 +1103,86 @@ const TideHarm = (() => {
     // 자리가 모자라면: 근처 관측소 값이거나 오래된 값이면 '어디·언제'를, 아니면 '어제와 차이'를 남긴다
     const first = o.near || when ? [src, trend] : [trend, src];
     return { main: `수온 ${o.wtem.toFixed(1)}℃`, subs: [[trend, src].filter(Boolean).join(' · '), ...first].filter(Boolean), d };
+  }
+  // ---------- 지금 바다 수온 카드: 쭈꾸미·갑오징어 적정 수온 막대 위에 지금 수온, 48시간 흐름, 한 줄 해석
+  const WT_SP = [{ name: '쭈꾸미', lo: 10, hi: 22 }, { name: '갑오징어', lo: 12, hi: 24 }];
+  const WT_MIN = 5, WT_MAX = 30, WT_X0 = 74, WT_X1 = 330;
+  const wtX = t => WT_X0 + (WT_X1 - WT_X0) * (Math.max(WT_MIN, Math.min(WT_MAX, t)) - WT_MIN) / (WT_MAX - WT_MIN);
+  const wtStatus = (sp, t) => t == null ? ['none', '–'] : t < sp.lo ? ['low', '낮음'] : t > sp.hi ? ['high', '높음'] : (t < sp.lo + 1 || t > sp.hi - 1) ? ['edge', '끝자락'] : ['in', '적정'];
+  let wtKey = '';
+  function renderWt() {
+    const st = typeof WX !== 'undefined' && WX && WX.stations && WX.stations[tideSt], o = st && st.obs;
+    const at = o && o.t ? Date.parse(o.t.replace(' ', 'T') + ':00+09:00') : NaN, age = (Date.now() - at) / 3600000;
+    const ok = !!(o && o.wtem > 0.5 && age <= 12);
+    const key = [tideSt, wxState, WX && WX.generated, ok].join('|'); if (key === wtKey) return; wtKey = key;
+    const t = ok ? o.wtem : null, d = ok && o.wtem24 != null ? Math.round((o.wtem - o.wtem24) * 10) / 10 : null;
+    // 숫자와 하루 변화
+    $('wt-val').textContent = ok ? `${t.toFixed(1)}℃` : '–';
+    const big = d != null && Math.abs(d) >= 1;
+    $('wt-chg').innerHTML = d == null ? '' : `어제보다 ${d === 0 ? '변화 없음' : `${d > 0 ? '+' : '−'}${Math.abs(d).toFixed(1)}℃`}<i class="${big ? 'warn' : 'ok'}">${big ? '급변' : Math.abs(d) >= 0.5 ? '조금 변함' : '안정'}</i>`;
+    if (ok) { const h = +o.t.slice(11, 13); $('wt-src').textContent = `${o.name || ''}${o.near ? '(근처)' : ''} 관측소 · ${h < 12 ? '오전' : '오후'} ${h % 12 || 12}시 측정`; }
+    else $('wt-src').textContent = '';
+    // 적정 수온 막대: 종류마다 한 줄, 지금 수온은 세로 선
+    let g = '';
+    WT_SP.forEach((sp, i) => {
+      const y = 22 + i * 28, [cls, word] = wtStatus(sp, t);
+      g += `<text class="wt-lab" x="0" y="${y}">${sp.name}</text><text class="wt-st ${cls}" x="${sp.name.length > 3 ? 52 : 44}" y="${y}">${ok ? word : ''}</text>`;
+      g += `<rect class="wt-track" x="${WT_X0}" y="${y - 4}" width="${WT_X1 - WT_X0}" height="8" rx="4"></rect>`;
+      g += `<rect class="wt-band" x="${wtX(sp.lo).toFixed(1)}" y="${y - 4}" width="${(wtX(sp.hi) - wtX(sp.lo)).toFixed(1)}" height="8" rx="4"></rect>`;
+    });
+    [10, 15, 20, 25].forEach(v => { g += `<text class="wt-tick" x="${wtX(v).toFixed(1)}" y="84">${v}℃</text>`; });
+    g += `<defs><linearGradient id="wt-heat" x1="0" x2="1"><stop offset="0" stop-color="#7FB2EE"/><stop offset=".55" stop-color="#9FD3B8"/><stop offset="1" stop-color="#F2A25C"/></linearGradient></defs>`;
+    g += `<rect x="${WT_X0}" y="71" width="${WT_X1 - WT_X0}" height="3" rx="1.5" fill="url(#wt-heat)" opacity=".8"></rect>`;
+    if (ok) {
+      const x = wtX(t), tx = Math.max(WT_X0 + 18, Math.min(WT_X1 - 18, x));
+      g += `<line class="wt-mk" x1="${x.toFixed(1)}" y1="10" x2="${x.toFixed(1)}" y2="74"></line>`;
+      g += `<circle class="wt-mkdot" cx="${x.toFixed(1)}" cy="22" r="3.6"></circle><circle class="wt-mkdot" cx="${x.toFixed(1)}" cy="50" r="3.6"></circle>`;
+      g += `<rect class="wt-tagbg" x="${(tx - 18).toFixed(1)}" y="-6" width="36" height="14" rx="7"></rect><text class="wt-tagtx" x="${tx.toFixed(1)}" y="1.5">${t.toFixed(1)}</text>`;
+    }
+    $('wt-gauge').innerHTML = g;
+    // 48시간 흐름: 너무 작게 변해도 크게 보이지 않도록 세로 폭은 최소 2℃
+    const hist = ok && WX.obs && WX.obs[o.code] && WX.obs[o.code].hist || [];
+    const pts = hist.map(([k, v]) => [Date.parse(k.replace(' ', 'T') + ':00+09:00'), v]).filter(p => p[0] >= at - 48 * 3600000 && p[0] <= at);
+    let sg = '';
+    if (pts.length >= 2) {
+      const t0 = at - 48 * 3600000, X = ms => WT_X0 + (300 - WT_X0) * (ms - t0) / (at - t0);   // 위 막대와 왼쪽 줄을 맞춘다
+      let lo = Math.min(...pts.map(p => p[1])), hi = Math.max(...pts.map(p => p[1]));
+      const mid = (lo + hi) / 2, span = Math.max(2, hi - lo + 0.4); lo = mid - span / 2; hi = mid + span / 2;
+      const Y = v => 10 + 40 * (hi - v) / (hi - lo);
+      // 자정 구분선과 날짜
+      const day0 = Math.floor((at + 9 * 3600000) / 86400000) * 86400000 - 9 * 3600000;
+      for (let m = day0; m > t0; m -= 86400000) { const x = X(m); sg += `<line class="wt-grid" x1="${x.toFixed(1)}" y1="6" x2="${x.toFixed(1)}" y2="54" stroke-dasharray="2 3"></line><text class="wt-cap" x="${(x + 3).toFixed(1)}" y="62">${m === day0 ? '오늘' : m === day0 - 86400000 ? '어제' : '그제'}</text>`; }
+      const line = pts.map((p, i) => `${i ? 'L' : 'M'}${X(p[0]).toFixed(1)} ${Y(p[1]).toFixed(1)}`).join(' ');
+      sg += `<path class="wt-area" d="${line} L${X(pts[pts.length - 1][0]).toFixed(1)} 54 L${X(pts[0][0]).toFixed(1)} 54 Z"></path><path class="wt-line" d="${line}"></path>`;
+      const y24 = pts.reduce((b, p) => Math.abs(p[0] - (at - 864e5)) < Math.abs(b[0] - (at - 864e5)) ? p : b, pts[0]);
+      if (Math.abs(y24[0] - (at - 864e5)) <= 90 * 60000) sg += `<circle class="wt-ydot" cx="${X(y24[0]).toFixed(1)}" cy="${Y(y24[1]).toFixed(1)}" r="3"></circle>`;
+      const last = pts[pts.length - 1];
+      sg += `<circle class="wt-dot" cx="${X(last[0]).toFixed(1)}" cy="${Y(last[1]).toFixed(1)}" r="3.8"></circle>`;
+      const vmax = Math.max(...pts.map(p => p[1])), vmin = Math.min(...pts.map(p => p[1]));
+      sg += `<text class="wt-cap" x="312" y="${Y(vmax).toFixed(1)}">${vmax.toFixed(1)}</text><text class="wt-cap" x="312" y="${Math.max(Y(vmin), Y(vmax) + 11).toFixed(1)}">${vmin.toFixed(1)}</text>`;
+      sg += `<text class="wt-lab" x="0" y="22">최근 이틀</text><text class="wt-cap" x="0" y="38">○ 어제 이맘때</text>`;
+    } else {
+      sg = `<text class="wt-cap" x="170" y="32" text-anchor="middle">${ok ? '수온 기록이 쌓이면 최근 48시간 흐름이 보여요' : ''}</text>`;
+    }
+    $('wt-spark').innerHTML = sg;
+    // 한 줄 해석 (판단은 이용자 몫: 상태만 말한다)
+    let msg;
+    if (!ok) {
+      msg = wxState === 'frame' ? '수온은 폰에 설치한 앱에서 보여요.'
+        : wxState === 'loading' ? '수온을 불러오는 중이에요…'
+        : !st ? '바다 자료를 불러오지 못했어요. 인터넷 연결을 확인해 주세요.'
+        : '해양조사원 수온 관측이 12시간 넘게 들어오지 않았어요. 자동 수집 때 다시 받아요.';
+    } else {
+      const ss = WT_SP.map(sp => [sp, wtStatus(sp, t)[0]]);
+      const near = sp => `(${t < (sp.lo + sp.hi) / 2 ? sp.lo : sp.hi}℃)`;
+      const fin = (sp, c) => ({ in: '적정 수온 안이에요', edge: `적정 범위 끝자락${near(sp)}이에요`, low: '적정보다 낮아요', high: '적정보다 높아요' })[c];
+      const con = (sp, c) => ({ in: '적정 수온 안이고', edge: `적정 범위 끝자락${near(sp)}이고`, low: '적정보다 낮고', high: '적정보다 높고' })[c];
+      const [[s1, c1], [s2, c2]] = ss;
+      msg = (c1 === c2 && c1 !== 'edge' ? `쭈꾸미·갑오징어 모두 ${fin(s1, c1)}.` : `${s1.name}는 ${con(s1, c1)}, ${s2.name}는 ${fin(s2, c2)}.`) + ' ';
+      msg += d == null ? '' : Math.abs(d) >= 1 ? `하루 새 ${Math.abs(d).toFixed(1)}℃ ${d > 0 ? '올라' : '내려'} 급변했어요. 갑작스러운 수온 변화는 활동을 둔하게 한다고 알려져 있어요.`
+        : Math.abs(d) >= 0.5 ? `하루 새 ${Math.abs(d).toFixed(1)}℃ ${d > 0 ? '올랐어요' : '내렸어요'}.` : '하루 변화가 작아 안정적이에요.';
+    }
+    $('wt-msg').textContent = msg;
   }
   // 고른 시각의 날씨를 바다 그림에 넘기고, 아래 안내에 하루 요약 한 줄
   function paintWx() {
@@ -1325,6 +1436,7 @@ const TideHarm = (() => {
     $('cal-next').innerHTML = calHTML(q.y, q.m);
     calPlace(0, 0); calFit($('cal'), 0);
     if (pcRepaint) pcRepaint();
+    renderWt();
   }
   // 하루 날씨 요약: 3일까지는 시간별 예보(낮 6~18시), 그 뒤 10일까지는 중기 해상예보
   const CW_ICO = {
@@ -2286,7 +2398,7 @@ if ('serviceWorker' in navigator) addEventListener('load', () => {
   const sw = navigator.serviceWorker; let ctl = sw.controller, reloading = false;
   // 새 버전이 올라오면 한 번 새로 열어 바로 반영 (처음 설치할 때는 제외)
   sw.addEventListener('controllerchange', () => { if (ctl && !reloading) { reloading = true; location.reload(); } ctl = sw.controller; });
-  sw.register('sw.js?v=bec424a2').then(reg => {
+  sw.register('sw.js?v=6307a17c').then(reg => {
     // 앱을 켜 둔 채 다른 화면에 갔다 돌아오면 새 버전이 있는지 확인
     document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') reg.update().catch(() => {}); });
   }).catch(() => {});
