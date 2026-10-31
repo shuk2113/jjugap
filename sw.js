@@ -15,7 +15,9 @@ self.addEventListener('fetch', e => {
     return;
   }
   if (req.mode === 'navigate') {
-    e.respondWith(fetch(req).then(r => { const cp = r.clone(); caches.open(CACHE).then(c => c.put('./index.html', cp)); return r; })
+    // 브라우저가 묵혀 둔 옛 화면(최대 10분)을 쓰지 않도록 늘 서버에 새것인지 물어본다
+    e.respondWith(fetch(req.url, { cache: 'no-cache', credentials: 'same-origin' }).then(r => (r.redirected ? fetch(req) : r))
+      .then(r => { if (r.ok) { const cp = r.clone(); caches.open(CACHE).then(c => c.put('./index.html', cp)); } return r; })
       .catch(() => caches.match('./index.html')));
     return;
   }
