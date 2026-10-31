@@ -119,7 +119,8 @@ button{font:inherit; color:inherit; cursor:pointer}
 .date-text:active{background:var(--well)}
 #date-main, #date-sub{display:block}
 #date-main{font-size:17px; font-weight:700}
-#date-main::after{content:""; display:inline-block; width:6px; height:6px; margin-left:8px; border-right:2px solid var(--ink-2); border-bottom:2px solid var(--ink-2); transform:translateY(-4px) rotate(45deg)}
+#date-main::after{content:""; display:inline-block; width:6px; height:6px; margin-left:8px; border-right:2px solid var(--ink-2); border-bottom:2px solid var(--ink-2); transform:translateY(-4px) rotate(45deg); transition:transform .25s cubic-bezier(.3,.7,.2,1)}
+.date-text[aria-expanded="true"] #date-main::after{transform:translateY(-1px) rotate(225deg)}
 #date-sub{font-size:13px; color:var(--ink-2)}
 .today-btn{flex:none; padding:8px 14px; border-radius:999px; border:1px solid var(--line); background:var(--card); font-size:13px; font-weight:500}
 .today-btn:disabled{opacity:.4; cursor:default}
@@ -319,6 +320,36 @@ h2{margin:0; font-size:16px; font-weight:700; text-wrap:balance}
 .cell.is-today .c-n{text-decoration:underline 2px; text-underline-offset:3px}
 .cell.is-sel{border-color:var(--ink)}
 .cell.blank{visibility:hidden}
+/* 날짜를 누르면 뜨는 작은 달력: 아래 큰 달력과 같은 정보, 힘을 뺀 모양 */
+.pc-back{position:fixed; inset:0; z-index:44; background:rgba(0,0,0,.22); touch-action:none; animation:fadeIn .18s ease}
+.pcal{position:fixed; z-index:45; left:0; right:0; top:120px; width:min(calc(100vw - 24px), 380px); margin:0 auto; padding:8px 10px 10px; border-radius:20px; background:var(--card); border:1px solid var(--line);
+  box-shadow:0 16px 40px rgba(0,0,0,.26), 0 2px 8px rgba(0,0,0,.1); touch-action:none; outline:none; transform-origin:50% 0; animation:pcIn .24s cubic-bezier(.2,.8,.2,1)}
+.pcal.closing{animation:pcOut .15s ease forwards} .pc-back.closing{animation:fadeOut .15s ease forwards}
+@keyframes pcIn{from{opacity:0; transform:translateY(-10px) scale(.97)}} @keyframes pcOut{to{opacity:0; transform:translateY(-6px) scale(.985)}}
+.pc-head{display:flex; align-items:center; justify-content:space-between; height:36px; margin-bottom:4px}
+.pc-title{font-size:14.5px; font-weight:700; font-variant-numeric:tabular-nums}
+.pc-nav{width:36px; height:36px; display:grid; place-items:center; padding:0; border:0; border-radius:50%; background:transparent; color:var(--ink-2); -webkit-tap-highlight-color:transparent; transition:background-color .15s}
+.pc-nav:active{background:var(--well)} .pc-nav svg{width:16px; height:16px}
+.pcal .cal-week{gap:3px; margin-bottom:3px; font-size:10.5px}
+.pcal .cal{gap:3px}
+.pc-grid{will-change:transform}
+@keyframes pcSlideL{from{opacity:.2; transform:translateX(18px)}} @keyframes pcSlideR{from{opacity:.2; transform:translateX(-18px)}}
+.pcal .cell{aspect-ratio:1/1.02; gap:0; padding:1px 0; border:0; border-radius:9px}
+.pcal .cell.lv-calm{background:color-mix(in srgb, var(--calm) 7%, transparent)}
+.pcal .cell.lv-mid{background:color-mix(in srgb, var(--mid) 7%, transparent)}
+.pcal .cell.lv-strong{background:color-mix(in srgb, var(--strong) 6%, transparent)}
+.pcal .c-n{font-size:12.5px; font-weight:600}
+.pcal .c-m{font-size:9.5px; font-weight:500}
+.pcal .c-v{height:11px; font-size:8.5px; font-weight:600; line-height:11px}
+.pcal .c-w, .pcal .c-w svg{width:9px; height:9px}
+.pcal .cell.is-today .c-n{text-decoration-thickness:1.5px; text-underline-offset:2.5px}
+.pcal .cell.wx-bad{box-shadow:none}
+.pcal .cell.is-sel, .pcal .cell.is-sel.wx-bad{box-shadow:inset 0 0 0 1.5px var(--ink)}
+.pc-foot{display:flex; justify-content:center; align-items:center; gap:10px; margin-top:8px; font-size:10.5px; color:var(--ink-2); white-space:nowrap}
+.pc-foot i{display:inline-block; width:6px; height:6px; margin-right:4px; border-radius:50%; vertical-align:1px}
+.pc-foot .pc-sep{padding-left:10px; border-left:1px solid var(--line)}
+.pc-foot .d-calm{background:var(--calm)} .pc-foot .d-mid{background:var(--mid)} .pc-foot .d-strong{background:var(--strong)}
+@media (prefers-reduced-motion: reduce){ .pcal, .pc-back, .pcal.closing, .pc-back.closing{animation:none} }
 /* 달력 속 날씨: 아래 줄에 날씨 아이콘 + 그날 최대 파도(신호 색) */
 .c-w{flex:none; width:10px; height:10px; color:var(--ink-2)}
 .c-w svg{display:block; width:10px; height:10px}
@@ -398,7 +429,7 @@ h2{margin:0; font-size:16px; font-weight:700; text-wrap:balance}
 
   <nav class="datebar" aria-label="날짜 이동">
     <button id="prev-day" class="icon-btn" aria-label="전날">‹</button>
-    <button class="date-text" id="date-btn" aria-label="달력으로 이동">
+    <button class="date-text" id="date-btn" aria-label="날짜 고르기 달력 열기" aria-haspopup="dialog" aria-expanded="false">
       <span id="date-main">10월 30일 금요일</span>
       <span id="date-sub">음력 20일</span>
     </button>
@@ -528,6 +559,17 @@ h2{margin:0; font-size:16px; font-weight:700; text-wrap:balance}
   <p class="foot">물때·만조·간조·물 높이는 국립해양조사원 예보에 맞춘 계산이고, 바람·파도·하늘·수온은 기상청 단기예보와 국립해양조사원 관측을 하루 8번 받아 보여주는 참고 정보예요. 출항 여부는 꼭 선장님 공지를 따르세요.</p>
 </div>
 
+<div class="pc-back" id="pc-back" hidden></div>
+<div class="pcal" id="pcal" role="dialog" aria-modal="true" aria-label="날짜 고르기" tabindex="-1" hidden>
+  <div class="pc-head">
+    <button class="pc-nav" id="pc-prev" aria-label="이전 달"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M10 3.5 5.5 8l4.5 4.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+    <b class="pc-title" id="pc-title">2026년 10월</b>
+    <button class="pc-nav" id="pc-next" aria-label="다음 달"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M6 3.5 10.5 8 6 12.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+  </div>
+  <div class="cal-week" aria-hidden="true"><span>일</span><span>월</span><span>화</span><span>수</span><span>목</span><span>금</span><span>토</span></div>
+  <div class="cal pc-grid" id="pc-grid"></div>
+  <div class="pc-foot" aria-hidden="true"><span><i class="d-calm"></i>물 약함</span><span><i class="d-mid"></i>보통</span><span><i class="d-strong"></i>물 셈</span><span class="pc-sep">아래 줄은 날씨·파도</span></div>
+</div>
 <div class="sheet-back" id="st-back" hidden></div>
 <div class="sheet" id="st-sheet" role="dialog" aria-modal="true" aria-label="출항지 고르기" hidden>
   <div class="sh-head" id="st-head">
@@ -714,6 +756,7 @@ const TideHarm = (() => {
   const WIN = 31;
   let sel = today, winStart = today - 3;
   let view = (() => { const v = ymd(today); return { y: v.y, m: v.m }; })();
+  let pcRepaint = null;   // 날짜 팝업 달력이 열려 있으면 같이 다시 그린다
 
   function dayData(n) {
     const i = Tide.info(n);
@@ -1232,6 +1275,7 @@ const TideHarm = (() => {
     $('cal').innerHTML = calHTML(view.y, view.m);
     $('cal-next').innerHTML = calHTML(q.y, q.m);
     calPlace(0, 0); calFit($('cal'), 0);
+    if (pcRepaint) pcRepaint();
   }
   // 하루 날씨 요약: 3일까지는 시간별 예보(낮 6~18시), 그 뒤 10일까지는 중기 해상예보
   const CW_ICO = {
@@ -1929,37 +1973,63 @@ const TideHarm = (() => {
   const shiftWin = dir => { winStart += dir * 30; select(today >= winStart && today < winStart + WIN ? today : winStart); };
   $('prev-win').onclick = () => shiftWin(-1);
   $('next-win').onclick = () => shiftWin(1);
-  // 날짜를 누르면 달력으로, 달력에서 날짜를 고르면 다시 맨 위 바다 그림으로
+  // 아래 큰 달력에서 날짜를 고르면 다시 맨 위 바다 그림으로
   const motion = () => matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth';
-  // 날짜를 누르면 달력으로: 0.38초 만에 내려가고, 화면 가운데보다 살짝(20px) 위에 멈춘다
-  const CAL_LIFT = 20, CAL_SCROLL_MS = 380;
-  let scrollRaf = 0;
-  function scrollToY(y, ms) {
-    const max = document.documentElement.scrollHeight - innerHeight;
-    y = Math.max(0, Math.min(max, y));
-    if (motion() === 'auto') { window.scrollTo(0, y); return; }
-    const y0 = window.scrollY, d = y - y0, t0 = performance.now();
-    const ease = t => t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
-    cancelAnimationFrame(scrollRaf);
-    const step = now => {
-      const k = Math.min(1, (now - t0) / ms);
-      window.scrollTo(0, y0 + d * ease(k));
-      if (k < 1) scrollRaf = requestAnimationFrame(step);
-    };
-    scrollRaf = requestAnimationFrame(step);
-  }
-  $('date-btn').onclick = () => {
-    const sec = $('cal-section');
-    if (document.documentElement.scrollHeight > innerHeight + 1) {
-      const r = sec.getBoundingClientRect();
-      scrollToY(window.scrollY + r.top - (innerHeight - r.height) / 2 + CAL_LIFT, CAL_SCROLL_MS);
-    } else {
-      // 페이지 바깥(앱 화면)이 스크롤을 맡는 경우: 브라우저 기본 이동 + 같은 만큼 위로
-      sec.scrollIntoView({ behavior: motion(), block: 'center' });
+  // 날짜를 누르면 그 자리에서 작은 달력이 뜬다 (아래 큰 달력과 같은 칸을 힘을 뺀 모양으로)
+  (() => {
+    const btn = $('date-btn'), pop = $('pcal'), back = $('pc-back'), grid = $('pc-grid');
+    let inFrame = false; try { inFrame = window.top !== window.self; } catch (_) { inFrame = true; }
+    const useHist = !inFrame;   // 설치한 앱에서는 폰의 '뒤로' 버튼으로도 닫힌다
+    const reduceM = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
+    let isOpen = false, pv = null, closeT = 0, skipPop = false;
+    function paint(dir) {
+      $('pc-title').textContent = `${pv.y}년 ${pv.m}월`;
+      grid.innerHTML = calHTML(pv.y, pv.m);
+      if (dir && !reduceM()) { grid.style.animation = 'none'; void grid.offsetWidth; grid.style.animation = `${dir > 0 ? 'pcSlideL' : 'pcSlideR'} .24s cubic-bezier(.2,.8,.2,1)`; }
     }
-  };
-  // 휠·터치로 직접 스크롤하면 진행 중이던 자동 이동은 멈춘다
-  ['wheel', 'touchstart'].forEach(ev => addEventListener(ev, () => cancelAnimationFrame(scrollRaf), { passive: true }));
+    // 날짜 바로 아래에 띄우되, 화면 밖으로 넘치면 위로 올린다
+    function place() {
+      const r = btn.getBoundingClientRect(), h = pop.offsetHeight;
+      pop.style.top = Math.round(Math.max(8, Math.min(r.bottom + 8, innerHeight - h - 8))) + 'px';
+    }
+    function open() {
+      if (isOpen) return; clearTimeout(closeT);
+      const v = ymd(sel); pv = { y: v.y, m: v.m }; paint(0);
+      back.classList.remove('closing'); pop.classList.remove('closing'); grid.style.animation = '';
+      back.hidden = false; pop.hidden = false; place(); isOpen = true;
+      btn.setAttribute('aria-expanded', 'true');
+      try { pop.focus({ preventScroll: true }); } catch (_) {}
+      if (useHist) { try { history.pushState({ pcal: 1 }, ''); } catch (_) {} }
+    }
+    function close(fromPop) {
+      if (!isOpen) return; isOpen = false; btn.setAttribute('aria-expanded', 'false');
+      if (useHist && !fromPop && history.state && history.state.pcal) { skipPop = true; history.back(); }
+      const done = () => { back.hidden = true; pop.hidden = true; back.classList.remove('closing'); pop.classList.remove('closing'); };
+      if (reduceM()) { done(); return; }
+      back.classList.add('closing'); pop.classList.add('closing'); closeT = setTimeout(done, 150);
+    }
+    const go = d => { pv = monthStep(pv, d); paint(d); };
+    btn.onclick = () => (isOpen ? close() : open());
+    back.onclick = () => close();
+    $('pc-prev').onclick = () => go(-1);
+    $('pc-next').onclick = () => go(1);
+    // 좌우로 밀어 달 넘기기
+    let sw = null, swiped = false;
+    pop.addEventListener('touchstart', e => { const t = e.touches[0]; sw = { x: t.clientX, y: t.clientY }; swiped = false; }, { passive: true });
+    pop.addEventListener('touchend', e => {
+      if (!sw) return; const t = e.changedTouches[0], dx = t.clientX - sw.x, dy = t.clientY - sw.y; sw = null;
+      if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy) * 1.3) { swiped = true; go(dx < 0 ? 1 : -1); }
+    }, { passive: true });
+    grid.addEventListener('click', e => {
+      if (swiped) { swiped = false; return; }
+      const b = e.target.closest('[data-dn]'); if (!b) return;
+      select(+b.dataset.dn); close();
+    });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape' && isOpen) close(); });
+    addEventListener('popstate', () => { if (skipPop) { skipPop = false; return; } if (isOpen) close(true); });
+    addEventListener('resize', () => { if (isOpen) place(); });
+    pcRepaint = () => { if (isOpen) paint(0); };
+  })();
   $('cal').addEventListener('click', e => {
     const b = e.target.closest('[data-dn]');
     if (b) { select(+b.dataset.dn); window.scrollTo({ top: 0, behavior: motion() }); }
@@ -2035,7 +2105,7 @@ if ('serviceWorker' in navigator) addEventListener('load', () => {
   const sw = navigator.serviceWorker; let ctl = sw.controller, reloading = false;
   // 새 버전이 올라오면 한 번 새로 열어 바로 반영 (처음 설치할 때는 제외)
   sw.addEventListener('controllerchange', () => { if (ctl && !reloading) { reloading = true; location.reload(); } ctl = sw.controller; });
-  sw.register('sw.js?v=05e436f2').then(reg => {
+  sw.register('sw.js?v=183f974d').then(reg => {
     // 앱을 켜 둔 채 다른 화면에 갔다 돌아오면 새 버전이 있는지 확인
     document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') reg.update().catch(() => {}); });
   }).catch(() => {});
