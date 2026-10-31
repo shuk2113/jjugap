@@ -1,14 +1,32 @@
-prefixes [(15, 'LTC'), (16, 'LTC'), (17, 'LTC'), (18, 'LTC'), (19, 'LTC'), (20, 'LTC'), (21, 'LTC'), (22, 'LTC'), (23, 'LTC'), (24, 'LTC')]  (106s)
-15LTC: up to 20  (117s)
-16LTC: up to 24  (129s)
-17LTC: up to 24  (141s)
-18LTC: up to 24  (153s)
-19LTC: up to 24  (165s)
-20LTC: up to 25  (178s)
-21LTC: up to 24  (212s)
-22LTC: up to 25  (228s)
-23LTC: up to 19  (238s)
-24LTC: up to 21  (249s)
-time10: {"header":{"resultCode":"00","resultMsg":"NORMAL_SERVICE"},"body":{"items":{"item":[{"obsvtrNm":"천수만","lot":126.46652,"lat":36.37794,"predcDt":"2026-10-31 00:00","crdir":"남남동","crsp":56.00},{"obsvtrNm":"천수만","lot":126.46652,"lat":36.37794,"predcDt":"2026-10-31 00:10","crdir":"남남동","crsp":53.79},{"ob
-time30: {"header":{"resultCode":"00","resultMsg":"NORMAL_SERVICE"},"body":{"items":{"item":[{"obsvtrNm":"천수만","lot":126.46652,"lat":36.37794,"predcDt":"2026-10-31 00:00","crdir":"남남동","crsp":56.00},{"obsvtrNm":"천수만","lot":126.46652,"lat":36.37794,"predcDt":"2026-10-31 00:30","crdir":"남남동","crsp":47.18},{"ob
-fldebb: {"header":{"resultCode":"00","resultMsg":"NORMAL_SERVICE"},"body":{"items":{"item":[{"obsvtrNm":"천수만","lot":126.46652,"lat":36.37794,"predcDt":"2025-01-01 01:28","crdir":350.20,"crsp":123.15},{"obsvtrNm":"천수만","lot":126.46652,"lat":36.37794,"predcDt":"2025-01-01 04:42","crdir":0.00,"crsp":0.00},{"ob
+obs DT_0065: n=20 last={'obsvtrNm': '덕적도', 'obsrvnDt': '2026-10-31 00:00', 'wtem': None, 'bscTdlvHgt': 314.0} wtem_n=3 sample=[0.0, 0.0, 0.0]
+obs DT_0017: n=20 last={'obsvtrNm': '대산', 'obsrvnDt': '2026-10-31 00:00', 'wtem': 18.9, 'bscTdlvHgt': 292.0} wtem_n=20 sample=[18.8, 18.8, 18.9]
+obs DT_0050: n=20 last={'obsvtrNm': '태안', 'obsrvnDt': '2026-10-31 00:00', 'wtem': None, 'bscTdlvHgt': 270.0} wtem_n=3 sample=[0.0, 0.0, 0.0]
+obs DT_0037: n=20 last={'obsvtrNm': '어청도', 'obsrvnDt': '2026-10-31 00:00', 'wtem': 17.3, 'bscTdlvHgt': 169.0} wtem_n=20 sample=[17.3, 17.3, 17.3]
+obs DT_0024: n=20 last={'obsvtrNm': '장항', 'obsrvnDt': '2026-10-31 00:00', 'wtem': None, 'bscTdlvHgt': 204.0} wtem_n=3 sample=[0.0, 0.0, 0.0]
+obs DT_0003: n=20 last={'obsvtrNm': '영광', 'obsrvnDt': '2026-10-31 00:00', 'wtem': None, 'bscTdlvHgt': 171.0} wtem_n=3 sample=[0.0, 0.0, 0.0]
+obs DT_0093: n=20 last={'obsvtrNm': '소무의도', 'obsrvnDt': '2026-10-31 00:00', 'wtem': None, 'bscTdlvHgt': 353.0} wtem_n=3 sample=[0.0, 0.0, 0.0]
+obs DT_0052: n=20 last={'obsvtrNm': '인천송도', 'obsrvnDt': '2026-10-31 00:00', 'wtem': None, 'bscTdlvHgt': 367.0} wtem_n=3 sample=[0.0, 0.0, 0.0]
+obs DT_0032: n=20 last={'obsvtrNm': '강화대교', 'obsrvnDt': '2026-10-31 00:00', 'wtem': None, 'bscTdlvHgt': 425.0} wtem_n=3 sample=[0.0, 0.0, 0.0]
+obs DT_0044: n=20 last={'obsvtrNm': '영종대교', 'obsrvnDt': '2026-10-31 00:00', 'wtem': None, 'bscTdlvHgt': 404.0} wtem_n=3 sample=[0.0, 0.0, 0.0]
+obs DT_0002: n=20 last={'obsvtrNm': '평택', 'obsrvnDt': '2026-10-31 00:00', 'wtem': 18.1, 'bscTdlvHgt': 382.0} wtem_n=20 sample=[17.8, 18.0, 18.1]
+obs TW_0079: {"header":{"resultCode":"10","resultMsg":"INVALID_REQUEST_PARAMETER_ERROR"}}
+obs TW_0069: {"header":{"resultCode":"10","resultMsg":"INVALID_REQUEST_PARAMETER_ERROR"}}
+obs TW_0072: {"header":{"resultCode":"10","resultMsg":"INVALID_REQUEST_PARAMETER_ERROR"}}
+obs TW_0082: {"header":{"resultCode":"10","resultMsg":"INVALID_REQUEST_PARAMETER_ERROR"}}
+obs TW_0070: {"header":{"resultCode":"10","resultMsg":"INVALID_REQUEST_PARAMETER_ERROR"}}
+obs TW_0076: {"header":{"resultCode":"10","resultMsg":"INVALID_REQUEST_PARAMETER_ERROR"}}
+obs TW_0077: {"header":{"resultCode":"10","resultMsg":"INVALID_REQUEST_PARAMETER_ERROR"}}
+obs KG_0202: {"header":{"resultCode":"10","resultMsg":"INVALID_REQUEST_PARAMETER_ERROR"}}
+obs HF_0070: {"header":{"resultCode":"10","resultMsg":"INVALID_REQUEST_PARAMETER_ERROR"}}
+obs HF_0076: {"header":{"resultCode":"10","resultMsg":"INVALID_REQUEST_PARAMETER_ERROR"}}
+fldebb {'numOfRows': 1000, 'pageNo': 1}: {"header":{"resultCode":"10","resultMsg":"INVALID_REQUEST_PARAMETER_ERROR"}}
+fldebb {'numOfRows': 1000, 'pageNo': 6}: {"header":{"resultCode":"10","resultMsg":"INVALID_REQUEST_PARAMETER_ERROR"}}
+fldebb {'numOfRows': 500, 'pageNo': 11}: {"header":{"resultCode":"10","resultMsg":"INVALID_REQUEST_PARAMETER_ERROR"}}
+fldebb {'numOfRows': 100, 'pageNo': 57}: total=5642 n=42 2026-12-26 14:16 .. 2026-12-31 21:50 (1.2s)
+fldebb reqDate: {"header":{"resultCode":"00","resultMsg":"NORMAL_SERVICE"},"body":{"items":{"item":[{"obsvtrNm":"천수만","lot":126.46652,"lat":36.37794,"predcDt":"2025-01-01 01:28","crdir":350.20,"crsp":123.15},{"obsvtrNm":"천수만","lot":126.46652,"lat":36.37794,"predcDt":"2025-01-
+tidebed 36.3,126.2: n=144 ref=호도 jogo=0.980 josi=+1분 msl=338.9 (1.65s)
+tidebed 36.0,125.5: n=144 ref=어청도 jogo=0.839 josi=-2분 msl=260.7 (1.71s)
+tidebed 36.6,126.8: {"header":{"resultCode":"10","resultMsg":"INVALID_REQUEST_PARAMETER_ERROR"}} (0.53s)
+tidebed 36.25,126.1: n=144 ref=외연도항 jogo=1.010 josi=+1분 msl=329.9 (1.91s)
+tidebed 37.1,126.1: n=144 ref=울도 jogo=1.062 josi=+1분 msl=391.1 (1.45s)
+tidebed 35.7,126.2: n=144 ref=상왕등도 jogo=1.036 josi=+3분 msl=321.6 (1.74s)
