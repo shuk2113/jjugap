@@ -28,6 +28,12 @@ STATIONS = {
     'gyeokpo':    {'sea': [(35.62, 126.38), (35.60, 126.30)], 'obs': ['DT_0068', 'DT_0018'], 'mid': '12A30000'},             # 위도 → 군산
 }
 OBS_FRESH_H = 12   # 이보다 오래된 수온은 '지금 수온'으로 쓰지 않는다
+OBS_FAR_C = 6      # 다른 관측소들의 가운데값과 이만큼 넘게 다르면 센서 이상으로 본다
+
+
+def ok_temp(w):
+    """센서가 값을 못 낼 때 0.0을 보내는 경우가 있어 0 근처와 터무니없는 값은 버린다"""
+    return w is not None and 0.5 < w < 33
 KMA_URL = 'https://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getVilageFcst'
 OBS_URL = 'https://apis.data.go.kr/1192136/dtRecent/GetDTRecentApiService'
 MID_URL = 'https://apis.data.go.kr/1360000/MidFcstInfoService/getMidSeaFcst'   # 중기 해상예보 (3~10일 뒤 날씨·파고)
@@ -167,10 +173,10 @@ def fetch_obs(code, now, prev_hist):
         for r in rows:
             t = str(r.get('obsrvnDt') or r.get('obsrvn_dt') or r.get('record_time') or '')[:16].replace('T', ' ')
             w = f(r.get('wtem', r.get('water_temp')))
-            if t and w is not None and -2 < w < 35:
+            if t and w is not None and ok_temp(w):
                 pts.append((t, w))
         return pts
-    hist = {h[0]: h[1] for h in (prev_hist or [])}
+    hist = {h[0]: h[1] for h in (prev_hist or []) if ok_temp(h[1])}
     hist.update(dict(points(items)))
     keep = (now - timedelta(hours=48)).strftime('%Y-%m-%d %H:%M')
     def near24(h):
@@ -261,6 +267,11 @@ def main():
         o = pst.get('obs') or {}
         if o.get('code') and o.get('hist') and o['code'] not in prev_codes:
             prev_codes[o['code']] = {'hist': o['hist']}
+    for code, pc in list(prev_codes.items()):   # 지난 기록에 섞인 센서 이상값(0.0 등)은 지운다
+        pc = dict(pc); pc['hist'] = [h for h in (pc.get('hist') or []) if ok_temp(h[1])]
+        if not ok_temp(pc.get('wtem')):
+            pc.pop('wtem', None); pc.pop('t', None); pc.pop('wtem24', None)
+        prev_codes[code] = pc
     codes, obs_timeouts = {}, 0
     for code in dict.fromkeys(c for cfg in STATIONS.values() for c in cfg['obs']):
         pc = prev_codes.get(code) or {}
@@ -274,6 +285,14 @@ def main():
             codes[code] = o
         elif pc:
             codes[code] = pc
+    # 센서 이상 거르기: 지금 값들의 가운데값과 너무 다르면 이번에는 쓰지 않는다
+    now_vals = sorted(v['wtem'] for v in codes.values() if v.get('wtem') is not None)
+    if len(now_vals) >= 3:
+        med = now_vals[len(now_vals) // 2]
+        for code, v in codes.items():
+            if v.get('wtem') is not None and abs(v['wtem'] - med) > OBS_FAR_C:
+                note(f'수온 {code}({v.get("name")}): {v["wtem"]}℃ — 다른 곳({med}℃)과 너무 달라 센서 이상으로 보고 뺌', 'warning')
+                v['bad'] = True
     out['obs'] = codes
     cache = {}
     ok_f = ok_o = 0
@@ -320,7 +339,7 @@ def main():
         # 수온: 가까운 관측소부터, 12시간 안의 값이 있는 첫 곳
         for k, code in enumerate(cfg['obs']):
             o = codes.get(code) or {}
-            if o.get('wtem') is None or not o.get('t'):
+            if o.get('wtem') is None or not o.get('t') or o.get('bad'):
                 continue
             age = now - datetime.strptime(o['t'], '%Y-%m-%d %H:%M').replace(tzinfo=KST)
             if age > timedelta(hours=OBS_FRESH_H):
