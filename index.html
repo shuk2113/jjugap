@@ -193,7 +193,7 @@ h2{margin:0; font-size:16px; font-weight:700; text-wrap:balance}
 .me-btn{flex:none; display:inline-flex; align-items:center; gap:6px; height:36px; padding:0 14px 0 11px; border:1px solid var(--line); border-radius:999px; background:var(--card); font:inherit; font-size:13.5px; font-weight:700; color:var(--ink); -webkit-tap-highlight-color:transparent; transition:transform .12s}
 .me-btn:active{transform:scale(.97)} .me-btn svg{width:17px; height:17px; color:#2F7DF6}
 /* 내 위치 지도 화면 */
-.mapv{position:fixed; inset:0; z-index:60; display:flex; flex-direction:column; background:var(--paper); animation:mvIn .22s cubic-bezier(.2,.8,.2,1)}
+.mapv{position:fixed; inset:0; z-index:60; display:flex; flex-direction:column; overflow:hidden; background:var(--paper); animation:mvIn .22s cubic-bezier(.2,.8,.2,1)}
 @keyframes mvIn{from{opacity:0; transform:translateY(16px)}}
 .mv-top{flex:none; display:flex; align-items:center; gap:10px; padding:calc(8px + env(safe-area-inset-top, 0px)) 12px 8px; background:var(--paper); border-bottom:1px solid var(--line)}
 .mv-x{width:38px; height:38px; display:grid; place-items:center; padding:0; border:0; border-radius:50%; background:var(--well); color:var(--ink-2); -webkit-tap-highlight-color:transparent}
@@ -207,16 +207,16 @@ h2{margin:0; font-size:16px; font-weight:700; text-wrap:balance}
 .mv-tools{position:absolute; right:10px; top:10px; display:flex; flex-direction:column; gap:8px}
 .mv-tools button{width:42px; height:42px; display:grid; place-items:center; padding:0; border:1px solid var(--line); border-radius:12px; background:var(--card); font:inherit; font-size:22px; line-height:1; color:var(--ink); box-shadow:0 2px 8px rgba(0,0,0,.12); -webkit-tap-highlight-color:transparent}
 .mv-tools button svg{width:20px; height:20px; color:var(--ink-2)} .mv-tools button.on svg{color:#2F7DF6}
-.mv-scale{position:absolute; left:10px; bottom:calc(var(--sheet-h, 0px) + 10px); transition:bottom .24s cubic-bezier(.2,.8,.2,1); display:flex; flex-direction:column; gap:2px; font-size:10.5px; font-weight:700; color:var(--map-lab); pointer-events:none}
+.mv-scale{position:absolute; left:10px; bottom:10px; transform:translate3d(0,calc(-1 * var(--sheet-h, 0px)),0); transition:transform .28s cubic-bezier(.2,.85,.25,1); display:flex; flex-direction:column; gap:2px; font-size:10.5px; font-weight:700; color:var(--map-lab); pointer-events:none}
 .mv-scale i{display:block; height:5px; border:1.5px solid var(--map-lab); border-top:0}
-.mv-attr{position:absolute; right:6px; bottom:calc(var(--sheet-h, 0px) + 6px); transition:bottom .24s cubic-bezier(.2,.8,.2,1); padding:1px 6px; border-radius:7px; background:var(--map-sea); font-size:9.5px; color:var(--map-lab); opacity:.85; pointer-events:none}
+.mv-attr{position:absolute; right:6px; bottom:6px; transform:translate3d(0,calc(-1 * var(--sheet-h, 0px)),0); transition:transform .28s cubic-bezier(.2,.85,.25,1); padding:1px 6px; border-radius:7px; background:var(--map-sea); font-size:9.5px; color:var(--map-lab); opacity:.85; pointer-events:none}
 .mv-toast{position:absolute; left:50%; top:12px; transform:translateX(-50%); max-width:calc(100% - 90px); padding:8px 14px; border-radius:999px; background:rgba(8,20,24,.82); color:#fff; font-size:12.5px; font-weight:600; text-align:center; pointer-events:none}
-.mv-sheet{position:absolute; left:0; right:0; bottom:0; z-index:2; display:flex; flex-direction:column; background:var(--card); border-radius:18px 18px 0 0; box-shadow:0 -4px 16px rgba(0,0,0,.12)}
+.mv-sheet{position:absolute; left:0; right:0; bottom:0; z-index:2; will-change:transform; display:flex; flex-direction:column; background:var(--card); border-radius:18px 18px 0 0; box-shadow:0 -4px 16px rgba(0,0,0,.12)}
 .mv-grab{flex:none; height:22px; display:flex; align-items:center; justify-content:center; touch-action:none; cursor:grab; -webkit-tap-highlight-color:transparent}
 .mv-grab i{width:40px; height:5px; border-radius:3px; background:var(--ink-2); opacity:.32}
 .mv-grab:focus-visible{outline:2px solid #2F7DF6; outline-offset:-4px; border-radius:18px 18px 0 0}
 .mv-panel{position:relative; flex:none; max-height:46vh; overflow-y:auto; padding:2px 14px calc(12px + env(safe-area-inset-bottom, 0px)); overscroll-behavior:contain}
-.mv-panel.sized{max-height:none} .mv-drag .mv-scale, .mv-drag .mv-attr{transition:none} .mv-panel.anim{transition:height .24s cubic-bezier(.2,.8,.2,1)}
+.mv-panel.sized{max-height:none} .mv-drag .mv-scale, .mv-drag .mv-attr{transition:none}
 .mv-panel .mv-where, .mv-panel .mv-h{touch-action:none}
 .mv-where{display:flex; align-items:baseline; justify-content:space-between; gap:8px; flex-wrap:wrap}
 .mv-where b{font-size:15.5px} .mv-where span{font-size:11.5px; color:var(--ink-2); font-variant-numeric:tabular-nums}
@@ -233,10 +233,22 @@ h2{margin:0; font-size:16px; font-weight:700; text-wrap:balance}
 .mv-safe{margin:10px 0 0; font-size:10.5px; color:var(--ink-2); text-align:center}
 .mv-h{display:flex; align-items:baseline; justify-content:space-between; gap:8px; margin-bottom:8px} .mv-h b{font-size:15.5px} .mv-h span{font-size:11.5px; color:var(--ink-2)}
 .mv-step{display:flex; align-items:center; justify-content:space-between; padding:8px 0; border-bottom:1px solid var(--line)}
-.mv-step span{font-size:14px; font-weight:700}
-.mv-step div{display:flex; align-items:center; gap:12px}
-.mv-step button{width:38px; height:38px; border:1px solid var(--line); border-radius:50%; background:var(--card); font:inherit; font-size:20px; color:var(--ink); -webkit-tap-highlight-color:transparent}
-.mv-step b{min-width:2ch; text-align:center; font-size:18px; font-variant-numeric:tabular-nums}
+.mv-step{gap:8px}
+.mv-step > span{font-size:14px; font-weight:700}
+.mv-num{display:flex; align-items:center; gap:8px; flex:none}
+.mv-num button{width:38px; height:38px; border:1px solid var(--line); border-radius:50%; background:var(--card); font:inherit; font-size:20px; color:var(--ink); -webkit-tap-highlight-color:transparent; touch-action:manipulation}
+.mv-num button:active{background:var(--well)}
+.mv-n{width:52px; height:38px; padding:0; border:1px solid transparent; border-radius:10px; background:var(--well); font:inherit; font-size:18px; font-weight:700; text-align:center; color:var(--ink); font-variant-numeric:tabular-nums; -webkit-appearance:none; appearance:none}
+.mv-n:focus{outline:none; border-color:#2F7DF6; background:var(--card)}
+.mv-step.etc .mv-sp{flex:1; min-width:0; height:38px; padding:0 10px; border:1px solid var(--line); border-radius:10px; background:var(--paper); font:inherit; font-size:14px; font-weight:700; color:var(--ink)}
+.mv-step.etc .mv-sp:focus{outline:none; border-color:#2F7DF6}
+.mv-rm{flex:none; width:30px; height:30px; padding:0; border:0; border-radius:50%; background:transparent; font:inherit; font-size:18px; color:var(--ink-2); -webkit-tap-highlight-color:transparent}
+.mv-etc-h{display:flex; align-items:center; justify-content:space-between; gap:8px; padding:10px 0 2px}
+.mv-etc-h > span{font-size:14px; font-weight:700}
+.mv-chips{display:flex; gap:6px; flex-wrap:wrap; justify-content:flex-end}
+.mv-chips button{height:28px; padding:0 11px; border:1px solid var(--line); border-radius:999px; background:var(--card); font:inherit; font-size:12.5px; font-weight:600; color:var(--ink); -webkit-tap-highlight-color:transparent}
+.mv-chips button:active{background:var(--well)}
+.mv-add{display:block; margin:6px 0 0; padding:6px 2px; border:0; background:none; font:inherit; font-size:13px; font-weight:700; color:#2F7DF6; -webkit-tap-highlight-color:transparent}
 .mv-memo{width:100%; margin:10px 0; padding:10px 12px; border:1px solid var(--line); border-radius:12px; background:var(--paper); font:inherit; font-size:14px; color:var(--ink)}
 .mv-list{list-style:none; margin:0 0 10px; padding:0; display:flex; flex-direction:column; gap:6px}
 .mv-list button{width:100%; display:flex; flex-direction:column; align-items:flex-start; gap:2px; padding:9px 12px; border:0; border-radius:12px; background:var(--well); font:inherit; text-align:left; color:var(--ink); -webkit-tap-highlight-color:transparent}
@@ -2489,8 +2501,8 @@ const TideHarm = (() => {
     const toG = (x, y) => ({ lon: v.lon + (x - W / 2) / (KX * v.s), lat: v.lat - (y - H / 2) / v.s });
     const clampS = s => Math.max(60, Math.min(160000, s));
     // 판에 가리지 않는 지도 윗부분의 가운데 높이, 그리고 어떤 점을 화면 높이 y 에 두기
-    const sheetCover = () => { const el = $('mv-sheet'); return el ? el.getBoundingClientRect().height : 0; };
-    const focusY = () => Math.max(70, (H - Math.min(sheetCover(), H - 140)) / 2);
+    let coverH = () => 0;   // 아래 정보 판이 지도를 가리는 높이 (판 코드에서 채운다)
+    const focusY = () => Math.max(70, (H - Math.min(coverH(), H - 140)) / 2);
     let fy = null;   // 따라가기 때 내 위치를 둘 화면 높이 (판을 움직여도 바꾸지 않는다)
     const placeAt = (lon, lat, y) => { v.lon = lon; v.lat = lat - (H / 2 - y) / v.s; };
 
@@ -2647,7 +2659,7 @@ const TideHarm = (() => {
       // 저장한 포인트
       for (const p of points) {
         const [x, y] = toS(p.lon, p.lat); if (x < -20 || x > W + 20 || y < -30 || y > H + 20) continue;
-        const caught = (p.jj || 0) + (p.gap || 0), on = p.id === selId;
+        const caught = (p.jj || 0) + (p.gap || 0) + etcN(p), on = p.id === selId;
         ctx.fillStyle = caught ? '#F08A24' : '#8C9A98'; ctx.strokeStyle = '#FFFFFF'; ctx.lineWidth = on ? 2.6 : 1.8;
         ctx.beginPath(); ctx.moveTo(x, y); ctx.bezierCurveTo(x - 7, y - 9, x - 7, y - 18, x, y - 18); ctx.bezierCurveTo(x + 7, y - 18, x + 7, y - 9, x, y); ctx.fill(); ctx.stroke();
         if (caught) { ctx.fillStyle = '#FFFFFF'; ctx.font = `700 9.5px ${font}`; ctx.textAlign = 'center'; ctx.fillText(String(caught), x, y - 9.5); ctx.textAlign = 'start'; }
@@ -2908,36 +2920,88 @@ const TideHarm = (() => {
         <p class="mv-safe">낚시 정보 확인용이에요. 항해·안전에는 쓰지 마세요.</p>`;
     }
     // ---------- 포인트 저장 · 목록 · 보기
+    const when = t => { const d = new Date(t + 9 * 3600000); return `${d.getUTCMonth() + 1}/${d.getUTCDate()} ${ampm(d.getUTCHours() * 60 + d.getUTCMinutes())}`; };
+    const pctTxt = p => (p.cur ? (p.cur.calm ? '물돌이' : `${toward(p.cur.dir)} ${p.cur.kn.toFixed(1)}노트`) : p.pct < 8 ? '정조' : `${p.pct}%`);
+    const etcN = p => (p.etc || []).reduce((a, e) => a + (e.c || 0), 0);
+    const catchTxt = p => {
+      const parts = [p.jj ? `쭈꾸미 ${p.jj}` : '', p.gap ? `갑오징어 ${p.gap}` : '', ...(p.etc || []).filter(e => e.c > 0).map(e => `${e.n || '기타'} ${e.c}`)].filter(Boolean);
+      return parts.length ? parts.join(' · ') : '조과 없음';
+    };
+    // ---------- 포인트 저장 · 고치기: 쭈꾸미·갑오징어·기타 어종 마릿수(숫자를 누르면 숫자 자판), 메모
+    const ETC_PICKS = ['낙지', '문어', '우럭', '광어'];
+    const clampN = n => Math.max(0, Math.min(999, Math.round(+n || 0)));
+    function stepper(k, n, label) {
+      return `<div class="mv-num"><button type="button" data-act="dec" data-k="${k}" aria-label="${esc(label)} 한 마리 빼기">−</button>`
+        + `<input class="mv-n" id="mv-n-${k}" data-k="${k}" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="3" enterkeyhint="done" autocomplete="off" value="${n}" aria-label="${esc(label)} 마릿수">`
+        + `<button type="button" data-act="inc" data-k="${k}" aria-label="${esc(label)} 한 마리 더하기">+</button></div>`;
+    }
+    function paintForm() {
+      const f = form, i = f.i;
+      const note = f.edit ? `${when(f.at)} · ${esc(f.where)} · ${esc(f.cond)}`
+        : `${esc(short(i.k))}에서 ${i.dir}쪽 ${kmTxt(i.d)} · ${i.dd.name} · ${i.stand || (i.rising ? '들물' : '날물')} ${meters(i.h)} · 조류 ${i.cur ? (i.cur.calm ? '물돌이' : `${toward(i.cur.dir)}쪽 ${knTxt(i.cur.sp)}`) : (i.pct < 8 ? '정조' : i.pct + '%')}${i.wt == null ? '' : ` · 수온 ${i.wt.toFixed(1)}℃`} 함께 저장돼요.`;
+      panel.innerHTML = `
+        <div class="mv-h"><b>${f.edit ? '포인트 고치기' : '포인트 저장'}</b><span>${f.edit ? '조과·메모만 고쳐져요' : `${ampm(kstMin(f.at))}${f.virtual ? ' · 가상 위치' : ''}`}</span></div>
+        <p class="mv-note">${note}</p>
+        <div class="mv-step"><span>쭈꾸미</span>${stepper('jj', f.jj, '쭈꾸미')}</div>
+        <div class="mv-step"><span>갑오징어</span>${stepper('gap', f.gap, '갑오징어')}</div>
+        <div class="mv-etc-h"><span>기타</span><div class="mv-chips" role="group" aria-label="자주 잡히는 어종 넣기">${ETC_PICKS.map(n => `<button type="button" data-act="fish" data-n="${n}">${n}</button>`).join('')}</div></div>
+        ${f.etc.map((e, j) => `<div class="mv-step etc"><input class="mv-sp" data-j="${j}" maxlength="10" placeholder="어종 (예: 낙지)" value="${esc(e.n)}" aria-label="기타 어종 이름" autocomplete="off">${stepper('e' + j, e.c, e.n || '기타 어종')}${f.etc.length > 1 ? `<button type="button" class="mv-rm" data-act="rmfish" data-j="${j}" aria-label="이 어종 줄 빼기">×</button>` : ''}</div>`).join('')}
+        ${f.etc.length < 4 ? '<button type="button" class="mv-add" data-act="addfish">+ 다른 어종 줄 더하기</button>' : ''}
+        <input class="mv-memo" id="mv-memo" maxlength="80" placeholder="메모 (예: 수심 20m, 주황 에기)" value="${esc(f.memo || '')}">
+        <div class="mv-btns"><button class="pri" data-act="commit">${f.edit ? '고친 내용 저장' : '저장'}</button><button data-act="cancel">취소</button></div>`;
+    }
+    const getN = k => (k[0] === 'e' && k !== 'etc' ? form.etc[+k.slice(1)].c : form[k]);
+    const setN = (k, n) => { n = clampN(n); if (k[0] === 'e') form.etc[+k.slice(1)].c = n; else form[k] = n; const el = $('mv-n-' + k); if (el && document.activeElement !== el) el.value = n; return n; };
     function showSave() {
       sheetAtLeast('mid');
       if (!me) return;
-      const i = infoAt(me); form = { jj: 0, gap: 0, i, at: Date.now(), lat: me.lat, lon: me.lon, acc: me.acc || 0, virtual: !!me.virtual };
-      mode = 'save';
-      const tm = ampm(kstMin(form.at));
-      panel.innerHTML = `
-        <div class="mv-h"><b>포인트 저장</b><span>${tm}${form.virtual ? ' · 가상 위치' : ''}</span></div>
-        <p class="mv-note">${esc(short(i.k))}에서 ${i.dir}쪽 ${kmTxt(i.d)} · ${i.dd.name} · ${i.stand || (i.rising ? '들물' : '날물')} ${meters(i.h)} · 조류 ${i.cur ? (i.cur.calm ? '물돌이' : `${toward(i.cur.dir)}쪽 ${knTxt(i.cur.sp)}`) : (i.pct < 8 ? '정조' : i.pct + '%')}${i.wt == null ? '' : ` · 수온 ${i.wt.toFixed(1)}℃`} 함께 저장돼요.</p>
-        <div class="mv-step"><span>쭈꾸미</span><div><button data-act="dec" data-k="jj" aria-label="쭈꾸미 한 마리 빼기">−</button><b id="mv-n-jj">0</b><button data-act="inc" data-k="jj" aria-label="쭈꾸미 한 마리 더하기">+</button></div></div>
-        <div class="mv-step"><span>갑오징어</span><div><button data-act="dec" data-k="gap" aria-label="갑오징어 한 마리 빼기">−</button><b id="mv-n-gap">0</b><button data-act="inc" data-k="gap" aria-label="갑오징어 한 마리 더하기">+</button></div></div>
-        <input class="mv-memo" id="mv-memo" maxlength="80" placeholder="메모 (예: 수심 20m, 주황 에기)">
-        <div class="mv-btns"><button class="pri" data-act="commit">저장</button><button data-act="cancel">취소</button></div>`;
+      const i = infoAt(me); form = { jj: 0, gap: 0, etc: [{ n: '', c: 0 }], memo: '', i, at: Date.now(), lat: me.lat, lon: me.lon, acc: me.acc || 0, virtual: !!me.virtual };
+      mode = 'save'; paintForm();
+    }
+    function showEdit(id) {
+      const p = points.find(q => q.id === id); if (!p) return;
+      sheetAtLeast('mid');
+      const S = TideHarm.STATIONS[p.port] || TideHarm.STATIONS[nearest(p).k];
+      form = { edit: id, jj: p.jj || 0, gap: p.gap || 0, etc: (p.etc && p.etc.length ? p.etc : [{ n: '', c: 0 }]).map(e => ({ n: e.n || '', c: e.c || 0 })), memo: p.memo || '', at: p.t,
+        where: `${short(p.port)}에서 ${dirOf(S, p)}쪽 ${kmTxt(distKm(S, p))}`, cond: `${p.mul} · ${p.stand ? p.stand.replace(' · ', ' ') : (p.rising ? '들물' : '날물')} ${meters(p.h)}` };
+      mode = 'save'; selId = id; paintForm(); draw();
     }
     function commit() {
-      const f = form, i = f.i, memo = ($('mv-memo') || {}).value || '';
+      const f = form, memo = (($('mv-memo') || {}).value || '').trim();
+      const etc = f.etc.map(e => ({ n: e.n.trim(), c: clampN(e.c) })).filter(e => e.c > 0 || e.n);
+      if (f.edit) {
+        const p = points.find(q => q.id === f.edit);
+        if (p) { p.jj = clampN(f.jj); p.gap = clampN(f.gap); p.etc = etc; p.memo = memo; p.edited = Date.now(); savePts(); }
+        form = null; toast('고친 내용을 저장했어요'); showDetail(f.edit); draw(); return;
+      }
+      const i = f.i;
       points.unshift({ id: String(f.at), t: f.at, lat: +f.lat.toFixed(6), lon: +f.lon.toFixed(6), acc: Math.round(f.acc), virtual: f.virtual,
-        port: i.k, mul: i.dd.name, lv: i.dd.lv, h: Math.round(i.h), rising: i.rising, stand: i.stand, pct: i.pct, wind: i.wind, wave: i.wave, wt: i.wt, jj: f.jj, gap: f.gap, memo: memo.trim(),
+        port: i.k, mul: i.dd.name, lv: i.dd.lv, h: Math.round(i.h), rising: i.rising, stand: i.stand, pct: i.pct, wind: i.wind, wave: i.wave, wt: i.wt, jj: clampN(f.jj), gap: clampN(f.gap), etc, memo,
         spot: !!i.spot, cur: i.cur ? { kn: +(i.cur.sp / KN).toFixed(1), dir: Math.round(i.cur.dir), calm: i.cur.calm, at: i.cur.name, model: !!i.cur.model } : null, wtAt: i.wtName || null });
       savePts(); form = null; mode = 'info'; toast('포인트를 저장했어요'); paintPanel(true); draw();
     }
-    const when = t => { const d = new Date(t + 9 * 3600000); return `${d.getUTCMonth() + 1}/${d.getUTCDate()} ${ampm(d.getUTCHours() * 60 + d.getUTCMinutes())}`; };
-    const pctTxt = p => (p.cur ? (p.cur.calm ? '물돌이' : `${toward(p.cur.dir)} ${p.cur.kn.toFixed(1)}노트`) : p.pct < 8 ? '정조' : `${p.pct}%`);
-    const catchTxt = p => (p.jj || p.gap) ? [p.jj ? `쭈꾸미 ${p.jj}` : '', p.gap ? `갑오징어 ${p.gap}` : ''].filter(Boolean).join(' · ') : '조과 없음';
+    // 숫자 칸: 누르면 전체 선택(바로 새 숫자를 치게), 숫자만 받기, 비우고 나가면 0
+    panel.addEventListener('focusin', e => {
+      const t = e.target;
+      if (t.classList.contains('mv-n')) setTimeout(() => { try { t.select(); } catch (_) {} }, 0);
+      if (t.matches('input')) setTimeout(() => { try { t.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); } catch (_) {} }, 280);
+    });
+    panel.addEventListener('input', e => {
+      const t = e.target; if (!form) return;
+      if (t.classList.contains('mv-n')) { const d = t.value.replace(/\D/g, '').slice(0, 3); if (d !== t.value) t.value = d; setN(t.dataset.k, d); }
+      else if (t.classList.contains('mv-sp')) form.etc[+t.dataset.j].n = t.value;
+      else if (t.id === 'mv-memo') form.memo = t.value;
+    });
+    panel.addEventListener('click', e => { const t = e.target; if (t.classList && t.classList.contains('mv-n')) { try { t.select(); } catch (_) {} } });
+    panel.addEventListener('focusout', e => { const t = e.target; if (form && t.classList.contains('mv-n')) t.value = getN(t.dataset.k); });
+    panel.addEventListener('keydown', e => { if (e.key === 'Enter' && e.target.classList.contains('mv-n')) e.target.blur(); });
+
     function showList() {
       sheetAtLeast('mid');
       mode = 'list';
       panel.innerHTML = `<div class="mv-h"><b>저장한 포인트 ${points.length}곳</b><span>이 폰에만 저장돼요</span></div>` +
         (points.length ? `<ul class="mv-list">${points.map(p => { const S = TideHarm.STATIONS[p.port] || TideHarm.STATIONS[nearest(p).k];
-          return `<li><button data-act="pick" data-id="${p.id}"><b>${when(p.t)} · ${catchTxt(p)}</b><span>${esc(short(p.port))}에서 ${dirOf(S, p)}쪽 ${kmTxt(distKm(S, p))} · ${p.mul} · 조류 ${pctTxt(p)}${p.wt == null ? '' : ` · 수온 ${p.wt.toFixed(1)}℃`}</span></button></li>`; }).join('')}</ul>`
+          return `<li><button data-act="pick" data-id="${p.id}"><b>${when(p.t)} · ${esc(catchTxt(p))}</b><span>${esc(short(p.port))}에서 ${dirOf(S, p)}쪽 ${kmTxt(distKm(S, p))} · ${p.mul} · 조류 ${pctTxt(p)}${p.wt == null ? '' : ` · 수온 ${p.wt.toFixed(1)}℃`}</span></button></li>`; }).join('')}</ul>`
           : `<p class="mv-empty">아직 저장한 포인트가 없어요. 배 위에서 '포인트 저장'을 누르면 그 자리와 물때·조류·수온이 함께 남아요.</p>`) +
         `<div class="mv-btns"><button data-act="back">닫기</button></div>`;
     }
@@ -2946,17 +3010,17 @@ const TideHarm = (() => {
       const p = points.find(q => q.id === id); if (!p) { mode = 'info'; selId = null; paintPanel(true); return; }
       mode = 'detail'; selId = id; const S = TideHarm.STATIONS[p.port];
       panel.innerHTML = `
-        <div class="mv-h"><b>${when(p.t)} 포인트</b><span>${p.virtual ? '가상 위치' : `GPS ±${p.acc}m`}</span></div>
+        <div class="mv-h"><b>${when(p.t)} 포인트</b><span>${p.virtual ? '가상 위치' : `GPS ±${p.acc}m`}${p.edited ? ' · 고침' : ''}</span></div>
         <div class="mv-grid">
-          <div class="mv-c"><small>조과</small><b>${catchTxt(p)}</b></div>
+          <div class="mv-c wide"><small>조과</small><b>${esc(catchTxt(p))}</b></div>
           <div class="mv-c"><small>잡은 시각</small><b>${ampm(kstMin(p.t))}</b></div>
-          <div class="mv-c wide"><small>위치</small><b>${esc(short(p.port))}에서 ${dirOf(S, p)}쪽 ${kmTxt(distKm(S, p))}</b></div>
+          <div class="mv-c"><small>위치</small><b>${esc(short(p.port))}에서 ${dirOf(S, p)}쪽 ${kmTxt(distKm(S, p))}</b></div>
           <div class="mv-c"><small>물때 · 물</small><b>${p.mul} · ${p.stand ? p.stand.replace(' · ', ' ') : (p.rising ? '들물' : '날물')} ${meters(p.h)}</b></div>
           <div class="mv-c"><small>조류 · 수온</small><b>${pctTxt(p)}${p.wt == null ? '' : ` · ${p.wt.toFixed(1)}℃`}</b></div>
         </div>
         <p class="mv-note">${p.memo ? esc(p.memo) + ' · ' : ''}${dm(p.lat, 'N', 'S')} ${dm(p.lon, 'E', 'W')}${p.wind == null ? '' : ` · 바람 ${p.wind}m/s`}${p.wave == null ? '' : ` · 파도 ${p.wave.toFixed(1)}m`}</p>
         <div class="mv-btns">${ask ? `<button class="del" data-act="del-yes" data-id="${p.id}">정말 지우기</button><button data-act="pick" data-id="${p.id}">그대로 두기</button>`
-          : `<button data-act="list">목록</button><button class="del" data-act="del" data-id="${p.id}">지우기</button><button data-act="back">닫기</button>`}</div>`;
+          : `<button class="pri" data-act="edit" data-id="${p.id}">고치기</button><button data-act="list">목록</button><button class="del" data-act="del" data-id="${p.id}">지우기</button><button data-act="back">닫기</button>`}</div>`;
       draw();
     }
     let toastT = 0;
@@ -2965,8 +3029,18 @@ const TideHarm = (() => {
       const b = e.target.closest('[data-act]'); if (!b) return; const a = b.dataset.act;
       if (a === 'save') showSave();
       else if (a === 'station') { if (setStation && me) { setStation(nearest(me).k); close(); } }
-      else if (a === 'inc' || a === 'dec') { form[b.dataset.k] = Math.max(0, Math.min(999, form[b.dataset.k] + (a === 'inc' ? 1 : -1))); $('mv-n-' + b.dataset.k).textContent = form[b.dataset.k]; }
+      else if (a === 'inc' || a === 'dec') { const k = b.dataset.k, el = $('mv-n-' + k); const n = setN(k, getN(k) + (a === 'inc' ? 1 : -1)); if (el) el.value = n; }
+      else if (a === 'fish') {   // 자주 잡히는 어종: 빈 줄에 이름을 넣고 한 마리로 (빈 줄이 없으면 줄을 더한다)
+        let j = form.etc.findIndex(e => !e.n.trim());
+        if (j < 0 && form.etc.length < 4) { form.etc.push({ n: '', c: 0 }); j = form.etc.length - 1; }
+        if (j < 0) j = form.etc.length - 1;
+        form.etc[j].n = b.dataset.n; if (!form.etc[j].c) form.etc[j].c = 1; paintForm();
+      }
+      else if (a === 'addfish') { if (form.etc.length < 4) { form.etc.push({ n: '', c: 0 }); paintForm(); const el = panel.querySelectorAll('.mv-sp'); el.length && el[el.length - 1].focus(); } }
+      else if (a === 'rmfish') { form.etc.splice(+b.dataset.j, 1); if (!form.etc.length) form.etc.push({ n: '', c: 0 }); paintForm(); }
+      else if (a === 'edit') showEdit(b.dataset.id);
       else if (a === 'commit') commit();
+      else if (a === 'cancel' && form && form.edit) { const id = form.edit; form = null; showDetail(id); }
       else if (a === 'cancel' || a === 'back') { form = null; mode = 'info'; selId = null; paintPanel(true); draw(); }
       else if (a === 'list') showList();
       else if (a === 'pick') { const p = points.find(q => q.id === b.dataset.id); if (p) { follow = false; $('mv-me').classList.remove('on'); v.s = Math.max(v.s, 4000); placeAt(p.lon, p.lat, focusY()); } showDetail(b.dataset.id); }
@@ -3015,23 +3089,32 @@ const TideHarm = (() => {
     document.addEventListener('visibilitychange', () => { if (isOpen && document.visibilityState === 'visible') { wakeOn(); paintPanel(true); } });
 
     // ---------- 아래 정보 판: 손잡이나 맨 윗줄을 끌어 올리고 내린다 (작게 · 가운데 · 크게, 놓으면 가까운 높이로)
-    const sheet = $('mv-sheet'), grab = $('mv-grab'), SHEET_KEY = 'jjukgap-sheet', ORDER = ['peek', 'mid', 'full'];
-    let sheetMode = 'mid', drag = null;
+    // 움직이는 동안에는 판의 높이를 바꾸지 않고 위치(transform)만 옮겨서 매끄럽게, 다 움직인 뒤에 높이를 맞춘다
+    const sheet = $('mv-sheet'), grab = $('mv-grab'), SHEET_KEY = 'jjukgap-sheet', ORDER = ['peek', 'mid', 'full'], EASE = 'transform .28s cubic-bezier(.2,.85,.25,1)';
+    let sheetMode = 'mid', drag = null, boxH = 0, shownH = 0, animT = 0;
     try { const m = localStorage.getItem(SHEET_KEY); if (ORDER.includes(m)) sheetMode = m; } catch (_) {}
+    coverH = () => (sheet.isConnected ? grab.offsetHeight + shownH : 0);
     function sheetHeights() {
       const vh = view.clientHeight || innerHeight, top = panel.firstElementChild;
       const padB = parseFloat(getComputedStyle(panel).paddingBottom) || 12;
       const peek = Math.round(Math.min(150, (top ? top.offsetTop + top.offsetHeight : 30) + padB + 6));
       return { peek, mid: Math.round(vh * 0.44), full: Math.round(vh * 0.78) };
     }
-    function setH(h, anim) {
-      panel.classList.add('sized'); panel.classList.toggle('anim', !!anim);
-      panel.style.height = Math.round(h) + 'px';
-      view.classList.toggle('mv-drag', !anim);
-      view.style.setProperty('--sheet-h', Math.round(h + grab.offsetHeight) + 'px');
+    const setBox = h => { if (h !== boxH) { boxH = h; panel.classList.add('sized'); panel.style.height = h + 'px'; } };
+    const setY = (y, anim) => { sheet.style.transition = anim ? EASE : 'none'; sheet.style.transform = y ? `translate3d(0,${y}px,0)` : ''; };
+    const setCover = (h, anim) => { shownH = h; view.classList.toggle('mv-drag', !anim); view.style.setProperty('--sheet-h', Math.round(h + grab.offsetHeight) + 'px'); };
+    // 판이 h 만큼 보이도록 (anim 이면 미끄러지듯)
+    function showTo(h, anim) {
+      clearTimeout(animT); h = Math.round(h);
+      if (!anim || !boxH) { setY(0, false); setBox(h); setCover(h, false); return; }
+      const cur = shownH || h, top = Math.max(boxH, h, cur);
+      setY(top - cur, false); setBox(top); void sheet.offsetHeight;   // 지금 모습 그대로 높이만 넉넉히
+      setY(top - h, true); setCover(h, true);
+      const done = () => { clearTimeout(animT); sheet.removeEventListener('transitionend', done); if (shownH !== h) return; setY(0, false); setBox(h); };
+      sheet.addEventListener('transitionend', done); animT = setTimeout(done, 380);
     }
     function applySheet(anim) {
-      const hs = sheetHeights(); setH(hs[sheetMode], anim);
+      showTo(sheetHeights()[sheetMode], anim);
       grab.setAttribute('aria-label', sheetMode === 'peek' ? '정보 판 펼치기' : '정보 판 접기');
     }
     function setMode(m, anim = true) {
@@ -3039,9 +3122,13 @@ const TideHarm = (() => {
       applySheet(anim);
     }
     function sheetAtLeast(m) { if (ORDER.indexOf(sheetMode) < ORDER.indexOf(m)) { sheetMode = m; applySheet(true); } }
-    function dragStart(e) {
+    function dragStart(e, tap) {
       if (e.button > 0) return;
-      drag = { id: e.pointerId, y0: e.clientY, h0: panel.getBoundingClientRect().height, t0: performance.now(), y: e.clientY, t: performance.now(), v: 0, moved: false };
+      clearTimeout(animT);
+      const hs = sheetHeights(), now = performance.now();
+      // 끄는 동안 판 높이는 가장 크게 두고 위치만 옮긴다
+      const vis = shownH || hs[sheetMode]; setY(hs.full + 20 - vis, false); setBox(hs.full + 20);
+      drag = { id: e.pointerId, y0: e.clientY, h0: vis, y: e.clientY, t: now, v: 0, moved: false, tap, hs };
       try { e.currentTarget.setPointerCapture(e.pointerId); } catch (_) {}
     }
     function dragMove(e) {
@@ -3049,24 +3136,25 @@ const TideHarm = (() => {
       const dy = e.clientY - drag.y0; if (Math.abs(dy) > 5) drag.moved = true;
       if (!drag.moved) return;
       const now = performance.now(), dt = Math.max(1, now - drag.t); drag.v = 0.5 * drag.v + 0.5 * ((e.clientY - drag.y) / dt); drag.y = e.clientY; drag.t = now;
-      const hs = sheetHeights(); setH(Math.max(hs.peek - 20, Math.min(hs.full + 20, drag.h0 - dy)), false);
+      const hs = drag.hs, h = Math.max(hs.peek - 24, Math.min(hs.full + 20, drag.h0 - dy));
+      setY(boxH - h, false); setCover(h, false);
       e.preventDefault();
     }
     function dragEnd(e) {
       if (!drag || e.pointerId !== drag.id) return;
       const d = drag; drag = null;
-      if (!d.moved) { if (e.type === 'pointerup' && d.tap) setMode(sheetMode === 'peek' ? 'mid' : sheetMode === 'mid' ? 'peek' : 'mid'); else applySheet(true); return; }
-      const hs = sheetHeights(), h = panel.getBoundingClientRect().height;
+      if (!d.moved) { if (e.type === 'pointerup' && d.tap) setMode(sheetMode === 'peek' ? 'mid' : 'peek'); else applySheet(true); return; }
+      const hs = d.hs, h = shownH;
       let m = ORDER.reduce((a, b) => (Math.abs(hs[b] - h) < Math.abs(hs[a] - h) ? b : a));
       if (Math.abs(d.v) > 0.35) { const i = ORDER.indexOf(sheetMode), j = Math.max(0, Math.min(2, i + (d.v > 0 ? -1 : 1))); if ((d.v > 0 && hs[ORDER[j]] < h + 40) || (d.v < 0 && hs[ORDER[j]] > h - 40)) m = ORDER[j]; }
       setMode(m, true);
     }
     // 손잡이: 톡 누르면 접기·펼치기, 끌면 높이 바꾸기
-    grab.addEventListener('pointerdown', e => { dragStart(e); if (drag) drag.tap = true; });
+    grab.addEventListener('pointerdown', e => dragStart(e, true));
     for (const el of [grab, panel]) { el.addEventListener('pointermove', dragMove); el.addEventListener('pointerup', dragEnd); el.addEventListener('pointercancel', dragEnd); }
     grab.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setMode(sheetMode === 'peek' ? 'mid' : 'peek'); } });
     // 판의 맨 윗줄(어디서 몇 km · 제목)을 잡아도 끌 수 있다
-    panel.addEventListener('pointerdown', e => { if (e.target.closest('.mv-where, .mv-h')) dragStart(e); });
+    panel.addEventListener('pointerdown', e => { if (e.target.closest('.mv-where, .mv-h')) dragStart(e, false); });
     addEventListener('resize', () => { if (isOpen) applySheet(false); });
     // ---------- 열기 · 닫기
     function open() {
@@ -3382,7 +3470,7 @@ if ('serviceWorker' in navigator) addEventListener('load', () => {
   const sw = navigator.serviceWorker; let ctl = sw.controller, reloading = false;
   // 새 버전이 올라오면 한 번 새로 열어 바로 반영 (처음 설치할 때는 제외)
   sw.addEventListener('controllerchange', () => { if (ctl && !reloading) { reloading = true; location.reload(); } ctl = sw.controller; });
-  sw.register('sw.js?v=59db1f1c').then(reg => {
+  sw.register('sw.js?v=817d7b90').then(reg => {
     // 앱을 켜 둔 채 다른 화면에 갔다 돌아오면 새 버전이 있는지 확인
     document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') reg.update().catch(() => {}); });
   }).catch(() => {});
