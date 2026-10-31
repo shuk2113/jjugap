@@ -16,17 +16,18 @@ OUT = next((a for a in sys.argv[1:] if not a.startswith('--')), 'weather.json')
 
 # 출항지별: 예보 받을 앞바다 지점(앞쪽부터 시도, 파고가 나오는 첫 격자를 씀) · 수온 관측소
 STATIONS = {
-    'incheon':    {'sea': [(37.40, 126.45), (37.35, 126.35)], 'obs': 'DT_0001'},   # 인천
-    'bangameori': {'sea': [(37.30, 126.48), (37.22, 126.36)], 'obs': 'DT_0008'},   # 안산
-    'yeongheung': {'sea': [(37.22, 126.36), (37.20, 126.30)], 'obs': 'DT_0043'},   # 영흥도
-    'anheung':    {'sea': [(36.67, 126.05), (36.62, 126.00)], 'obs': 'DT_0067'},   # 안흥
-    'ocheon':     {'sea': [(36.40, 126.40), (36.35, 126.35)], 'obs': 'DT_0025'},   # 보령
-    'hongwon':    {'sea': [(36.12, 126.42), (36.10, 126.35)], 'obs': 'DT_0051'},   # 서천마량
-    'gunsan':     {'sea': [(35.95, 126.42), (35.90, 126.35)], 'obs': 'DT_0018'},   # 군산
-    'gyeokpo':    {'sea': [(35.62, 126.38), (35.60, 126.30)], 'obs': 'DT_0068'},   # 위도
+    'incheon':    {'sea': [(37.40, 126.45), (37.35, 126.35)], 'obs': 'DT_0001', 'mid': '12A20000'},   # 인천 · 서해중부
+    'bangameori': {'sea': [(37.30, 126.48), (37.22, 126.36)], 'obs': 'DT_0008', 'mid': '12A20000'},   # 안산
+    'yeongheung': {'sea': [(37.22, 126.36), (37.20, 126.30)], 'obs': 'DT_0043', 'mid': '12A20000'},   # 영흥도
+    'anheung':    {'sea': [(36.67, 126.05), (36.62, 126.00)], 'obs': 'DT_0067', 'mid': '12A20000'},   # 안흥
+    'ocheon':     {'sea': [(36.40, 126.40), (36.35, 126.35)], 'obs': 'DT_0025', 'mid': '12A20000'},   # 보령
+    'hongwon':    {'sea': [(36.12, 126.42), (36.10, 126.35)], 'obs': 'DT_0051', 'mid': '12A20000'},   # 서천마량
+    'gunsan':     {'sea': [(35.95, 126.42), (35.90, 126.35)], 'obs': 'DT_0018', 'mid': '12A30000'},   # 군산
+    'gyeokpo':    {'sea': [(35.62, 126.38), (35.60, 126.30)], 'obs': 'DT_0068', 'mid': '12A30000'},   # 위도
 }
 KMA_URL = 'https://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getVilageFcst'
 OBS_URL = 'https://apis.data.go.kr/1192136/dtRecent/GetDTRecentApiService'
+MID_URL = 'https://apis.data.go.kr/1360000/MidFcstInfoService/getMidSeaFcst'   # 중기 해상예보 (3~10일 뒤 날씨·파고)
 
 
 def log(*a):
@@ -175,6 +176,55 @@ def fetch_obs(code, now, prev_obs):
     return {'t': t, 'wtem': w, 'wtem24': w24, 'wspd': ws, 'wdir': wd, 'atmp': at, 'hist': [list(h) for h in hist]}, 'ok'
 
 
+def mid_tmfc(now):
+    """중기예보 발표 시각: 06시·18시 (조금 늦게 올라오는 것을 감안해 20분 여유)"""
+    t = now - timedelta(minutes=20)
+    if t.hour >= 18:
+        return t.strftime('%Y%m%d') + '1800'
+    if t.hour >= 6:
+        return t.strftime('%Y%m%d') + '0600'
+    return (t - timedelta(days=1)).strftime('%Y%m%d') + '1800'
+
+
+def fetch_mid(reg, now):
+    """{'tmFc', 'days': {YYYYMMDD: {'am': [날씨, 파고최저, 파고최고], 'pm': [...]} 또는 {'d': [...]}}}"""
+    tm = mid_tmfc(now)
+    for _ in range(2):
+        try:
+            raw = get_json(MID_URL, {'pageNo': 1, 'numOfRows': 10, 'dataType': 'JSON', 'regId': reg, 'tmFc': tm})
+        except RuntimeError as e:
+            note(f'중기 해상예보 {reg}: {str(e)[-120:]}', 'warning'); return None
+        c, msg, items = unwrap(raw)
+        if items:
+            break
+        note(f'중기 해상예보 {reg} {tm}: {c} {msg} {json.dumps(raw, ensure_ascii=False)[:160]}', 'warning')
+        d = datetime.strptime(tm, '%Y%m%d%H%M') - timedelta(hours=12)
+        tm = d.strftime('%Y%m%d%H%M')
+    else:
+        return None
+    it = items[0]
+    base = datetime.strptime(tm[:8], '%Y%m%d')
+    days = {}
+    def num(v):
+        try:
+            return round(float(v), 1)
+        except (TypeError, ValueError):
+            return None
+    for k, v in it.items():
+        m = re.match(r'^wf(\d+)(Am|Pm)?$', k)
+        if m:
+            key = (base + timedelta(days=int(m.group(1)))).strftime('%Y%m%d')
+            part = (m.group(2) or 'd').lower()
+            days.setdefault(key, {}).setdefault(part, [None, None, None])[0] = v
+            continue
+        m = re.match(r'^wh(\d+)([AB])(Am|Pm)?$', k)
+        if m:
+            key = (base + timedelta(days=int(m.group(1)))).strftime('%Y%m%d')
+            part = (m.group(3) or 'd').lower()
+            days.setdefault(key, {}).setdefault(part, [None, None, None])[1 if m.group(2) == 'A' else 2] = num(v)
+    return {'tmFc': tm, 'days': dict(sorted(days.items()))}
+
+
 def main():
     if not KEY:
         sys.exit('DATA_GO_KR_KEY 비밀값이 없어요')
@@ -189,6 +239,15 @@ def main():
     cache = {}
     ok_f = ok_o = 0
     obs_timeouts = 0
+    mids = {}
+    for reg in sorted({c['mid'] for c in STATIONS.values()}):
+        m = fetch_mid(reg, now)
+        if m:
+            mids[reg] = m
+            note(f'중기 해상예보 {reg}: {m["tmFc"]} 발표, {len(m["days"])}일')
+        elif (prev.get('mid') or {}).get(reg):
+            mids[reg] = prev['mid'][reg]   # 못 받으면 지난 것 유지
+    out['mid'] = mids
     for key, cfg in STATIONS.items():
         pst = (prev.get('stations') or {}).get(key) or {}
         st = {'fc': {}, 'obs': pst.get('obs')}
@@ -226,6 +285,7 @@ def main():
             if o:
                 o['code'] = cfg['obs']; st['obs'] = o; ok_o += 1
                 note(f'{key} 수온 {o["wtem"]}℃ ({o["t"]}), 24시간 전 {o["wtem24"]}')
+        st['mid'] = cfg['mid']
         out['stations'][key] = st
     if ok_f == 0 and ok_o == 0:
         sys.exit('예보·관측을 하나도 받지 못했어요')
