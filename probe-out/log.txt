@@ -1,4 +1,6 @@
-$ sudo apt-get -qq update && sudo apt-get -qq install -y osmium-tool > /dev/null → 0 
+$ /usr/bin/python3 -m pip install -q --user --break-system-packages shapely osmium → 0 
+$ wget -q https://download.geofabrik.de/asia/south-korea-latest.osm.pbf -O kr.pbf → 0 
+$ sudo apt-get -qq install -y osmium-tool > /dev/null; osmium extract -b 125.3,35.1,127.4,38.1 kr.pbf  → 0 
 Running kernel seems to be up-to-date.
 
 No services need to be restarted.
@@ -9,10 +11,12 @@ No user sessions are running outdated binaries.
 
 No VM guests are running outdated hypervisor (qemu) binaries on this host.
 
-$ /usr/bin/python3 -m pip install -q --user --break-system-packages shapely → 0 
-$ wget -q https://download.geofabrik.de/asia/south-korea-latest.osm.pbf -O kr.pbf → 0 
-$ osmium extract -b 125.3,35.1,127.4,38.1 kr.pbf -o box.pbf --overwrite → 0 
-$ osmium tags-filter box.pbf nwr/natural=water nwr/waterway=riverbank nwr/landuse=reservoir,basin -o water.pbf --overwrite → 0 
-$ osmium export water.pbf -f geojsonseq -o water.geojsonseq --overwrite --geometry-types=polygon → 0 
-물 다각형 1490개, 이름 51
-water_union 4689 KB, 46s
+후보 861, 시군 592  149s
+해안 1.5km 안 378
+남항: 남항유어선부두(bus,37.454,126.614), 남항유어선부두(bus,37.454,126.613), 인천항(남항)(harbour,37.444,126.611)
+대천항: 대천항선착장(harbour,36.328,126.512), 대천항(harbour,36.330,126.511)
+백사장: 
+시화: 
+방아머리: 방아머리항(harbour,37.297,126.574), 방아머리선착장(bus,37.291,126.578), 구방아머리선착장(harbour,37.292,126.583)
+오천항: 오천항(harbour,36.440,126.519), 오천항여객터미널(harbour,36.440,126.521)
+선착장: 방축도선착장(harbour,35.848,126.379), 거잠포 선착장(harbour,37.422,126.426), 국화도선착장(harbour,37.061,126.561), 크루즈선착장(name,37.342,126.625), 서포리선착장(name,37.214,126.110), 달바위선착장(harbour,37.244,126.319), 장봉선착장(bus,37.531,126.384), 신도 선착장(harbour,37.514,126.440), 장봉도선착장(harbour,37.530,126.385), 큰무리선착장(harbour,37.410,126.414), 장자도선착장(harbour,35.810,126.395), 승봉도선착장(harbour,37.170,126.290), 대이작도선착장(harbour,37.179,126.248), 소이작도선착장(harbour,37.181,126.243), 다싯물선착장(harbour,37.252,126.302), 하낙월도선착장(harbour,35.192,126.133), 상낙월도선착장(harbour,35.200,126.144), 장고항선착장(harbour,37.036,126.560), 광명선착장(bus,37.375,126.436), 송이도
