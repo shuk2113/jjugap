@@ -534,7 +534,7 @@ h2{margin:0; font-size:16px; font-weight:700; text-wrap:balance}
       <li><span class="sw" style="display:grid;place-items:center;font-size:17px;color:#F2B33D;background:var(--calm-soft)">★</span>
         <p style="margin:0"><b>★ 출조 추천</b><span>물살이 약하고(초록) 바다도 잔잔할 것으로 예보된 날이에요. 달력 위 '출조 추천'에서 바로 고를 수 있어요.</span></p></li>
       <li><span class="sw" style="display:grid;place-items:center;font-size:10px;font-weight:700;color:var(--strong)">1.5m</span>
-        <p style="margin:0"><b>날씨 아이콘 · 파도 높이</b><span>칸 아래 줄은 낮 날씨와 그날 가장 높은 파도예요. 글자 색은 바람까지 함께 본 바다 상태로, 노랑은 주의, 빨강(테두리)은 출항이 어려울 수 있는 날. 3일까지는 시간별 예보, 10일까지는 기상청 중기 해상예보예요.</span></p></li>
+        <p style="margin:0"><b>날씨 아이콘 · 파도 높이</b><span>칸 아래 줄은 낮 날씨와 그날 가장 높은 파도예요. 글자 색은 바람까지 함께 본 바다 상태로, 노랑은 주의, 빨강(테두리)은 출항이 어려울 수 있는 날. 3일까지는 출항지 앞바다의 시간별 예보예요. 그 뒤 10일까지는 기상청 중기 해상예보로, 서해 바다 전체를 묶은 예보라 앞바다에 가까운 낮은 쪽 파도를 보여줘요. 날이 가까워질수록 더 정확해져요.</span></p></li>
     </ul>
     <p class="note">그림 속 주황 낚싯줄이 곧게 내려갈수록 물이 약한 날이에요. 사리는 보름달·그믐 무렵, 조금은 반달 무렵에 옵니다.</p>
   </section>
@@ -1242,14 +1242,15 @@ const TideHarm = (() => {
       if (q[0] != null) mw = Math.max(mw ?? 0, Math.round(q[0])); if (q[2] != null) mv = Math.max(mv ?? 0, Math.round(q[2] * 10) / 10);
       if (q[4] === 1 || q[4] === 2 || q[4] === 4) rain = true; if (q[4] === 3) snow = true; if (q[3] in skyC) skyC[q[3]]++;
     }
-    if (cnt >= 6) {
+    if (cnt >= 4) { // 사흘째는 3시간 간격(06·09·12·15·18시)으로만 와서 5개
       const icon = rain ? 'rain' : snow ? 'snow' : skyC[4] >= skyC[3] && skyC[4] >= skyC[1] ? 'cloud' : skyC[3] >= skyC[1] ? 'part' : 'sun';
       return { src: 'short', icon, wind: mw, wave: mv, lv: Math.max(windLv(mw), waveLv(mv)) };
     }
     const md = WX.mid && st.mid && WX.mid[st.mid] && WX.mid[st.mid].days[key]; if (!md) return null;
     const ps = [md.am, md.pm, md.d].filter(Boolean); if (!ps.length) return null;
     const wfs = ps.map(p => p[0] || '').join(' ');
-    const waves = ps.map(p => p[2] ?? p[1]).filter(v => v != null), wave = waves.length ? Math.max(...waves) : null;
+    // 중기 해상예보 파고는 먼바다까지 묶은 해역 전체의 범위(낮은값~높은값)라, 연안 선상낚시에는 낮은 쪽(앞바다)을 쓴다
+    const waves = ps.map(p => p[1] ?? p[2]).filter(v => v != null), wave = waves.length ? Math.max(...waves) : null;
     const icon = /비|소나기/.test(wfs) ? 'rain' : /눈/.test(wfs) ? 'snow' : /흐/.test(wfs) ? 'cloud' : /구름/.test(wfs) ? 'part' : 'sun';
     return { src: 'mid', icon, wind: null, wave, lv: waveLv(wave) };
   }
@@ -1265,7 +1266,7 @@ const TideHarm = (() => {
     const st = typeof WX !== 'undefined' && WX && WX.stations && WX.stations[tideSt];
     const cand = [];
     let last = null;
-    for (let n = today; n < today + 10; n++) { const r = dayScore(n); if (!r) continue; last = n; if (r.score >= 3) cand.push({ n, ...r }); }
+    for (let n = today; n <= today + 10; n++) { const r = dayScore(n); if (!r) continue; last = n; if (r.score >= 3) cand.push({ n, ...r }); }
     const top = cand.sort((a, b) => b.score - a.score || a.n - b.n).slice(0, 3).sort((a, b) => a.n - b.n);
     const v = last == null ? null : ymd(last);
     $('pick-sub').textContent = last == null ? '물때와 바다 날씨를 함께 봤어요' : `${TideHarm.STATIONS[tideSt].name} · ${v.m}/${v.d}까지 예보 기준`;
@@ -2059,5 +2060,5 @@ const TideHarm = (() => {
 </script>
 
 <script>
-if ('serviceWorker' in navigator) addEventListener('load', () => navigator.serviceWorker.register('sw.js?v=6bb5b6e6').catch(() => {}));
+if ('serviceWorker' in navigator) addEventListener('load', () => navigator.serviceWorker.register('sw.js?v=382cb936').catch(() => {}));
 </script>
