@@ -1,6 +1,8 @@
 """지도 자료 다듬기: OSM 육지 조각(타일로 잘린 것)을 하나로 합치고, 갯벌도 합친다"""
 import json, os, subprocess, time
-r = subprocess.run('pip install -q --break-system-packages shapely || sudo apt-get -qq install -y python3-shapely', shell=True, capture_output=True, text=True); print(r.stdout[-500:], r.stderr[-800:], flush=True)
+import sys, importlib, site
+r = subprocess.run(f'{sys.executable} -m pip install -q --user --break-system-packages shapely', shell=True, capture_output=True, text=True); print(r.stdout[-500:], r.stderr[-800:], flush=True)
+importlib.invalidate_caches(); site.addsitedir(site.getusersitepackages())
 import traceback
 try:
     from shapely.geometry import shape, mapping
