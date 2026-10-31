@@ -1,0 +1,25 @@
+# 자료 형식 알아보기용 (probe 가지에 올릴 때만 실행, 결과는 probe-out 폴더로 같은 가지에 저장)
+name: 자료 알아보기
+on:
+  push:
+    branches: [probe]
+    paths: ['.github/probe/**', '.github/workflows/probe.yml']
+permissions:
+  contents: write
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v5
+      - name: 알아보기
+        env:
+          DATA_GO_KR_KEY: ${{ secrets.DATA_GO_KR_KEY }}
+        run: python3 .github/probe/probe.py
+      - name: 결과 올리기
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add probe-out
+          git commit -q -m "알아본 결과 [skip ci]" || exit 0
+          for i in 1 2 3; do git push -q origin HEAD:probe && exit 0; sleep 3; git pull -q --rebase origin probe; done
