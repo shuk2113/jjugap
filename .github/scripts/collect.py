@@ -4,10 +4,12 @@
 - 국립해양조사원 조위관측소 최신 관측: 실제 수온(지금, 24시간 전)
   출항지 관측소에 수온이 없거나(센서 고장·점검) 서버가 응답하지 않으면 가까운 관측소 값을 쓰고, 어디 값인지 함께 적는다
 
-결과는 앱이 읽는 data/weather.json 한 파일로 저장한다.
+결과는 앱이 읽는 data/weather.json 으로 저장한다.
+지도 화면(바다 위 내 위치)에서 쓰는 앞바다 격자 예보는 따로 data/seagrid.json 으로 저장한다 (약 10km 간격 바다 격자).
 인증키는 GitHub 비밀 저장소(DATA_GO_KR_KEY)에서만 읽고, 로그나 파일에는 남기지 않는다.
 """
 import json, math, os, re, sys, time, urllib.parse, urllib.request
+from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timedelta, timezone
 
 KST = timezone(timedelta(hours=9))
@@ -27,6 +29,14 @@ STATIONS = {
     'gunsan':     {'sea': [(35.95, 126.42), (35.90, 126.35)], 'obs': ['DT_0018', 'DT_0051', 'DT_0068'], 'mid': '12A30000'},  # 군산 → 서천마량 → 위도
     'gyeokpo':    {'sea': [(35.62, 126.38), (35.60, 126.30)], 'obs': ['DT_0068', 'DT_0018'], 'mid': '12A30000'},             # 위도 → 군산
 }
+# 지도 화면에서 '가장 가까운 수온'을 고를 때만 쓰는 먼 바다 관측소 (출항지 화면에는 쓰지 않음)
+EXTRA_OBS = ['DT_0037', 'DT_0017']   # 어청도, 대산
+# 관측소 위치 (지도에서 내 위치와의 거리를 보여 주려고 함께 저장)
+OBS_POS = {'DT_0001': (37.451, 126.592), 'DT_0008': (37.192, 126.647), 'DT_0043': (37.238, 126.428), 'DT_0067': (36.674, 126.129),
+           'DT_0025': (36.406, 126.486), 'DT_0051': (36.128, 126.495), 'DT_0018': (35.975, 126.563), 'DT_0068': (35.618, 126.301),
+           'DT_0037': (36.117, 125.984), 'DT_0017': (37.007, 126.352)}
+SEA_CELLS = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'sea_cells.json')   # [격자x, 격자y, 위도, 경도]
+SEA_HOURS = 60     # 앞바다 격자 예보를 몇 시간치 담을지 (지난 6시간 포함)
 OBS_FRESH_H = 12   # 이보다 오래된 수온은 '지금 수온'으로 쓰지 않는다
 OBS_FAR_C = 6      # 다른 관측소들의 가운데값과 이만큼 넘게 다르면 센서 이상으로 본다
 
@@ -273,7 +283,7 @@ def main():
             pc.pop('wtem', None); pc.pop('t', None); pc.pop('wtem24', None)
         prev_codes[code] = pc
     codes, obs_timeouts = {}, 0
-    for code in dict.fromkeys(c for cfg in STATIONS.values() for c in cfg['obs']):
+    for code in dict.fromkeys([c for cfg in STATIONS.values() for c in cfg['obs']] + EXTRA_OBS):
         pc = prev_codes.get(code) or {}
         if obs_timeouts >= 2:   # 서버가 연달아 응답이 없으면 이번에는 건너뛰고 지난 기록을 유지
             if pc:
@@ -285,6 +295,8 @@ def main():
             codes[code] = o
         elif pc:
             codes[code] = pc
+        if code in codes and code in OBS_POS:
+            codes[code]['pos'] = list(OBS_POS[code])
     # 센서 이상 거르기: 지금 값들의 가운데값과 너무 다르면 이번에는 쓰지 않는다
     now_vals = sorted(v['wtem'] for v in codes.values() if v.get('wtem') is not None)
     if len(now_vals) >= 3:
@@ -358,7 +370,63 @@ def main():
     with open(OUT, 'w') as fp:
         json.dump(out, fp, ensure_ascii=False, separators=(',', ':'))
     note('수온: ' + ', '.join(wt))
+    try:
+        sea_grid(now, base, cache, os.path.join(os.path.dirname(os.path.abspath(OUT)), 'seagrid.json'))
+    except Exception as e:   # 지도용 격자는 없어도 앱은 돈다
+        note(f'앞바다 격자 예보 실패: {type(e).__name__} {str(e)[:160]}', 'warning')
     note(f'저장: 예보 {ok_f}/8곳, 수온 {ok_o}/8곳' + ('' if obs_timeouts < 2 else ' (해양조사원 서버 응답 없음 → 수온은 다음 실행에 다시)'))
+
+
+def sea_grid(now, base, cache, path):
+    """지도 화면용: 바다 격자(약 10km 간격)마다 시간별 풍속·풍향·파고.
+    {generated, t0: 'YYYYMMDDHH'(첫 시각), c: [[위도, 경도, [풍속…], [풍향/10…], [파고…]], …]}"""
+    cells = json.load(open(SEA_CELLS))
+    try:
+        prev = json.load(open(path))
+    except Exception:
+        prev = {}
+    t0 = (now - timedelta(hours=6)).strftime('%Y%m%d%H')
+    hours = [(datetime.strptime(t0, '%Y%m%d%H') + timedelta(hours=i)).strftime('%Y%m%d%H') for i in range(SEA_HOURS)]
+    # 지난 파일의 값은 시각 이름으로 다시 맞춰 둔다 (이번에 못 받은 격자·지나간 시각용)
+    old = {}
+    if prev.get('t0') and prev.get('c'):
+        p0 = datetime.strptime(prev['t0'], '%Y%m%d%H')
+        for row in prev['c']:
+            key = (row[0], row[1])
+            old[key] = {(p0 + timedelta(hours=i)).strftime('%Y%m%d%H'): (row[2][i], row[3][i], row[4][i]) for i in range(len(row[2]))}
+    def one(cell):
+        x, y, la, lo = cell
+        if (x, y) in cache:
+            return cell, cache[(x, y)][1]
+        try:
+            used, items = fetch_fcst(x, y, base)
+            return cell, pack_fcst(items)
+        except RuntimeError:
+            return cell, {}
+    with ThreadPoolExecutor(4) as ex:
+        got = list(ex.map(one, cells))
+    rows, ok = [], 0
+    for (x, y, la, lo), fc in got:
+        if fc:
+            ok += 1
+        o = old.get((la, lo), {})
+        ws, vs, hs = [], [], []
+        for h in hours:
+            v = fc.get(h)
+            if v:
+                ws.append(v[0]); vs.append(None if v[1] is None else round(v[1] / 10)); hs.append(v[2])
+            elif h in o:
+                ws.append(o[h][0]); vs.append(o[h][1]); hs.append(o[h][2])
+            else:
+                ws.append(None); vs.append(None); hs.append(None)
+        if any(w is not None for w in ws):
+            rows.append([la, lo, ws, vs, hs])
+    if not ok and prev:
+        note('앞바다 격자 예보: 하나도 못 받아 지난 자료 유지', 'warning')
+        return
+    with open(path, 'w') as fp:
+        json.dump({'generated': now.isoformat(timespec='minutes'), 't0': t0, 'c': rows}, fp, ensure_ascii=False, separators=(',', ':'))
+    note(f'앞바다 격자 예보: {ok}/{len(cells)}곳 받음')
 
 
 def diag():
