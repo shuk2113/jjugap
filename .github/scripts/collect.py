@@ -297,12 +297,19 @@ def main():
 
 def diag():
     now = datetime.now(KST); d, t = kma_base(now)
+    hr = (now - timedelta(hours=1)).strftime('%Y%m%d%H')
+    td = now.strftime('%Y%m%d')
     tests = [
-        ('KHOA 최신관측 dtRecent', OBS_URL, {'type': 'json', 'obsCode': 'DT_0001', 'reqDate': now.strftime('%Y%m%d'), 'min': 60, 'pageNo': 1, 'numOfRows': 5}),
-        ('KHOA 최신관측 http', OBS_URL.replace('https://', 'http://'), {'type': 'json', 'obsCode': 'DT_0001', 'reqDate': now.strftime('%Y%m%d'), 'pageNo': 1, 'numOfRows': 5}),
-        ('KHOA 최신관측 보령', OBS_URL, {'type': 'json', 'obsCode': 'DT_0025'}),
-        ('KHOA 조석예보(대조)', 'https://apis.data.go.kr/1192136/tideFcstHghLw/GetTideFcstHghLwApiService', {'type': 'json', 'obsCode': 'DT_0001', 'reqDate': now.strftime('%Y%m%d'), 'pageNo': 1, 'numOfRows': 5}),
-        ('KHOA 타이드베드(대조)', 'https://apis.data.go.kr/1192136/tidebed/GetTidebedApiService', {'type': 'json', 'lat': 36.44, 'lot': 126.52, 'reqDate': now.strftime('%Y%m%d'), 'min': 60, 'pageNo': 1, 'numOfRows': 2}),
+        ('dtRecent 기본(관측소만)', OBS_URL, {'type': 'json', 'obsCode': 'DT_0001'}),
+        ('dtRecent 오늘 min=1', OBS_URL, {'type': 'json', 'obsCode': 'DT_0001', 'reqDate': td, 'min': 1, 'pageNo': 1, 'numOfRows': 5}),
+        ('dtRecent 오늘 min=10', OBS_URL, {'type': 'json', 'obsCode': 'DT_0001', 'reqDate': td, 'min': 10, 'pageNo': 1, 'numOfRows': 5}),
+        ('dtRecent 오늘 min=60', OBS_URL, {'type': 'json', 'obsCode': 'DT_0001', 'reqDate': td, 'min': 60, 'pageNo': 1, 'numOfRows': 5}),
+        ('dtRecent 보령 기본', OBS_URL, {'type': 'json', 'obsCode': 'DT_0025'}),
+        ('KHOA 실측수온 surveyWaterTemp', 'https://apis.data.go.kr/1192136/surveyWaterTemp/GetSurveyWaterTempApiService', {'type': 'json', 'obsCode': 'DT_0001', 'reqDate': td, 'min': 60, 'pageNo': 1, 'numOfRows': 5}),
+        ('KHOA 실측수온 surveyWaterTemp(경로만)', 'https://apis.data.go.kr/1192136/surveyWaterTemp', {'type': 'json', 'obsCode': 'DT_0001', 'pageNo': 1, 'numOfRows': 5}),
+        ('KMA 파고부이 getWhBuoy', 'https://apis.data.go.kr/1360000/OceanInfoService/getWhBuoy', {'dataType': 'JSON', 'pageNo': 1, 'numOfRows': 100, 'searchTime': hr}),
+        ('KMA 부이 getBuoy', 'https://apis.data.go.kr/1360000/OceanInfoService/getBuoy', {'dataType': 'JSON', 'pageNo': 1, 'numOfRows': 100, 'searchTime': hr}),
+        ('KMA 등표 getLhBuoy', 'https://apis.data.go.kr/1360000/OceanInfoService/getLhBuoy', {'dataType': 'JSON', 'pageNo': 1, 'numOfRows': 100, 'searchTime': hr}),
     ]
     for name, url, params in tests:
         t0 = time.time()
@@ -310,7 +317,7 @@ def diag():
         try:
             with urllib.request.urlopen(f'{url}?serviceKey={KEY}&{q}', timeout=15) as r:
                 body = r.read().decode('utf-8', 'replace')
-            note(f'{name}: HTTP {r.status} {time.time() - t0:.1f}s :: {re.sub(r"\s+", " ", body)[:320].replace(KEY, "***")}')
+            note(f'{name}: HTTP {r.status} {time.time() - t0:.1f}s :: {re.sub(r"\s+", " ", body)[:900].replace(KEY, "***")}')
         except Exception as e:
             note(f'{name}: 실패 {time.time() - t0:.1f}s :: {type(e).__name__} {str(e)[:200].replace(KEY, "***")}', 'warning')
 
