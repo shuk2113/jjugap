@@ -225,9 +225,11 @@ def main():
 def diag():
     now = datetime.now(KST); d, t = kma_base(now)
     tests = [
-        ('KMA https', KMA_URL, {'pageNo': 1, 'numOfRows': 20, 'dataType': 'JSON', 'base_date': d, 'base_time': t, 'nx': 55, 'ny': 124}),
-        ('KMA http', KMA_URL.replace('https://', 'http://'), {'pageNo': 1, 'numOfRows': 20, 'dataType': 'JSON', 'base_date': d, 'base_time': t, 'nx': 55, 'ny': 124}),
-        ('KHOA', OBS_URL, {'type': 'json', 'obsCode': 'DT_0001', 'reqDate': now.strftime('%Y%m%d'), 'min': 60, 'pageNo': 1, 'numOfRows': 5}),
+        ('KHOA 최신관측 dtRecent', OBS_URL, {'type': 'json', 'obsCode': 'DT_0001', 'reqDate': now.strftime('%Y%m%d'), 'min': 60, 'pageNo': 1, 'numOfRows': 5}),
+        ('KHOA 최신관측 http', OBS_URL.replace('https://', 'http://'), {'type': 'json', 'obsCode': 'DT_0001', 'reqDate': now.strftime('%Y%m%d'), 'pageNo': 1, 'numOfRows': 5}),
+        ('KHOA 최신관측 보령', OBS_URL, {'type': 'json', 'obsCode': 'DT_0025'}),
+        ('KHOA 조석예보(대조)', 'https://apis.data.go.kr/1192136/tideFcstHghLw/GetTideFcstHghLwApiService', {'type': 'json', 'obsCode': 'DT_0001', 'reqDate': now.strftime('%Y%m%d'), 'pageNo': 1, 'numOfRows': 5}),
+        ('KHOA 타이드베드(대조)', 'https://apis.data.go.kr/1192136/tidebed/GetTidebedApiService', {'type': 'json', 'lat': 36.44, 'lot': 126.52, 'reqDate': now.strftime('%Y%m%d'), 'min': 60, 'pageNo': 1, 'numOfRows': 2}),
     ]
     for name, url, params in tests:
         t0 = time.time()
