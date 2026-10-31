@@ -29,6 +29,7 @@
   --calm:#1C8B6B; --mid:#B97E0A; --strong:#C9452F;
   --calm-soft:rgba(28,139,107,.15); --mid-soft:rgba(194,133,12,.17); --strong-soft:rgba(201,69,47,.15);
   --sat:#2F62C4; --sun:#C9452F; --hi:#2560AE; --lo:#A9870C; --moon-ic:#7C88AE;
+  --map-sea:#CFE4E8; --map-land:#EEE7D7; --map-coast:#93AAA8; --map-lab:#3C5556;
   --font-display:"Black Han Sans","Apple SD Gothic Neo","Malgun Gothic",sans-serif;
   --font-body:"IBM Plex Sans KR","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;
 }
@@ -42,6 +43,7 @@
     --calm:#45C59A; --mid:#EDB43C; --strong:#F2745C;
     --calm-soft:rgba(69,197,154,.16); --mid-soft:rgba(237,180,60,.16); --strong-soft:rgba(242,116,92,.16);
     --sat:#7AA2F0; --sun:#F2745C; --hi:#7FB2EE; --lo:#EACB52; --moon-ic:#E8D9A8;
+  --map-sea:#0D2427; --map-land:#3A4038; --map-coast:#5E7A75; --map-lab:#B4C8C3;
     color-scheme:dark;
   }
 }
@@ -54,6 +56,7 @@
   --calm:#45C59A; --mid:#EDB43C; --strong:#F2745C;
   --calm-soft:rgba(69,197,154,.16); --mid-soft:rgba(237,180,60,.16); --strong-soft:rgba(242,116,92,.16);
   --sat:#7AA2F0; --sun:#F2745C; --hi:#7FB2EE; --lo:#EACB52; --moon-ic:#E8D9A8;
+  --map-sea:#0D2427; --map-land:#3A4038; --map-coast:#5E7A75; --map-lab:#B4C8C3;
   color-scheme:dark;
 }
 /* 앱 안의 모드 전환 버튼으로 고른 모드가 기기·뷰어 설정보다 우선한다 (기본은 다크) */
@@ -66,6 +69,7 @@ html:root[data-app="dark"]{
   --calm:#45C59A; --mid:#EDB43C; --strong:#F2745C;
   --calm-soft:rgba(69,197,154,.16); --mid-soft:rgba(237,180,60,.16); --strong-soft:rgba(242,116,92,.16);
   --sat:#7AA2F0; --sun:#F2745C; --hi:#7FB2EE; --lo:#EACB52; --moon-ic:#E8D9A8;
+  --map-sea:#0D2427; --map-land:#3A4038; --map-coast:#5E7A75; --map-lab:#B4C8C3;
   color-scheme:dark;
 }
 html:root[data-app="light"]{
@@ -77,6 +81,7 @@ html:root[data-app="light"]{
   --calm:#1C8B6B; --mid:#B97E0A; --strong:#C9452F;
   --calm-soft:rgba(28,139,107,.15); --mid-soft:rgba(194,133,12,.17); --strong-soft:rgba(201,69,47,.15);
   --sat:#2F62C4; --sun:#C9452F; --hi:#2560AE; --lo:#A9870C; --moon-ic:#7C88AE;
+  --map-sea:#CFE4E8; --map-land:#EEE7D7; --map-coast:#93AAA8; --map-lab:#3C5556;
   color-scheme:light;
 }
 /* 모드를 바꾸는 순간에만 색이 부드럽게 넘어가게 */
@@ -183,6 +188,54 @@ h2{margin:0; font-size:16px; font-weight:700; text-wrap:balance}
 .st-btn #st-name{font-weight:700}
 .st-btn .chev{width:6px; height:6px; margin-left:2px; border-right:2px solid var(--ink-2); border-bottom:2px solid var(--ink-2); transform:translateY(-2px) rotate(45deg)}
 .sheet-back{position:fixed; inset:0; z-index:40; background:rgba(0,0,0,.4); animation:fadeIn .22s ease}
+/* 출항지 줄: 출항지 버튼 + 내 위치 버튼 */
+.loc-row{display:flex; align-items:center; justify-content:space-between; gap:8px}
+.me-btn{flex:none; display:inline-flex; align-items:center; gap:6px; height:36px; padding:0 14px 0 11px; border:1px solid var(--line); border-radius:999px; background:var(--card); font:inherit; font-size:13.5px; font-weight:700; color:var(--ink); -webkit-tap-highlight-color:transparent; transition:transform .12s}
+.me-btn:active{transform:scale(.97)} .me-btn svg{width:17px; height:17px; color:#2F7DF6}
+/* 내 위치 지도 화면 */
+.mapv{position:fixed; inset:0; z-index:60; display:flex; flex-direction:column; background:var(--paper); animation:mvIn .22s cubic-bezier(.2,.8,.2,1)}
+@keyframes mvIn{from{opacity:0; transform:translateY(16px)}}
+.mv-top{flex:none; display:flex; align-items:center; gap:10px; padding:calc(8px + env(safe-area-inset-top, 0px)) 12px 8px; background:var(--paper); border-bottom:1px solid var(--line)}
+.mv-x{width:38px; height:38px; display:grid; place-items:center; padding:0; border:0; border-radius:50%; background:var(--well); color:var(--ink-2); -webkit-tap-highlight-color:transparent}
+.mv-x svg{width:15px; height:15px}
+.mv-title{flex:1; min-width:0; display:flex; flex-direction:column; line-height:1.25}
+.mv-title b{font-size:16px} .mv-title span{font-size:12px; color:var(--ink-2); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.mv-title span.ok{color:var(--calm)} .mv-title span.warn{color:var(--mid)}
+.mv-pts{height:34px; padding:0 13px; border:1px solid var(--line); border-radius:999px; background:var(--card); font:inherit; font-size:13px; color:var(--ink); -webkit-tap-highlight-color:transparent}
+.mv-map{position:relative; flex:1; min-height:0; overflow:hidden; background:var(--map-sea); touch-action:none; -webkit-user-select:none; user-select:none}
+#mv-cv{display:block; width:100%; height:100%}
+.mv-tools{position:absolute; right:10px; top:10px; display:flex; flex-direction:column; gap:8px}
+.mv-tools button{width:42px; height:42px; display:grid; place-items:center; padding:0; border:1px solid var(--line); border-radius:12px; background:var(--card); font:inherit; font-size:22px; line-height:1; color:var(--ink); box-shadow:0 2px 8px rgba(0,0,0,.12); -webkit-tap-highlight-color:transparent}
+.mv-tools button svg{width:20px; height:20px; color:var(--ink-2)} .mv-tools button.on svg{color:#2F7DF6}
+.mv-scale{position:absolute; left:10px; bottom:10px; display:flex; flex-direction:column; gap:2px; font-size:10.5px; font-weight:700; color:var(--map-lab); pointer-events:none}
+.mv-scale i{display:block; height:5px; border:1.5px solid var(--map-lab); border-top:0}
+.mv-attr{position:absolute; right:8px; bottom:6px; font-size:9.5px; color:var(--map-lab); opacity:.8; pointer-events:none}
+.mv-toast{position:absolute; left:50%; top:12px; transform:translateX(-50%); max-width:calc(100% - 90px); padding:8px 14px; border-radius:999px; background:rgba(8,20,24,.82); color:#fff; font-size:12.5px; font-weight:600; text-align:center; pointer-events:none}
+.mv-panel{flex:none; max-height:48vh; overflow-y:auto; padding:12px 14px calc(12px + env(safe-area-inset-bottom, 0px)); background:var(--card); border-top:1px solid var(--line); overscroll-behavior:contain}
+.mv-where{display:flex; align-items:baseline; justify-content:space-between; gap:8px; flex-wrap:wrap}
+.mv-where b{font-size:15.5px} .mv-where span{font-size:11.5px; color:var(--ink-2); font-variant-numeric:tabular-nums}
+.mv-grid{display:grid; grid-template-columns:1fr 1fr; gap:6px; margin:10px 0 8px}
+.mv-c{padding:7px 10px; border-radius:12px; background:var(--well); min-width:0}
+.mv-c.wide{grid-column:1 / -1}
+.mv-c small{display:block; font-size:10.5px; color:var(--ink-2)} .mv-c b{display:block; font-size:13.5px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; font-variant-numeric:tabular-nums}
+.mv-note{margin:0 0 10px; font-size:11.5px; line-height:1.5; color:var(--ink-2); word-break:keep-all}
+.mv-btns{display:flex; gap:8px}
+.mv-btns button{flex:1; height:42px; border:0; border-radius:12px; background:var(--well); font:inherit; font-size:14px; font-weight:700; color:var(--ink); -webkit-tap-highlight-color:transparent}
+.mv-btns button.pri{background:#2F7DF6; color:#fff} .mv-btns button.del{background:var(--strong-soft); color:var(--strong)}
+.mv-btns button:active{transform:scale(.98)}
+.mv-safe{margin:10px 0 0; font-size:10.5px; color:var(--ink-2); text-align:center}
+.mv-h{display:flex; align-items:baseline; justify-content:space-between; gap:8px; margin-bottom:8px} .mv-h b{font-size:15.5px} .mv-h span{font-size:11.5px; color:var(--ink-2)}
+.mv-step{display:flex; align-items:center; justify-content:space-between; padding:8px 0; border-bottom:1px solid var(--line)}
+.mv-step span{font-size:14px; font-weight:700}
+.mv-step div{display:flex; align-items:center; gap:12px}
+.mv-step button{width:38px; height:38px; border:1px solid var(--line); border-radius:50%; background:var(--card); font:inherit; font-size:20px; color:var(--ink); -webkit-tap-highlight-color:transparent}
+.mv-step b{min-width:2ch; text-align:center; font-size:18px; font-variant-numeric:tabular-nums}
+.mv-memo{width:100%; margin:10px 0; padding:10px 12px; border:1px solid var(--line); border-radius:12px; background:var(--paper); font:inherit; font-size:14px; color:var(--ink)}
+.mv-list{list-style:none; margin:0 0 10px; padding:0; display:flex; flex-direction:column; gap:6px}
+.mv-list button{width:100%; display:flex; flex-direction:column; align-items:flex-start; gap:2px; padding:9px 12px; border:0; border-radius:12px; background:var(--well); font:inherit; text-align:left; color:var(--ink); -webkit-tap-highlight-color:transparent}
+.mv-list b{font-size:13.5px} .mv-list span{font-size:11.5px; color:var(--ink-2)}
+.mv-empty{margin:6px 0 12px; font-size:13px; color:var(--ink-2); line-height:1.5}
+@media (prefers-reduced-motion: reduce){ .mapv{animation:none} }
 .sheet{position:fixed; left:0; right:0; bottom:0; z-index:41; max-width:520px; max-height:85vh; overflow-y:auto; margin:0 auto; border-radius:24px 24px 0 0; background:var(--card); box-shadow:0 -10px 30px rgba(0,0,0,.2);
   padding:0 max(16px, env(safe-area-inset-right, 0px)) calc(18px + env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px)); animation:sheetUp .3s cubic-bezier(.2,.8,.2,1);
   overscroll-behavior:contain; will-change:transform}
@@ -469,7 +522,10 @@ h2{margin:0; font-size:16px; font-weight:700; text-wrap:balance}
     </div>
   </header>
 
+  <div class="loc-row">
   <button class="st-btn" id="st-btn" aria-haspopup="dialog"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-6.5-6.1-6.5-11A6.5 6.5 0 0 1 18.5 10c0 4.9-6.5 11-6.5 11z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"></path><circle cx="12" cy="10" r="2.4" fill="currentColor"></circle></svg><span class="st-lab">출항지</span><span id="st-name">인천 연안부두</span><i class="chev" aria-hidden="true"></i></button>
+  <button class="me-btn" id="me-btn" aria-haspopup="dialog"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="6.2" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="2.4" fill="currentColor"/><path d="M12 2.5v3.3M12 18.2v3.3M2.5 12h3.3M18.2 12h3.3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span>내 위치</span></button>
+  </div>
 
   <nav class="datebar" aria-label="날짜 이동">
     <button id="prev-day" class="icon-btn" aria-label="전날">‹</button>
@@ -616,6 +672,24 @@ h2{margin:0; font-size:16px; font-weight:700; text-wrap:balance}
   <p class="foot">물때·만조·간조·물 높이는 국립해양조사원 예보에 맞춘 계산이고, 바람·파도·하늘·수온은 기상청 단기예보와 국립해양조사원 관측을 하루 8번 받아 보여주는 참고 정보예요. 출항 여부는 꼭 선장님 공지를 따르세요.</p>
 </div>
 
+<div class="mapv" id="mapv" role="dialog" aria-modal="true" aria-label="내 위치 지도" hidden>
+  <div class="mv-top">
+    <button class="mv-x" id="mv-x" aria-label="닫기"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 3.5l9 9M12.5 3.5l-9 9" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
+    <div class="mv-title"><b>내 위치</b><span id="mv-gps">위치 찾는 중…</span></div>
+    <button class="mv-pts" id="mv-pts">포인트 <b id="mv-pts-n">0</b></button>
+  </div>
+  <div class="mv-map" id="mv-map">
+    <canvas id="mv-cv" aria-label="바다 지도: 내 위치와 출항지, 저장한 포인트"></canvas>
+    <div class="mv-tools">
+      <button id="mv-zin" aria-label="확대">+</button><button id="mv-zout" aria-label="축소">−</button>
+      <button id="mv-me" class="on" aria-label="내 위치로"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="6.2" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="2.4" fill="currentColor"/><path d="M12 2.5v3.3M12 18.2v3.3M2.5 12h3.3M18.2 12h3.3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
+    </div>
+    <div class="mv-scale" id="mv-scale"><i></i><span></span></div>
+    <div class="mv-attr">지도: 통계청 행정구역경계(2013)</div>
+    <div class="mv-toast" id="mv-toast" hidden></div>
+  </div>
+  <div class="mv-panel" id="mv-panel"></div>
+</div>
 <div class="pc-back" id="pc-back" hidden></div>
 <div class="pcal" id="pcal" role="dialog" aria-modal="true" aria-label="날짜 고르기" tabindex="-1" hidden>
   <div class="pc-head">
@@ -825,6 +899,7 @@ const TideHarm = (() => {
   let sel = today, winStart = today - 3;
   let view = (() => { const v = ymd(today); return { y: v.y, m: v.m }; })();
   let pcRepaint = null;   // 날짜 팝업 달력이 열려 있으면 같이 다시 그린다
+  let setStation = null;  // 출항지 바꾸기 (출항지 판에서 채운다)
 
   function dayData(n) {
     const i = Tide.info(n);
@@ -2271,6 +2346,7 @@ const TideHarm = (() => {
       const b = e.target.closest('[data-k]'); if (!b) return;
       choose(b.dataset.k, 140);
     });
+    setStation = k => choose(k, 0);
     // 내 위치(GPS)로 가장 가까운 출항지 고르기: 누를 때만 위치를 묻는다
     const gpsBtn = $('st-gps'), gpsMsg = $('st-gps-msg');
     const say = t => { gpsMsg.textContent = t; gpsMsg.hidden = !t; };
@@ -2373,6 +2449,333 @@ const TideHarm = (() => {
   $('next-win').onclick = () => shiftWin(1);
   // 아래 큰 달력에서 날짜를 고르면 다시 맨 위 바다 그림으로
   const motion = () => matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth';
+  // ---------- 내 위치 지도: 바다 위에서 GPS로 내 자리를 지도에 찍고, 가장 가까운 출항지 기준 물때·조류·날씨·수온을 보여준다.
+  // 지도는 앱에 넣어 둔 해안선(통계청 행정구역경계)을 직접 그려서 인터넷이 끊겨도 보인다. 포인트는 이 폰에만 저장.
+  (() => {
+    const btn = $('me-btn'), view = $('mapv'), cv = $('mv-cv'), box = $('mv-map'), panel = $('mv-panel'), gpsEl = $('mv-gps');
+    const ctx = cv.getContext('2d'), KX = Math.cos(36.6 * Math.PI / 180), ME = '#2F7DF6';
+    const PT_KEY = 'jjukgap-points';
+    let inFrame = false; try { inFrame = window.top !== window.self; } catch (_) { inFrame = true; }
+    const useHist = !inFrame;
+    let isOpen = false, skipPop = false, W = 0, H = 0, dpr = 1;
+    let v = { lon: 126.4, lat: 36.45, s: 900 };          // 지도 가운데와 배율(1도당 화면 점 수)
+    let me = null, gps = null, follow = true, watchId = null, wake = null, mode = 'info', selId = null, form = null, raf = 0, lastPanel = 0;
+    let land = null, landState = 'idle';                  // 해안선 Path2D (경도×KX, -위도 좌표)
+    let points = [];
+    try { points = JSON.parse(localStorage.getItem(PT_KEY) || '[]') || []; } catch (_) { points = []; }
+    const savePts = () => { try { localStorage.setItem(PT_KEY, JSON.stringify(points)); } catch (_) {} $('mv-pts-n').textContent = points.length; };
+    $('mv-pts-n').textContent = points.length;
+    const esc = t => String(t).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
+    const short = k => TideHarm.STATIONS[k].name.split(' ').pop();
+    // 거리(km)와 방향(출항지에서 본 쪽)
+    const distKm = (a, b) => { const R = 6371, r = Math.PI / 180, dLa = (b.lat - a.lat) * r, dLo = (b.lon - a.lon) * r;
+      const h = Math.sin(dLa / 2) ** 2 + Math.cos(a.lat * r) * Math.cos(b.lat * r) * Math.sin(dLo / 2) ** 2; return 2 * R * Math.asin(Math.sqrt(h)); };
+    const dirOf = (a, b) => WX_DIRS[Math.round(((Math.atan2((b.lon - a.lon) * KX, b.lat - a.lat) * 180 / Math.PI) + 360) % 360 / 22.5) % 16];
+    const kmTxt = d => d < 1 ? `${Math.round(d * 1000 / 10) * 10}m` : `${d < 10 ? d.toFixed(1) : Math.round(d)}km`;
+    const dm = (x, pos, neg) => { const a = Math.abs(x), d = Math.floor(a); return `${d}°${((a - d) * 60).toFixed(2)}′${x >= 0 ? pos : neg}`; };
+    const nearest = p => Object.keys(TideHarm.STATIONS).map(k => ({ k, d: distKm(p, TideHarm.STATIONS[k]) })).sort((a, b) => a.d - b.d)[0];
+    // 화면 좌표
+    const toS = (lon, lat) => [W / 2 + (lon - v.lon) * KX * v.s, H / 2 - (lat - v.lat) * v.s];
+    const toG = (x, y) => ({ lon: v.lon + (x - W / 2) / (KX * v.s), lat: v.lat - (y - H / 2) / v.s });
+    const clampS = s => Math.max(60, Math.min(160000, s));
+
+    // ---------- 해안선 불러오기 (data/coast.json: 1e-5도 정수 차분)
+    function loadLand() {
+      if (landState !== 'idle') return; landState = 'loading';
+      fetch('data/coast.json').then(r => r.json()).then(d => {
+        const p = new Path2D(), q = d.q, [o0, o1] = d.o;
+        for (const r of d.r) {
+          let x = r[0], y = r[1];
+          p.moveTo((o0 + x / q) * KX, -(o1 + y / q));
+          for (let i = 2; i < r.length; i += 2) { x += r[i]; y += r[i + 1]; p.lineTo((o0 + x / q) * KX, -(o1 + y / q)); }
+          p.closePath();
+        }
+        land = p; landState = 'ok'; draw();
+      }).catch(() => { landState = 'error'; draw(); });
+    }
+    function resize() {
+      const r = box.getBoundingClientRect(); dpr = Math.min(2.5, window.devicePixelRatio || 1);
+      W = r.width; H = r.height; cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr); draw();
+    }
+    const css = k => getComputedStyle(document.documentElement).getPropertyValue(k).trim();
+    // ---------- 그리기
+    function draw() {
+      if (!isOpen || !W) return;
+      const C = { sea: css('--map-sea'), land: css('--map-land'), coast: css('--map-coast'), lab: css('--map-lab'), card: css('--card'), ink: css('--ink') };
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.fillStyle = C.sea; ctx.fillRect(0, 0, W, H);
+      if (land) {
+        ctx.save(); ctx.setTransform(dpr * v.s, 0, 0, dpr * v.s, dpr * (W / 2 - v.lon * KX * v.s), dpr * (H / 2 + v.lat * v.s));
+        ctx.fillStyle = C.land; ctx.fill(land); ctx.lineWidth = 1 / v.s; ctx.strokeStyle = C.coast; ctx.stroke(land); ctx.restore();
+      } else {
+        ctx.fillStyle = C.lab; ctx.font = `600 13px ${getComputedStyle(document.body).fontFamily}`; ctx.textAlign = 'center';
+        ctx.fillText(landState === 'error' ? '해안선 지도를 불러오지 못했어요 (인터넷 연결 후 한 번 열어 주세요)' : '지도를 불러오는 중…', W / 2, 40); ctx.textAlign = 'start';
+      }
+      const font = getComputedStyle(document.body).fontFamily;
+      // 가까운 출항지까지 점선
+      const nr = me && nearest(me);
+      if (nr) {
+        const S = TideHarm.STATIONS[nr.k], [ax, ay] = toS(S.lon, S.lat), [bx, by] = toS(me.lon, me.lat);
+        ctx.save(); ctx.setLineDash([5, 5]); ctx.strokeStyle = ME; ctx.globalAlpha = 0.55; ctx.lineWidth = 1.6;
+        ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(bx, by); ctx.stroke(); ctx.restore();
+        if (Math.hypot(bx - ax, by - ay) > 90) {
+          const t = kmTxt(nr.d); ctx.font = `700 11px ${font}`; const tw = ctx.measureText(t).width, mx = (ax + bx) / 2, my = (ay + by) / 2;
+          ctx.fillStyle = C.card; ctx.beginPath(); ctx.roundRect ? ctx.roundRect(mx - tw / 2 - 6, my - 9, tw + 12, 18, 9) : ctx.rect(mx - tw / 2 - 6, my - 9, tw + 12, 18); ctx.fill();
+          ctx.fillStyle = ME; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(t, mx, my + 0.5); ctx.textAlign = 'start'; ctx.textBaseline = 'alphabetic';
+        }
+      }
+      // 출항지
+      for (const k of Object.keys(TideHarm.STATIONS)) {
+        const S = TideHarm.STATIONS[k], [x, y] = toS(S.lon, S.lat);
+        if (x < -60 || x > W + 60 || y < -30 || y > H + 30) continue;
+        ctx.fillStyle = C.ink; ctx.strokeStyle = C.card; ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.rect(x - 4, y - 4, 8, 8); ctx.fill(); ctx.stroke();
+        ctx.font = `700 11.5px ${font}`; const lw = ctx.measureText(short(k)).width, lx = x + 8 + lw > W - 58 ? x - 8 - lw : x + 8;   // 오른쪽 끝이면 왼쪽에 이름
+        ctx.lineWidth = 3; ctx.strokeStyle = C.sea; ctx.strokeText(short(k), lx, y + 4); ctx.fillStyle = C.lab; ctx.fillText(short(k), lx, y + 4);
+      }
+      // 저장한 포인트
+      for (const p of points) {
+        const [x, y] = toS(p.lon, p.lat); if (x < -20 || x > W + 20 || y < -30 || y > H + 20) continue;
+        const caught = (p.jj || 0) + (p.gap || 0), on = p.id === selId;
+        ctx.fillStyle = caught ? '#F08A24' : '#8C9A98'; ctx.strokeStyle = '#FFFFFF'; ctx.lineWidth = on ? 2.6 : 1.8;
+        ctx.beginPath(); ctx.moveTo(x, y); ctx.bezierCurveTo(x - 7, y - 9, x - 7, y - 18, x, y - 18); ctx.bezierCurveTo(x + 7, y - 18, x + 7, y - 9, x, y); ctx.fill(); ctx.stroke();
+        if (caught) { ctx.fillStyle = '#FFFFFF'; ctx.font = `700 9.5px ${font}`; ctx.textAlign = 'center'; ctx.fillText(String(caught), x, y - 9.5); ctx.textAlign = 'start'; }
+      }
+      // 내 위치: 오차 원 · 진행 방향 · 파란 점
+      if (me) {
+        const [x, y] = toS(me.lon, me.lat), rr = (me.acc || 0) / 111320 * v.s;
+        if (rr > 9) { ctx.fillStyle = 'rgba(47,125,246,.13)'; ctx.strokeStyle = 'rgba(47,125,246,.35)'; ctx.lineWidth = 1; ctx.beginPath(); ctx.arc(x, y, Math.min(rr, 2000), 0, 2 * Math.PI); ctx.fill(); ctx.stroke(); }
+        if (me.heading != null && !me.virtual) {
+          const a = (me.heading - 90) * Math.PI / 180; ctx.fillStyle = 'rgba(47,125,246,.85)';
+          ctx.beginPath(); ctx.moveTo(x + Math.cos(a) * 22, y + Math.sin(a) * 22); ctx.lineTo(x + Math.cos(a + 2.6) * 10, y + Math.sin(a + 2.6) * 10); ctx.lineTo(x + Math.cos(a - 2.6) * 10, y + Math.sin(a - 2.6) * 10); ctx.closePath(); ctx.fill();
+        }
+        const pulse = me.virtual ? 0 : (performance.now() % 2000) / 2000;
+        if (pulse) { ctx.fillStyle = `rgba(47,125,246,${(0.35 * (1 - pulse)).toFixed(3)})`; ctx.beginPath(); ctx.arc(x, y, 8 + pulse * 16, 0, 2 * Math.PI); ctx.fill(); }
+        ctx.fillStyle = me.virtual ? '#8A5CF6' : ME; ctx.strokeStyle = '#FFFFFF'; ctx.lineWidth = 3;
+        ctx.beginPath(); ctx.arc(x, y, 7.5, 0, 2 * Math.PI); ctx.fill(); ctx.stroke();
+      }
+      // 축척 막대
+      const nice = [50, 100, 200, 500, 1000, 2000, 5000, 10000, 20000, 50000], mPerPx = 111320 / v.s;
+      const len = nice.filter(m => m / mPerPx <= 96).pop() || 50;
+      $('mv-scale').firstElementChild.style.width = Math.round(len / mPerPx) + 'px';
+      $('mv-scale').lastElementChild.textContent = len >= 1000 ? `${len / 1000}km` : `${len}m`;
+    }
+    function loop() { raf = 0; if (!isOpen) return; draw(); if (me && !me.virtual && !matchMedia('(prefers-reduced-motion: reduce)').matches) raf = requestAnimationFrame(loop); }
+    const kick = () => { if (!raf) raf = requestAnimationFrame(loop); };
+
+    // ---------- 지금 이 자리의 정보 (가장 가까운 출항지 기준)
+    function infoAt(p) {
+      const nr = nearest(p), k = nr.k, S = TideHarm.STATIONS[k], now = Date.now(), dd = dayData(today);
+      const h = TideHarm.heightAt(k, now), rate = TideHarm.rateAt(k, now), pct = Math.round(Math.min(1, Math.abs(rate) / S.ref) * 100);
+      const ex = [...TideHarm.extremes(k, today), ...TideHarm.extremes(k, today + 1)].find(e => e.ms > now);
+      const st = WX && WX.stations && WX.stations[k], hr = Math.floor(kstMin(now) / 60), r = wxRow(st, today, hr);
+      const o = st && st.obs, at = o && o.t ? Date.parse(o.t.replace(' ', 'T') + ':00+09:00') : NaN;
+      const wt = o && o.wtem > 0.5 && (now - at) / 3600000 <= 12 ? o : null;
+      const nearEx = [...TideHarm.extremes(k, today - 1), ...TideHarm.extremes(k, today), ...TideHarm.extremes(k, today + 1)].find(e => Math.abs(e.ms - now) <= 25 * 60000);
+      return { k, d: nr.d, dir: dirOf(S, p), dd, h, rising: rate > 0, pct, ex, stand: nearEx ? (nearEx.type === 'H' ? '만조 · 정조' : '간조 · 정조') : null,
+        wind: r && r[0] != null ? Math.round(r[0]) : null, vec: r ? r[1] : null, wave: r && r[2] != null ? Math.round(r[2] * 10) / 10 : null,
+        wt: wt ? wt.wtem : null, wtName: wt ? `${wt.name || ''}${wt.near ? '(근처)' : ''}` : '' };
+    }
+    const flowTxt = i => i.pct < 8 ? '정조 · 거의 없음' : `${i.pct}% ${i.rising ? '들물' : '날물'}`;
+    function paintPanel(force) {
+      if (!isOpen) return;
+      const nowMs = Date.now(); if (!force && nowMs - lastPanel < 900) return; lastPanel = nowMs;
+      if (mode === 'save' || mode === 'list' || mode === 'detail') return;
+      if (!me) {
+        panel.innerHTML = `<p class="mv-empty">${gpsMsg || '위치를 찾는 중이에요…'}<br>지도를 <b>길게 누르면</b> 그 자리를 내 위치로 가정해서 정보를 볼 수 있어요.</p><p class="mv-safe">낚시 정보 확인용이에요. 항해·안전에는 쓰지 마세요.</p>`;
+        return;
+      }
+      const i = infoAt(me), wx = WX && WX.stations ? '' : wxState === 'frame' ? ' (바다 날씨·수온은 폰에 설치한 앱에서 보여요)' : ' (바다 날씨 자료를 아직 받지 못했어요)';
+      panel.innerHTML = `
+        <div class="mv-where"><b>${esc(short(i.k))}에서 ${i.dir}쪽 ${kmTxt(i.d)}</b><span>${dm(me.lat, 'N', 'S')} ${dm(me.lon, 'E', 'W')}</span></div>
+        <div class="mv-grid">
+          <div class="mv-c"><small>물때</small><b class="t-${i.dd.lv}">${i.dd.name} · ${LV[i.dd.lv].chip}</b></div>
+          <div class="mv-c"><small>지금 물</small><b>${i.stand || (i.rising ? '들물 ↑' : '날물 ↓')} ${meters(i.h)}</b></div>
+          <div class="mv-c"><small>조류 세기</small><b>${flowTxt(i)}</b></div>
+          <div class="mv-c"><small>다음 ${i.ex ? (i.ex.type === 'H' ? '만조' : '간조') : '만조·간조'}</small><b>${i.ex ? `${ampm((i.ex.ms - dayStartOf(today)) / 60000)} · ${meters(i.ex.h)}` : '–'}</b></div>
+          <div class="mv-c"><small>바람 · 파도</small><b>${i.wind == null ? '예보 없음' : `${i.vec == null ? '' : wxDir(i.vec).replace(/풍$/, '') + ' '}${i.wind}m/s${i.wave == null ? '' : ` · ${i.wave.toFixed(1)}m`}`}</b></div>
+          <div class="mv-c"><small>수온${i.wtName ? ` · ${esc(i.wtName)}` : ''}</small><b>${i.wt == null ? '자료 없음' : `${i.wt.toFixed(1)}℃`}</b></div>
+        </div>
+        <p class="mv-note">가장 가까운 출항지(${esc(TideHarm.STATIONS[i.k].name)}) 기준 값이에요${wx}. 이 자리의 실제 물살·수심과는 다를 수 있어요.</p>
+        <div class="mv-btns"><button class="pri" data-act="save">포인트 저장</button><button data-act="station">${esc(short(i.k))} 기준으로 보기</button></div>
+        <p class="mv-safe">낚시 정보 확인용이에요. 항해·안전에는 쓰지 마세요.</p>`;
+    }
+    // ---------- 포인트 저장 · 목록 · 보기
+    function showSave() {
+      if (!me) return;
+      const i = infoAt(me); form = { jj: 0, gap: 0, i, at: Date.now(), lat: me.lat, lon: me.lon, acc: me.acc || 0, virtual: !!me.virtual };
+      mode = 'save';
+      const tm = ampm(kstMin(form.at));
+      panel.innerHTML = `
+        <div class="mv-h"><b>포인트 저장</b><span>${tm}${form.virtual ? ' · 가상 위치' : ''}</span></div>
+        <p class="mv-note">${esc(short(i.k))}에서 ${i.dir}쪽 ${kmTxt(i.d)} · ${i.dd.name} · ${i.stand || (i.rising ? '들물' : '날물')} ${meters(i.h)} · 조류 ${i.pct < 8 ? '정조' : i.pct + '%'}${i.wt == null ? '' : ` · 수온 ${i.wt.toFixed(1)}℃`} 함께 저장돼요.</p>
+        <div class="mv-step"><span>쭈꾸미</span><div><button data-act="dec" data-k="jj" aria-label="쭈꾸미 한 마리 빼기">−</button><b id="mv-n-jj">0</b><button data-act="inc" data-k="jj" aria-label="쭈꾸미 한 마리 더하기">+</button></div></div>
+        <div class="mv-step"><span>갑오징어</span><div><button data-act="dec" data-k="gap" aria-label="갑오징어 한 마리 빼기">−</button><b id="mv-n-gap">0</b><button data-act="inc" data-k="gap" aria-label="갑오징어 한 마리 더하기">+</button></div></div>
+        <input class="mv-memo" id="mv-memo" maxlength="80" placeholder="메모 (예: 수심 20m, 주황 에기)">
+        <div class="mv-btns"><button class="pri" data-act="commit">저장</button><button data-act="cancel">취소</button></div>`;
+    }
+    function commit() {
+      const f = form, i = f.i, memo = ($('mv-memo') || {}).value || '';
+      points.unshift({ id: String(f.at), t: f.at, lat: +f.lat.toFixed(6), lon: +f.lon.toFixed(6), acc: Math.round(f.acc), virtual: f.virtual,
+        port: i.k, mul: i.dd.name, lv: i.dd.lv, h: Math.round(i.h), rising: i.rising, stand: i.stand, pct: i.pct, wind: i.wind, wave: i.wave, wt: i.wt, jj: f.jj, gap: f.gap, memo: memo.trim() });
+      savePts(); form = null; mode = 'info'; toast('포인트를 저장했어요'); paintPanel(true); draw();
+    }
+    const when = t => { const d = new Date(t + 9 * 3600000); return `${d.getUTCMonth() + 1}/${d.getUTCDate()} ${ampm(d.getUTCHours() * 60 + d.getUTCMinutes())}`; };
+    const pctTxt = p => (p.pct < 8 ? '정조' : `${p.pct}%`);
+    const catchTxt = p => (p.jj || p.gap) ? [p.jj ? `쭈꾸미 ${p.jj}` : '', p.gap ? `갑오징어 ${p.gap}` : ''].filter(Boolean).join(' · ') : '조과 없음';
+    function showList() {
+      mode = 'list';
+      panel.innerHTML = `<div class="mv-h"><b>저장한 포인트 ${points.length}곳</b><span>이 폰에만 저장돼요</span></div>` +
+        (points.length ? `<ul class="mv-list">${points.map(p => { const S = TideHarm.STATIONS[p.port] || TideHarm.STATIONS[nearest(p).k];
+          return `<li><button data-act="pick" data-id="${p.id}"><b>${when(p.t)} · ${catchTxt(p)}</b><span>${esc(short(p.port))}에서 ${dirOf(S, p)}쪽 ${kmTxt(distKm(S, p))} · ${p.mul} · 조류 ${pctTxt(p)}${p.wt == null ? '' : ` · 수온 ${p.wt.toFixed(1)}℃`}</span></button></li>`; }).join('')}</ul>`
+          : `<p class="mv-empty">아직 저장한 포인트가 없어요. 배 위에서 '포인트 저장'을 누르면 그 자리와 물때·조류·수온이 함께 남아요.</p>`) +
+        `<div class="mv-btns"><button data-act="back">닫기</button></div>`;
+    }
+    function showDetail(id, ask) {
+      const p = points.find(q => q.id === id); if (!p) { mode = 'info'; selId = null; paintPanel(true); return; }
+      mode = 'detail'; selId = id; const S = TideHarm.STATIONS[p.port];
+      panel.innerHTML = `
+        <div class="mv-h"><b>${when(p.t)} 포인트</b><span>${p.virtual ? '가상 위치' : `GPS ±${p.acc}m`}</span></div>
+        <div class="mv-grid">
+          <div class="mv-c"><small>조과</small><b>${catchTxt(p)}</b></div>
+          <div class="mv-c"><small>잡은 시각</small><b>${ampm(kstMin(p.t))}</b></div>
+          <div class="mv-c wide"><small>위치</small><b>${esc(short(p.port))}에서 ${dirOf(S, p)}쪽 ${kmTxt(distKm(S, p))}</b></div>
+          <div class="mv-c"><small>물때 · 물</small><b>${p.mul} · ${p.stand ? p.stand.replace(' · ', ' ') : (p.rising ? '들물' : '날물')} ${meters(p.h)}</b></div>
+          <div class="mv-c"><small>조류 · 수온</small><b>${pctTxt(p)}${p.wt == null ? '' : ` · ${p.wt.toFixed(1)}℃`}</b></div>
+        </div>
+        <p class="mv-note">${p.memo ? esc(p.memo) + ' · ' : ''}${dm(p.lat, 'N', 'S')} ${dm(p.lon, 'E', 'W')}${p.wind == null ? '' : ` · 바람 ${p.wind}m/s`}${p.wave == null ? '' : ` · 파도 ${p.wave.toFixed(1)}m`}</p>
+        <div class="mv-btns">${ask ? `<button class="del" data-act="del-yes" data-id="${p.id}">정말 지우기</button><button data-act="pick" data-id="${p.id}">그대로 두기</button>`
+          : `<button data-act="list">목록</button><button class="del" data-act="del" data-id="${p.id}">지우기</button><button data-act="back">닫기</button>`}</div>`;
+      draw();
+    }
+    let toastT = 0;
+    function toast(t) { const el = $('mv-toast'); el.textContent = t; el.hidden = false; clearTimeout(toastT); toastT = setTimeout(() => { el.hidden = true; }, 1800); }
+    panel.addEventListener('click', e => {
+      const b = e.target.closest('[data-act]'); if (!b) return; const a = b.dataset.act;
+      if (a === 'save') showSave();
+      else if (a === 'station') { if (setStation && me) { setStation(nearest(me).k); close(); } }
+      else if (a === 'inc' || a === 'dec') { form[b.dataset.k] = Math.max(0, Math.min(999, form[b.dataset.k] + (a === 'inc' ? 1 : -1))); $('mv-n-' + b.dataset.k).textContent = form[b.dataset.k]; }
+      else if (a === 'commit') commit();
+      else if (a === 'cancel' || a === 'back') { form = null; mode = 'info'; selId = null; paintPanel(true); draw(); }
+      else if (a === 'list') showList();
+      else if (a === 'pick') { const p = points.find(q => q.id === b.dataset.id); if (p) { follow = false; $('mv-me').classList.remove('on'); v.lon = p.lon; v.lat = p.lat; v.s = Math.max(v.s, 4000); } showDetail(b.dataset.id); }
+      else if (a === 'del') showDetail(b.dataset.id, true);
+      else if (a === 'del-yes') { points = points.filter(q => q.id !== b.dataset.id); savePts(); selId = null; toast('포인트를 지웠어요'); showList(); draw(); }
+    });
+    $('mv-pts').onclick = () => (mode === 'list' ? (mode = 'info', paintPanel(true)) : showList());
+
+    // ---------- GPS
+    let gpsMsg = '';
+    function setGps(t, cls) { gpsEl.textContent = t; gpsEl.className = cls || ''; }
+    function onPos(pos) {
+      const c = pos.coords; gps = { lat: c.latitude, lon: c.longitude, acc: c.accuracy, heading: Number.isFinite(c.heading) && c.speed > 0.5 ? c.heading : null, t: pos.timestamp };
+      if (me && me.virtual) { setGps('가상 위치 · GPS 잡힘 (‘내 위치로’를 누르면 돌아가요)', 'warn'); return; }
+      const first = !me; me = { ...gps };
+      setGps(`GPS ±${Math.round(c.accuracy)}m · ${ampm(kstMin(pos.timestamp))}`, c.accuracy <= 50 ? 'ok' : 'warn');
+      if (first) fitMeAndPort();
+      else if (follow) { v.lon = me.lon; v.lat = me.lat; }
+      paintPanel(first); kick(); draw();
+    }
+    function onErr(err) {
+      gpsMsg = err.code === 1 ? (inFrame ? '이 화면에서는 위치를 받을 수 없어요. 폰에 설치한 앱(웹 주소)에서 써 주세요.' : '위치 권한이 꺼져 있어요. 휴대폰 설정에서 이 앱(브라우저)의 위치 권한을 켜 주세요.')
+        : 'GPS 신호를 찾는 중이에요. 하늘이 트인 곳에서 잠시 기다려 주세요.';
+      if (!me || !me.virtual) setGps(err.code === 1 ? '위치 권한 없음' : 'GPS 찾는 중…', 'warn');
+      if (!me) paintPanel(true);
+    }
+    function startGps() {
+      if (!navigator.geolocation) { gpsMsg = '이 기기에서는 GPS를 쓸 수 없어요.'; setGps('GPS 없음', 'warn'); paintPanel(true); return; }
+      if (watchId == null) watchId = navigator.geolocation.watchPosition(onPos, onErr, { enableHighAccuracy: true, maximumAge: 3000, timeout: 30000 });
+    }
+    // 내 위치를 가운데에 두고, 가까운 출항지(40km 안)도 화면에 들어오게 배율을 맞춘다
+    function fitMeAndPort() {
+      if (!me) return; v.lon = me.lon; v.lat = me.lat;
+      const nr = nearest(me), S = TideHarm.STATIONS[nr.k];
+      if (nr.d > 40 || !W) { v.s = Math.max(v.s, 2600); return; }
+      const dx = Math.abs(S.lon - me.lon) * KX, dy = Math.abs(S.lat - me.lat);
+      v.s = clampS(Math.min((W / 2 - 86) / Math.max(dx, 1e-4), (H / 2 - 44) / Math.max(dy, 1e-4), 9000));   // 오른쪽 버튼·이름표 자리를 비운다
+    }
+    function stopGps() { if (watchId != null) { navigator.geolocation.clearWatch(watchId); watchId = null; } }
+    // 화면 꺼짐 막기 (지원하는 폰에서만)
+    async function wakeOn() { try { if ('wakeLock' in navigator && !wake) { wake = await navigator.wakeLock.request('screen'); wake.addEventListener('release', () => { wake = null; }); } } catch (_) { wake = null; } }
+    function wakeOff() { try { wake && wake.release(); } catch (_) {} wake = null; }
+    document.addEventListener('visibilitychange', () => { if (isOpen && document.visibilityState === 'visible') { wakeOn(); paintPanel(true); } });
+
+    // ---------- 열기 · 닫기
+    function open() {
+      if (isOpen) return; isOpen = true; view.hidden = false; mode = 'info'; selId = null; form = null;
+      if (!me) { const S = TideHarm.STATIONS[tideSt]; v = { lon: S.lon - 0.05, lat: S.lat - 0.02, s: 1400 }; }
+      resize(); loadLand(); startGps(); wakeOn(); paintPanel(true); kick();
+      if (useHist) { try { history.pushState({ mapv: 1 }, ''); } catch (_) {} }
+    }
+    function close(fromPop) {
+      if (!isOpen) return; isOpen = false; view.hidden = true; stopGps(); wakeOff();
+      if (useHist && !fromPop && history.state && history.state.mapv) { skipPop = true; history.back(); }
+    }
+    btn.onclick = open;
+    $('mv-x').onclick = () => close();
+    addEventListener('popstate', () => { if (skipPop) { skipPop = false; return; } if (isOpen) close(true); });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape' && isOpen) close(); });
+    new ResizeObserver(() => { if (isOpen) resize(); }).observe(box);
+    setInterval(() => { if (isOpen && mode === 'info') paintPanel(true); }, 15000);
+    // 확대 · 축소 · 내 위치로
+    const zoomAt = (f, x = W / 2, y = H / 2) => { const g = toG(x, y); v.s = clampS(v.s * f); const g2 = toG(x, y); v.lon += g.lon - g2.lon; v.lat += g.lat - g2.lat; if (follow && me) { v.lon = me.lon; v.lat = me.lat; } draw(); };
+    $('mv-zin').onclick = () => zoomAt(1.8);
+    $('mv-zout').onclick = () => zoomAt(1 / 1.8);
+    $('mv-me').onclick = () => {
+      if (me && me.virtual) { me = gps ? { ...gps } : null; setGps(gps ? `GPS ±${Math.round(gps.acc)}m` : 'GPS 찾는 중…', gps ? 'ok' : 'warn'); toast('실제 GPS 위치로 돌아왔어요'); }
+      follow = true; $('mv-me').classList.add('on');
+      if (me) fitMeAndPort();
+      mode = mode === 'save' ? 'save' : 'info'; selId = null; paintPanel(true); kick(); draw();
+    };
+    // ---------- 손가락: 끌기 · 두 손가락 확대 · 두 번 톡 확대 · 길게 눌러 가상 위치 · 포인트 누르기
+    const ptrs = new Map(); let g = null, lastTap = 0, pressT = 0;
+    const pinchInfo = () => { const [a, b] = [...ptrs.values()]; return { d: Math.hypot(a.x - b.x, a.y - b.y), x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 }; };
+    cv.addEventListener('pointerdown', e => {
+      cv.setPointerCapture(e.pointerId); const r = cv.getBoundingClientRect(), x = e.clientX - r.left, y = e.clientY - r.top;
+      ptrs.set(e.pointerId, { x, y });
+      if (ptrs.size === 1) {
+        g = { x0: x, y0: y, lon: v.lon, lat: v.lat, moved: false, pinch: null };
+        clearTimeout(pressT);
+        pressT = setTimeout(() => {   // 길게 누르기: 그 자리를 내 위치로 가정
+          if (!g || g.moved || ptrs.size !== 1) return;
+          const p = toG(g.x0, g.y0); me = { lat: p.lat, lon: p.lon, acc: 0, virtual: true }; follow = false; $('mv-me').classList.remove('on');
+          setGps('가상 위치 (길게 눌러 지정) · ‘내 위치로’를 누르면 GPS로', 'warn'); try { navigator.vibrate && navigator.vibrate(15); } catch (_) {}
+          g.moved = true; mode = 'info'; selId = null; paintPanel(true); draw(); toast('이 자리를 내 위치로 가정했어요');
+        }, 600);
+      } else if (ptrs.size === 2) { clearTimeout(pressT); const pi = pinchInfo(); g = { pinch: { ...pi, s: v.s, c: toG(pi.x, pi.y) }, moved: true }; }
+    });
+    cv.addEventListener('pointermove', e => {
+      if (!ptrs.has(e.pointerId) || !g) return; const r = cv.getBoundingClientRect(); ptrs.set(e.pointerId, { x: e.clientX - r.left, y: e.clientY - r.top });
+      if (g.pinch && ptrs.size === 2) {
+        const pi = pinchInfo(); v.s = clampS(g.pinch.s * pi.d / Math.max(10, g.pinch.d));
+        // 손가락 가운데 아래의 지점이 그대로 손가락 가운데에 오도록
+        v.lon = g.pinch.c.lon - (pi.x - W / 2) / (KX * v.s); v.lat = g.pinch.c.lat + (pi.y - H / 2) / v.s;
+        follow = false; $('mv-me').classList.remove('on'); draw(); return;
+      }
+      if (ptrs.size !== 1 || g.pinch) return;
+      const p = ptrs.get(e.pointerId), dx = p.x - g.x0, dy = p.y - g.y0;
+      if (!g.moved && Math.hypot(dx, dy) < 6) return;
+      if (!g.moved) { g.moved = true; clearTimeout(pressT); follow = false; $('mv-me').classList.remove('on'); }
+      v.lon = g.lon - dx / (KX * v.s); v.lat = g.lat + dy / v.s; draw();
+    });
+    const up = e => {
+      if (!ptrs.has(e.pointerId)) return; ptrs.delete(e.pointerId); clearTimeout(pressT);
+      if (ptrs.size === 1 && g && g.pinch) { const [q] = [...ptrs.values()]; g = { x0: q.x, y0: q.y, lon: v.lon, lat: v.lat, moved: true, pinch: null }; return; }
+      if (ptrs.size) return;
+      if (g && !g.moved) {
+        const now = Date.now();
+        // 포인트를 눌렀으면 그 포인트 보기
+        const hit = points.find(p => { const [x, y] = toS(p.lon, p.lat); return Math.hypot(x - g.x0, y - 9 - g.y0) < 16; });
+        if (hit) showDetail(hit.id);
+        else if (now - lastTap < 320) { zoomAt(2, g.x0, g.y0); lastTap = 0; }
+        else lastTap = now;
+      }
+      g = null;
+    };
+    cv.addEventListener('pointerup', up); cv.addEventListener('pointercancel', up);
+    cv.addEventListener('wheel', e => { e.preventDefault(); const r = cv.getBoundingClientRect(); follow = false; $('mv-me').classList.remove('on'); zoomAt(Math.exp(-e.deltaY * 0.0022), e.clientX - r.left, e.clientY - r.top); }, { passive: false });
+    const recolor = () => { if (isOpen) draw(); };
+    new MutationObserver(recolor).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme', 'data-app'] });
+  })();
   // 날짜를 누르면 그 자리에서 작은 달력이 뜬다 (아래 큰 달력과 같은 칸을 힘을 뺀 모양으로)
   (() => {
     const btn = $('date-btn'), pop = $('pcal'), back = $('pc-back'), body = $('pc-body'), mp = $('pc-mp'), tbtn = $('pc-tbtn');
@@ -2608,7 +3011,7 @@ if ('serviceWorker' in navigator) addEventListener('load', () => {
   const sw = navigator.serviceWorker; let ctl = sw.controller, reloading = false;
   // 새 버전이 올라오면 한 번 새로 열어 바로 반영 (처음 설치할 때는 제외)
   sw.addEventListener('controllerchange', () => { if (ctl && !reloading) { reloading = true; location.reload(); } ctl = sw.controller; });
-  sw.register('sw.js?v=f653d700').then(reg => {
+  sw.register('sw.js?v=0b519765').then(reg => {
     // 앱을 켜 둔 채 다른 화면에 갔다 돌아오면 새 버전이 있는지 확인
     document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') reg.update().catch(() => {}); });
   }).catch(() => {});
