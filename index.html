@@ -3106,17 +3106,26 @@ const TideHarm = (() => {
     const md = d => { const x = new Date(d * DAY); return `${x.getUTCMonth() + 1}/${x.getUTCDate()}`; };
     const boatsMem = () => (loadJ(BOAT_KEY, []) || []).filter(b => b && b.n);
     const depLabel = (k, nm) => (TideHarm.STATIONS[k] ? TideHarm.STATIONS[k].name : nm || '');
+    const boatDep = b => (b.depName || depLabel(b.dep) || '').trim();   // 그 배가 지난번에 나간 출항지 (예전 기록은 출항지 번호로 남아 있음)
+    // 출항지는 자유롭게 쓰는 기록 (앱의 출항지 목록에 없어도 된다). 고르기 쉽게 쓴 적 있는 곳 · 앱 출항지를 추천으로 보여 준다
+    function depSuggest() {
+      const seen = new Set(), out = [];
+      const add = n => { n = (n || '').trim(); if (n && !seen.has(n)) { seen.add(n); out.push(n); } };
+      points.forEach(q => add(q.depName)); boatsMem().forEach(b => add(boatDep(b)));
+      [...customPorts.map(c => c.k), ...ST_KEYS].forEach(k => TideHarm.STATIONS[k] && add(TideHarm.STATIONS[k].name));
+      return out.slice(0, 30);
+    }
     function tripFor(at) {
       const trip = loadJ(TRIP_KEY, null);
-      if (trip && trip.d === kstDay(at)) return { boat: trip.boat || '', dep: trip.dep || '', depName: trip.depName || '', hint: '' };
-      const dep = tideSt, b = boatsMem().find(x => x.dep === dep);
-      return { boat: b ? b.n : '', dep, depName: depLabel(dep), hint: b ? `오늘 첫 저장이라 지난번 ${esc(short(dep))}에서 탄 배를 넣어 두었어요. 다르면 바꿔 주세요.`
-        : '탄 배와 출항지는 오늘 한 번만 고르면 그 뒤 포인트에는 저절로 붙어요.' };
+      if (trip && trip.d === kstDay(at)) return { boat: trip.boat || '', depName: trip.depName || depLabel(trip.dep), hint: '' };
+      const depName = depLabel(tideSt), b = boatsMem().find(x => boatDep(x) === depName);
+      return { boat: b ? b.n : '', depName, hint: b ? `오늘 첫 저장이라 지난번 ${esc(short(tideSt))}에서 탄 배를 넣어 두었어요. 다르면 바꿔 주세요.`
+        : '탄 배와 출항지는 오늘 한 번만 적으면 그 뒤 포인트에는 저절로 붙어요.' };
     }
-    function rememberTrip(at, boat, dep, depName) {
+    function rememberTrip(at, boat, depName) {
       const today = kstDay(Date.now());
-      if (kstDay(at) === today) saveJ(TRIP_KEY, { d: today, boat, dep, depName });
-      if (boat) saveJ(BOAT_KEY, [{ n: boat, dep, t: Date.now() }, ...boatsMem().filter(b => b.n !== boat)].slice(0, 10));
+      if (kstDay(at) === today) saveJ(TRIP_KEY, { d: today, boat, depName });
+      if (boat) saveJ(BOAT_KEY, [{ n: boat, depName, t: Date.now() }, ...boatsMem().filter(b => b.n !== boat)].slice(0, 10));
     }
     function tripRow(f) {
       const boats = boatsMem().map(b => b.n);
@@ -3126,10 +3135,9 @@ const TideHarm = (() => {
         ? `<input class="mv-in" id="mv-boat" maxlength="16" placeholder="탄 배 (예: 행운호)" value="${esc(f.boat)}" aria-label="탄 배 이름" autocomplete="off">`
         : `<span class="mv-selw"><select class="mv-sel" id="mv-boat-s" aria-label="탄 배">${boats.map(n => `<option value="${esc(n)}"${n === f.boat ? ' selected' : ''}>${esc(n)}</option>`).join('')}`
           + `<option value=""${f.boat ? '' : ' selected'}>배 이름 없이</option><option value="__new">+ 새 배 이름 쓰기</option></select></span>`;
-      const keys = [...customPorts.map(c => c.k).filter(k => TideHarm.STATIONS[k]), ...ST_KEYS];
-      const opts = (f.dep && !TideHarm.STATIONS[f.dep] ? [`<option value="${esc(f.dep)}" selected>${esc(f.depName || '지운 출항지')}</option>`] : [])
-        .concat(keys.map(k => `<option value="${k}"${k === f.dep ? ' selected' : ''}>${esc(TideHarm.STATIONS[k].name)}</option>`), [`<option value=""${f.dep ? '' : ' selected'}>출항지 없이</option>`]);
-      return `<div class="mv-step mv-trip"><span>출조</span>${boat}<span class="mv-selw"><select class="mv-sel" id="mv-dep" aria-label="출항지">${opts.join('')}</select></span></div>`
+      return `<div class="mv-step mv-trip"><span>출조</span>${boat}`
+        + `<input class="mv-in" id="mv-dep" list="mv-dep-list" maxlength="20" placeholder="출항지 (예: 인천 남항)" value="${esc(f.depName || '')}" aria-label="출항지" autocomplete="off">`
+        + `<datalist id="mv-dep-list">${depSuggest().map(n => `<option value="${esc(n)}"></option>`).join('')}</datalist></div>`
         + (f.hint ? `<p class="mv-hint">${f.hint}</p>` : '');
     }
     const tripTxt = p => (p.boat || p.depName ? `${p.boat ? esc(p.boat) : '배 기록 없음'}${p.depName ? ` · ${esc(p.depName)} 출항` : ''}` : '');
@@ -3168,30 +3176,31 @@ const TideHarm = (() => {
       const p = points.find(q => q.id === id); if (!p) return;
       sheetAtLeast('open');
       const S = TideHarm.STATIONS[p.port] || TideHarm.STATIONS[nearest(p).k];
-      form = { edit: id, boat: p.boat || '', dep: p.dep || '', depName: p.depName || '', hint: '', jj: p.jj || 0, gap: p.gap || 0, etc: (p.etc && p.etc.length ? p.etc : [{ n: '', c: 0 }]).map(e => ({ n: e.n || '', c: e.c || 0 })), memo: p.memo || '', at: p.t,
+      form = { edit: id, boat: p.boat || '', depName: p.depName || depLabel(p.dep), hint: '', jj: p.jj || 0, gap: p.gap || 0, etc: (p.etc && p.etc.length ? p.etc : [{ n: '', c: 0 }]).map(e => ({ n: e.n || '', c: e.c || 0 })), memo: p.memo || '', at: p.t,
         where: `${short(p.port)}에서 ${dirOf(S, p)}쪽 ${kmTxt(distKm(S, p))}`, cond: `${p.mul} · ${p.stand ? p.stand.replace(' · ', ' ') : (p.rising ? '들물' : '날물')} ${meters(p.h)}` };
       mode = 'save'; selId = id; paintForm(); draw();
     }
-    const tripOf = f => { const boat = (f.boat || '').trim().slice(0, 16), dep = f.dep || ''; return { boat, dep, depName: dep ? depLabel(dep, f.depName) : '' }; };
+    const tripOf = f => { const boat = (f.boat || '').trim().slice(0, 16), depName = (f.depName || '').trim().slice(0, 20);
+      return { boat, depName, dep: Object.keys(TideHarm.STATIONS).find(k => TideHarm.STATIONS[k].name === depName) || '' }; };
     function commit() {
       const f = form, memo = (($('mv-memo') || {}).value || '').trim();
       const etc = f.etc.map(e => ({ n: e.n.trim(), c: clampN(e.c) })).filter(e => e.c > 0 || e.n);
       if (f.edit) {
         const p = points.find(q => q.id === f.edit);
-        if (p) { Object.assign(p, tripOf(f)); p.jj = clampN(f.jj); p.gap = clampN(f.gap); p.etc = etc; p.memo = memo; p.edited = Date.now(); savePts(); if (kstDay(p.t) === kstDay(Date.now())) rememberTrip(p.t, p.boat, p.dep, p.depName); }
+        if (p) { Object.assign(p, tripOf(f)); p.jj = clampN(f.jj); p.gap = clampN(f.gap); p.etc = etc; p.memo = memo; p.edited = Date.now(); savePts(); if (kstDay(p.t) === kstDay(Date.now())) rememberTrip(p.t, p.boat, p.depName); }
         form = null; toast('고친 내용을 저장했어요'); showDetail(f.edit); draw(); return;
       }
       const i = f.i;
       points.unshift({ id: String(f.at), t: f.at, lat: +f.lat.toFixed(6), lon: +f.lon.toFixed(6), acc: Math.round(f.acc), virtual: f.virtual,
         ...tripOf(f), port: i.k, mul: i.dd.name, lv: i.dd.lv, h: Math.round(i.h), rising: i.rising, stand: i.stand, pct: i.pct, wind: i.wind, wave: i.wave, wt: i.wt, jj: clampN(f.jj), gap: clampN(f.gap), etc, memo,
         spot: !!i.spot, cur: i.cur ? { kn: +(i.cur.sp / KN).toFixed(1), dir: Math.round(i.cur.dir), calm: i.cur.calm, at: i.cur.name, model: !!i.cur.model } : null, wtAt: i.wtName || null });
-      rememberTrip(f.at, points[0].boat, points[0].dep, points[0].depName);
+      rememberTrip(f.at, points[0].boat, points[0].depName);
       savePts(); form = null; mode = 'info'; sheetDown(); toast('포인트를 저장했어요'); paintPanel(true); draw();
     }
     // 숫자 칸: 누르면 전체 선택(바로 새 숫자를 치게), 숫자만 받기, 비우고 나가면 0
     panel.addEventListener('focusin', e => {
       const t = e.target;
-      if (t.classList.contains('mv-n')) setTimeout(() => { try { t.select(); } catch (_) {} }, 0);
+      if (t.classList.contains('mv-n') || t.id === 'mv-dep' || t.id === 'mv-boat') setTimeout(() => { try { t.select(); } catch (_) {} }, 0);
       if (t.matches('input')) setTimeout(() => { try { t.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); } catch (_) {} }, 280);
     });
     panel.addEventListener('input', e => {
@@ -3200,16 +3209,16 @@ const TideHarm = (() => {
       else if (t.classList.contains('mv-sp')) form.etc[+t.dataset.j].n = t.value;
       else if (t.id === 'mv-memo') form.memo = t.value;
       else if (t.id === 'mv-boat') form.boat = t.value;
+      else if (t.id === 'mv-dep') form.depName = t.value;
     });
     panel.addEventListener('change', e => {
       const t = e.target; if (!form) return;
-      if (t.id === 'mv-dep') { form.dep = t.value; form.depName = depLabel(t.value, form.depName); }
-      else if (t.id === 'mv-boat-s') {
+      if (t.id === 'mv-boat-s') {
         if (t.value === '__new') { form.boatNew = true; form.boat = ''; paintForm(); const el = $('mv-boat'); el && el.focus(); return; }
         form.boat = t.value;
         // 아는 배를 고르면 그 배가 지난번에 나간 출항지로
         const b = boatsMem().find(x => x.n === t.value);
-        if (b && b.dep && TideHarm.STATIONS[b.dep] && !form.edit) { form.dep = b.dep; form.depName = depLabel(b.dep); }
+        if (b && boatDep(b) && !form.edit) form.depName = boatDep(b);
         form.hint = ''; paintForm();
       }
     });
@@ -3222,7 +3231,7 @@ const TideHarm = (() => {
       mode = 'list';
       panel.innerHTML = `<div class="mv-h"><b>저장한 포인트 ${points.length}곳</b><span>이 폰에만 저장돼요</span></div>` +
         (points.length ? `<ul class="mv-list">${(() => { let last = null; return points.map(p => {
-          const S = TideHarm.STATIONS[p.port] || TideHarm.STATIONS[nearest(p).k], key = [kstDay(p.t), p.boat || '', p.dep || ''].join('|');
+          const S = TideHarm.STATIONS[p.port] || TideHarm.STATIONS[nearest(p).k], key = [kstDay(p.t), p.boat || '', p.depName || ''].join('|');
           const head = key === last ? '' : `<li class="mv-grp">${md(kstDay(p.t))} · ${tripTxt(p) || '배·출항지 기록 없음'}</li>`; last = key;
           return head + `<li><button data-act="pick" data-id="${p.id}"><b>${ampm(kstMin(p.t))} · ${esc(catchTxt(p))}</b><span>${esc(short(p.port))}에서 ${dirOf(S, p)}쪽 ${kmTxt(distKm(S, p))} · ${p.mul} · 조류 ${pctTxt(p)}${p.wt == null ? '' : ` · 수온 ${p.wt.toFixed(1)}℃`}</span></button></li>`; }).join(''); })()}</ul>`
           : `<p class="mv-empty">아직 저장한 포인트가 없어요. 배 위에서 지도 아래 파란 핀 단추를 누르면 그 자리와 물때·조류·수온이 함께 남아요.</p>`) +
@@ -3266,13 +3275,13 @@ const TideHarm = (() => {
       else if (a === 'edit') showEdit(b.dataset.id);
       else if (a === 'commit') commit();
       else if (a === 'cancel' && form && form.edit) { const id = form.edit; form = null; showDetail(id); }
-      else if (a === 'cancel' || a === 'back') { if (a === 'cancel') sheetDown(); form = null; mode = 'info'; selId = null; paintPanel(true); draw(); }
+      else if (a === 'cancel' || a === 'back') { sheetDown(); form = null; mode = 'info'; selId = null; paintPanel(true); draw(); }
       else if (a === 'list') showList();
       else if (a === 'pick') { const p = points.find(q => q.id === b.dataset.id); if (p) { follow = false; $('mv-me').classList.remove('on'); v.s = Math.max(v.s, 4000); placeAt(p.lon, p.lat, focusY()); } showDetail(b.dataset.id); }
       else if (a === 'del') showDetail(b.dataset.id, true);
       else if (a === 'del-yes') { points = points.filter(q => q.id !== b.dataset.id); savePts(); selId = null; toast('포인트를 지웠어요'); showList(); draw(); }
     });
-    $('mv-pts').onclick = () => (mode === 'list' ? (mode = 'info', paintPanel(true)) : showList());
+    $('mv-pts').onclick = () => { if (mode !== 'list') return showList(); mode = 'info'; selId = null; sheetDown(); paintPanel(true); draw(); };
 
     // ---------- GPS
     let gpsMsg = '';
@@ -3843,7 +3852,7 @@ if ('serviceWorker' in navigator) addEventListener('load', () => {
   const sw = navigator.serviceWorker; let ctl = sw.controller, reloading = false;
   // 새 버전이 올라오면 한 번 새로 열어 바로 반영 (처음 설치할 때는 제외)
   sw.addEventListener('controllerchange', () => { if (ctl && !reloading) { reloading = true; location.reload(); } ctl = sw.controller; });
-  sw.register('sw.js?v=22933da0').then(reg => {
+  sw.register('sw.js?v=9e16fac1').then(reg => {
     // 앱을 켜 둔 채 다른 화면에 갔다 돌아오면 새 버전이 있는지 확인
     document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') reg.update().catch(() => {}); });
   }).catch(() => {});
