@@ -304,7 +304,7 @@ h2{margin:0; font-size:16px; font-weight:700; text-wrap:balance}
 .cal-track > .cal{flex:0 0 100%; min-width:0}
 .cal-week{font-size:12px; color:var(--ink-2); text-align:center}
 .cal-week span:first-child{color:var(--sun)} .cal-week span:last-child{color:var(--sat)}
-.cell{min-width:0; max-width:100%; aspect-ratio:1/1.08; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1px; padding:2px 0; border-radius:10px; border:1.5px solid transparent; background:transparent}
+.cell{position:relative; min-width:0; max-width:100%; aspect-ratio:1/1.12; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1px; padding:2px 0; border-radius:10px; border:1.5px solid transparent; background:transparent}
 .cell.lv-calm{background:var(--calm-soft)} .cell.lv-mid{background:var(--mid-soft)} .cell.lv-strong{background:var(--strong-soft)}
 .c-n{font-size:14px; font-weight:700; font-variant-numeric:tabular-nums}
 .c-m{font-size:10.5px; font-weight:500; white-space:nowrap}
@@ -313,6 +313,27 @@ h2{margin:0; font-size:16px; font-weight:700; text-wrap:balance}
 .cell.is-today .c-n{text-decoration:underline 2px; text-underline-offset:3px}
 .cell.is-sel{border-color:var(--ink)}
 .cell.blank{visibility:hidden}
+/* 달력 속 날씨: 아래 줄에 날씨 아이콘 + 그날 최대 파도(신호 색), 왼쪽 위 ★ 출조 추천 */
+.c-w{flex:none; width:10px; height:10px; color:var(--ink-2)}
+.c-w svg{display:block; width:10px; height:10px}
+.c-w.sun{color:#E9A92E} .c-w.rain{color:var(--hi)}
+.c-v{display:flex; align-items:center; justify-content:center; gap:1.5px; height:12px; font-size:9px; font-weight:700; line-height:12px; font-variant-numeric:tabular-nums; white-space:nowrap; color:var(--ink-2)}
+.c-v.w1{color:var(--mid)} .c-v.w2{color:var(--strong)}
+.cell.wx-bad{box-shadow:inset 0 0 0 1.5px color-mix(in srgb, var(--strong) 55%, transparent)}
+.c-star{position:absolute; top:1px; left:3px; font-size:10.5px; line-height:12px; color:#F2B33D; pointer-events:none}
+/* 출조 추천 줄 */
+.pick{display:flex; flex-direction:column; gap:7px; padding:12px; border-radius:16px; background:var(--card); border:1px solid var(--line)}
+.pick-h{display:flex; align-items:baseline; justify-content:space-between; gap:8px; height:18px}
+.pick-h b{font-size:14px; white-space:nowrap}
+.pick-h span{font-size:11.5px; color:var(--ink-2); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.pick-row{display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:6px; height:48px}
+.pick-c{display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; min-width:0; padding:0 4px; border:0; border-radius:12px; background:var(--well); font:inherit; color:var(--ink); -webkit-tap-highlight-color:transparent; transition:transform .12s}
+.pick-c:active{transform:scale(.96)}
+.pick-c b{font-size:13.5px; white-space:nowrap; font-variant-numeric:tabular-nums}
+.pick-c b i{font-style:normal; color:#F2B33D; margin-right:3px}
+.pick-c span{max-width:100%; font-size:11px; color:var(--ink-2); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.pick-c.best{background:var(--calm-soft)}
+.pick-msg{grid-column:1 / -1; display:flex; align-items:center; justify-content:center; text-align:center; font-size:12.5px; line-height:1.45; color:var(--ink-2)}
 
 /* 색 읽는 법 */
 .legend ul{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:12px}
@@ -484,6 +505,10 @@ h2{margin:0; font-size:16px; font-weight:700; text-wrap:balance}
       <h2 class="cal-h"><button id="cal-pick" class="cal-title-btn" aria-expanded="false" aria-label="연도와 월 고르기"><span id="cal-title">2026년 10월</span><i class="chev" aria-hidden="true"></i></button></h2>
       <button id="next-month" class="small-btn" aria-label="다음 달">›</button>
     </div>
+    <div class="pick" id="pick" aria-live="polite">
+      <div class="pick-h"><b>출조 추천</b><span id="pick-sub">물때와 바다 날씨를 함께 봤어요</span></div>
+      <div class="pick-row" id="pick-row"><span class="pick-msg">바다 날씨를 불러오는 중이에요…</span></div>
+    </div>
     <div class="cal-week" aria-hidden="true"><span>일</span><span>월</span><span>화</span><span>수</span><span>목</span><span>금</span><span>토</span></div>
     <div class="cal-stage" id="cal-stage"><div class="cal-track" id="cal-track"><div class="cal" id="cal-prev" aria-hidden="true" inert></div><div class="cal" id="cal"></div><div class="cal" id="cal-next" aria-hidden="true" inert></div></div></div>
     <div class="mpanel" id="mpanel" hidden>
@@ -506,6 +531,10 @@ h2{margin:0; font-size:16px; font-weight:700; text-wrap:balance}
         <p style="margin:0"><b class="t-mid">노랑 · 보통</b><span>물이 적당히 흘러요. 바닥 느낌에 맞춰 봉돌 무게를 조절하세요.</span></p></li>
       <li><span class="sw"><i style="height:94%;background:var(--strong)"></i></span>
         <p style="margin:0"><b class="t-strong">빨강 · 물 셈</b><span>사리 전후. 줄이 많이 날리고 밑걸림이 잦아요.</span></p></li>
+      <li><span class="sw" style="display:grid;place-items:center;font-size:17px;color:#F2B33D;background:var(--calm-soft)">★</span>
+        <p style="margin:0"><b>★ 출조 추천</b><span>물살이 약하고(초록) 바다도 잔잔할 것으로 예보된 날이에요. 달력 위 '출조 추천'에서 바로 고를 수 있어요.</span></p></li>
+      <li><span class="sw" style="display:grid;place-items:center;font-size:10px;font-weight:700;color:var(--strong)">1.5m</span>
+        <p style="margin:0"><b>날씨 아이콘 · 파도 높이</b><span>칸 아래 줄은 낮 날씨와 그날 가장 높은 파도예요. 글자 색은 바람까지 함께 본 바다 상태로, 노랑은 주의, 빨강(테두리)은 출항이 어려울 수 있는 날. 3일까지는 시간별 예보, 10일까지는 기상청 중기 해상예보예요.</span></p></li>
     </ul>
     <p class="note">그림 속 주황 낚싯줄이 곧게 내려갈수록 물이 약한 날이에요. 사리는 보름달·그믐 무렵, 조금은 반달 무렵에 옵니다.</p>
   </section>
@@ -977,13 +1006,13 @@ const TideHarm = (() => {
   }
   async function loadWx() {
     let inFrame = false; try { inFrame = window.top !== window.self; } catch (_) { inFrame = true; }
-    if (inFrame && !WX) { wxState = 'frame'; paintWx(); renderWxStrip(); return; }
+    if (inFrame && !WX) { wxState = 'frame'; paintWx(); renderWxStrip(); renderCal(); return; }
     try {
       const r = await fetch('data/weather.json', { cache: 'no-cache' });
       if (!r.ok) throw new Error(r.status);
       WX = await r.json(); wxState = 'ok'; wxAt = Date.now();
     } catch (_) { if (!WX) wxState = 'error'; }
-    paintWx(); renderWxStrip();
+    paintWx(); renderWxStrip(); renderCal();
   }
   document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && Date.now() - wxAt > 20 * 60000) loadWx(); });
   // 시간 막대 조작: 톡 누르면 그 시각으로, 옆으로 밀면 따라가고, 만조·간조 근처에서 놓으면 그 시각에 착 붙는다
@@ -1193,6 +1222,68 @@ const TideHarm = (() => {
     $('cal').innerHTML = calHTML(view.y, view.m);
     $('cal-next').innerHTML = calHTML(q.y, q.m);
     calPlace(0, 0); calFit($('cal'), 0);
+    renderPick();
+  }
+  // 하루 날씨 요약: 3일까지는 시간별 예보(낮 6~18시), 그 뒤 10일까지는 중기 해상예보
+  const CW_ICO = {
+    sun: '<svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="3" fill="currentColor"/><path d="M8 1.5v1.6M8 12.9v1.6M1.5 8h1.6M12.9 8h1.6M3.4 3.4l1.1 1.1M11.5 11.5l1.1 1.1M3.4 12.6l1.1-1.1M11.5 4.5l1.1-1.1" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>',
+    part: '<svg viewBox="0 0 16 16"><circle cx="6" cy="6" r="2.6" fill="#E9A92E"/><path d="M5.5 13.5h6.5a2.6 2.6 0 0 0 0-5.2a3.4 3.4 0 0 0-6.4 1a2.1 2.1 0 0 0-.1 4.2z" fill="var(--card)" stroke="currentColor" stroke-width="1.3"/></svg>',
+    cloud: '<svg viewBox="0 0 16 16"><path d="M4.5 12.5h7a3 3 0 0 0 0-6a3.8 3.8 0 0 0-7.2 1.1a2.5 2.5 0 0 0 .2 4.9z" fill="none" stroke="currentColor" stroke-width="1.4"/></svg>',
+    rain: '<svg viewBox="0 0 16 16"><path d="M4.5 9.5h7a2.8 2.8 0 0 0 0-5.6a3.6 3.6 0 0 0-6.8 1a2.3 2.3 0 0 0-.2 4.6z" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M5.5 11.5l-.8 2.3M8.5 11.5l-.8 2.3M11.5 11.5l-.8 2.3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>',
+    snow: '<svg viewBox="0 0 16 16"><path d="M4.5 9.5h7a2.8 2.8 0 0 0 0-5.6a3.6 3.6 0 0 0-6.8 1a2.3 2.3 0 0 0-.2 4.6z" fill="none" stroke="currentColor" stroke-width="1.4"/><circle cx="5.5" cy="12.6" r=".9" fill="currentColor"/><circle cx="8.5" cy="13.4" r=".9" fill="currentColor"/><circle cx="11.5" cy="12.6" r=".9" fill="currentColor"/></svg>'
+  };
+  const CW_NAME = { sun: '맑음', part: '구름많음', cloud: '흐림', rain: '비', snow: '눈' };
+  function dayWx(n) {
+    const st = typeof WX !== 'undefined' && WX && WX.stations && WX.stations[tideSt]; if (!st) return null;
+    const key = wxYmd(n);
+    let cnt = 0, mw = null, mv = null, rain = false, snow = false; const skyC = { 1: 0, 3: 0, 4: 0 };
+    for (let h = 6; h <= 18; h++) {
+      const q = st.fc && st.fc[key + String(h).padStart(2, '0')]; if (!q) continue; cnt++;
+      if (q[0] != null) mw = Math.max(mw ?? 0, Math.round(q[0])); if (q[2] != null) mv = Math.max(mv ?? 0, Math.round(q[2] * 10) / 10);
+      if (q[4] === 1 || q[4] === 2 || q[4] === 4) rain = true; if (q[4] === 3) snow = true; if (q[3] in skyC) skyC[q[3]]++;
+    }
+    if (cnt >= 6) {
+      const icon = rain ? 'rain' : snow ? 'snow' : skyC[4] >= skyC[3] && skyC[4] >= skyC[1] ? 'cloud' : skyC[3] >= skyC[1] ? 'part' : 'sun';
+      return { src: 'short', icon, wind: mw, wave: mv, lv: Math.max(windLv(mw), waveLv(mv)) };
+    }
+    const md = WX.mid && st.mid && WX.mid[st.mid] && WX.mid[st.mid].days[key]; if (!md) return null;
+    const ps = [md.am, md.pm, md.d].filter(Boolean); if (!ps.length) return null;
+    const wfs = ps.map(p => p[0] || '').join(' ');
+    const waves = ps.map(p => p[2] ?? p[1]).filter(v => v != null), wave = waves.length ? Math.max(...waves) : null;
+    const icon = /비|소나기/.test(wfs) ? 'rain' : /눈/.test(wfs) ? 'snow' : /흐/.test(wfs) ? 'cloud' : /구름/.test(wfs) ? 'part' : 'sun';
+    return { src: 'mid', icon, wind: null, wave, lv: waveLv(wave) };
+  }
+  // 출조 점수: 물때(약함 2, 보통 1, 셈 0) + 바다(잔잔 2, 주의 1, 어려움 제외)
+  const TIDE_PT = { calm: 2, mid: 1, strong: 0 };
+  function dayScore(n) {
+    const w = dayWx(n); if (!w || w.lv < 0) return null;
+    if (w.lv === 2) return { score: -1, w };
+    return { score: TIDE_PT[dayData(n).lv] + (w.lv === 0 ? 2 : 1), w };
+  }
+  function renderPick() {
+    const row = $('pick-row'); if (!row) return;
+    const st = typeof WX !== 'undefined' && WX && WX.stations && WX.stations[tideSt];
+    const cand = [];
+    let last = null;
+    for (let n = today; n < today + 10; n++) { const r = dayScore(n); if (!r) continue; last = n; if (r.score >= 3) cand.push({ n, ...r }); }
+    const top = cand.sort((a, b) => b.score - a.score || a.n - b.n).slice(0, 3).sort((a, b) => a.n - b.n);
+    const v = last == null ? null : ymd(last);
+    $('pick-sub').textContent = last == null ? '물때와 바다 날씨를 함께 봤어요' : `${TideHarm.STATIONS[tideSt].name} · ${v.m}/${v.d}까지 예보 기준`;
+    if (!top.length) {
+      const msg = wxState === 'frame' ? '출조 추천은 폰에 설치한 앱에서 보여요 (바다 날씨가 필요해요)'
+        : wxState === 'loading' ? '바다 날씨를 불러오는 중이에요…'
+        : !st ? '바다 날씨를 불러오지 못했어요'
+        : '예보 기간 안에는 물때와 바다가 함께 좋은 날이 없어요. 달력의 초록 칸과 파도 숫자를 참고하세요.';
+      row.innerHTML = `<span class="pick-msg">${msg}</span>`;
+      return;
+    }
+    row.innerHTML = top.map(c => {
+      const d = ymd(c.n), dd = dayData(c.n), best = c.score === 4;
+      const windy = c.w.wind != null && windLv(c.w.wind) > waveLv(c.w.wave);
+      const sea = windy ? `바람 ${c.w.wind}m/s` : c.w.wave == null ? CW_NAME[c.w.icon] : `파도 ${c.w.wave.toFixed(1)}m`;
+      return `<button class="pick-c${best ? ' best' : ''}" data-dn="${c.n}" aria-label="${d.m}월 ${d.d}일 ${WD[d.w]}요일, ${dd.name}, ${sea}${best ? ', 추천' : ''}로 이동">`
+        + `<b>${best ? '<i aria-hidden="true">★</i>' : ''}${d.m}/${d.d} ${WD[d.w]}</b><span>${dd.name} · ${sea}</span></button>`;
+    }).join('') + (top.length < 3 ? '<span></span>'.repeat(3 - top.length) : '');
   }
   function calHTML(y, m) {
     const first = dnOf(y, m, 1);
@@ -1205,8 +1296,14 @@ const TideHarm = (() => {
       const cls = ['cell', 'lv-' + dd.lv];
       if (v.w === 6) cls.push('sat'); if (v.w === 0) cls.push('sun');
       if (n === today) cls.push('is-today'); if (n === sel) cls.push('is-sel');
-      html += `<button class="${cls.join(' ')}" data-dn="${n}" aria-label="${v.m}월 ${v.d}일 ${dd.name}, ${LV[dd.lv].chip}">`
-        + `<span class="c-n">${v.d}</span><span class="c-m">${dd.name}</span></button>`;
+      const sc = n >= today ? dayScore(n) : null, w = sc && sc.w;
+      if (w && w.lv === 2) cls.push('wx-bad');
+      const star = sc && sc.score === 4;
+      const wtxt = w ? (w.wave != null ? `${w.wave.toFixed(1)}m` : CW_NAME[w.icon]) : '';
+      html += `<button class="${cls.join(' ')}" data-dn="${n}" aria-label="${v.m}월 ${v.d}일 ${dd.name}, ${LV[dd.lv].chip}${w ? `, ${CW_NAME[w.icon]}${w.wind != null ? `, 바람 초속 ${w.wind}미터` : ''}${w.wave != null ? `, 파도 ${w.wave.toFixed(1)}미터` : ''}` : ''}${star ? ', 출조 추천' : ''}">`
+        + (star ? '<span class="c-star" aria-hidden="true">★</span>' : '')
+        + `<span class="c-n">${v.d}</span><span class="c-m">${dd.name}</span>`
+        + `<span class="c-v${w && w.lv > 0 ? ' w' + w.lv : ''}">${w ? `<i class="c-w ${w.icon}" aria-hidden="true">${CW_ICO[w.icon]}</i>` : ''}${wtxt}</span></button>`;
     }
     return html;
   }
@@ -1749,7 +1846,7 @@ const TideHarm = (() => {
     function choose(k, delay) {
       tideSt = k;
       try { localStorage.setItem('jjukgap-station', tideSt); } catch (_) {}
-      paintBtn(); paintList(); renderTide();
+      paintBtn(); paintList(); renderTide(); renderCal();
       setTimeout(() => close(), delay);
     }
     list.addEventListener('click', e => {
@@ -1887,6 +1984,10 @@ const TideHarm = (() => {
   };
   // 휠·터치로 직접 스크롤하면 진행 중이던 자동 이동은 멈춘다
   ['wheel', 'touchstart'].forEach(ev => addEventListener(ev, () => cancelAnimationFrame(scrollRaf), { passive: true }));
+  $('pick-row').addEventListener('click', e => {
+    const b = e.target.closest('[data-dn]');
+    if (b) { const n = +b.dataset.dn; select(n); window.scrollTo({ top: 0, behavior: motion() }); }
+  });
   $('cal').addEventListener('click', e => {
     const b = e.target.closest('[data-dn]');
     if (b) { select(+b.dataset.dn); window.scrollTo({ top: 0, behavior: motion() }); }
@@ -1958,5 +2059,5 @@ const TideHarm = (() => {
 </script>
 
 <script>
-if ('serviceWorker' in navigator) addEventListener('load', () => navigator.serviceWorker.register('sw.js?v=c2397c69').catch(() => {}));
+if ('serviceWorker' in navigator) addEventListener('load', () => navigator.serviceWorker.register('sw.js?v=6bb5b6e6').catch(() => {}));
 </script>
