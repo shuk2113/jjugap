@@ -210,6 +210,13 @@ h2{margin:0; font-size:16px; font-weight:700; text-wrap:balance}
 .mv-scale{position:absolute; left:10px; bottom:10px; transform:translate3d(0,calc(-1 * var(--sheet-h, 0px)),0); transition:transform .28s cubic-bezier(.2,.85,.25,1); display:flex; flex-direction:column; gap:2px; font-size:10.5px; font-weight:700; color:var(--map-lab); pointer-events:none}
 .mv-scale i{display:block; height:5px; border:1.5px solid var(--map-lab); border-top:0}
 .mv-attr{position:absolute; right:6px; bottom:6px; transform:translate3d(0,calc(-1 * var(--sheet-h, 0px)),0); transition:transform .28s cubic-bezier(.2,.85,.25,1); padding:1px 6px; border-radius:7px; background:var(--map-sea); font-size:9.5px; color:var(--map-lab); opacity:.85; pointer-events:none}
+.mv-fab{position:absolute; left:0; top:0; z-index:1; width:54px; height:54px; padding:0; border:0; background:none; touch-action:none; -webkit-touch-callout:none; -webkit-user-select:none; user-select:none; -webkit-tap-highlight-color:transparent; will-change:transform; transition:opacity .18s}
+.mv-fab > span{display:grid; place-items:center; width:100%; height:100%; border-radius:50%; background:#2F7DF6; color:#fff; box-shadow:0 3px 10px rgba(0,0,0,.28); transition:transform .16s cubic-bezier(.2,.85,.25,1), box-shadow .16s}
+.mv-fab svg{width:26px; height:26px}
+.mv-fab:active > span{transform:scale(.94)}
+.mv-fab.lift > span{transform:scale(1.14); box-shadow:0 10px 24px rgba(0,0,0,.35)}
+.mv-fab.off{opacity:0; pointer-events:none}
+.mv-fab:focus-visible{outline:none} .mv-fab:focus-visible > span{outline:3px solid #fff; outline-offset:-6px}
 .mv-toast{position:absolute; left:50%; top:12px; transform:translateX(-50%); max-width:calc(100% - 90px); padding:8px 14px; border-radius:999px; background:rgba(8,20,24,.82); color:#fff; font-size:12.5px; font-weight:600; text-align:center; pointer-events:none}
 .mv-sheet{position:absolute; left:0; right:0; bottom:0; z-index:2; will-change:transform; display:flex; flex-direction:column; background:var(--card); border-radius:18px 18px 0 0; box-shadow:0 -4px 16px rgba(0,0,0,.12)}
 .mv-grab{flex:none; height:22px; display:flex; align-items:center; justify-content:center; touch-action:none; cursor:grab; -webkit-tap-highlight-color:transparent}
@@ -720,6 +727,7 @@ h2{margin:0; font-size:16px; font-weight:700; text-wrap:balance}
     </div>
     <div class="mv-scale" id="mv-scale"><i></i><span></span></div>
     <div class="mv-attr">지도 © OpenStreetMap 기여자</div>
+    <button class="mv-fab" id="mv-save" type="button" aria-label="포인트 저장 (꾹 누르면 자리를 옮길 수 있어요)"><span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21.3s-6.6-5.9-6.6-11.3a6.6 6.6 0 0 1 13.2 0c0 5.4-6.6 11.3-6.6 11.3z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M12 7v6M9 10h6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg></span></button>
     <div class="mv-toast" id="mv-toast" hidden></div>
   </div>
   <div class="mv-sheet" id="mv-sheet">
@@ -3054,7 +3062,8 @@ const TideHarm = (() => {
       const src = i.spot ? `물 높이·만조·간조: 이 자리 바다 격자 (해양조사원 TideBED·${esc(i.spot.ref)} 기준).` : `물 높이·만조·간조: 가장 가까운 출항지(${esc(TideHarm.STATIONS[i.k].name)}) 기준${spState === 'loading' ? ' (이 자리 자료를 불러오는 중)' : ''}.`;
       const csrc = (c ? (c.model ? ' 조류: 수치예측모델(ROMS) 값 — 시각은 잘 맞지만 세기는 다를 수 있어요.'
         : ` 조류: 가장 가까운 조류예보 지점 값${c.d > 8 ? ` (${kmTxt(c.d)} 떨어져 다를 수 있어요)` : ''}.`) : '')
-        + (i.wtModel ? ' 수온: 모델 예측이라 관측과 1℃쯤 다를 수 있어요.' : '') + (SP ? ' 화살표: 진한 것 조류예보 지점, 옅은 것 모델.' : '');
+        + (i.wtModel ? ' 수온: 모델 예측이라 관측과 1℃쯤 다를 수 있어요.' : '') + (SP ? ' 화살표: 진한 것 조류예보 지점, 옅은 것 모델.' : '')
+        + ' 낚시 정보 확인용이며 항해·안전에는 쓰지 마세요.';
       panel.innerHTML = `
         <div class="mv-where"><b>${esc(short(i.k))}에서 ${i.dir}쪽 ${kmTxt(i.d)}</b><span>${dm(me.lat, 'N', 'S')} ${dm(me.lon, 'E', 'W')}</span></div>
         <div class="mv-grid">
@@ -3068,9 +3077,7 @@ const TideHarm = (() => {
           <div class="mv-c"><small>수온${i.wtName ? ` · ${esc(i.wtName)}` : ''}</small><b>${i.wt == null ? '자료 없음' : `${i.wt.toFixed(1)}℃`}</b>${i.wtModel && i.wtObs ? `<i>관측 ${esc(i.wtObs.name)} ${i.wtObs.w.toFixed(1)}℃ · ${kmTxt(i.wtObs.d)}</i>` : ''}</div>
           <div class="mv-c"><small>다음 최강 조류</small><b>${c && c.peak ? `${tod(c.peak.ms)} · ${knTxt(c.peak.sp)}` : '–'}</b></div>
         </div>
-        <p class="mv-note">${src}${csrc}${wx}</p>
-        <div class="mv-btns"><button class="pri" data-act="save">포인트 저장</button><button data-act="station">${esc(short(i.k))} 기준으로 보기</button></div>
-        <p class="mv-safe">낚시 정보 확인용이에요. 항해·안전에는 쓰지 마세요.</p>`;
+        <p class="mv-note">${src}${csrc}${wx}</p>`;
     }
     // ---------- 포인트 저장 · 목록 · 보기
     const when = t => { const d = new Date(t + 9 * 3600000); return `${d.getUTCMonth() + 1}/${d.getUTCDate()} ${ampm(d.getUTCHours() * 60 + d.getUTCMinutes())}`; };
@@ -3106,14 +3113,14 @@ const TideHarm = (() => {
     const getN = k => (k[0] === 'e' && k !== 'etc' ? form.etc[+k.slice(1)].c : form[k]);
     const setN = (k, n) => { n = clampN(n); if (k[0] === 'e') form.etc[+k.slice(1)].c = n; else form[k] = n; const el = $('mv-n-' + k); if (el && document.activeElement !== el) el.value = n; return n; };
     function showSave() {
-      sheetAtLeast('mid');
+      sheetAtLeast('open');
       if (!me) return;
       const i = infoAt(me); form = { jj: 0, gap: 0, etc: [{ n: '', c: 0 }], memo: '', i, at: Date.now(), lat: me.lat, lon: me.lon, acc: me.acc || 0, virtual: !!me.virtual };
       mode = 'save'; paintForm();
     }
     function showEdit(id) {
       const p = points.find(q => q.id === id); if (!p) return;
-      sheetAtLeast('mid');
+      sheetAtLeast('open');
       const S = TideHarm.STATIONS[p.port] || TideHarm.STATIONS[nearest(p).k];
       form = { edit: id, jj: p.jj || 0, gap: p.gap || 0, etc: (p.etc && p.etc.length ? p.etc : [{ n: '', c: 0 }]).map(e => ({ n: e.n || '', c: e.c || 0 })), memo: p.memo || '', at: p.t,
         where: `${short(p.port)}에서 ${dirOf(S, p)}쪽 ${kmTxt(distKm(S, p))}`, cond: `${p.mul} · ${p.stand ? p.stand.replace(' · ', ' ') : (p.rising ? '들물' : '날물')} ${meters(p.h)}` };
@@ -3150,16 +3157,16 @@ const TideHarm = (() => {
     panel.addEventListener('keydown', e => { if (e.key === 'Enter' && e.target.classList.contains('mv-n')) e.target.blur(); });
 
     function showList() {
-      sheetAtLeast('mid');
+      sheetAtLeast('open');
       mode = 'list';
       panel.innerHTML = `<div class="mv-h"><b>저장한 포인트 ${points.length}곳</b><span>이 폰에만 저장돼요</span></div>` +
         (points.length ? `<ul class="mv-list">${points.map(p => { const S = TideHarm.STATIONS[p.port] || TideHarm.STATIONS[nearest(p).k];
           return `<li><button data-act="pick" data-id="${p.id}"><b>${when(p.t)} · ${esc(catchTxt(p))}</b><span>${esc(short(p.port))}에서 ${dirOf(S, p)}쪽 ${kmTxt(distKm(S, p))} · ${p.mul} · 조류 ${pctTxt(p)}${p.wt == null ? '' : ` · 수온 ${p.wt.toFixed(1)}℃`}</span></button></li>`; }).join('')}</ul>`
-          : `<p class="mv-empty">아직 저장한 포인트가 없어요. 배 위에서 '포인트 저장'을 누르면 그 자리와 물때·조류·수온이 함께 남아요.</p>`) +
+          : `<p class="mv-empty">아직 저장한 포인트가 없어요. 배 위에서 지도 아래 파란 핀 단추를 누르면 그 자리와 물때·조류·수온이 함께 남아요.</p>`) +
         `<div class="mv-btns"><button data-act="back">닫기</button></div>`;
     }
     function showDetail(id, ask) {
-      sheetAtLeast('mid');
+      sheetAtLeast('open');
       const p = points.find(q => q.id === id); if (!p) { mode = 'info'; selId = null; paintPanel(true); return; }
       mode = 'detail'; selId = id; const S = TideHarm.STATIONS[p.port];
       panel.innerHTML = `
@@ -3181,7 +3188,6 @@ const TideHarm = (() => {
     panel.addEventListener('click', e => {
       const b = e.target.closest('[data-act]'); if (!b) return; const a = b.dataset.act;
       if (a === 'save') showSave();
-      else if (a === 'station') { if (setStation && me) { setStation(nearest(me).k); close(); } }
       else if (a === 'inc' || a === 'dec') { const k = b.dataset.k, el = $('mv-n-' + k); const n = setN(k, getN(k) + (a === 'inc' ? 1 : -1)); if (el) el.value = n; }
       else if (a === 'fish') {   // 자주 잡히는 어종: 빈 줄에 이름을 넣고 한 마리로 (빈 줄이 없으면 줄을 더한다)
         let j = form.etc.findIndex(e => !e.n.trim());
@@ -3241,30 +3247,47 @@ const TideHarm = (() => {
     function wakeOff() { try { wake && wake.release(); } catch (_) {} wake = null; }
     document.addEventListener('visibilitychange', () => { if (isOpen && document.visibilityState === 'visible') { wakeOn(); paintPanel(true); } });
 
-    // ---------- 아래 정보 판: 손잡이나 맨 윗줄을 끌어 올리고 내린다 (작게 · 가운데 · 크게, 놓으면 가까운 높이로)
+    // ---------- 아래 정보 판: 접기(맨 윗줄만) · 펼치기(내용에 딱 맞는 높이) 두 가지
+    // 손잡이를 톡 누르거나 위·아래로 쓸면 한 번에 그 높이로 간다 (중간에 멈추지 않는다)
     // 움직이는 동안에는 판의 높이를 바꾸지 않고 위치(transform)만 옮겨서 매끄럽게, 다 움직인 뒤에 높이를 맞춘다
-    const sheet = $('mv-sheet'), grab = $('mv-grab'), SHEET_KEY = 'jjukgap-sheet', ORDER = ['peek', 'mid', 'full'], EASE = 'transform .28s cubic-bezier(.2,.85,.25,1)';
-    let sheetMode = 'mid', drag = null, boxH = 0, shownH = 0, animT = 0;
-    try { const m = localStorage.getItem(SHEET_KEY); if (ORDER.includes(m)) sheetMode = m; } catch (_) {}
+    const sheet = $('mv-sheet'), grab = $('mv-grab'), SHEET_KEY = 'jjukgap-sheet', ORDER = ['peek', 'open'], DUR = '.3s cubic-bezier(.2,.85,.25,1)', EASE = 'transform ' + DUR;
+    let sheetMode = 'open', drag = null, boxH = 0, shownH = 0, animT = 0, fitRaf = 0;
+    const fab = $('mv-save'), FAB_KEY = 'jjukgap-fab', FAB_R = 27;
+    let fabPos = null, fabLive = null, fabDrag = null;
+    try { if (localStorage.getItem(SHEET_KEY) === 'peek') sheetMode = 'peek'; } catch (_) {}
     coverH = () => (sheet.isConnected ? grab.offsetHeight + shownH : 0);
+    // 내용이 실제로 차지하는 높이 (판 높이와 상관없이)
+    function contentH() {
+      const last = panel.lastElementChild, padB = parseFloat(getComputedStyle(panel).paddingBottom) || 12;
+      if (!last) return 40;
+      return Math.ceil(last.offsetTop + last.offsetHeight + (parseFloat(getComputedStyle(last).marginBottom) || 0) + padB);
+    }
     function sheetHeights() {
-      const vh = view.clientHeight || innerHeight, top = panel.firstElementChild;
+      const vh = view.clientHeight || innerHeight, top = panel.firstElementChild, mapTop = box.offsetTop || 0;
       const padB = parseFloat(getComputedStyle(panel).paddingBottom) || 12;
       const peek = Math.round(Math.min(150, (top ? top.offsetTop + top.offsetHeight : 30) + padB + 6));
-      return { peek, mid: Math.round(vh * 0.44), full: Math.round(vh * 0.78) };
+      const most = Math.round(Math.min(vh * 0.82, vh - mapTop - 96) - grab.offsetHeight);   // 지도가 조금은 보이게
+      return { peek, open: Math.max(peek, Math.min(most, contentH())) };
     }
     const setBox = h => { if (h !== boxH) { boxH = h; panel.classList.add('sized'); panel.style.height = h + 'px'; } };
     const setY = (y, anim) => { sheet.style.transition = anim ? EASE : 'none'; sheet.style.transform = y ? `translate3d(0,${y}px,0)` : ''; };
-    const setCover = (h, anim) => { shownH = h; view.classList.toggle('mv-drag', !anim); view.style.setProperty('--sheet-h', Math.round(h + grab.offsetHeight) + 'px'); };
-    // 판이 h 만큼 보이도록 (anim 이면 미끄러지듯)
+    const setCover = (h, anim) => { shownH = h; view.classList.toggle('mv-drag', !anim); view.style.setProperty('--sheet-h', Math.round(h + grab.offsetHeight) + 'px'); placeFab(anim); };
+    // 지금 화면에 실제로 보이는 판 높이 (움직이는 도중이어도)
+    function visH() {
+      if (!boxH) return shownH;
+      const t = getComputedStyle(sheet).transform; let y = 0;
+      if (t && t !== 'none') { const m = t.match(/matrix(3d)?\(([^)]+)\)/); if (m) { const a = m[2].split(',').map(parseFloat); y = m[1] ? a[13] : a[5]; } }
+      return boxH - (y || 0);
+    }
+    // 판이 h 만큼 보이도록 (anim 이면 미끄러지듯, 움직이는 도중에 바뀌어도 지금 자리에서 이어서)
     function showTo(h, anim) {
       clearTimeout(animT); h = Math.round(h);
       if (!anim || !boxH) { setY(0, false); setBox(h); setCover(h, false); return; }
-      const cur = shownH || h, top = Math.max(boxH, h, cur);
+      const cur = visH(), top = Math.max(boxH, h, Math.ceil(cur));
       setY(top - cur, false); setBox(top); void sheet.offsetHeight;   // 지금 모습 그대로 높이만 넉넉히
       setY(top - h, true); setCover(h, true);
-      const done = () => { clearTimeout(animT); sheet.removeEventListener('transitionend', done); if (shownH !== h) return; setY(0, false); setBox(h); };
-      sheet.addEventListener('transitionend', done); animT = setTimeout(done, 380);
+      const done = () => { clearTimeout(animT); sheet.removeEventListener('transitionend', done); if (shownH !== h || drag) return; setY(0, false); setBox(h); };
+      sheet.addEventListener('transitionend', done); animT = setTimeout(done, 400);
     }
     function applySheet(anim) {
       showTo(sheetHeights()[sheetMode], anim);
@@ -3274,41 +3297,108 @@ const TideHarm = (() => {
       sheetMode = m; try { localStorage.setItem(SHEET_KEY, m); } catch (_) {}
       applySheet(anim);
     }
-    function sheetAtLeast(m) { if (ORDER.indexOf(sheetMode) < ORDER.indexOf(m)) { sheetMode = m; applySheet(true); } }
+    // 저장·목록 화면을 열 때: 접혀 있으면 펼친다 (높이는 새 내용을 그린 뒤 refit 이 맞춘다)
+    function sheetAtLeast(m) { if (ORDER.indexOf(sheetMode) < ORDER.indexOf(m)) { sheetMode = m; if (!fitRaf) fitRaf = requestAnimationFrame(refit); } }
     function dragStart(e, tap) {
       if (e.button > 0) return;
-      clearTimeout(animT);
-      const hs = sheetHeights(), now = performance.now();
-      // 끄는 동안 판 높이는 가장 크게 두고 위치만 옮긴다
-      const vis = shownH || hs[sheetMode]; setY(hs.full + 20 - vis, false); setBox(hs.full + 20);
-      drag = { id: e.pointerId, y0: e.clientY, h0: vis, y: e.clientY, t: now, v: 0, moved: false, tap, hs };
+      const vis = visH(); clearTimeout(animT);
+      const hs = sheetHeights(), now = performance.now(), big = Math.max(hs.open, vis) + 24;
+      // 끄는 동안 판 높이는 넉넉히 두고 위치만 옮긴다 (움직이던 중이면 그 자리에서 멈춰 잡는다)
+      setY(big - vis, false); setBox(big); setCover(vis, false);
+      drag = { id: e.pointerId, y0: e.clientY, h0: vis, y: e.clientY, t: now, v: 0, moved: false, tap, hs, big };
       try { e.currentTarget.setPointerCapture(e.pointerId); } catch (_) {}
     }
     function dragMove(e) {
       if (!drag || e.pointerId !== drag.id) return;
-      const dy = e.clientY - drag.y0; if (Math.abs(dy) > 5) drag.moved = true;
+      const dy = e.clientY - drag.y0; if (Math.abs(dy) > 6) drag.moved = true;
       if (!drag.moved) return;
       const now = performance.now(), dt = Math.max(1, now - drag.t); drag.v = 0.5 * drag.v + 0.5 * ((e.clientY - drag.y) / dt); drag.y = e.clientY; drag.t = now;
-      const hs = drag.hs, h = Math.max(hs.peek - 24, Math.min(hs.full + 20, drag.h0 - dy));
-      setY(boxH - h, false); setCover(h, false);
+      const hs = drag.hs; let h = drag.h0 - dy;
+      // 두 높이 밖으로는 살짝만 따라온다
+      if (h > hs.open) h = hs.open + Math.min(24, (h - hs.open) * 0.3); else if (h < hs.peek) h = hs.peek - Math.min(24, (hs.peek - h) * 0.3);
+      setY(drag.big - h, false); setCover(h, false);
       e.preventDefault();
     }
     function dragEnd(e) {
       if (!drag || e.pointerId !== drag.id) return;
       const d = drag; drag = null;
-      if (!d.moved) { if (e.type === 'pointerup' && d.tap) setMode(sheetMode === 'peek' ? 'mid' : 'peek'); else applySheet(true); return; }
-      const hs = d.hs, h = shownH;
-      let m = ORDER.reduce((a, b) => (Math.abs(hs[b] - h) < Math.abs(hs[a] - h) ? b : a));
-      if (Math.abs(d.v) > 0.35) { const i = ORDER.indexOf(sheetMode), j = Math.max(0, Math.min(2, i + (d.v > 0 ? -1 : 1))); if ((d.v > 0 && hs[ORDER[j]] < h + 40) || (d.v < 0 && hs[ORDER[j]] > h - 40)) m = ORDER[j]; }
+      // 톡: 접혀 있으면 펼치고, 펼쳐져 있으면 접는다
+      if (!d.moved) { if (e.type === 'pointerup' && d.tap) setMode(sheetMode === 'peek' ? 'open' : 'peek'); else applySheet(true); return; }
+      // 쓸기: 조금만 움직여도 그 방향 끝까지 (달력 넘기듯)
+      const dy = e.clientY - d.y0; let m = sheetMode;
+      if (Math.abs(d.v) > 0.25 && Math.abs(dy) > 8) m = d.v < 0 ? 'open' : 'peek';
+      else if (dy < -24) m = 'open'; else if (dy > 24) m = 'peek';
       setMode(m, true);
     }
-    // 손잡이: 톡 누르면 접기·펼치기, 끌면 높이 바꾸기
+    // 손잡이: 톡 누르면 접기·펼치기, 쓸어 올리고 내리기
     grab.addEventListener('pointerdown', e => dragStart(e, true));
     for (const el of [grab, panel]) { el.addEventListener('pointermove', dragMove); el.addEventListener('pointerup', dragEnd); el.addEventListener('pointercancel', dragEnd); }
-    grab.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setMode(sheetMode === 'peek' ? 'mid' : 'peek'); } });
+    grab.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setMode(sheetMode === 'peek' ? 'open' : 'peek'); } });
     // 판의 맨 윗줄(어디서 몇 km · 제목)을 잡아도 끌 수 있다
     panel.addEventListener('pointerdown', e => { if (e.target.closest('.mv-where, .mv-h')) dragStart(e, false); });
     addEventListener('resize', () => { if (isOpen) applySheet(false); });
+    // 판 내용이 바뀌면(정보가 늘거나 줄면, 저장·목록 화면으로 바뀌면) 높이를 내용에 다시 딱 맞춘다
+    new MutationObserver(() => { if (!fitRaf) fitRaf = requestAnimationFrame(refit); }).observe(panel, { childList: true, subtree: true, characterData: true });
+    function refit() {
+      fitRaf = 0; if (fab) fab.classList.toggle('off', mode === 'save' || mode === 'pick');
+      if (!isOpen || drag) return;
+      const h = sheetHeights()[sheetMode]; if (Math.abs(h - shownH) > 1) showTo(h, true);
+      grab.setAttribute('aria-label', sheetMode === 'peek' ? '정보 판 펼치기' : '정보 판 접기');
+    }
+    // ---------- 포인트 저장 단추: 톡 누르면 저장, 꾹 누른 채 움직이면 원하는 자리로 옮긴다 (자리는 이 폰에 기억)
+    // 자리는 지도 칸 안의 비율로 기억하고, 정보 판이 올라와 가리게 되면 판 바로 위로 비켜 선다
+    try { const o = JSON.parse(localStorage.getItem(FAB_KEY) || 'null'); if (o && Number.isFinite(o.x) && Number.isFinite(o.y)) fabPos = o; } catch (_) {}
+    function fabLimits() {
+      const bw = box.clientWidth, bh = box.clientHeight, cover = shownH + grab.offsetHeight;
+      return { bw, bh, x0: FAB_R + 10, x1: bw - FAB_R - 10, y0: FAB_R + 10, y1: Math.max(FAB_R + 10, bh - cover - FAB_R - 26) };   // 판 위 축척·지도 출처 글씨 자리는 비운다
+    }
+    function placeFab(anim) {
+      if (!fab) return; const L = fabLimits(); if (!L.bw) return;
+      const p = fabLive || fabPos || { x: 1, y: 1 };
+      const cx = Math.max(L.x0, Math.min(L.x1, p.x * L.bw)), cy = Math.max(L.y0, Math.min(L.y1, p.y * L.bh));
+      fab.style.transition = anim ? EASE + ', opacity .18s' : 'opacity .18s';
+      fab.style.transform = `translate3d(${Math.round(cx - FAB_R)}px,${Math.round(cy - FAB_R)}px,0)`;
+    }
+    fab.addEventListener('contextmenu', e => e.preventDefault());
+    fab.addEventListener('pointerdown', e => {
+      if (e.button > 0) return; e.stopPropagation();
+      try { fab.setPointerCapture(e.pointerId); } catch (_) {}
+      const d = fabDrag = { id: e.pointerId, x0: e.clientX, y0: e.clientY, lifted: false, moved: false };
+      d.timer = setTimeout(() => {
+        if (fabDrag !== d) return; d.lifted = true; fab.classList.add('lift');
+        try { navigator.vibrate && navigator.vibrate(15); } catch (_) {}
+        toast('원하는 자리로 옮겨 놓으세요');
+      }, 450);
+    });
+    fab.addEventListener('pointermove', e => {
+      const d = fabDrag; if (!d || e.pointerId !== d.id) return; e.stopPropagation();
+      if (!d.lifted) { if (Math.hypot(e.clientX - d.x0, e.clientY - d.y0) > 10) { clearTimeout(d.timer); d.moved = true; } return; }
+      e.preventDefault();
+      const r = box.getBoundingClientRect(); fabLive = { x: (e.clientX - r.left) / r.width, y: (e.clientY - r.top) / r.height }; placeFab(false);
+    });
+    function fabUp(e) {
+      const d = fabDrag; if (!d || e.pointerId !== d.id) return; e.stopPropagation(); clearTimeout(d.timer); fabDrag = null;
+      if (d.lifted) {
+        fab.classList.remove('lift');
+        if (fabLive) {
+          const L = fabLimits(), cx = fabLive.x * L.bw; let cy = fabLive.y * L.bh;
+          // 오른쪽 위 확대·내 위치 단추를 가리면 그 바로 아래로 비켜 놓는다
+          const tb = box.querySelector('.mv-tools'), br = box.getBoundingClientRect(), tr = tb && tb.getBoundingClientRect();
+          if (tr && cx + FAB_R > tr.left - br.left - 4 && cy - FAB_R < tr.bottom - br.top + 4) { cy = tr.bottom - br.top + 12 + FAB_R; fabLive.y = cy / L.bh; }
+          // 판 바로 위에 내려놓으면 판을 따라 오르내리게
+          fabPos = { x: Math.round(Math.max(L.x0, Math.min(L.x1, fabLive.x * L.bw)) / L.bw * 1000) / 1000, y: cy >= L.y1 - 30 ? 1 : Math.round(Math.max(L.y0, cy) / L.bh * 1000) / 1000 };
+          try { localStorage.setItem(FAB_KEY, JSON.stringify(fabPos)); } catch (_) {}
+        }
+        fabLive = null; placeFab(true); return;
+      }
+      if (!d.moved && e.type === 'pointerup') saveHere();
+    }
+    fab.addEventListener('pointerup', fabUp); fab.addEventListener('pointercancel', fabUp);
+    fab.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); saveHere(); } });
+    function saveHere() {
+      if (!me) { toast('위치를 찾는 중이에요. 잠시 뒤에 눌러 주세요'); return; }
+      showSave();
+    }
     // ---------- 새 출항지 만들기: 그 자리 바다 격자(TideBED 기준 관측소 × 조고비, 조시차)를 한 벌의 조화상수로 합친다
     // (조시차만큼 늦추는 것은 분조마다 위상을 돌려서) → 앱의 다른 출항지와 똑같이 하루 곡선·만조·간조를 계산할 수 있다
     function buildPort(name, sub, lat, lon) {
@@ -3351,7 +3441,7 @@ const TideHarm = (() => {
     function openPick(cb) {
       pickCb = cb; open(); mode = 'pick'; follow = false; $('mv-me').classList.remove('on');
       const S = TideHarm.STATIONS[tideSt]; v.s = Math.max(v.s, 9000); placeAt(S.lon, S.lat, focusY());
-      sheetAtLeast('mid'); paintPick(); draw();
+      sheetAtLeast('open'); paintPick(); draw();
       fetch('data/ports.json').then(r => r.json()).then(d => { portsList = d; }).catch(() => {});
     }
     panel.addEventListener('click', e => {
@@ -3685,7 +3775,7 @@ if ('serviceWorker' in navigator) addEventListener('load', () => {
   const sw = navigator.serviceWorker; let ctl = sw.controller, reloading = false;
   // 새 버전이 올라오면 한 번 새로 열어 바로 반영 (처음 설치할 때는 제외)
   sw.addEventListener('controllerchange', () => { if (ctl && !reloading) { reloading = true; location.reload(); } ctl = sw.controller; });
-  sw.register('sw.js?v=a75ac5f5').then(reg => {
+  sw.register('sw.js?v=2f6d6e23').then(reg => {
     // 앱을 켜 둔 채 다른 화면에 갔다 돌아오면 새 버전이 있는지 확인
     document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') reg.update().catch(() => {}); });
   }).catch(() => {});
