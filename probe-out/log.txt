@@ -1,1583 +1,240 @@
-(재단)천리포수목원 (Cheollipo Arboretum) | 36.8128 | 126.15865 | n | leisure=garden;name:ko-Latn=( Jaedan ) Cheolliposumokwon;tourism=picnic_site
-24시 전주 오천집 | 37.55609 | 126.93494 | n | addr:city=서울특별시;addr:district=서대문구;addr:housenumber=75;addr:street=신촌로;addr:unit
-Kwater 시화조력관리단 | 37.31295 | 126.60949 | w | landuse=industrial
-NH-OIL 오천농협원산도지점 | 36.36835 | 126.42441 | n | addr:city=보령시;addr:housenumber=66;addr:postcode=33411;addr:province=충청남도;addr:st
-S-OIL 오천만주유소 | 37.57916 | 127.07932 | w | addr:city=서울특별시;addr:district=중랑구;addr:housenumber=547;addr:postcode=02235;addr:
-강영목정형외과 | 37.4896 | 126.86529 | n | amenity=doctors;healthcare=doctor;name:ko-Latn=Gangyeongmokjeonghyeongoegwa
-격포교차로 | 35.61851 | 126.48169 | n | junction=yes
-격포로 | 35.61433 | 126.48039 | w | highway=secondary;surface=asphalt
-격포로 | 35.62525 | 126.47226 | w | bridge=yes;highway=secondary;layer=1;surface=asphalt
-격포로 | 35.63311 | 126.48049 | w | highway=secondary;surface=asphalt
-격포리 | 35.62621 | 126.47109 | n | name:el=Γκιόκπο-ρι;name:ko-Latn=Gyeokpo-ri;place=village
-격포아구 | 35.72343 | 126.73018 | w | addr:housenumber=73-1;addr:street=오리정로;amenity=restaurant;building=yes
-격포어촌계회센타 A동 | 35.62352 | 126.47036 | w | addr:housenumber=24-8;addr:street=격포항길;amenity=restaurant;building=yes;cuisine=s
-격포어촌계회센타 B동 | 35.62341 | 126.46996 | w | addr:housenumber=24-8;addr:street=격포항길;amenity=restaurant;building=yes;cuisine=s
-격포우체국 | 35.62459 | 126.47209 | n | amenity=post_office;name:ko-Latn=Gyeokpoucheguk
-격포유람선 | 35.62283 | 126.46755 | n | leisure=marina;phone=+82 63-581-5200
-격포중앙길 | 35.62194 | 126.47142 | w | highway=tertiary
-격포채석강횟집 | 35.62731 | 126.47194 | n | amenity=restaurant;name:ko-Latn=Gyeokpochaeseokganghoetjip
-격포초등학교 | 35.62611 | 126.47431 | w | amenity=school;isced:level=1
-격포초등학교병설유치원 | 35.62575 | 126.47413 | n | amenity=kindergarten;name:ko-Latn=Gyeokpochodeunghakgyobyeongseolyuchiwon
-격포탐방지원센터 | 35.62806 | 126.47082 | n | office=yes
-격포터미널 | 35.62207 | 126.47189 | n | amenity=bus_station;name:ko-Latn=Gyeokpoteomineol
-격포항 - 위도 | 35.62314 | 126.38138 | w | duration=00:50;route=ferry
-격포항길 | 35.62191 | 126.47122 | w | highway=residential
-경원여객/시흥교통 오이도영업소 | 37.3411 | 126.69667 | w | building=yes;industrial=depot;landuse=industrial;layer=1
-공립영흥어린이집 | 37.27201 | 126.49348 | w | amenity=kindergarten
-구광모항외과 | 37.20604 | 127.03918 | n | amenity=hospital
-구매항구펜션 | 36.41624 | 126.4081 | n | name:ko-Latn=Gumaehanggupensyeon;tourism=chalet
-국가대표안마센터 영흥점 | 37.25592 | 126.48146 | w | addr:housenumber=298;building=yes;shop=massage
-국방과학연구소 태안 안흥시험장 | 36.68139 | 126.18056 | w | landuse=military
-궁평항 | 37.11642 | 126.68134 | w | landuse=industrial;port=fishing;seamark:harbour:category=fishing;seamark:type=ha
-궁평항 산책로 | 37.11792 | 126.68344 | w | bicycle=yes;highway=footway
-궁평항로 | 37.14461 | 126.70085 | w | highway=secondary;lanes=4;surface=asphalt
-궁평항로 | 37.09164 | 126.71099 | w | highway=secondary;ref=301
-궁평항로 | 37.17501 | 126.70626 | w | highway=secondary
-궁평항로 | 37.14918 | 126.70132 | w | highway=residential
-궁평항로 | 37.17028 | 126.70792 | w | highway=secondary;lanes=4;surface=asphalt
-궁평항로 | 37.0531 | 126.76226 | w | highway=secondary;ref=301
-궁평항로 | 37.11674 | 126.68559 | w | highway=secondary;ref=301
-궁평항로 | 37.11872 | 126.68945 | w | highway=secondary;lanes=8
-궁평항로 | 37.11668 | 126.68403 | w | highway=unclassified
-궁평항로 | 37.14714 | 126.70091 | w | highway=residential;oneway=yes
-궁평항로 | 37.14695 | 126.70092 | w | highway=residential;oneway=yes
-궁평항전망대카페 | 37.11557 | 126.68159 | n | amenity=cafe
-김준호의대단한갈비 인천영흥도점 | 37.25751 | 126.4946 | w | addr:housenumber=154;amenity=restaurant;building=yes
-남항주유소 | 37.45335 | 126.61583 | n | amenity=fuel;name:ko-Latn=Namhangjuyuso
-농업회사법인영흥과채류 | 37.24071 | 126.4627 | n | man_made=works
-대부도영흥도산촌카라반 | 37.24518 | 126.4628 | w | group_only=yes;tourism=camp_site
-대영목재산업 | 35.60761 | 127.28861 | w | building=yes;craft=carpenter
-대천 ~ 삽시도 | 36.3457 | 126.42521 | w | route=ferry
-대천항 | 36.33019 | 126.51111 | w | landuse=harbour;name:ja=大川港;wikidata=Q12591869;wikipedia=ko:대천항
-대천항 ~ 원산도(선촌) | 36.35459 | 126.47611 | w | route=ferry
-대천항 ~ 원산도(저두) | 36.34993 | 126.48325 | w | route=ferry
-대천항 ~ 효자도 | 36.34796 | 126.48574 | w | route=ferry
-대천항 회 세꼬시 | 35.95473 | 126.97122 | w | amenity=restaurant;building=yes
-대천항1길 | 36.32381 | 126.50635 | w | highway=residential;review=no;source=Bing (adjusted)
-대천항1길 | 36.32589 | 126.50423 | w | highway=residential
-대천항1길 | 36.32506 | 126.50641 | w | highway=service
-대천항1길 | 36.32527 | 126.50599 | w | highway=residential
-대천항1길 | 36.32481 | 126.50537 | w | highway=residential
-대천항2길 | 36.32721 | 126.50506 | w | highway=residential;oneway=yes;review=no;source=Bing (adjusted)
-대천항2길 | 36.3261 | 126.50528 | w | highway=residential;noname=yes;oneway=yes;review=no;source=Bing (adjusted)
-대천항2길 | 36.32559 | 126.50502 | w | highway=residential
-대천항2길 | 36.32712 | 126.50524 | w | highway=residential
-대천항3길 | 36.32553 | 126.50733 | w | highway=service
-대천항3길 | 36.32505 | 126.50757 | w | highway=service
-대천항3길 | 36.32495 | 126.50888 | w | highway=service
-대천항3길 | 36.32492 | 126.50929 | w | highway=service
-대천항3길 | 36.32519 | 126.50702 | w | highway=service
-대천항4길 | 36.32522 | 126.51132 | w | highway=residential;review=no;source=Bing (adjusted)
-대천항4길 | 36.32591 | 126.50929 | w | highway=primary;ref=36;review=no;source=Bing (adjusted)
-대천항4길 | 36.32494 | 126.51076 | w | highway=service
-대천항로 | 36.31607 | 126.5166 | w | highway=primary;ref=36;77
-대천항로 | 36.32608 | 126.50663 | w | highway=primary;ref=36;review=no;source=Bing (adjusted)
-대천항로 | 36.32819 | 126.50535 | w | highway=residential;review=no;source=Bing (adjusted)
-대천항로 | 36.31848 | 126.51231 | w | highway=primary;maxspeed=30;ref=36;77
-대천항로 | 36.31584 | 126.5258 | w | highway=primary;maxspeed=70;ref=36;77;surface=asphalt
-대천항로 | 36.32581 | 126.50874 | w | highway=residential;oneway=yes
-대천항로 | 36.32407 | 126.50948 | w | highway=primary;ref=36
-대천항로 | 36.3162 | 126.53555 | w | destination=태안;안면;대천항;destination:lang:en=Taean;Anmyeon;Daecheon Harbor;highway=
-대천항로 | 36.3269 | 126.50551 | w | highway=residential;oneway=yes;review=no;source=Bing (adjusted)
-대천항로 | 36.32523 | 126.50954 | w | highway=residential
-대천항로 | 36.31647 | 126.5277 | w | highway=residential
-대천항로 | 36.31894 | 126.52619 | w | highway=service
-대천항로 | 36.31616 | 126.52087 | w | highway=service
-대천항로 | 36.31406 | 126.51993 | w | highway=service
-대천항로 | 36.31427 | 126.52066 | w | bridge=yes;highway=service;layer=1
-대천항로 | 36.3275 | 126.50564 | w | highway=service
-대천항로 | 36.31669 | 126.51482 | w | highway=primary;maxspeed=30;ref=36;77
-대천항로 | 36.32166 | 126.50876 | w | highway=primary;maxspeed=40;ref=36
-대천항선착장 | 36.32838 | 126.51239 | n | amenity=ferry_terminal;ferry=yes;public_transport=station
-대천항중앙길 | 36.32678 | 126.5095 | w | highway=residential;review=no;source=Bing (adjusted)
-드르니길 | 36.59565 | 126.31782 | w | highway=tertiary;surface=asphalt
-드르니길 | 36.58957 | 126.31447 | w | highway=unclassified;surface=asphalt
-드르니길 | 36.58932 | 126.313 | w | highway=unclassified;surface=asphalt
-드르니길 | 36.58931 | 126.31331 | w | highway=unclassified;surface=asphalt
-드르니길 | 36.58965 | 126.31417 | w | highway=unclassified;surface=asphalt
-드르니오션리조트 | 36.59692 | 126.31911 | n | name:ko-Latn=Deureuniosyeollijoteu;tourism=hotel
-드르니항 | 36.58907 | 126.31363 | w | landuse=harbour
-마검포 | 36.62148 | 126.28426 | n | ele=29.7;natural=peak
-마검포 수산 | 36.75065 | 126.3036 | w | addr:city=태안군;addr:housenumber=142;addr:province=충청남도;addr:street=중앙로;addr:subdi
-마검포길 | 36.62202 | 126.31134 | w | highway=tertiary;surface=asphalt
-마검포길 | 36.61287 | 126.29659 | w | highway=unclassified;surface=asphalt
-마검포길 | 36.61703 | 126.28829 | w | highway=unclassified
-마검포길 | 36.60856 | 126.2925 | w | highway=tertiary;surface=asphalt
-마검포길 | 36.61917 | 126.30772 | w | highway=tertiary;surface=asphalt
-마검포위판장 | 36.62234 | 126.28481 | w | addr:city=태안군;addr:housenumber=427-26;addr:province=충청남도;addr:street=마검포길;addr:t
-마량리 | 36.14059 | 126.499 | n | name:el=Μάριανγκ-ρι;name:ko-Latn=Maryang-ri;place=village
-마량포구칠구지횟집 | 36.15279 | 126.52405 | n | amenity=restaurant;name:ko-Latn=Maryangpoguchilgujihoetjip
-마린보이동태해물찜 코다리1번가 오이도점 | 37.34529 | 126.69012 | n | addr:housenumber=31;addr:postcode=15015;addr:street=오이도중앙로;amenity=restaurant;cu
-만리포1길 | 36.78549 | 126.14367 | w | highway=residential
-만리포1길 | 36.78853 | 126.14572 | w | highway=residential
-만리포1길 | 36.78584 | 126.14558 | w | highway=residential
-만리포1길 | 36.78667 | 126.14425 | w | highway=residential
-만리포1길 | 36.78503 | 126.1446 | w | highway=residential
-만리포1길 | 36.7858 | 126.1435 | w | highway=residential
-만리포1길 | 36.7848 | 126.14188 | w | highway=residential
-만리포1길 | 36.78886 | 126.1457 | w | highway=residential
-만리포2길 | 36.78641 | 126.13968 | w | highway=residential
-만리포2길 | 36.78945 | 126.14695 | w | highway=residential
-만리포3길 | 36.78428 | 126.14533 | w | highway=residential
-만리포고등학교 | 36.75984 | 126.19132 | n | amenity=school;isced:level=3;name:ko-Latn=Mallipogodeunghakgyo;wikidata=Q1609479
-만리포모범회집 | 37.4535 | 126.60786 | n | amenity=restaurant;name:ko-Latn=Mallipomobeomhoejip
-만리포수산 | 36.75159 | 126.30253 | w | addr:city=태안군;addr:housenumber=133-5;addr:province=충청남도;addr:street=중앙로;addr:sub
-만리포시외버스정류소 | 36.78357 | 126.14322 | n | amenity=bus_station;bus=yes;public_transport=station
-만리포중학교 | 36.76539 | 126.19376 | n | amenity=school;isced:level=2;name:ko-Latn=Mallipojunghakgyo;wikidata=Q17487111
-만리포한우리펜션 | 36.7639 | 126.16859 | n | name:ko-Latn=Mallipohanuripensyeon;tourism=chalet
-만리포해수욕장 | 36.78691 | 126.1402 | w | name:ko-Hani=萬里浦海水浴場;natural=beach;short_name=만리포;wikidata=Q97208472;wikipedia=k
-만리포헛개나무펜션 | 36.77631 | 126.15062 | n | name:ko-Latn=Mallipoheosgaenamupensyeon;tourism=chalet
-만리포황토펜션 | 36.78367 | 126.14568 | n | tourism=guest_house
-맛있는오천냥식당 | 37.60983 | 127.07652 | n | addr:city=서울특별시;addr:district=중랑구;addr:street=동일로157길;amenity=restaurant
-모항 해수욕장 캠핑장 | 35.58211 | 126.50814 | n | tourism=camp_site
-모항교차로 | 36.77872 | 126.14612 | n | highway=traffic_signals;junction=yes;traffic_signals=signal
-모항교차로 | 36.77868 | 126.14598 | n | highway=traffic_signals;junction=yes;traffic_signals=signal
-모항길 | 35.5846 | 126.5109 | w | highway=tertiary;surface=asphalt
-모항리 | 36.773 | 126.13845 | n | name:el=Μόχανγκ-ρι;name:ko-Latn=Mohang-ri;name:ru=Моханни;place=village
-모항삼거리 | 36.77403 | 126.14839 | n | junction=yes;name:ko-Latn=Mohangsamgeori
-모항저수지 | 36.76443 | 126.12787 | w | natural=water;water=reservoir
-모항초등학교 | 36.77281 | 126.13966 | n | amenity=school;isced:level=1;name:ko-Latn=Mohangchodeunghakgyo;wikidata=Q2108081
-모항초등학교병설유치원 | 36.77296 | 126.13981 | n | amenity=kindergarten;name:ko-Latn=Mohangchodeunghakgyobyeongseolyuchiwon
-모항파도로 | 36.76003 | 126.14085 | w | highway=tertiary
-모항파도로 | 36.75589 | 126.15132 | w | highway=residential
-모항파도로 | 36.73611 | 126.13861 | w | highway=residential
-모항파도로 | 36.7753 | 126.15025 | w | highway=tertiary
-모항항길 | 36.77867 | 126.14593 | w | destination:forward=모항항;destination:lang:en:forward=Mohang Harbor;highway=reside
-모항항길 | 36.77403 | 126.13783 | w | highway=residential
-모항항길 | 36.77776 | 126.13423 | w | highway=residential
-모항항길 | 36.7778 | 126.13912 | w | highway=residential
-모항해나루가족호텔 | 35.58098 | 126.50776 | w | addr:city=부안군;addr:housenumber=73;addr:postcode=56340;addr:province=전북특별자치도;addr
-모항해변길 | 35.58114 | 126.51002 | w | highway=residential
-모항해수욕장 | 35.58259 | 126.50748 | n | name:ko-Latn=Mohanghaesuyokjang;natural=beach;surface=sand
-무창포 해수욕장 | 36.24333 | 126.53427 | w | access=yes;natural=beach;surface=sand
-무창포IC | 36.24202 | 126.56032 | n | highway=motorway_junction;ref=18
-무창포IC | 36.23526 | 126.56278 | n | highway=motorway_junction;ref=18
-무창포로 | 36.24611 | 126.56702 | w | highway=secondary;ref=606
-무창포로 | 36.24613 | 126.55637 | w | highway=secondary;maxspeed=30;ref=606;surface=asphalt
-무창포로 | 36.24588 | 126.54753 | w | highway=secondary;ref=606;surface=asphalt
-무창포로 | 36.24295 | 126.58893 | w | highway=secondary;ref=606
-무창포로 | 36.24382 | 126.58117 | w | highway=secondary;ref=606;surface=asphalt
-무창포로 | 36.24479 | 126.57501 | w | highway=secondary;ref=606
-무창포로 | 36.24659 | 126.55888 | w | highway=secondary;maxspeed=30;ref=606;surface=asphalt
-무창포삼거리 | 36.24278 | 126.58954 | n | junction=yes;name:ko-Latn=Muchangposamgeori
-무창포수산물시장 | 36.24847 | 126.53713 | w | building=yes
-무창포졸음쉼터 | 36.27597 | 126.58079 | n | highway=rest_area;ref=15;toilets=yes
-무창포즐거운민박 | 36.22864 | 126.53754 | n | name:ko-Latn=Muchangpojeulgeounminbak;tourism=motel
-무창포항 | 36.24887 | 126.53709 | n | amenity=ferry_terminal
-무창포항 빨간등대 | 36.24981 | 126.53517 | n | man_made=lighthouse;ref=3244;seamark:light:character=Fl;seamark:light:colour=red
-무창포항 주차장 | 36.24889 | 126.53759 | n | amenity=parking
-무창포항 하얀등대 | 36.25017 | 126.53397 | n | man_made=lighthouse;ref=3244.7;seamark:light:character=Fl;seamark:light:colour=g
-무창포해수욕장 | 36.24478 | 126.53606 | n | name:ko-Latn=Muchangpohaesuyokjang;natural=beach
-무창포해수욕장 제1공영주차장 | 36.24696 | 126.53876 | w | amenity=parking;parking=surface
-무창포해수욕장 제2공영주차장 | 36.24587 | 126.53863 | w | amenity=parking
-박격포 사격장 | 38.04922 | 127.15125 | w | landuse=military;military=range
-박격포 사격장 | 36.10141 | 127.13777 | w | landuse=military;military=training_area
-백사장 | 36.71767 | 127.10716 | n | ele=199;natural=peak
-백사장1길 | 36.58507 | 126.31835 | w | highway=tertiary;surface=asphalt
-백사장1길 | 36.58232 | 126.32502 | w | highway=tertiary
-백사장2길 | 36.58453 | 126.3179 | w | highway=residential;surface=asphalt
-백사장민박 | 36.36359 | 126.43304 | n | addr:city=보령시;addr:housenumber=48-20;addr:postcode=33411;addr:province=충청남도;addr
-백사장사거리 | 36.58226 | 126.32623 | w | area=yes;junction=yes
-백사장해수욕장 | 36.58128 | 126.31328 | n | name:ko-Latn=Baeksajanghaesuyokjang;natural=beach
-백사장해장국 | 36.58495 | 126.31762 | n | amenity=restaurant;cuisine=korean
-백제 오천결사대충혼탑 | 36.26951 | 126.91602 | n | historic=monument;inscription=충남 부여군 부여읍 동남리 궁남지 부근에 소재하고 있는 것으로 황산벌에서 신라군과 싸워 죽
-보령경찰서 오천파출소 | 36.4386 | 126.52238 | n | addr:city=보령시;addr:housenumber=50;addr:postcode=33412;addr:province=충청남도;addr:st
-보령공립오천어린이집 | 36.43223 | 126.5237 | w | addr:city=보령시;addr:housenumber=229;addr:postcode=33412;addr:province=충청남도;addr:s
-부안경찰서 격포파출소 | 35.6261 | 126.47226 | n | amenity=police
-삽시도 | 36.33915 | 126.35397 | w | name:ko-Hani=插矢島;name:zh=插矢島;name:zh-Hans=插矢岛;name:zh-Hant=插矢島;natural=coastline
-삽시도 ~ 장고도 | 36.37554 | 126.35724 | w | route=ferry
-삽시도 성원 민박 | 36.34647 | 126.35707 | n | name:ko-Latn=Sapsido Seongwon Minbak;tourism=motel
-삽시도(밤섬) ~ 대천 (조석간만 차 발생시) | 36.32916 | 126.45436 | w | route=ferry
-삽시도(밤섬) ~ 장고도 (조석간만 차 발생시) | 36.33993 | 126.37357 | w | route=ferry
-삽시도리 | 36.33917 | 126.35559 | n | name:el=Σάπσιντο-ρι;name:ko-Latn=Sapsido-ri;place=village
-삽시도보건진료소 | 36.34748 | 126.35691 | n | amenity=clinic;name:ko-Latn=Sapsidobogeonjinnyoso
-삽시도저수지 | 36.34313 | 126.35443 | w | natural=water;water=reservoir
-삽시도팬션 | 36.33156 | 126.36075 | n | name:ko-Latn=Sapsidopaensyeon;tourism=chalet
-선재영흥7080라이브콘서트 | 37.23334 | 126.53521 | n | amenity=bar
-성해홍원로 | 36.99901 | 126.89366 | w | highway=secondary;oneway=yes;ref=313
-성해홍원로 | 37.01421 | 126.87597 | w | highway=secondary;oneway=yes;ref=302;309;313
-성해홍원로 | 36.98821 | 126.9016 | w | highway=primary;oneway=yes
-성해홍원로 | 36.99917 | 126.89345 | w | highway=secondary;oneway=yes
-성해홍원로 | 37.01429 | 126.87597 | w | highway=secondary;oneway=yes
-성해홍원로 | 36.98825 | 126.90168 | w | highway=secondary;oneway=yes
-소남항 | 37.58562 | 127.03828 | n | addr:city=서울특별시;addr:district=동대문구;addr:floor=1;addr:housenumber=513-1;addr:post
-소남항 | 37.58562 | 127.03828 | n | addr:city=동대문구;addr:housenumber=513-1, 1층 (제기동);addr:province=서울특별시;addr:street=
-소도 ~ 안면도(영목) | 36.40162 | 126.43257 | w | route=ferry
-수려선 오천역터 | 37.25276 | 127.35384 | n | historic=yes
-수영목길 | 37.21708 | 126.59598 | w | highway=residential
-수영목길 | 37.21528 | 126.5947 | w | highway=residential
-수영목길 | 37.2166 | 126.59528 | w | highway=service
-수영목길 | 37.21749 | 126.59689 | w | highway=service
-수영목길 | 37.21799 | 126.59686 | w | highway=residential
-수영목길 | 37.21755 | 126.59542 | w | highway=residential
-수영목길 | 37.21817 | 126.59512 | w | highway=residential
-수영목길 | 37.21851 | 126.5943 | w | highway=residential
-수영목길 | 37.21783 | 126.59376 | w | highway=residential
-수영목길 | 37.2201 | 126.59376 | w | highway=residential
-수영목길 | 37.22159 | 126.59168 | w | highway=service
-수영목길 | 37.22018 | 126.59325 | w | highway=service
-수영목길 | 37.21803 | 126.59794 | w | highway=service
-수영목길 | 37.21759 | 126.59775 | w | highway=service
-수영목길 | 37.21738 | 126.59813 | w | highway=service
-수영목길 | 37.21754 | 126.59773 | w | highway=service
-수영목길 | 37.21715 | 126.59626 | w | highway=service
-수영목길 | 37.21753 | 126.59599 | w | highway=residential
-수영목길 | 37.2173 | 126.59555 | w | highway=residential
-수영목길 | 37.21768 | 126.5952 | w | highway=service
-수영목길 | 37.21824 | 126.59601 | w | highway=service
-수영목길 | 37.21802 | 126.5959 | w | highway=service
-수영목길 | 37.21809 | 126.59509 | w | highway=service
-수영목길 | 37.21874 | 126.59398 | w | highway=service
-수영목길 | 37.21551 | 126.59517 | w | highway=service
-수영목길 | 37.21862 | 126.59638 | w | highway=service
-수영목길 | 37.21877 | 126.59583 | w | highway=service
-수영목길 | 37.21905 | 126.59522 | w | highway=service
-수영목길 | 37.21897 | 126.59332 | w | highway=service
-수영목길 | 37.21763 | 126.59341 | w | highway=service
-수영목길 | 37.22076 | 126.59227 | w | highway=service
-수영목길 | 37.21957 | 126.59511 | w | highway=service
-수영목길 | 37.21826 | 126.59734 | w | highway=residential
-시화나래 조력공원 | 37.31151 | 126.6066 | w | leisure=park
-시화나래 휴게소 | 37.31117 | 126.60641 | w | area=yes;highway=rest_area
-시화나래1로 | 37.31858 | 126.70057 | w | highway=tertiary
-시화나래1로 | 37.3194 | 126.70135 | w | highway=tertiary;lanes=4;lit=yes;oneway=no;surface=asphalt
-시화나래1로 | 37.3175 | 126.69954 | w | highway=tertiary
-시화나래2로 | 37.31488 | 126.70525 | w | foot=yes;highway=secondary;lanes=3;oneway=yes
-시화나래2로 | 37.31485 | 126.70533 | w | foot=yes;highway=secondary;lanes=3;oneway=yes
-시화나래로 | 37.32232 | 126.69658 | w | highway=secondary;lanes=4;lit=yes;oneway=yes;surface=asphalt
-시화나래로 | 37.32099 | 126.6955 | w | highway=secondary;lanes=4;lit=yes;oneway=yes;surface=asphalt
-시화나래로 | 37.32063 | 126.69504 | w | highway=secondary;lanes=4;lit=yes;oneway=yes;surface=asphalt
-시화나래중학교 | 37.32129 | 126.68765 | w | amenity=school;education=school
-시화나래초등학교 | 37.32078 | 126.68892 | w | amenity=school;education=school
-시화호조력발전소 | 37.31347 | 126.61275 | w | landuse=industrial;name:ja=始華湖潮力発電所;operator=한국수자원공사;plant:method=barrage;plant:
-신진도간장게장 | 37.55703 | 126.92279 | n | addr:city=서울특별시;addr:district=마포구;addr:full=서울특별시 마포구 월드컵북로2길 41;addr:housenumbe
-신진도리 | 36.68023 | 126.1404 | n | name:ko-Latn=Sinjindo-ri;place=village
-신진도매마트 | 36.33626 | 127.38053 | n | name:ko-Latn=Sinjindomaemateu;shop=supermarket
-신진도민박 | 36.68282 | 126.13532 | n | name:ko-Latn=Sinjindominbak;tourism=motel
-싸군마켓 영흥도점 | 37.25616 | 126.49946 | w | addr:housenumber=31-1;amenity=marketplace;building=yes
-안면도 ~ 원산도(선촌) | 36.39015 | 126.43356 | w | route=ferry
-안면도 ~ 원산도(초전) | 36.39077 | 126.41798 | w | route=ferry
-안면도백사장어시장 | 36.58453 | 126.31732 | n | landuse=retail;name:ko-Latn=Anmyeondobaeksajangeosijang;shop=supermarket
-안흥 어린이집 | 37.93051 | 127.05002 | w | building=kindergarten
-안흥갈비 | 37.75189 | 127.0693 | n | addr:housenumber=7-10;addr:postcode=11757;addr:street=청사로47번길;amenity=restaurant
-안흥갈비 | 37.59994 | 127.0994 | n | amenity=restaurant;cuisine=양념돼지갈비;삼겹살;목살;냉면;술;공기밥
-안흥갈비 | 37.57415 | 127.07181 | n | addr:city=서울특별시;addr:district=동대문구;addr:floor=2;addr:postcode=153;addr:street=장한
-안흥갈비 암사역점 | 37.54942 | 127.12949 | n | addr:city=서울특별시;addr:district=강동구;addr:housenumber=55;addr:street=상암로;addr:unit=
-안흥갈비답십리점 | 37.57161 | 127.05712 | n | addr:city=동대문구;addr:housenumber=75, 2층 (답십리동);addr:province=서울특별시;addr:street=전농
-안흥갈비중곡점 | 37.56271 | 127.08233 | n | addr:city=광진구;addr:housenumber=373;addr:province=서울특별시;addr:street=능동로;addr:subu
-안흥교사거리 | 37.92914 | 127.04853 | n | junction=yes;name:ko-Latn=Anheunggyosageori
-안흥교차로 | 37.93276 | 127.04628 | n | highway=traffic_signals;traffic_signals=blinker
-안흥교차로 | 37.93266 | 127.04545 | w | highway=tertiary;junction=roundabout;oneway=yes;surface=asphalt
-안흥교회 | 37.92968 | 127.05008 | w | amenity=place_of_worship;building=yes;religion=christian
-안흥교회사거리 | 37.92922 | 127.04989 | n | junction=yes;name:ko-Latn=Anheunggyohoesageori
-안흥국민주택 A동 | 37.92862 | 127.04723 | w | building=apartments;building:levels=2
-안흥국민주택 B동 | 37.92879 | 127.04739 | w | building=apartments
-안흥동 | 37.9296 | 127.03825 | n | name:el=Άνχουνγκ-ντονγκ;place=quarter
-안흥동삼거리 | 36.53272 | 126.49165 | n | junction=yes
-안흥로 | 37.92922 | 127.04987 | w | highway=tertiary
-안흥로 | 37.92613 | 127.03857 | w | highway=tertiary;surface=asphalt
-안흥로 | 37.92903 | 127.04664 | w | highway=tertiary;surface=asphalt
-안흥로 | 37.92825 | 127.04501 | w | highway=tertiary;surface=asphalt
-안흥로11번길 | 37.92803 | 127.04722 | w | highway=residential
-안흥로11번길 | 37.92826 | 127.0459 | w | highway=residential;surface=asphalt
-안흥로11번길 | 37.92755 | 127.04543 | w | highway=residential
-안흥로26번길 | 37.93071 | 127.04482 | w | highway=residential;surface=asphalt
-안흥로26번길 | 37.92933 | 127.04658 | w | highway=residential;surface=asphalt
-안흥로26번길 | 37.92963 | 127.0459 | w | bridge=yes;highway=residential;layer=1;surface=asphalt
-안흥로26번길 | 37.93284 | 127.04332 | w | highway=residential
-안흥로26번길 | 37.93224 | 127.04393 | w | bridge=yes;highway=residential;layer=1
-안흥로26번길 | 37.93369 | 127.04149 | w | highway=residential
-안흥사오층석탑 | 37.52192 | 126.98148 | n | artwork_type=statue;material=stone;statue=pagoda;tourism=artwork;wheelchair=yes
-안흥산 | 37.92105 | 127.03192 | n | natural=peak
-안흥삼거리 | 37.92894 | 127.0453 | n | junction=yes
-안흥성 | 36.68014 | 126.1573 | w | alt_name=안흥진성;barrier=city_wall
-안흥성 | 36.6834 | 126.15794 | w | alt_name=안흥진성;barrier=city_wall
-안흥우체국 | 36.68095 | 126.15302 | n | amenity=post_office;name:ko-Latn=Anheungucheguk
-안흥유람선 | 36.68064 | 126.13532 | n | leisure=marina;name:ko-Latn=Anheungyuramseon
-안흥초등학교 | 36.69581 | 126.17444 | w | addr:city=태안군;addr:housenumber=45;addr:postcode=32131;addr:province=충청남도;addr:st
-안흥초등학교 | 36.69577 | 126.17448 | w | addr:city=태안군;addr:housenumber=45;addr:postcode=32131;addr:province=충청남도;addr:st
-안흥초등학교병설유치원 | 36.70392 | 126.15817 | n | amenity=kindergarten;name:ko-Latn=Anheungchodeunghakgyobyeongseolyuchiwon
-안흥칼국수 | 37.5347 | 127.07808 | n | addr:city=광진구;addr:housenumber=Sep-69;addr:province=서울특별시;addr:street=아차산로40길;ad
-안흥항입구교차로 | 36.68403 | 126.15667 | n | junction=yes
-연안부두로 | 37.45333 | 126.60039 | w | highway=secondary;ref=14
-연안부두로115번길 | 37.44849 | 126.60069 | w | highway=residential
-연안부두로128번길 | 37.44906 | 126.59506 | w | highway=residential
-연안부두로148번길 | 37.44688 | 126.59529 | w | highway=residential
-연안부두로33번길 | 37.45391 | 126.60572 | w | highway=residential
-연안부두로43번길 | 37.45396 | 126.60318 | w | highway=residential
-연안부두로53번길 | 37.45333 | 126.60262 | w | highway=residential
-연안부두로55번길 | 37.45308 | 126.60146 | w | highway=residential
-연안부두로75번길 | 37.45194 | 126.60141 | w | highway=residential
-연안부두참치 | 37.11849 | 126.9161 | n | amenity=restaurant;cuisine=seafood
-영목공인중개사사무소 | 36.39999 | 126.42745 | n | office=estate_agent
-영목선착장 | 36.39955 | 126.42795 | n | amenity=ferry_terminal;ferry=yes;public_transport=station
-영목여객선터미널 | 36.39994 | 126.42776 | n | amenity=ferry_terminal;ferry=yes;public_transport=station
-영목여객선터미널 | 36.39997 | 126.42776 | w | amenity=ferry_terminal;building=yes;ferry=yes;public_transport=station
-영목항 | 36.39877 | 126.42691 | n | amenity=ferry_terminal;ferry=yes;public_transport=station
-영목항로 | 36.40005 | 126.42645 | w | highway=residential
-영목항로 | 36.40242 | 126.42414 | w | highway=tertiary;surface=asphalt
-영목항로 | 36.40046 | 126.4262 | w | highway=tertiary;surface=asphalt
-영목항로 | 36.40147 | 126.42625 | w | highway=service
-영목항로 | 36.40052 | 126.42776 | w | highway=service
-영흥 백쓰부 | 37.2652 | 126.49591 | w | addr:housenumber=158;amenity=restaurant;building=yes
-영흥119안전센터 | 37.25639 | 126.48387 | w | addr:housenumber=283-32;amenity=fire_station;building=yes
-영흥142 | 37.24449 | 126.46445 | n | guest_house=pension;tourism=guest_house
-영흥36패밀리 | 37.28265 | 126.46184 | n | tourism=hotel
-영흥가든 | 37.25959 | 126.49925 | w | addr:housenumber=80;amenity=restaurant;building=yes
-영흥각 | 37.24388 | 126.45286 | n | amenity=restaurant
-영흥감리교회 | 37.25739 | 126.46072 | n | amenity=place_of_worship;religion=christian
-영흥고개 | 37.68917 | 126.83175 | n | natural=saddle
-영흥곰탕 | 37.25389 | 126.51367 | w | addr:housenumber=340;amenity=restaurant;building=yes
-영흥공공재활용선별장 | 37.2498 | 126.46681 | n | amenity=recycling;recycling_type=centre
-영흥교회 | 37.55363 | 126.8416 | w | addr:city=서울특별시;addr:district=강서구;addr:housenumber=15;addr:postcode=07683;addr:s
-영흥그린빌 | 37.24504 | 126.4535 | n | guest_house=bed_and_breakfast;tourism=guest_house
-영흥꼬치 | 37.25742 | 126.49464 | n | amenity=restaurant
-영흥낚시터 | 37.26184 | 126.49189 | w | leisure=fishing
-영흥남로 | 37.25113 | 126.47464 | w | highway=tertiary;lanes=2;oneway=no;surface=asphalt
-영흥남로 | 37.25373 | 126.46246 | w | highway=tertiary;lanes=2;oneway=no;surface=asphalt
-영흥남로 | 37.24327 | 126.46421 | w | highway=tertiary;lanes=2;oneway=no;surface=asphalt
-영흥남로 | 37.24179 | 126.45391 | w | highway=tertiary;lanes=2;oneway=no;surface=asphalt
-영흥남로 | 37.24294 | 126.45161 | w | highway=tertiary;lanes=2;oneway=no;surface=asphalt
-영흥남로 | 37.24307 | 126.45165 | w | highway=tertiary;lanes=2;oneway=no;surface=asphalt
-영흥남로 | 37.24283 | 126.45171 | w | highway=tertiary;lanes=2;oneway=no;surface=asphalt
-영흥남로 | 37.24845 | 126.45704 | w | highway=tertiary;lanes=2;oneway=no;surface=asphalt
-영흥남로 | 37.25441 | 126.46323 | w | highway=tertiary;lanes=2;oneway=no;surface=asphalt
-영흥남로 | 37.25421 | 126.463 | w | highway=tertiary;lanes=2;oneway=no;surface=asphalt
-영흥남로 | 37.25229 | 126.45969 | w | highway=service
-영흥남로 | 37.25199 | 126.45901 | w | highway=service
-영흥남로 | 37.25164 | 126.45954 | w | highway=service
-영흥남로 | 37.25199 | 126.45944 | w | highway=service
-영흥남로 | 37.25208 | 126.47478 | w | highway=residential
-영흥남로 | 37.25212 | 126.47421 | w | highway=residential
-영흥남로 | 37.25212 | 126.47385 | w | highway=residential
-영흥남로 | 37.25184 | 126.47348 | w | highway=residential
-영흥남로 | 37.25234 | 126.47235 | w | highway=service
-영흥남로 | 37.25071 | 126.4736 | w | highway=residential
-영흥남로 | 37.25057 | 126.47303 | w | highway=residential
-영흥남로 | 37.25027 | 126.47349 | w | highway=residential
-영흥남로 | 37.25124 | 126.47596 | w | highway=residential
-영흥남로 | 37.25098 | 126.47562 | w | highway=residential
-영흥남로 | 37.25067 | 126.47531 | w | highway=residential
-영흥남로 | 37.25008 | 126.47453 | w | highway=residential
-영흥남로 | 37.2498 | 126.47422 | w | highway=residential
-영흥남로 | 37.24732 | 126.4737 | w | highway=residential
-영흥남로 | 37.24703 | 126.4741 | w | highway=residential
-영흥남로 | 37.24816 | 126.47295 | w | highway=residential
-영흥남로 | 37.25189 | 126.47527 | w | highway=service
-영흥남로 | 37.25001 | 126.47369 | w | highway=residential
-영흥남로 | 37.24998 | 126.47373 | w | highway=residential;layer=-1;tunnel=yes
-영흥남로 | 37.24902 | 126.47368 | w | highway=service
-영흥남로 | 37.24518 | 126.47054 | w | highway=service
-영흥남로 | 37.24438 | 126.47154 | w | highway=service
-영흥남로 | 37.24664 | 126.46804 | w | highway=service
-영흥남로 | 37.24574 | 126.46536 | w | highway=service
-영흥남로 | 37.24632 | 126.4646 | w | highway=service
-영흥남로 | 37.24534 | 126.46607 | w | highway=service
-영흥남로 | 37.24521 | 126.4656 | w | highway=service
-영흥남로 | 37.24505 | 126.46359 | w | highway=service
-영흥남로 | 37.24433 | 126.46445 | w | highway=service
-영흥남로 | 37.24392 | 126.46413 | w | highway=service
-영흥남로 | 37.24357 | 126.46437 | w | highway=service
-영흥남로 | 37.24276 | 126.46364 | w | highway=service
-영흥남로 | 37.24546 | 126.46711 | w | highway=service
-영흥남로 | 37.24307 | 126.46416 | w | highway=service
-영흥남로 | 37.2421 | 126.46318 | w | highway=service
-영흥남로 | 37.24151 | 126.46239 | w | highway=service
-영흥남로 | 37.24118 | 126.46244 | w | highway=service
-영흥남로 | 37.24098 | 126.46199 | w | highway=service
-영흥남로 | 37.24074 | 126.46195 | w | highway=service
-영흥남로 | 37.24085 | 126.46076 | w | highway=service
-영흥남로 | 37.24124 | 126.46154 | w | highway=service
-영흥남로 | 37.24057 | 126.46062 | w | highway=service
-영흥남로 | 37.2403 | 126.46039 | w | highway=service
-영흥남로 | 37.24042 | 126.46002 | w | highway=service
-영흥남로 | 37.24098 | 126.45824 | w | highway=service
-영흥남로 | 37.24125 | 126.45795 | w | highway=service
-영흥남로 | 37.24121 | 126.45782 | w | highway=service
-영흥남로 | 37.24068 | 126.45785 | w | highway=service
-영흥남로 | 37.24077 | 126.45769 | w | highway=service
-영흥남로 | 37.24091 | 126.45795 | w | highway=service
-영흥남로 | 37.24066 | 126.46256 | w | highway=service
-영흥남로 | 37.24093 | 126.46253 | w | highway=service
-영흥남로 | 37.24051 | 126.46201 | w | highway=service
-영흥남로 | 37.23999 | 126.46097 | w | highway=service
-영흥남로 | 37.24007 | 126.46113 | w | highway=service
-영흥남로 | 37.23984 | 126.46013 | w | highway=service
-영흥남로 | 37.25152 | 126.46033 | w | highway=service
-영흥남로 | 37.25128 | 126.45775 | w | highway=service
-영흥남로 | 37.25092 | 126.45832 | w | highway=service
-영흥남로 | 37.24577 | 126.45435 | w | highway=service
-영흥남로 | 37.24485 | 126.45362 | w | highway=service
-영흥남로 | 37.24502 | 126.45427 | w | highway=service
-영흥남로 | 37.24344 | 126.45149 | w | highway=service
-영흥남로 | 37.24529 | 126.4567 | w | highway=service
-영흥남로 | 37.24515 | 126.45634 | w | highway=service
-영흥남로 | 37.24456 | 126.45742 | w | highway=service
-영흥남로 | 37.24575 | 126.45656 | w | highway=service
-영흥남로110번길 | 37.24797 | 126.46693 | w | highway=service
-영흥남로110번길 | 37.24977 | 126.46632 | w | highway=service;service=parking_aisle
-영흥남로191번길 | 37.23994 | 126.46344 | w | highway=residential
-영흥남로191번길 | 37.23628 | 126.46174 | w | highway=service
-영흥남로191번길 | 37.23918 | 126.46536 | w | highway=residential
-영흥남로191번길 | 37.23983 | 126.46683 | w | highway=residential
-영흥남로191번길 | 37.24143 | 126.46756 | w | highway=service
-영흥남로191번길 | 37.24178 | 126.46694 | w | highway=service
-영흥남로191번길 | 37.24162 | 126.46725 | w | highway=service
-영흥남로191번길 | 37.24191 | 126.4668 | w | highway=service
-영흥남로191번길 | 37.23783 | 126.46306 | w | highway=service
-영흥남로247번길 | 37.22853 | 126.45618 | w | highway=service
-영흥남로247번길 | 37.22724 | 126.45607 | w | highway=service
-영흥남로247번길 | 37.22733 | 126.45571 | w | highway=service
-영흥남로247번길 | 37.22707 | 126.45573 | w | highway=service
-영흥남로247번길 | 37.22531 | 126.4573 | w | highway=service
-영흥남로247번길 | 37.22438 | 126.45873 | w | highway=service
-영흥남로247번길 | 37.23626 | 126.4576 | w | highway=residential
-영흥남로247번길 | 37.22858 | 126.45466 | w | highway=service
-영흥남로247번길 | 37.22839 | 126.45447 | w | highway=service
-영흥남로247번길 | 37.22539 | 126.45922 | w | highway=service
-영흥남로247번길 | 37.22539 | 126.45798 | w | highway=service
-영흥남로247번길 | 37.22548 | 126.45788 | w | highway=service
-영흥남로247번길 | 37.24073 | 126.45615 | w | highway=residential
-영흥남로293번길 | 37.24287 | 126.44957 | w | highway=tertiary;lanes=2;oneway=no;surface=asphalt
-영흥남로293번길 | 37.24298 | 126.45141 | w | highway=tertiary;lanes=2;oneway=no;surface=asphalt
-영흥남로321번길 | 37.24636 | 126.45385 | w | highway=service
-영흥남로321번길 | 37.24612 | 126.45431 | w | highway=service
-영흥남로321번길 | 37.24581 | 126.45001 | w | highway=service
-영흥남로321번길 | 37.24708 | 126.45353 | w | highway=service
-영흥남로321번길 | 37.24578 | 126.44751 | w | highway=service
-영흥남로369번길 | 37.24926 | 126.45403 | w | highway=residential
-영흥남로369번길 | 37.24769 | 126.45469 | w | highway=residential
-영흥남로369번길 | 37.24866 | 126.45488 | w | highway=service
-영흥남로369번길 | 37.25043 | 126.45462 | w | highway=residential
-영흥남로369번길 | 37.24995 | 126.45514 | w | highway=residential
-영흥남로369번길 | 37.24974 | 126.45529 | w | highway=residential;oneway=yes
-영흥남로369번길 | 37.24976 | 126.45554 | w | highway=residential
-영흥남로369번길 | 37.24964 | 126.45596 | w | highway=residential
-영흥남로369번길 | 37.24962 | 126.45513 | w | highway=residential
-영흥남로369번길 | 37.2501 | 126.45398 | w | highway=residential
-영흥남로369번길 | 37.24902 | 126.45547 | w | highway=service
-영흥남로369번길 | 37.24792 | 126.45653 | w | highway=residential
-영흥남로369번길 | 37.24851 | 126.4555 | w | highway=service
-영흥남로369번길 | 37.24835 | 126.45568 | w | highway=service
-영흥남로369번길 | 37.24791 | 126.45469 | w | highway=service
-영흥남로369번길 | 37.2476 | 126.45414 | w | highway=service
-영흥남로369번길 | 37.24762 | 126.45389 | w | highway=service
-영흥남로369번길 | 37.24816 | 126.45413 | w | highway=service
-영흥남로435번길 | 37.25574 | 126.46014 | w | highway=service
-영흥남로435번길 | 37.25463 | 126.46008 | w | highway=service
-영흥남로435번길 | 37.25359 | 126.45946 | w | highway=service
-영흥남로452번길 | 37.25181 | 126.46344 | w | highway=service
-영흥남로452번길 | 37.25186 | 126.46393 | w | highway=service
-영흥남로46번길 | 37.25 | 126.46924 | w | highway=service
-영흥남로9번길 | 37.25069 | 126.4777 | w | highway=residential
-영흥남로9번길 | 37.2388 | 126.46747 | w | highway=residential
-영흥남로9번길 | 37.24041 | 126.46895 | w | highway=residential
-영흥남로9번길 | 37.24027 | 126.47164 | w | highway=residential
-영흥남로9번길 | 37.23794 | 126.4687 | w | highway=residential
-영흥남로9번길 | 37.23566 | 126.4688 | w | highway=residential
-영흥남로9번길 | 37.24186 | 126.47361 | w | highway=residential
-영흥남로9번길 | 37.23915 | 126.47066 | w | highway=residential
-영흥남로9번길 | 37.24625 | 126.47968 | w | highway=residential
-영흥남로9번길 | 37.24685 | 126.48098 | w | highway=residential
-영흥남로9번길 | 37.24833 | 126.48048 | w | highway=residential
-영흥남로9번길 | 37.24388 | 126.47773 | w | highway=residential
-영흥남로9번길 | 37.24962 | 126.47954 | w | highway=residential
-영흥남로9번길 | 37.24939 | 126.47974 | w | highway=residential;oneway=yes
-영흥남로9번길 | 37.24788 | 126.48161 | w | highway=residential
-영흥남로9번길 | 37.2483 | 126.47908 | w | highway=service
-영흥남로9번길 | 37.24919 | 126.47973 | w | highway=residential
-영흥남로9번길 | 37.22957 | 126.46362 | w | access=permit;highway=service
-영흥남로9번길 | 37.25092 | 126.47682 | w | highway=service
-영흥남로9번길 | 37.25039 | 126.47762 | w | highway=service
-영흥남로9번길 | 37.25036 | 126.47681 | w | highway=service
-영흥남로9번길 | 37.24831 | 126.47927 | w | highway=service
-영흥남로9번길 | 37.24838 | 126.48076 | w | highway=service
-영흥남로9번길 | 37.24873 | 126.48065 | w | highway=service
-영흥남로9번길 | 37.24761 | 126.48144 | w | highway=service
-영흥남로9번길 | 37.24858 | 126.48093 | w | highway=service
-영흥남로9번길 | 37.24638 | 126.48067 | w | highway=service
-영흥남로9번길 | 37.24614 | 126.48007 | w | highway=service
-영흥남로9번길 | 37.2466 | 126.47867 | w | highway=path
-영흥남로9번길 | 37.24622 | 126.47782 | w | highway=path
-영흥남로9번길 | 37.24378 | 126.48059 | w | highway=residential
-영흥남로9번길 | 37.24441 | 126.48 | w | highway=service
-영흥남로9번길 | 37.24412 | 126.4802 | w | highway=service
-영흥남로9번길 | 37.24377 | 126.48032 | w | highway=service
-영흥남로9번길 | 37.24306 | 126.48013 | w | highway=service
-영흥남로9번길 | 37.24439 | 126.47891 | w | highway=service
-영흥남로9번길 | 37.24375 | 126.47622 | w | highway=service
-영흥남로9번길 | 37.24426 | 126.4771 | w | highway=service
-영흥남로9번길 | 37.24353 | 126.47579 | w | highway=service
-영흥남로9번길 | 37.2433 | 126.47758 | w | highway=service
-영흥남로9번길 | 37.2419 | 126.47294 | w | highway=service
-영흥남로9번길 | 37.24138 | 126.47403 | w | highway=service
-영흥남로9번길 | 37.24143 | 126.47373 | w | highway=service
-영흥남로9번길 | 37.23856 | 126.46959 | w | highway=service
-영흥남로9번길 | 37.23864 | 126.46942 | w | highway=service
-영흥남로9번길 | 37.23346 | 126.46939 | w | highway=service
-영흥남로9번길 | 37.23377 | 126.46951 | w | highway=service
-영흥남로9번길 | 37.24073 | 126.46872 | w | highway=service
-영흥노래연습장 | 37.25634 | 126.4999 | w | addr:housenumber=37;amenity=karaoke_box;building=yes
-영흥늘푸른센터 | 37.25894 | 126.49356 | n | amenity=community_centre;community_centre=village_hall
-영흥대교 | 37.25474 | 126.50458 | w | bridge=yes;bridge:name=영흥대교;bridge:name:ko=영흥대교;bridge:structure=cable-stayed;hi
-영흥도 | 37.26061 | 126.46988 | w | name:ar=جزيرة يونغهونغ;name:el=Γιόγχουνγκντο;name:ko-Hani=靈興島;name:ru=остров Йон
-영흥도 갤러리 | 37.27587 | 126.49551 | w | addr:housenumber=88;building=yes;tourism=chalet
-영흥도 몽돌해변 | 37.28415 | 126.46697 | w | natural=beach
-영흥도 바지락해물칼국수 | 37.26795 | 126.495 | w | addr:housenumber=195;amenity=restaurant;building=yes
-영흥도 하늘고래공원전망대 | 37.25931 | 126.50106 | n | historic=monument
-영흥도RUTC | 37.27365 | 126.49376 | w | addr:housenumber=25;amenity=place_of_worship;building=yes;religion=christian
-영흥도관광펜션 | 37.25941 | 126.4958 | w | addr:housenumber=33-17;building=yes;tourism=chalet
-영흥도관광펜션 | 37.25956 | 126.49542 | w | addr:housenumber=33-11;building=yes;tourism=chalet
-영흥도리치하우스 | 37.27692 | 126.49163 | w | addr:housenumber=44-77;building=yes;tourism=chalet
-영흥도배낚시 빅토리아호 | 37.25664 | 126.4997 | w | addr:housenumber=12;building=yes;shop=fishing;website=https://www.yhfish.net
-영흥도배낚시 선주협회 | 37.25483 | 126.49805 | w | building=yes;shop=fishing
-영흥도배낚시 아라피싱 | 37.25538 | 126.49659 | n | shop=fishing
-영흥도배낚시 영동2호 | 37.25493 | 126.49858 | w | addr:housenumber=109-14;building=yes;shop=fishing
-영흥도배낚시 제3용진호 | 37.25498 | 126.49843 | w | addr:housenumber=109-16;building=yes;shop=fishing
-영흥도배낚시 크루즈호 | 37.26423 | 126.48107 | w | addr:housenumber=10;building=yes;shop=fishing
-영흥도버스터미널 | 37.25879 | 126.49372 | w | addr:city=인천광역시;addr:district=옹진군;addr:housenumber=8;addr:postcode=23318;addr:st
-영흥도뼈다귀감자탕 | 37.25319 | 126.46928 | n | amenity=restaurant
-영흥도수산물직거래장터 | 37.25492 | 126.49844 | n | shop=seafood
-영흥도십리포캠핑장 | 37.27993 | 126.48712 | w | group_only=yes;tourism=camp_site
-영흥도어울림캠핑장 | 37.28282 | 126.4555 | w | group_only=yes;tourism=camp_site
-영흥도펜션 | 37.27969 | 126.48671 | w | addr:housenumber=360;building=yes;tourism=chalet
-영흥도펜션타운 | 37.26415 | 126.49489 | w | addr:housenumber=145-16;building=yes;tourism=chalet
-영흥도해식동굴 | 37.23296 | 126.47173 | n | name:ru=Морская пещера на острове Ёнхындо;natural=cave_entrance
-영흥도휴펜션 | 37.26553 | 126.49558 | w | addr:housenumber=159;building=yes;tourism=chalet
-영흥동쎄시오 | 37.28629 | 126.47029 | w | landuse=construction
-영흥라이브카페7080 | 37.26479 | 126.45859 | n | amenity=cafe
-영흥래리펜션 | 37.26807 | 126.48963 | w | addr:housenumber=139-18;building=yes;tourism=chalet
-영흥레져골프클럽 | 37.2526 | 126.4699 | n | golf=clubhouse
-영흥레져솔밭캠핑장 | 37.27145 | 126.45583 | w | group_only=yes;tourism=camp_site
-영흥로 | 37.25842 | 126.49386 | w | highway=residential;oneway=no;surface=asphalt
-영흥로 | 37.25319 | 126.469 | w | highway=tertiary;lanes=2;oneway=no;surface=concrete
-영흥로 | 37.25738 | 126.4835 | w | highway=tertiary;lanes=2;oneway=no;surface=asphalt
-영흥로 | 37.25454 | 126.46358 | w | highway=tertiary;surface=concrete
-영흥로 | 37.26977 | 126.45643 | w | highway=service
-영흥로 | 37.27252 | 126.45544 | w | highway=residential
-영흥로 | 37.25868 | 126.48459 | w | highway=tertiary;lanes=2;oneway=no;surface=asphalt
-영흥로 | 37.25803 | 126.49211 | w | highway=tertiary;lanes=2;oneway=no;surface=asphalt
-영흥로 | 37.25888 | 126.48476 | w | highway=tertiary;lanes=2;oneway=no;surface=asphalt
-영흥로 | 37.25334 | 126.47604 | w | highway=tertiary;lanes=2;oneway=no;surface=concrete
-영흥로 | 37.25271 | 126.47537 | w | highway=tertiary;lanes=2;oneway=no;surface=concrete
-영흥로 | 37.2641 | 126.45704 | w | highway=tertiary;surface=concrete
-영흥로 | 37.25347 | 126.47163 | w | highway=service
-영흥로 | 37.26312 | 126.46187 | w | highway=service
-영흥로 | 37.25532 | 126.47085 | w | highway=path;surface=dirt
-영흥로 | 37.26304 | 126.45915 | w | highway=service
-영흥로 | 37.25507 | 126.47969 | w | highway=tertiary;lanes=2;oneway=no;surface=concrete
-영흥로 | 37.25748 | 126.48296 | w | highway=service
-영흥로 | 37.25764 | 126.48251 | w | highway=service
-영흥로 | 37.26351 | 126.46151 | w | highway=service
-영흥로 | 37.26343 | 126.46219 | w | highway=service
-영흥로 | 37.27306 | 126.45491 | w | highway=service
-영흥로 | 37.27242 | 126.45503 | w | highway=service
-영흥로 | 37.27204 | 126.45558 | w | highway=service
-영흥로 | 37.27275 | 126.45563 | w | highway=service
-영흥로 | 37.27197 | 126.4565 | w | highway=service
-영흥로 | 37.27183 | 126.45486 | w | highway=service
-영흥로 | 37.27114 | 126.45322 | w | highway=service
-영흥로 | 37.26915 | 126.45535 | w | highway=service
-영흥로 | 37.26978 | 126.45629 | w | highway=service
-영흥로 | 37.26903 | 126.45541 | w | highway=service
-영흥로 | 37.26832 | 126.45737 | w | highway=service
-영흥로 | 37.26837 | 126.45777 | w | highway=service
-영흥로 | 37.26826 | 126.45655 | w | highway=service
-영흥로 | 37.26737 | 126.45732 | w | highway=service
-영흥로 | 37.27247 | 126.45099 | w | highway=service
-영흥로 | 37.27105 | 126.45285 | w | highway=service
-영흥로 | 37.26476 | 126.45897 | w | highway=service
-영흥로 | 37.2647 | 126.45945 | w | highway=service
-영흥로 | 37.2633 | 126.45838 | w | highway=service
-영흥로 | 37.26018 | 126.45845 | w | highway=service
-영흥로 | 37.26012 | 126.4589 | w | highway=service
-영흥로 | 37.25577 | 126.46024 | w | highway=service
-영흥로 | 37.25507 | 126.46272 | w | highway=service
-영흥로 | 37.25498 | 126.46307 | w | highway=service
-영흥로 | 37.25518 | 126.46286 | w | highway=service
-영흥로 | 37.25505 | 126.46285 | w | highway=service
-영흥로 | 37.25412 | 126.46567 | w | highway=service
-영흥로 | 37.25428 | 126.46491 | w | highway=service
-영흥로 | 37.25427 | 126.46529 | w | highway=service
-영흥로 | 37.2541 | 126.46683 | w | highway=service
-영흥로 | 37.25411 | 126.46675 | w | highway=service
-영흥로 | 37.25366 | 126.46874 | w | highway=service
-영흥로 | 37.25459 | 126.46729 | w | highway=service
-영흥로 | 37.25482 | 126.46749 | w | highway=service
-영흥로 | 37.25328 | 126.47084 | w | highway=service
-영흥로 | 37.25312 | 126.47173 | w | highway=service
-영흥로 | 37.25333 | 126.47197 | w | highway=service
-영흥로 | 37.2537 | 126.4721 | w | highway=service
-영흥로 | 37.25322 | 126.47152 | w | highway=service
-영흥로 | 37.25346 | 126.47154 | w | highway=service
-영흥로 | 37.25306 | 126.47299 | w | highway=service
-영흥로 | 37.25364 | 126.47157 | w | highway=service
-영흥로 | 37.25274 | 126.47318 | w | highway=service
-영흥로 | 37.25308 | 126.47567 | w | highway=service
-영흥로 | 37.25265 | 126.46532 | w | highway=service
-영흥로 | 37.25186 | 126.46945 | w | highway=service
-영흥로144번길 | 37.25743 | 126.4969 | w | highway=residential;oneway=no;surface=asphalt
-영흥로144번길 | 37.25724 | 126.49607 | w | highway=residential;oneway=no;surface=asphalt
-영흥로144번길 | 37.25795 | 126.49788 | w | highway=service
-영흥로144번길 | 37.25693 | 126.49646 | w | highway=residential;oneway=no;surface=asphalt
-영흥로144번길 | 37.25653 | 126.49626 | w | highway=residential;oneway=no;surface=asphalt
-영흥로144번길 | 37.2583 | 126.49894 | w | highway=service
-영흥로144번길 | 37.25707 | 126.49805 | w | highway=service
-영흥로144번길 | 37.25778 | 126.4986 | w | highway=service
-영흥로144번길 | 37.25836 | 126.49886 | w | highway=service
-영흥로144번길 | 37.25809 | 126.49715 | w | highway=service
-영흥로144번길 | 37.25798 | 126.49698 | w | highway=service
-영흥로156번길 | 37.25765 | 126.49568 | w | highway=residential;oneway=no;surface=asphalt
-영흥로156번길 | 37.25736 | 126.49534 | w | highway=residential;oneway=no;surface=asphalt
-영흥로156번길 | 37.25792 | 126.496 | w | highway=residential;oneway=no;surface=asphalt
-영흥로156번길 | 37.258 | 126.49506 | w | highway=residential;oneway=no;surface=asphalt
-영흥로156번길 | 37.2586 | 126.49622 | w | highway=service
-영흥로156번길 | 37.2585 | 126.49662 | w | highway=service
-영흥로156번길 | 37.25859 | 126.49652 | w | highway=service
-영흥로156번길 | 37.25865 | 126.49523 | w | highway=residential;oneway=no;surface=asphalt
-영흥로156번길 | 37.25817 | 126.49445 | w | highway=residential;oneway=no;surface=asphalt
-영흥로156번길 | 37.2585 | 126.49472 | w | highway=residential;oneway=no;surface=asphalt
-영흥로156번길 | 37.25899 | 126.49525 | w | highway=service
-영흥로176번길 | 37.26013 | 126.49531 | w | highway=residential
-영흥로176번길 | 37.26094 | 126.49598 | w | highway=residential
-영흥로251번길 | 37.25607 | 126.48391 | w | highway=residential
-영흥로251번길 | 37.2548 | 126.48452 | w | highway=residential
-영흥로251번길 | 37.25729 | 126.48442 | w | highway=tertiary
-영흥로251번길 | 37.25631 | 126.48584 | w | highway=residential
-영흥로251번길 | 37.2566 | 126.4862 | w | highway=service
-영흥로251번길 | 37.25514 | 126.48488 | w | highway=service
-영흥로251번길 | 37.25527 | 126.48504 | w | highway=service
-영흥로251번길 | 37.25501 | 126.48503 | w | highway=service
-영흥로252번길 | 37.25888 | 126.48429 | w | highway=service
-영흥로252번길 | 37.25855 | 126.48149 | w | highway=service
-영흥로326번길 | 37.25814 | 126.47824 | w | highway=residential
-영흥로326번길 | 37.26481 | 126.47145 | w | highway=service;surface=dirt
-영흥로326번길 | 37.26369 | 126.47057 | w | highway=residential
-영흥로326번길 | 37.2561 | 126.47802 | w | highway=service
-영흥로326번길 | 37.26271 | 126.47634 | w | highway=residential
-영흥로326번길 | 37.26399 | 126.47667 | w | highway=service
-영흥로326번길 | 37.2596 | 126.4795 | w | highway=service
-영흥로326번길 | 37.2597 | 126.47962 | w | highway=service
-영흥로326번길 | 37.25986 | 126.47997 | w | highway=service
-영흥로326번길 | 37.26143 | 126.47871 | w | highway=service
-영흥로326번길 | 37.26192 | 126.47998 | w | highway=service
-영흥로326번길 | 37.26152 | 126.4766 | w | highway=service
-영흥로326번길 | 37.2617 | 126.47837 | w | highway=service
-영흥로326번길 | 37.26185 | 126.47869 | w | highway=service
-영흥로326번길 | 37.26161 | 126.4781 | w | highway=service
-영흥로326번길 | 37.26426 | 126.47633 | w | highway=service
-영흥로326번길 | 37.25737 | 126.48154 | w | highway=service
-영흥로326번길 | 37.25745 | 126.48043 | w | highway=service
-영흥로326번길 | 37.25556 | 126.47819 | w | highway=service
-영흥로326번길 | 37.25545 | 126.47797 | w | highway=service
-영흥로326번길 | 37.25837 | 126.47682 | w | highway=service
-영흥로326번길 | 37.25821 | 126.47769 | w | highway=service
-영흥로326번길 | 37.26005 | 126.47593 | w | highway=service
-영흥로326번길 | 37.26243 | 126.47537 | w | highway=service
-영흥로326번길 | 37.26255 | 126.47443 | w | highway=service
-영흥로326번길 | 37.26284 | 126.47439 | w | highway=service
-영흥로326번길 | 37.26205 | 126.4751 | w | highway=service
-영흥로326번길 | 37.26309 | 126.47371 | w | highway=service
-영흥로326번길 | 37.2633 | 126.47322 | w | highway=service
-영흥로326번길 | 37.26361 | 126.47231 | w | highway=service
-영흥로326번길 | 37.26378 | 126.47234 | w | highway=service
-영흥로326번길 | 37.26372 | 126.47291 | w | highway=service
-영흥로326번길 | 37.26454 | 126.47211 | w | highway=service;surface=dirt
-영흥로326번길 | 37.26326 | 126.46937 | w | highway=service
-영흥로326번길 | 37.26295 | 126.46983 | w | highway=service
-영흥로326번길 | 37.26235 | 126.47227 | w | highway=service
-영흥로326번길 | 37.26171 | 126.4742 | w | highway=service
-영흥로326번길 | 37.26605 | 126.46625 | w | highway=service
-영흥로326번길 | 37.26557 | 126.46648 | w | highway=service
-영흥로326번길 | 37.26634 | 126.46622 | w | highway=service
-영흥로326번길 | 37.26424 | 126.46745 | w | highway=service
-영흥로326번길 | 37.26425 | 126.46712 | w | highway=service
-영흥로326번길 | 37.26409 | 126.46769 | w | highway=service
-영흥로326번길 | 37.26411 | 126.46721 | w | highway=service
-영흥로326번길 | 37.26653 | 126.46631 | w | highway=service
-영흥로326번길 | 37.26147 | 126.47822 | w | highway=service
-영흥로348번길 | 37.261 | 126.47461 | w | highway=residential
-영흥로348번길 | 37.26 | 126.47282 | w | highway=service
-영흥로348번길 | 37.25925 | 126.4712 | w | highway=service
-영흥로348번길 | 37.25903 | 126.47345 | w | highway=service
-영흥로348번길 | 37.258 | 126.47594 | w | highway=residential
-영흥로348번길 | 37.25527 | 126.47579 | w | highway=service
-영흥로348번길 | 37.25559 | 126.47496 | w | highway=service
-영흥로348번길 | 37.25933 | 126.47621 | w | highway=service
-영흥로348번길 | 37.25523 | 126.47476 | w | highway=service
-영흥로348번길 | 37.2554 | 126.4747 | w | highway=service
-영흥로348번길 | 37.25539 | 126.4755 | w | highway=service
-영흥로348번길 | 37.25631 | 126.47607 | w | highway=service
-영흥로348번길 | 37.25663 | 126.4753 | w | highway=service
-영흥로348번길 | 37.25658 | 126.47495 | w | highway=service
-영흥로348번길 | 37.25626 | 126.47532 | w | highway=service
-영흥로348번길 | 37.25841 | 126.47547 | w | highway=service
-영흥로348번길 | 37.26006 | 126.47249 | w | highway=service
-영흥로348번길 | 37.25932 | 126.47097 | w | highway=service
-영흥로348번길 | 37.25953 | 126.47153 | w | highway=service
-영흥로348번길 | 37.26107 | 126.47373 | w | highway=service
-영흥로348번길 | 37.26108 | 126.47385 | w | highway=service
-영흥로348번길 | 37.26088 | 126.4743 | w | highway=service
-영흥로488번길 | 37.25587 | 126.46475 | w | highway=service
-영흥로488번길 | 37.25585 | 126.46131 | w | highway=service
-영흥로488번길 | 37.25546 | 126.4611 | w | highway=service
-영흥로488번길 | 37.25598 | 126.46308 | w | highway=service
-영흥로488번길 | 37.2567 | 126.46431 | w | highway=service
-영흥로488번길 | 37.25658 | 126.46369 | w | highway=service
-영흥로488번길 | 37.25665 | 126.46486 | w | highway=service
-영흥로488번길 | 37.25673 | 126.46482 | w | highway=service
-영흥로488번길 | 37.25621 | 126.46414 | w | highway=path
-영흥로488번길 | 37.25555 | 126.46387 | w | highway=service
-영흥로522번길 | 37.25762 | 126.46199 | w | highway=service
-영흥로522번길 | 37.25858 | 126.4637 | w | highway=service
-영흥로522번길 | 37.25766 | 126.46198 | w | highway=service
-영흥로522번길 | 37.25804 | 126.46225 | w | highway=service
-영흥로522번길 | 37.2581 | 126.46144 | w | highway=service
-영흥로522번길 | 37.25753 | 126.46102 | w | highway=service
-영흥로522번길 | 37.2576 | 126.4613 | w | highway=service
-영흥로522번길 | 37.25722 | 126.46077 | w | highway=service
-영흥로522번길 | 37.25749 | 126.46215 | w | highway=service
-영흥로522번길 | 37.25682 | 126.46006 | w | highway=service
-영흥로523번길 | 37.25608 | 126.45542 | w | highway=service
-영흥로523번길 | 37.25558 | 126.45741 | w | highway=service
-영흥로523번길 | 37.25632 | 126.45765 | w | highway=service
-영흥로523번길 | 37.25562 | 126.45663 | w | highway=service
-영흥로523번길 | 37.25631 | 126.45651 | w | highway=service
-영흥로523번길 | 37.25609 | 126.45601 | w | highway=path
-영흥로525번길 | 37.26099 | 126.45112 | w | highway=residential
-영흥로525번길 | 37.25811 | 126.45551 | w | highway=residential
-영흥로525번길 | 37.26027 | 126.44833 | w | highway=residential
-영흥로525번길 | 37.25813 | 126.4457 | w | highway=path
-영흥로525번길 | 37.25891 | 126.44738 | w | highway=path
-영흥로525번길 | 37.26017 | 126.44742 | w | highway=service
-영흥로525번길 | 37.26078 | 126.44749 | w | highway=service
-영흥로525번길 | 37.25963 | 126.4528 | w | highway=service
-영흥로525번길 | 37.25959 | 126.45151 | w | highway=service
-영흥로525번길 | 37.25859 | 126.45372 | w | highway=service
-영흥로525번길 | 37.25647 | 126.45186 | w | highway=service
-영흥로525번길 | 37.25618 | 126.44874 | w | highway=service
-영흥로525번길 | 37.25765 | 126.45369 | w | highway=service
-영흥로525번길 | 37.25738 | 126.45294 | w | highway=service
-영흥로525번길 | 37.2576 | 126.45243 | w | highway=service
-영흥로525번길 | 37.2571 | 126.45212 | w | highway=service
-영흥로525번길 | 37.25753 | 126.45178 | w | highway=service
-영흥로525번길 | 37.2576 | 126.45182 | w | highway=service
-영흥로525번길 | 37.25684 | 126.45503 | w | highway=service
-영흥로525번길 | 37.25646 | 126.45404 | w | highway=service
-영흥로525번길 | 37.25637 | 126.45254 | w | highway=service
-영흥로525번길 | 37.26009 | 126.44803 | w | highway=service
-영흥로525번길 | 37.25921 | 126.44847 | w | highway=path
-영흥로525번길 | 37.25848 | 126.4537 | w | highway=service
-영흥로525번길 | 37.25642 | 126.4506 | w | highway=service
-영흥로525번길 | 37.25632 | 126.45013 | w | highway=service
-영흥로525번길 | 37.25492 | 126.44975 | w | highway=service
-영흥로525번길 | 37.255 | 126.45061 | w | highway=service
-영흥로525번길 | 37.25488 | 126.44925 | w | highway=service
-영흥로528번길 | 37.25832 | 126.45978 | w | highway=service
-영흥로528번길 | 37.25871 | 126.46047 | w | highway=service
-영흥로528번길 | 37.25971 | 126.46076 | w | highway=path
-영흥로544번길 | 37.25925 | 126.45844 | w | highway=service
-영흥로544번길 | 37.25903 | 126.45909 | w | highway=service
-영흥로544번길 | 37.25916 | 126.45984 | w | highway=service
-영흥로544번길 | 37.25945 | 126.45948 | w | highway=service
-영흥로544번길 | 37.25874 | 126.45893 | w | highway=service
-영흥로549번길 | 37.25984 | 126.45493 | w | highway=residential
-영흥로549번길 | 37.26126 | 126.45357 | w | highway=service
-영흥로549번길 | 37.2613 | 126.4539 | w | highway=service
-영흥로549번길 | 37.26148 | 126.45294 | w | highway=service
-영흥로549번길 | 37.26 | 126.4552 | w | highway=service
-영흥로549번길 | 37.25994 | 126.4553 | w | highway=service
-영흥로549번길 | 37.25906 | 126.45639 | w | highway=service
-영흥로619번길 | 37.26266 | 126.45706 | w | highway=residential
-영흥로619번길 | 37.26161 | 126.45634 | w | highway=service
-영흥로619번길 | 37.26014 | 126.45674 | w | highway=service
-영흥로619번길 | 37.26236 | 126.45634 | w | highway=service
-영흥로619번길 | 37.26373 | 126.45708 | w | highway=service
-영흥로619번길 | 37.26251 | 126.45623 | w | highway=service
-영흥로619번길 | 37.26229 | 126.45641 | w | highway=service
-영흥로619번길 | 37.26295 | 126.45672 | w | highway=service
-영흥로619번길 | 37.26311 | 126.45682 | w | highway=service
-영흥로643번길 | 37.2672 | 126.45475 | w | highway=service
-영흥로643번길 | 37.26745 | 126.45023 | w | highway=service
-영흥로643번길 | 37.26761 | 126.45156 | w | highway=service
-영흥로643번길 | 37.26796 | 126.45136 | w | highway=service
-영흥로643번길 | 37.26668 | 126.45568 | w | highway=service
-영흥로643번길 | 37.26673 | 126.45555 | w | highway=service
-영흥로643번길 | 37.2666 | 126.45606 | w | highway=service
-영흥로643번길 | 37.26656 | 126.45624 | w | highway=service
-영흥로643번길 | 37.26714 | 126.45536 | w | highway=service
-영흥로685번길 | 37.27085 | 126.45166 | w | highway=service
-영흥로722번길 | 37.27248 | 126.45702 | w | highway=service
-영흥로722번길 | 37.27137 | 126.45941 | w | highway=service
-영흥로722번길 | 37.27192 | 126.45806 | w | highway=service
-영흥로722번길 | 37.27165 | 126.45847 | w | highway=service
-영흥로722번길 | 37.27176 | 126.45991 | w | highway=path
-영흥로722번길 | 37.2725 | 126.45708 | w | highway=service
-영흥로722번길 | 37.27281 | 126.45711 | w | highway=service
-영흥로722번길 | 37.27261 | 126.45754 | w | highway=service
-영흥로722번길 | 37.27256 | 126.45811 | w | highway=service
-영흥로722번길 | 37.27134 | 126.45976 | w | highway=service
-영흥로722번길 | 37.27258 | 126.45604 | w | highway=service
-영흥로722번길 | 37.27261 | 126.45627 | w | highway=service
-영흥로757번길 | 37.26675 | 126.44871 | w | highway=residential
-영흥로757번길 | 37.27209 | 126.44979 | w | highway=residential
-영흥로757번길 | 37.27159 | 126.44787 | w | highway=residential
-영흥로757번길 | 37.27223 | 126.44597 | w | highway=residential
-영흥로757번길 | 37.27002 | 126.44444 | w | highway=path
-영흥로757번길 | 37.26944 | 126.44673 | w | highway=service
-영흥로757번길 | 37.26851 | 126.44693 | w | highway=service
-영흥로757번길 | 37.26817 | 126.44816 | w | highway=service
-영흥로757번길 | 37.26807 | 126.44635 | w | highway=service
-영흥로757번길 | 37.26762 | 126.44623 | w | highway=service
-영흥로757번길 | 37.26696 | 126.44811 | w | highway=service
-영흥로757번길 | 37.26473 | 126.44805 | w | highway=service
-영흥로757번길 | 37.264 | 126.44766 | w | highway=service
-영흥로757번길 | 37.2635 | 126.44727 | w | highway=service
-영흥로757번길 | 37.26392 | 126.4469 | w | highway=service
-영흥로757번길 | 37.26406 | 126.44937 | w | highway=service
-영흥로지스 | 37.27658 | 126.48138 | w | addr:housenumber=468;building=yes
-영흥면 | 37.25329 | 126.4642 | n | name:el=Γιόγχουνγκ-μιον;name:ja=霊興面;name:ko-Hani=靈興面;name:ko-Latn=Yeongheung-mye
-영흥면사무소 | 37.25591 | 126.48334 | w | addr:city=인천광역시;addr:district=옹진군;addr:housenumber=90;addr:postcode=23119;addr:s
-영흥면사무소입구삼거리 | 37.25695 | 126.4845 | n | highway=crossing
-영흥면주민자치센터 | 37.25602 | 126.48386 | w | addr:housenumber=90;amenity=community_centre;building=yes;community_centre=commu
-영흥민속대장간 | 37.24953 | 126.47229 | n | craft=blacksmith
-영흥백령할인마트 | 37.25831 | 126.49392 | w | addr:housenumber=164-10;building=yes;shop=variety_store
-영흥버섯농원 | 37.25825 | 126.45518 | w | building=yes
-영흥보건지소 | 37.25313 | 126.46116 | n | addr:city=인천광역시;addr:district=옹진군;addr:housenumber=449;addr:postcode=23119;addr:
-영흥북로 | 37.25599 | 126.49713 | w | highway=tertiary;lanes=2;oneway=no;surface=asphalt
-영흥북로 | 37.25827 | 126.50006 | w | highway=tertiary;lanes=2;lit=yes;oneway=no;surface=asphalt
-영흥북로 | 37.26508 | 126.49591 | w | highway=tertiary
-영흥북로 | 37.27569 | 126.48748 | w | highway=tertiary;lanes=2;lit=yes;oneway=no;surface=asphalt
-영흥북로 | 37.26498 | 126.49613 | w | highway=residential;lanes=2;lit=yes;oneway=no;surface=asphalt
-영흥북로 | 37.26386 | 126.49466 | w | highway=service
-영흥북로 | 37.26378 | 126.49484 | w | highway=service
-영흥북로 | 37.28069 | 126.48212 | w | highway=service
-영흥북로 | 37.28117 | 126.48706 | w | highway=service
-영흥북로 | 37.26853 | 126.49404 | w | highway=service
-영흥북로 | 37.25638 | 126.49696 | w | highway=residential;oneway=no;surface=asphalt
-영흥북로 | 37.26657 | 126.49611 | w | highway=service
-영흥북로 | 37.26205 | 126.49644 | w | highway=residential
-영흥북로 | 37.26539 | 126.4957 | w | highway=service
-영흥북로 | 37.26559 | 126.49609 | w | highway=service
-영흥북로 | 37.26509 | 126.49527 | w | highway=service
-영흥북로 | 37.27012 | 126.49222 | w | highway=service
-영흥북로 | 37.27491 | 126.49125 | w | highway=service
-영흥북로 | 37.27463 | 126.49095 | w | highway=residential
-영흥북로 | 37.2741 | 126.49104 | w | highway=service
-영흥북로 | 37.27535 | 126.48981 | w | highway=residential
-영흥북로 | 37.27886 | 126.48844 | w | highway=residential
-영흥북로 | 37.27931 | 126.4882 | w | highway=service
-영흥북로 | 37.27818 | 126.4891 | w | highway=service
-영흥북로 | 37.27863 | 126.48967 | w | highway=service
-영흥북로 | 37.27828 | 126.4901 | w | highway=service
-영흥북로 | 37.27874 | 126.49027 | w | highway=service
-영흥북로 | 37.28106 | 126.48863 | w | highway=service
-영흥북로 | 37.28101 | 126.48885 | w | highway=service
-영흥북로 | 37.27565 | 126.48806 | w | highway=service
-영흥북로 | 37.27518 | 126.48812 | w | highway=service
-영흥북로 | 37.27553 | 126.48794 | w | highway=service
-영흥북로 | 37.27486 | 126.48833 | w | highway=service
-영흥북로 | 37.27621 | 126.48681 | w | highway=service
-영흥북로 | 37.27683 | 126.48652 | w | highway=service
-영흥북로 | 37.27768 | 126.48217 | w | highway=service
-영흥북로 | 37.27546 | 126.48112 | w | highway=service
-영흥북로 | 37.27706 | 126.48074 | w | highway=service
-영흥북로 | 37.27847 | 126.48163 | w | highway=service
-영흥북로 | 37.27849 | 126.4815 | w | highway=service
-영흥북로 | 37.26315 | 126.49651 | w | highway=tertiary;lanes=2;lit=yes;oneway=no;surface=asphalt
-영흥북로231번길 | 37.27235 | 126.48755 | w | highway=residential
-영흥북로231번길 | 37.27216 | 126.48774 | w | highway=service
-영흥북로231번길 | 37.27249 | 126.48777 | w | highway=service
-영흥북로231번길 | 37.27307 | 126.48623 | w | highway=service
-영흥북로231번길 | 37.27358 | 126.48674 | w | highway=service
-영흥북로231번길 | 37.27323 | 126.48629 | w | highway=service
-영흥북로231번길 | 37.27309 | 126.48541 | w | highway=service
-영흥북로231번길 | 37.27291 | 126.48524 | w | highway=service
-영흥북로262번길 | 37.27508 | 126.49445 | w | highway=residential
-영흥북로262번길 | 37.27998 | 126.48982 | w | highway=service;surface=unpaved
-영흥북로262번길 | 37.27769 | 126.49296 | w | highway=service;surface=unpaved
-영흥북로262번길 | 37.27533 | 126.4945 | w | highway=service
-영흥북로262번길 | 37.2762 | 126.49561 | w | highway=service
-영흥북로262번길 | 37.27671 | 126.49582 | w | highway=service
-영흥북로262번길 | 37.27624 | 126.49564 | w | highway=service
-영흥북로262번길 | 37.2756 | 126.49538 | w | highway=service
-영흥북로262번길 | 37.27576 | 126.4956 | w | highway=service
-영흥북로262번길 | 37.27556 | 126.4956 | w | highway=service
-영흥북로262번길 | 37.27671 | 126.49595 | w | highway=service
-영흥북로262번길 | 37.27596 | 126.49484 | w | highway=service
-영흥북로262번길 | 37.27782 | 126.48816 | w | highway=service
-영흥북로274번길 | 37.27546 | 126.49111 | w | highway=residential
-영흥북로274번길 | 37.27637 | 126.49172 | w | highway=service
-영흥북로274번길 | 37.2764 | 126.49117 | w | highway=service
-영흥북로274번길 | 37.27666 | 126.49112 | w | highway=service
-영흥북로274번길 | 37.27638 | 126.49162 | w | highway=service
-영흥북로274번길 | 37.27619 | 126.48942 | w | highway=service
-영흥북로274번길 | 37.27617 | 126.48905 | w | highway=service
-영흥북로274번길 | 37.27606 | 126.48884 | w | highway=service
-영흥북로343번길 | 37.27852 | 126.48541 | w | highway=residential
-영흥북로343번길 | 37.27651 | 126.4847 | w | highway=service
-영흥북로343번길 | 37.27678 | 126.48431 | w | highway=residential
-영흥북로343번길 | 37.27439 | 126.48296 | w | highway=service
-영흥북로343번길 | 37.27449 | 126.48326 | w | highway=service
-영흥북로343번길 | 37.27588 | 126.48356 | w | highway=service
-영흥북로343번길 | 37.27559 | 126.48307 | w | highway=service
-영흥북로343번길 | 37.27645 | 126.48446 | w | highway=service
-영흥북로343번길 | 37.27677 | 126.48465 | w | highway=service
-영흥북로343번길 | 37.27687 | 126.48448 | w | highway=service
-영흥북로343번길 | 37.27789 | 126.48511 | w | highway=service
-영흥북로343번길 | 37.27388 | 126.48308 | w | highway=service
-영흥북로35번길 | 37.25908 | 126.49896 | w | highway=residential
-영흥북로35번길 | 37.25858 | 126.49987 | w | highway=service
-영흥북로35번길 | 37.25873 | 126.50004 | w | highway=service
-영흥북로35번길 | 37.25933 | 126.49886 | w | highway=service
-영흥북로35번길 | 37.25939 | 126.49876 | w | highway=service
-영흥북로35번길 | 37.25957 | 126.4986 | w | highway=service
-영흥북로35번길 | 37.26227 | 126.49715 | w | highway=residential
-영흥북로426번길 | 37.28109 | 126.47609 | w | highway=path;surface=unpaved
-영흥북로430번길 | 37.27966 | 126.47947 | w | highway=service
-영흥북로430번길 | 37.28066 | 126.47859 | w | highway=service
-영흥북로430번길 | 37.27924 | 126.47971 | w | highway=service
-영흥북로430번길 | 37.28077 | 126.47808 | w | highway=service
-영흥북로430번길 | 37.2809 | 126.47823 | w | highway=service
-영흥북로456번길 | 37.27798 | 126.47994 | w | highway=service
-영흥북로456번길 | 37.27831 | 126.47899 | w | highway=service
-영흥북로456번길 | 37.27806 | 126.47913 | w | highway=service
-영흥북로456번길 | 37.27771 | 126.47927 | w | highway=service
-영흥북로456번길 | 37.27732 | 126.47916 | w | highway=service
-영흥북로456번길 | 37.27811 | 126.48011 | w | highway=service
-영흥북로456번길 | 37.27855 | 126.48097 | w | highway=service
-영흥북로456번길 | 37.27769 | 126.48042 | w | highway=service
-영흥블루베리농원 | 37.26288 | 126.47081 | w | addr:housenumber=305-25;building=farm
-영흥비버리힐스 | 37.26736 | 126.47516 | w | addr:housenumber=88-1;building=yes;tourism=chalet
-영흥비전감리교회 | 37.2632 | 126.46232 | w | addr:housenumber=594-127;amenity=place_of_worship;building=yes;religion=christia
-영흥빌라 | 37.62345 | 126.84597 | w | landuse=residential
-영흥빌라 | 37.24048 | 126.45699 | w | addr:housenumber=237;building=yes
-영흥빌라 A동 | 36.67952 | 126.8354 | w | building=house
-영흥빌라 가동 | 36.67973 | 126.83547 | w | building=house
-영흥빛누리 | 37.24991 | 126.45337 | n | amenity=kindergarten
-영흥서로 | 37.27187 | 126.48002 | w | highway=tertiary
-영흥서로 | 37.2623 | 126.49345 | w | highway=residential
-영흥서로 | 37.27884 | 126.45701 | w | highway=tertiary
-영흥서로 | 37.26695 | 126.48552 | w | highway=residential
-영흥서로 | 37.26479 | 126.49149 | w | highway=service
-영흥서로 | 37.26486 | 126.49127 | w | highway=service
-영흥서로 | 37.26473 | 126.49157 | w | highway=service
-영흥서로 | 37.2656 | 126.48552 | w | highway=service
-영흥서로 | 37.26841 | 126.48396 | w | highway=service
-영흥서로 | 37.26861 | 126.48393 | w | highway=service
-영흥서로 | 37.27036 | 126.48325 | w | highway=service
-영흥서로 | 37.26364 | 126.48738 | w | highway=service
-영흥서로 | 37.27726 | 126.4739 | w | highway=service
-영흥서로 | 37.27295 | 126.4791 | w | highway=service
-영흥서로 | 37.27272 | 126.47902 | w | highway=service
-영흥서로 | 37.27524 | 126.47623 | w | highway=service
-영흥서로 | 37.2757 | 126.47521 | w | highway=service
-영흥서로 | 37.27617 | 126.47483 | w | highway=service
-영흥서로 | 37.27512 | 126.47492 | w | highway=service
-영흥서로 | 37.27473 | 126.47572 | w | highway=service
-영흥서로 | 37.27675 | 126.47514 | w | highway=service
-영흥서로 | 37.27528 | 126.47546 | w | highway=service
-영흥서로 | 37.27413 | 126.473 | w | highway=service
-영흥서로 | 37.27433 | 126.47233 | w | highway=service
-영흥서로 | 37.27509 | 126.47496 | w | highway=service
-영흥서로 | 37.27721 | 126.47194 | w | highway=service
-영흥서로 | 37.27845 | 126.47024 | w | highway=service
-영흥서로 | 37.27604 | 126.47391 | w | highway=service
-영흥서로 | 37.2763 | 126.47282 | w | highway=service
-영흥서로 | 37.27654 | 126.47196 | w | highway=service
-영흥서로 | 37.27945 | 126.46572 | w | highway=service
-영흥서로 | 37.28003 | 126.46732 | w | highway=service
-영흥서로 | 37.28102 | 126.46473 | w | highway=service
-영흥서로 | 37.281 | 126.46589 | w | highway=service
-영흥서로 | 37.28079 | 126.46762 | w | highway=service
-영흥서로 | 37.27478 | 126.47747 | w | highway=service
-영흥서로 | 37.27439 | 126.47825 | w | highway=service
-영흥서로 | 37.27451 | 126.47768 | w | highway=service
-영흥서로 | 37.28179 | 126.46244 | w | highway=service
-영흥서로 | 37.2818 | 126.46209 | w | highway=service
-영흥서로 | 37.2807 | 126.4624 | w | highway=service
-영흥서로 | 37.28153 | 126.45942 | w | highway=service
-영흥서로 | 37.28121 | 126.45593 | w | highway=service
-영흥서로 | 37.28262 | 126.45573 | w | highway=service
-영흥서로 | 37.28232 | 126.45673 | w | highway=service
-영흥서로 | 37.28043 | 126.45579 | w | highway=service
-영흥서로 | 37.28014 | 126.45622 | w | highway=service
-영흥서로 | 37.28074 | 126.45873 | w | highway=service
-영흥서로 | 37.28057 | 126.45852 | w | highway=service
-영흥서로 | 37.28025 | 126.45845 | w | highway=service
-영흥서로 | 37.28029 | 126.45778 | w | highway=service
-영흥서로 | 37.28118 | 126.45854 | w | highway=service
-영흥서로 | 37.2789 | 126.45696 | w | highway=service
-영흥서로 | 37.28107 | 126.45549 | w | highway=service
-영흥서로 | 37.27881 | 126.45684 | w | highway=service
-영흥서로 | 37.27786 | 126.4569 | w | highway=service
-영흥서로 | 37.27815 | 126.45749 | w | highway=service
-영흥서로 | 37.27808 | 126.45772 | w | highway=service
-영흥서로 | 37.27801 | 126.45785 | w | highway=service
-영흥서로 | 37.27553 | 126.45389 | w | highway=service
-영흥서로 | 37.2759 | 126.45503 | w | highway=service
-영흥서로 | 37.27419 | 126.45411 | w | highway=service
-영흥서로16번길 | 37.26708 | 126.49246 | w | highway=residential
-영흥서로16번길 | 37.26553 | 126.49406 | w | highway=residential
-영흥서로16번길 | 37.2653 | 126.49394 | w | highway=service
-영흥서로16번길 | 37.26584 | 126.49328 | w | highway=service
-영흥서로16번길 | 37.26634 | 126.49313 | w | highway=service
-영흥서로219번길 | 37.27179 | 126.47452 | w | highway=service
-영흥서로219번길 | 37.27369 | 126.47834 | w | highway=service
-영흥서로219번길 | 37.27304 | 126.47568 | w | highway=service
-영흥서로219번길 | 37.27356 | 126.47771 | w | highway=service
-영흥서로219번길 | 37.27349 | 126.47744 | w | highway=service
-영흥서로219번길 | 37.27074 | 126.46999 | w | highway=service
-영흥서로219번길 | 37.2707 | 126.47046 | w | highway=service
-영흥서로219번길 | 37.27059 | 126.47022 | w | highway=service
-영흥서로219번길 | 37.27153 | 126.47221 | w | highway=service
-영흥서로219번길 | 37.27143 | 126.47432 | w | highway=service
-영흥서로219번길 | 37.27125 | 126.47423 | w | highway=service
-영흥서로219번길 | 37.27137 | 126.47369 | w | highway=service
-영흥서로219번길 | 37.27128 | 126.47312 | w | highway=service
-영흥서로219번길 | 37.27415 | 126.47693 | w | highway=service
-영흥서로26번길 | 37.26581 | 126.49249 | w | highway=residential
-영흥서로26번길 | 37.26553 | 126.49221 | w | highway=residential
-영흥서로26번길 | 37.26585 | 126.49257 | w | highway=service
-영흥서로26번길 | 37.26643 | 126.49257 | w | highway=service
-영흥서로26번길 | 37.26637 | 126.49257 | w | highway=service
-영흥서로26번길 | 37.26635 | 126.49172 | w | highway=service
-영흥서로26번길 | 37.26618 | 126.49221 | w | highway=service
-영흥서로379번길 | 37.27919 | 126.46173 | w | highway=path
-영흥서로379번길 | 37.27417 | 126.46062 | w | highway=path
-영흥서로379변길 | 37.27525 | 126.46127 | w | highway=path;surface=concrete
-영흥서로380번길 | 37.283 | 126.46743 | w | highway=service
-영흥서로380번길 | 37.2845 | 126.47011 | w | highway=service
-영흥서로380번길 | 37.28427 | 126.46796 | w | highway=service
-영흥서로380번길 | 37.28387 | 126.46768 | w | highway=service
-영흥서로418번길 | 37.28187 | 126.45967 | w | highway=service
-영흥서로418번길 | 37.28254 | 126.45965 | w | highway=service
-영흥서로418번길 | 37.28243 | 126.45923 | w | highway=service
-영흥서로418번길 | 37.28253 | 126.45963 | w | highway=service
-영흥서로418번길 | 37.28242 | 126.45907 | w | highway=service
-영흥서로446번길 | 37.28265 | 126.45665 | w | highway=service
-영흥서로496번길 | 37.27827 | 126.45394 | w | highway=service
-영흥서로496번길 | 37.27913 | 126.45463 | w | highway=service
-영흥서로496번길 | 37.27825 | 126.45467 | w | highway=service
-영흥서로66번길 | 37.26513 | 126.48809 | w | highway=service
-영흥선재전기에어컨 | 37.24206 | 126.52901 | w | addr:housenumber=150;building=yes;shop=electronics
-영흥성당 | 37.25883 | 126.48304 | w | addr:housenumber=34;amenity=place_of_worship;building=yes;religion=christian
-영흥세탁소 | 37.25867 | 126.49508 | w | addr:housenumber=33-19;building=yes;shop=laundry
-영흥솔 | 37.26506 | 126.45953 | n | guest_house=pension;tourism=guest_house
-영흥수협수산물가공센터 | 37.23941 | 126.47044 | n | man_made=works;product=food
-영흥순대국 | 37.24318 | 126.45155 | n | amenity=restaurant
-영흥숲푸르지오파크엔 | 37.26348 | 127.06751 | w | landuse=residential;residential=apartments
-영흥쉼터교회 | 37.25283 | 126.51897 | w | addr:housenumber=28-14;amenity=place_of_worship;building=yes;religion=christian
-영흥아파트 | 37.66379 | 126.83935 | w | addr:city=고양시;addr:district=덕양구;addr:housenumber=6;addr:postcode=10298;addr:prov
-영흥아파트 | 36.96412 | 126.91915 | w | addr:city=평택시;addr:housenumber=44;addr:postcode=17946;addr:province=경기도;addr:str
-영흥아파트 | 36.01432 | 126.68736 | w | landuse=residential;residential=apartments
-영흥아파트 | 36.01381 | 126.68738 | w | landuse=residential;residential=apartments
-영흥아파트 가동 | 36.96444 | 126.91909 | w | addr:city=평택시;addr:housenumber=44;addr:province=경기도;addr:street=인광길;addr:town=현덕
-영흥아파트 나동 | 36.96424 | 126.91901 | w | addr:city=평택시;addr:housenumber=44;addr:province=경기도;addr:street=인광길;addr:town=현덕
-영흥아파트 다동 | 36.96404 | 126.91891 | w | addr:city=평택시;addr:housenumber=44;addr:province=경기도;addr:street=인광길;addr:town=현덕
-영흥아파트 라동 | 36.96423 | 126.91946 | w | addr:city=평택시;addr:housenumber=44;addr:province=경기도;addr:street=인광길;addr:town=현덕
-영흥에너지타운 | 37.25005 | 126.45415 | w | addr:city=인천광역시;addr:district=옹진군;addr:subdistrict=외리;addr:town=영흥면;landuse=resi
-영흥에너지파크 | 37.24422 | 126.44788 | w | leisure=park;name:ru=Энергетический парк Ёнхын
-영흥영성장로교회 | 37.26272 | 126.46888 | w | addr:housenumber=307-23;amenity=place_of_worship;building=yes;religion=christian
-영흥오리구이 | 37.25933 | 126.48486 | w | addr:housenumber=248;amenity=restaurant;building=yes
-영흥우리세상 | 37.28061 | 126.46225 | n | guest_house=pension;tourism=guest_house
-영흥우리약국 | 37.25849 | 126.49417 | n | amenity=pharmacy;healthcare=pharmacy
-영흥우체국 | 37.25313 | 126.47021 | n | amenity=post_office;name:ko-Latn=Yeongheungucheguk;operator=우정사업본부;operator:en=K
-영흥일번지식당 | 37.2564 | 126.49685 | n | amenity=restaurant
-영흥자연공원 | 37.2624 | 127.071 | w | leisure=park
-영흥자연공원 | 37.26247 | 127.07104 | w | addr:city=수원시;addr:district=영통구;addr:province=경기도;building=yes;information=offic
-영흥작은도서관 | 37.25614 | 126.48412 | w | addr:housenumber=283-31;amenity=library;building=yes
-영흥제일교회 | 37.26386 | 126.49171 | w | addr:housenumber=39-9;amenity=place_of_worship;building=yes;religion=christian
-영흥제트마린 | 37.25519 | 126.49836 | w | addr:housenumber=109-2;building=boathouse
-영흥종합가스 | 37.25696 | 126.50012 | w | addr:housenumber=37-17;building=yes
-영흥종합운동장 | 37.25932 | 126.47328 | w | leisure=pitch;sport=soccer
-영흥주안닭강정 | 37.25374 | 126.51416 | n | amenity=restaurant
-영흥주유소 | 37.25099 | 126.5202 | w | addr:housenumber=273;amenity=fuel;name:ja=靈興ガソリンスタンド
-영흥주택 | 37.27858 | 126.4853 | w | addr:housenumber=44-26;addr:unit=2;building=yes
-영흥주택 | 37.27843 | 126.48524 | w | addr:housenumber=44-26;addr:unit=1;building=yes
-영흥중고등학교 다품따 | 37.26564 | 126.47975 | w | amenity=school
-영흥중앙감리교회 | 37.25775 | 126.48101 | w | addr:housenumber=62-33;amenity=place_of_worship;building=yes;religion=christian
-영흥지역아동센터 | 37.27399 | 126.47863 | w | addr:housenumber=220;amenity=community_centre;building=yes;community_centre=yout
-영흥찐빵 | 37.24321 | 126.528 | w | addr:housenumber=163;amenity=cafe;building=yes
-영흥초등학교 | 37.25418 | 126.46742 | w | amenity=school;name:ko-Hani=永興初等學校;wikidata=Q16096630;wikipedia=ko:영화초등학교 (인천)
-영흥초중교삼거리 | 37.25457 | 126.4634 | n | junction=yes
-영흥카센터 | 37.25694 | 126.48358 | w | addr:housenumber=275;building=yes;shop=car_repair
-영흥컴퓨터 | 37.25777 | 126.48409 | w | addr:housenumber=265;building=yes;shop=computer
-영흥파출소 | 37.25609 | 126.49919 | w | addr:housenumber=29;amenity=police;building=yes
-영흥풍천민물장어 | 37.25107 | 126.51877 | w | addr:housenumber=289;amenity=restaurant;building=yes
-영흥해양 소수력 | 37.26078 | 126.4319 | w | operator=한국남동발전;plant:method=run-of-the-river;plant:output:electricity=13.599 MW
-영흥홈타운 | 37.24043 | 126.45862 | w | addr:housenumber=224;building=yes
-영흥홈타운 | 37.24125 | 126.46314 | w | landuse=residential
-영흥화력발전소 | 37.24368 | 126.43961 | w | landuse=industrial;name:ja=霊興火力発電所;name:ru=Тепловая электростанция Ёнхын;operato
-영흥힐링센터 | 37.27104 | 126.44663 | n | guest_house=pension;tourism=guest_house
-오이도 | 37.36235 | 126.73864 | n | local_ref=2;operator=한국철도공사;operator:en=Korea Railroad Corporation;operator:ko=한
-오이도 | 37.36111 | 126.73816 | n | local_ref=3;operator=한국철도공사;operator:en=Korea Railroad Corporation;operator:ko=한
-오이도 | 37.36192 | 126.73849 | n | alt_name=오이도역;alt_name:en=Oido Station;alt_name:ko-Latn=Oidoyeok;name:ja=烏耳島;nam
-오이도 | 37.3628 | 126.73872 | n | local_ref=1;operator=한국철도공사;operator:en=Korea Railroad Corporation;operator:ko=한
-오이도 | 37.36109 | 126.73828 | n | local_ref=4;operator=한국철도공사;operator:en=Korea Railroad Corporation;operator:ko=한
-오이도 | 37.36196 | 126.73842 | w | building=train_station;layer=1
-오이도 등대교회 | 37.36269 | 126.73677 | n | amenity=place_of_worship;denomination=catholic;religion=christian
-오이도 종합 어시장 | 37.34471 | 126.68888 | n | amenity=marketplace;landuse=retail;name:ja=烏耳島総合魚市場;name:ko-Latn=Oido Jonghap Eo
-오이도1길 | 37.34279 | 126.69059 | w | highway=residential
-오이도2길 | 37.34308 | 126.69029 | w | highway=residential
-오이도3길 | 37.34264 | 126.68973 | w | highway=residential
-오이도4길 | 37.34273 | 126.68937 | w | highway=residential
-오이도5길 | 37.34291 | 126.6886 | w | highway=residential
-오이도6길 | 37.343 | 126.68823 | w | highway=residential
-오이도7길 | 37.34308 | 126.68787 | w | highway=residential
-오이도8길 | 37.34438 | 126.68934 | w | highway=residential
-오이도9길 | 37.34148 | 126.68769 | w | highway=residential;source:highway=bing
-오이도9길 | 37.34108 | 126.68933 | w | highway=residential
-오이도로 | 37.34725 | 126.70073 | w | highway=secondary;lanes=2;lit=yes;oneway=no;surface=asphalt
-오이도로 | 37.34177 | 126.69103 | w | highway=secondary;lanes=2;lit=yes;name:ja=烏耳島路;oneway=no;surface=asphalt
-오이도로135번길 | 37.34512 | 126.68822 | w | highway=residential;source:highway=bing
-오이도로157번길 | 37.3465 | 126.69032 | w | highway=residential
-오이도로157번길 | 37.34554 | 126.69038 | w | highway=residential
-오이도모델민박 | 37.34565 | 126.69017 | n | name:ko-Latn=Oidomodelminbak;tourism=motel
-오이도어린이공원 | 37.34168 | 126.68996 | w | leisure=park;source=https://www.siheung.go.kr/portal/contents.do?mId=0710010300
-오이도어시장로 | 37.34513 | 126.68792 | w | highway=residential;name:ja=烏耳島魚市場路
-오이도어시장로 | 37.34438 | 126.69109 | w | highway=residential;name:ja=烏耳島魚市場路
-오이도어시장로 | 37.34489 | 126.68894 | w | highway=pedestrian;name:ja=烏耳島魚市場路
-오이도역 주차장 입구 | 37.36169 | 126.73743 | n | amenity=parking;fee=no;parking=surface
-오이도역 주차장 출구 | 37.36238 | 126.73791 | n | amenity=parking;parking=surface
-오이도옥기도횟집 | 37.34822 | 126.68899 | n | addr:housenumber=137;addr:postcode=15015;addr:street=오이도로;amenity=restaurant;cui
-오이도입구사거리 | 37.34582 | 126.70301 | n | junction=yes;name:ko-Latn=Oidoipgusageori
-오이도중앙로 | 37.34462 | 126.68965 | w | highway=residential;source:highway=bing
-오이도중앙로 | 37.34629 | 126.68945 | w | highway=residential
-오이도중앙로36번길 | 37.34531 | 126.68909 | w | highway=residential
-오이도중앙로36번길 | 37.34571 | 126.68964 | w | highway=residential
-오이도중앙로36번길 | 37.3458 | 126.68925 | w | highway=residential
-오이도중앙로36번길 | 37.34588 | 126.68891 | w | highway=residential
-오이도중앙로3번길 | 37.3477 | 126.69179 | w | highway=residential
-오이도중앙로5번길 | 37.34745 | 126.69169 | w | highway=residential
-오이도중앙로5번길 | 37.34691 | 126.69128 | w | highway=residential
-오이도중앙로5번길 | 37.34682 | 126.69166 | w | highway=residential
-오이도중앙로5번길 | 37.34674 | 126.69202 | w | highway=residential
-오이도중앙로5번길 | 37.347 | 126.6909 | w | highway=residential
-오이도중앙로6번길 | 37.34718 | 126.69017 | w | highway=residential
-오이도중앙로6번길 | 37.34726 | 126.6898 | w | highway=residential
-오이도중앙로6번길 | 37.34735 | 126.68944 | w | highway=residential
-오이도중앙로6번길 | 37.34785 | 126.69002 | w | highway=residential
-오이도회조개구이 | 37.34805 | 126.69017 | n | addr:housenumber=127;addr:postcode=15015;addr:street=오이도로;amenity=restaurant;cui
-오이도회집 | 37.34802 | 126.6894 | n | amenity=restaurant;name:ko-Latn=Oidohoejip
-오천 ~ 월도 | 36.42716 | 126.49617 | w | route=ferry
-오천 자전거길 | 36.58162 | 127.30031 | w | bicycle=designated;foot=designated;highway=cycleway;segregated=no
-오천 자전거길 | 36.5268 | 127.3089 | w | bicycle=designated;foot=designated;highway=cycleway;oneway=no;segregated=no;surf
-오천 자전거길 | 36.58244 | 127.30089 | w | bicycle=designated;bridge=yes;foot=designated;highway=cycleway;layer=1;segregate
-오천 자전거길 | 36.58321 | 127.30366 | w | bicycle=designated;foot=designated;highway=cycleway;oneway=no;segregated=no;surf
-오천 자전거길 | 36.6595 | 127.388 | w | bicycle=designated;bridge=yes;foot=designated;highway=cycleway;layer=1;segregate
-오천 자전거길 | 36.65411 | 127.38086 | w | bicycle=designated;foot=designated;highway=cycleway;segregated=no
-오천 자전거길 | 36.55853 | 127.29735 | w | bicycle=designated;bridge=yes;foot=designated;highway=cycleway;layer=1;oneway=no
-오천 자전거길 | 36.57167 | 127.30021 | w | bicycle=designated;foot=designated;highway=cycleway;oneway=no;segregated=no;surf
-오천 자전거길 | 36.55483 | 127.29611 | w | bicycle=designated;foot=designated;highway=cycleway;oneway=no;segregated=no;surf
-오천 자전거길 | 36.54942 | 127.29432 | w | bicycle=designated;foot=designated;highway=cycleway;oneway=no;segregated=no;surf
-오천 자전거길 | 36.54836 | 127.29393 | w | bicycle=designated;bridge=yes;foot=designated;highway=cycleway;layer=1;oneway=no
-오천 자전거길 | 36.54681 | 127.29392 | w | bicycle=designated;foot=designated;highway=cycleway;motor_vehicle=agricultural;o
-오천 자전거길 | 36.53781 | 127.29409 | w | bicycle=designated;bridge=yes;foot=designated;highway=cycleway;layer=1;oneway=no
-오천 자전거길 | 36.54139 | 127.29476 | w | bicycle=designated;foot=designated;highway=cycleway;oneway=no;segregated=no;surf
-오천 자전거길 | 36.59961 | 127.3365 | w | highway=cycleway;oneway=no;surface=asphalt
-오천 자전거길 | 36.58391 | 127.30719 | w | bicycle=designated;bridge=yes;foot=designated;highway=cycleway;layer=1;oneway=no
-오천 자전거길 | 36.60127 | 127.33379 | w | bicycle=designated;foot=designated;highway=cycleway;oneway=no;segregated=no;surf
-오천 자전거길 | 36.62245 | 127.34931 | w | bicycle=designated;foot=designated;highway=cycleway
-오천 자전거길 | 36.6259 | 127.34942 | w | bicycle=designated;foot=designated;highway=cycleway;oneway=no;segregated=no;surf
-오천119안전센터 | 36.43705 | 126.53037 | w | addr:city=보령시;addr:housenumber=701;addr:postcode=33412;addr:province=충청남도;addr:s
-오천500냥 | 37.64087 | 127.02974 | n | addr:city=서울특별시;addr:district=강북구;addr:housenumber=47;addr:street=한천로132길;amenit
-오천간제미횟집 | 36.30118 | 127.33861 | n | amenity=restaurant;name:ko-Latn=Ocheonganjemihoetjip
-오천건강원 | 36.4375 | 126.51903 | n | addr:city=보령시;addr:housenumber=758;addr:postcode=33412;addr:province=충청남도;addr:s
-오천골산 | 37.24376 | 127.35474 | n | ele=188.1;natural=peak
-오천교삼거리 | 37.2559 | 127.34995 | n | junction=yes
-오천교차로 | 37.2547 | 127.36271 | n | junction=yes
-오천교차로 | 36.43187 | 126.52583 | n | junction=yes
-오천교회 | 36.43856 | 126.52485 | n | addr:city=보령시;addr:housenumber=807-9;addr:postcode=33412;addr:province=충청남도;addr
-오천구세군교회 | 36.43694 | 126.51861 | n | addr:city=보령시;addr:housenumber=750-1;addr:postcode=33412;addr:province=충청남도;addr
-오천냥포차 | 37.53448 | 127.06735 | n | addr:city=광진구;addr:housenumber=41;addr:province=서울특별시;addr:street=뚝섬로30길;addr:su
-오천농협 | 36.38197 | 126.43221 | n | amenity=bank;atm=yes;name:ko-Latn=Ocheonnonghyeop
-오천로 | 37.24951 | 127.35662 | w | highway=tertiary;lanes=2
-오천로 | 37.2455 | 127.36091 | w | highway=tertiary;lanes=2;surface=asphalt
-오천로 | 37.2559 | 127.34995 | w | highway=tertiary;lanes=2
-오천로 | 37.25422 | 127.35154 | w | highway=tertiary;lanes=2
-오천로12번길 | 37.25509 | 127.34286 | w | highway=residential
-오천로12번길 | 37.25534 | 127.34936 | w | highway=residential
-오천로12번길 | 37.25543 | 127.34792 | w | bridge=yes;highway=residential;layer=1
-오천로12번길 | 37.25426 | 127.34025 | w | highway=residential;layer=-1;maxheight=3.8;maxwidth=3.8;tunnel=yes
-오천로164번길 | 37.24479 | 127.36035 | w | highway=residential
-오천로164번길 | 37.2415 | 127.35658 | w | highway=residential
-오천로164번길 | 37.24466 | 127.35887 | w | highway=residential;layer=-1;tunnel=yes
-오천로164번길 | 37.23911 | 127.35289 | w | highway=service
-오천로24번길 | 37.25448 | 127.34987 | w | highway=residential
-오천리 | 37.24018 | 127.35307 | n | name:el=Ότσον-ρι;name:ko-Hani=午川里;name:ko-Latn=Ocheon-ri;place=village
-오천맛고을식당 | 36.43879 | 126.52095 | n | addr:housenumber=839-8;addr:postcode=33412;addr:province=충청남도;addr:street=충청수영로;
-오천면 | 36.43713 | 126.52333 | n | name:el=Ότσον-μιον;name:ja=鰲川面;name:ko-Hani=鰲川面;name:ko-Latn=Ocheon-myeon;name:z
-오천면 행정복지센터 원산도출장소 | 36.38023 | 126.4322 | w | landuse=commercial
-오천면주민자치센터 | 36.43697 | 126.52333 | w | addr:city=보령시;addr:housenumber=281;addr:postcode=33412;addr:province=충청남도;addr:s
-오천면체육관 | 36.43698 | 126.52264 | w | addr:city=보령시;addr:housenumber=297;addr:postcode=33412;addr:province=충청남도;addr:s
-오천면행정복지센터 | 36.43666 | 126.52355 | w | addr:city=보령시;addr:housenumber=281;addr:postcode=33412;addr:province=충청남도;addr:s
-오천바다식당 | 36.43885 | 126.52113 | n | addr:housenumber=839-4;addr:postcode=33412;addr:province=충청남도;addr:street=충청수영로;
-오천변전소 | 37.2551 | 127.3535 | w | building=yes;frequency=60;location=indoor;power=substation;substation=distributi
-오천보건지소 | 36.43859 | 126.52172 | n | amenity=hospital;name:ko-Latn=Ocheonbogeonjiso
-오천보건지소 | 36.43799 | 126.51893 | n | addr:city=보령시;addr:housenumber=9;addr:postcode=33412;addr:province=충청남도;addr:str
-오천복지회관 | 36.43804 | 126.51945 | n | addr:city=보령시;addr:housenumber=765;addr:postcode=33412;addr:province=충청남도;addr:s
-오천부동산 | 36.4383 | 126.52175 | n | addr:city=보령시;addr:housenumber=833;addr:postcode=33412;addr:province=충청남도;addr:s
-오천사거리 | 37.25284 | 127.35305 | n | junction=yes
-오천삼거리 | 37.25449 | 127.36048 | n | junction=yes
-오천서해낚시 | 36.43899 | 126.52166 | n | addr:city=보령시;addr:housenumber=842;addr:postcode=33412;addr:province=충청남도;addr:s
-오천선상낚시 | 36.43356 | 126.50131 | n | addr:city=보령시;addr:housenumber=755;addr:postcode=33401;addr:province=충청남도;addr:s
-오천선착장 | 36.44013 | 126.52156 | n | amenity=ferry_terminal;ferry=yes;public_transport=station
-오천성 | 36.4378 | 126.51883 | n | addr:city=보령시;addr:housenumber=10;addr:postcode=33412;addr:province=충청남도;addr:st
-오천소리교회 | 36.42236 | 126.50208 | n | addr:city=보령시;addr:housenumber=515-2;addr:postcode=33406;addr:province=충청남도;addr
-오천슈퍼 | 36.43895 | 126.52143 | n | addr:housenumber=841;addr:postcode=33412;addr:province=충청남도;addr:street=충청수영로;ad
-오천여인숙 | 36.43919 | 126.52164 | n | addr:city=보령시;addr:housenumber=846;addr:postcode=33412;addr:province=충청남도;addr:s
-오천영환낚시 | 36.43839 | 126.52193 | n | addr:city=보령시;addr:housenumber=834;addr:postcode=33412;addr:province=충청남도;addr:s
-오천우체국 | 36.43792 | 126.52235 | n | amenity=post_office;name:ko-Latn=Ocheonucheguk
-오천우체국 | 36.4378 | 126.52237 | w | addr:city=보령시;addr:housenumber=825;addr:postcode=33412;addr:province=충청남도;addr:s
-오천육교 | 36.43178 | 126.52371 | w | bridge=yes;highway=tertiary;layer=1;surface=asphalt
-오천자전거길 | 36.62845 | 127.34955 | w | bicycle=designated;bridge=yes;foot=designated;highway=cycleway;layer=1;oneway=no
-오천자전거길 | 36.64935 | 127.37054 | w | bicycle=designated;foot=designated;highway=cycleway;oneway=no;segregated=no
-오천자전거길 | 36.67251 | 127.39334 | w | bicycle=designated;bridge=yes;foot=designated;highway=cycleway;layer=1;oneway=no
-오천자전거길 | 36.51781 | 127.3215 | w | bicycle=designated;foot=designated;highway=cycleway;segregated=no
-오천작은도서관 | 36.43871 | 126.52185 | n | addr:city=보령시;addr:housenumber=838;addr:postcode=33412;addr:province=충청남도;addr:s
-오천제 | 35.89323 | 127.19704 | w | natural=water;water=reservoir
-오천조은낚시 | 36.43834 | 126.51931 | n | addr:city=보령시;addr:housenumber=761-6;addr:postcode=33412;addr:province=충청남도;addr
-오천종합상사 | 37.24884 | 127.35702 | n | addr:city=이천시;addr:housenumber=104;addr:postcode=17387;addr:province=경기도;addr:st
-오천중앙로 | 36.42027 | 126.53978 | w | highway=tertiary;surface=asphalt
-오천중앙로 | 36.40651 | 126.52245 | w | highway=tertiary;surface=asphalt
-오천중앙로 | 36.42244 | 126.55761 | w | highway=tertiary;surface=asphalt
-오천중앙로 | 36.41417 | 126.53297 | w | highway=tertiary
-오천중앙로 | 36.42196 | 126.53907 | w | highway=residential
-오천중앙로 | 36.42185 | 126.53861 | w | highway=residential
-오천중앙로 | 36.42208 | 126.53859 | w | highway=service
-오천중앙로 | 36.42204 | 126.53841 | w | highway=service
-오천중앙로 | 36.42116 | 126.53855 | w | highway=service
-오천중앙로 | 36.42154 | 126.53881 | w | highway=service
-오천중앙로 | 36.41906 | 126.54098 | w | highway=track;surface=concrete;tracktype=grade1
-오천중앙로 | 36.41995 | 126.54009 | w | highway=track;surface=concrete;tracktype=grade1
-오천중앙로 | 36.41955 | 126.54049 | w | bridge=yes;highway=track;layer=1;surface=concrete;tracktype=grade1
-오천중앙로 | 36.41771 | 126.53928 | w | highway=track;surface=concrete;tracktype=grade1
-오천중앙로 | 36.41895 | 126.53804 | w | highway=track;surface=concrete;tracktype=grade1
-오천중앙로 | 36.41835 | 126.53864 | w | bridge=yes;highway=track;layer=1;surface=concrete;tracktype=grade1
-오천중앙로 | 36.41598 | 126.53868 | w | highway=track;surface=concrete;tracktype=grade1
-오천중앙로 | 36.41743 | 126.5364 | w | highway=track;surface=concrete;tracktype=grade1
-오천중앙로 | 36.41709 | 126.53673 | w | bridge=yes;highway=track;layer=1;surface=concrete;tracktype=grade1
-오천중앙로 | 36.41572 | 126.53461 | w | highway=track;surface=concrete;tracktype=grade1
-오천중앙로 | 36.42203 | 126.54114 | w | highway=service
-오천집 신촌본점 | 37.55612 | 126.93485 | n | amenity=restaurant
-오천천 | 37.26826 | 127.35394 | w | waterway=stream
-오천천 | 37.28241 | 127.35123 | w | waterway=stream
-오천천 | 37.27969 | 127.35106 | w | layer=-1;tunnel=culvert;waterway=stream
-오천천 | 37.27863 | 127.3514 | w | waterway=stream
-오천초등학교 | 36.43849 | 126.52312 | n | addr:city=보령시;addr:housenumber=822;addr:postcode=33412;addr:province=충청남도;addr:s
-오천초등학교 | 36.43832 | 126.52328 | w | addr:city=보령시;addr:housenumber=822;addr:postcode=33412;addr:province=충청남도;addr:s
-오천초등학교 병설유치원 | 36.43844 | 126.52283 | n | addr:city=보령시;addr:housenumber=822;addr:postcode=33412;addr:province=충청남도;addr:s
-오천초등학교삽시분교장 | 36.34994 | 126.3583 | w | amenity=school;isced:level=1
-오천칡냉면 | 36.43558 | 126.517 | n | addr:city=보령시;addr:housenumber=734-6;addr:postcode=33412;addr:province=충청남도;addr
-오천터널앞교차로 | 37.25486 | 127.37624 | n | junction=yes;name:ko-Latn=Ocheonteoneorapgyocharo
-오천프로낚시 | 36.43855 | 126.52163 | n | addr:city=보령시;addr:housenumber=835-22;addr:postcode=33412;addr:province=충청남도;add
-오천학성낚시 | 36.43402 | 126.50153 | n | addr:city=보령시;addr:housenumber=750;addr:postcode=33401;addr:province=충청남도;addr:s
-오천항 | 36.43965 | 126.51945 | n | amenity=ferry_terminal;ferry=yes;public_transport=station
-오천항25시낚시 | 36.43909 | 126.52166 | n | addr:city=보령시;addr:housenumber=844;addr:postcode=33412;addr:province=충청남도;addr:s
-오천항교차로 | 36.43526 | 126.51572 | n | junction=yes
-오천항민박 | 36.43726 | 126.51981 | n | addr:city=보령시;addr:housenumber=22-2;addr:postcode=33412;addr:province=충청남도;addr:
-오천항성령낚시 | 36.43861 | 126.52008 | n | addr:city=보령시;addr:housenumber=771-4;addr:postcode=33412;addr:province=충청남도;addr
-오천항수산물센터 | 36.43937 | 126.52069 | n | addr:city=보령시;addr:housenumber=782-7;addr:postcode=33412;addr:province=충청남도;addr
-오천항수산물판매센터 | 36.43945 | 126.52093 | n | addr:city=보령시;addr:housenumber=782-9;addr:postcode=33412;addr:province=충청남도;addr
-오천항여객터미널 | 36.43961 | 126.52142 | n | addr:city=보령시;addr:housenumber=782-13;addr:postcode=33412;addr:province=충청남도;add
-오천해안로 | 36.42933 | 126.50863 | w | highway=secondary;ref=610;surface=asphalt
-오천해안로 | 36.41001 | 126.50844 | w | highway=secondary;ref=610;surface=asphalt
-오천해안로 | 36.42307 | 126.50334 | w | highway=residential;name:ko-Latn=Ocheonhaeallo
-오천해안로 | 36.42211 | 126.49978 | w | highway=residential;name:ko-Latn=Ocheonhaeallo
-오천해안로 | 36.41333 | 126.50422 | w | highway=secondary;ref=610
-오천해안로 | 36.43832 | 126.52015 | w | highway=residential;surface=asphalt
-오천해안로 | 36.43807 | 126.51919 | w | highway=residential
-오천해안로 | 36.43883 | 126.51955 | w | highway=residential
-오천해안로 | 36.43882 | 126.52036 | w | highway=residential
-오천해안로 | 36.43765 | 126.51962 | w | highway=residential
-오천해안로 | 36.41968 | 126.4984 | w | highway=tertiary;name:ko-Latn=Ocheonhaeallo;surface=asphalt
-오천해안로 | 36.42249 | 126.5037 | w | highway=secondary;name:ko-Latn=Ocheonhaeallo;noname=yes;ref=610;surface=asphalt
-오천해안로 | 36.41601 | 126.50504 | w | highway=secondary;ref=610
-오천해안로 | 36.4035 | 126.50664 | w | highway=secondary;ref=610;surface=asphalt
-오천해안로 | 36.39889 | 126.50224 | w | highway=secondary;ref=610;surface=asphalt
-오천해안로 | 36.40367 | 126.50084 | w | highway=tertiary;surface=asphalt
-오천해안로 | 36.40453 | 126.51162 | w | highway=secondary;ref=610;surface=asphalt
-오천해안로 | 36.40542 | 126.51162 | w | bridge=yes;highway=secondary;layer=1;ref=610;surface=asphalt
-오천해안로 | 36.42194 | 126.50123 | w | highway=tertiary;name:ko-Latn=Ocheonhaeallo;surface=asphalt
-오천해안로 | 36.42164 | 126.50033 | w | bridge=yes;highway=tertiary;layer=1;name:ko-Latn=Ocheonhaeallo;surface=asphalt
-오천해안로 | 36.43653 | 126.51747 | w | highway=residential;surface=asphalt
-오천해안로 | 36.43529 | 126.51515 | w | highway=service
-오천해안로 | 36.43903 | 126.52078 | w | highway=service
-오천해안로 | 36.43891 | 126.52059 | w | highway=service
-오천해안로 | 36.43849 | 126.52057 | w | highway=service
-오천해안로 | 36.43552 | 126.51638 | w | highway=service
-오천해안로 | 36.43587 | 126.51748 | w | highway=residential
-오천해안로 | 36.43635 | 126.51703 | w | highway=residential;oneway=yes
-오천해안로 | 36.43622 | 126.51673 | w | highway=residential;oneway=yes
-오천해안로 | 36.43576 | 126.51696 | w | highway=residential
-오천해안로 | 36.43739 | 126.51885 | w | highway=service
-오천해안로 | 36.43729 | 126.5199 | w | highway=residential
-오천해안로 | 36.42318 | 126.503 | w | highway=service;name:ko-Latn=Ocheonhaeallo
-오천해안로 | 36.42339 | 126.50309 | w | highway=service;name:ko-Latn=Ocheonhaeallo
-오천해안로 | 36.42343 | 126.50342 | w | highway=service;name:ko-Latn=Ocheonhaeallo
-오천해안로 | 36.42307 | 126.49803 | w | highway=residential;name:ko-Latn=Ocheonhaeallo
-오천해안로 | 36.42295 | 126.50079 | w | highway=residential;name:ko-Latn=Ocheonhaeallo
-오천해안로 | 36.4231 | 126.50169 | w | highway=service;name:ko-Latn=Ocheonhaeallo
-오천해안로 | 36.42356 | 126.50275 | w | highway=service;name:ko-Latn=Ocheonhaeallo
-오천해안로 | 36.42328 | 126.5024 | w | highway=service;name:ko-Latn=Ocheonhaeallo
-오천해안로 | 36.42285 | 126.50252 | w | highway=service
-오천해안로 | 36.42373 | 126.5037 | w | highway=service
-오천해안로 | 36.42353 | 126.50381 | w | highway=service
-오천해안로 | 36.42352 | 126.50425 | w | highway=service
-오천해안로 | 36.42361 | 126.50436 | w | highway=service
-오천해안로 | 36.42346 | 126.50416 | w | highway=service
-오천해안로 | 36.42393 | 126.50429 | w | highway=service
-오천해안로 | 36.42762 | 126.50766 | w | highway=residential
-오천해안로 | 36.42665 | 126.50528 | w | highway=service
-오천해양파출소 | 36.43858 | 126.51818 | n | addr:city=보령시;addr:housenumber=781-20;addr:postcode=33412;addr:province=충청남도;add
-오천향뉴펜션 | 36.43397 | 126.52462 | n | addr:city=보령시;addr:housenumber=253;addr:postcode=33412;addr:province=충청남도;addr:s
-오천화물 | 37.25758 | 127.35848 | n | addr:housenumber=19;addr:street=억만리로;addr:subdistrict=마장면;check_date=2026-04-23;
-오천화물 | 37.62426 | 127.18648 | n | addr:housenumber=9;addr:street=경춘로725번길;check_date=2026-04-30;level=1;level:ref=
-오천회관빌딩 | 37.56467 | 126.97632 | w | addr:city=서울특별시;addr:district=중구;addr:housenumber=7;addr:postcode=04515;addr:str
-외안흥교 | 37.92888 | 127.0449 | w | layer=1;man_made=bridge
-원산도 | 36.37594 | 126.40882 | w | name:ko-Hani=元山島;name:zh=元山島;name:zh-Hans=元山岛;name:zh-Hant=元山島;natural=coastline
-원산도1길 | 36.38177 | 126.43374 | w | highway=residential
-원산도1길 | 36.38213 | 126.43238 | w | highway=service
-원산도1길 | 36.38291 | 126.43339 | w | highway=service
-원산도1길 | 36.38282 | 126.4338 | w | highway=residential
-원산도1길 | 36.3837 | 126.43322 | w | highway=residential
-원산도1길 | 36.38217 | 126.43331 | w | highway=service
-원산도1길 | 36.38083 | 126.43289 | w | highway=service
-원산도1길 | 36.38118 | 126.43365 | w | highway=service
-원산도2길 | 36.38305 | 126.43181 | w | highway=service
-원산도2길 | 36.38237 | 126.43214 | w | highway=service
-원산도2길 | 36.38158 | 126.43127 | w | highway=service
-원산도2길 | 36.37539 | 126.42411 | w | highway=residential;surface=concrete
-원산도2길 | 36.37089 | 126.41914 | w | highway=residential;name:ko-Latn=Wonsandoigil;surface=asphalt
-원산도2길 | 36.37176 | 126.42041 | w | highway=residential;name:ko-Latn=Wonsandoigil;surface=asphalt
-원산도2길 | 36.37797 | 126.41529 | w | highway=residential;name:ko-Latn=Wonsandoigil
-원산도2길 | 36.38022 | 126.42409 | w | highway=service
-원산도2길 | 36.37986 | 126.42643 | w | highway=service
-원산도2길 | 36.38012 | 126.42898 | w | highway=tertiary;surface=asphalt
-원산도2길 | 36.38169 | 126.43283 | w | highway=tertiary;junction=roundabout;oneway=yes;surface=asphalt
-원산도3길 | 36.37472 | 126.43003 | w | highway=service;name:ko-Latn=Wonsandosamgil
-원산도3길 | 36.3712 | 126.43184 | w | highway=residential;name:ko-Latn=Wonsandosamgil
-원산도3길 | 36.38205 | 126.43284 | w | highway=service
-원산도3길 | 36.38311 | 126.43272 | w | highway=service
-원산도3길 | 36.38351 | 126.4329 | w | highway=service
-원산도3길 | 36.38021 | 126.43313 | w | highway=service
-원산도3길 | 36.37016 | 126.42761 | w | highway=service;name:ko-Latn=Wonsandosamgil
-원산도3길 | 36.36957 | 126.43065 | w | highway=service;name:ko-Latn=Wonsandosamgil
-원산도3길 | 36.36977 | 126.43125 | w | highway=service;name:ko-Latn=Wonsandosamgil
-원산도3길 | 36.37077 | 126.43259 | w | highway=service;name:ko-Latn=Wonsandosamgil
-원산도3길 | 36.3715 | 126.43308 | w | highway=service;name:ko-Latn=Wonsandosamgil
-원산도3길 | 36.37062 | 126.43247 | w | highway=service;name:ko-Latn=Wonsandosamgil
-원산도3길 | 36.36976 | 126.41999 | w | highway=residential;name:ko-Latn=Wonsandosamgil;surface=asphalt
-원산도3길 | 36.36944 | 126.42947 | w | highway=residential;name:ko-Latn=Wonsandosamgil
-원산도3길 | 36.37165 | 126.43094 | w | highway=service;name:ko-Latn=Wonsandosamgil
-원산도3길 | 36.37143 | 126.42738 | w | highway=service;name:ko-Latn=Wonsandosamgil
-원산도3길 | 36.36831 | 126.42885 | w | highway=residential;name:ko-Latn=Wonsandosamgil
-원산도3길 | 36.36957 | 126.42072 | w | highway=service;name:ko-Latn=Wonsandosamgil
-원산도3길 | 36.36892 | 126.42158 | w | highway=service;name:ko-Latn=Wonsandosamgil
-원산도3길 | 36.36818 | 126.42171 | w | highway=service;name:ko-Latn=Wonsandosamgil
-원산도3길 | 36.36487 | 126.42557 | w | highway=track
-원산도3길 | 36.36944 | 126.43122 | w | highway=residential;name:ko-Latn=Wonsandosamgil
-원산도3길 | 36.38188 | 126.43279 | w | highway=service
-원산도3길 | 36.38267 | 126.43321 | w | highway=service
-원산도3길 | 36.38242 | 126.43272 | w | highway=service
-원산도3길 | 36.38006 | 126.43201 | w | highway=service
-원산도3길 | 36.36993 | 126.42722 | w | highway=unclassified;layer=1;surface=asphalt
-원산도3길 | 36.37401 | 126.43012 | w | highway=residential;name:ko-Latn=Wonsandosamgil
-원산도3길 | 36.36982 | 126.42674 | w | highway=unclassified;layer=1;surface=asphalt
-원산도3길 | 36.36784 | 126.42159 | w | highway=service;name:ko-Latn=Wonsandosamgil
-원산도3길 | 36.36676 | 126.42242 | w | highway=track;name:ko-Latn=Wonsandosamgil;surface=dirt
-원산도3길 | 36.36916 | 126.42526 | w | highway=tertiary;layer=1;surface=asphalt
-원산도3길 | 36.36336 | 126.43111 | w | highway=service
-원산도3길 | 36.36428 | 126.42614 | w | highway=track
-원산도3길 | 36.36483 | 126.42356 | w | highway=track;surface=concrete;tracktype=grade1
-원산도3길 | 36.3682 | 126.42347 | w | highway=tertiary;surface=asphalt
-원산도3길 | 36.38058 | 126.43198 | w | highway=unclassified;surface=asphalt
-원산도3길 | 36.36996 | 126.4317 | w | highway=service;name:ko-Latn=Wonsandosamgil
-원산도3길 | 36.36871 | 126.42194 | w | highway=service;name:ko-Latn=Wonsandosamgil
-원산도3길 | 36.36956 | 126.42104 | w | highway=service;name:ko-Latn=Wonsandosamgil
-원산도4길 | 36.36363 | 126.44109 | w | highway=residential;name:ko-Latn=Wonsandosagil;surface=asphalt
-원산도4길 | 36.35875 | 126.45414 | w | highway=service
-원산도4길 | 36.36675 | 126.43056 | w | highway=service;name:ko-Latn=Wonsandosagil
-원산도4길 | 36.36482 | 126.43274 | w | highway=residential;name:ko-Latn=Wonsandosagil;surface=asphalt
-원산도4길 | 36.36531 | 126.43279 | w | highway=residential;name:ko-Latn=Wonsandosagil;surface=asphalt
-원산도4길 | 36.3651 | 126.43276 | w | highway=residential;name:ko-Latn=Wonsandosagil;surface=asphalt
-원산도4길 | 36.36445 | 126.43276 | w | highway=residential;name:ko-Latn=Wonsandosagil;surface=asphalt
-원산도4길 | 36.35914 | 126.45377 | w | highway=living_street
-원산도4길 | 36.35946 | 126.45409 | w | highway=service
-원산도4길 | 36.36352 | 126.43316 | w | highway=residential;name:ko-Latn=Wonsandosagil;surface=asphalt
-원산도4길 | 36.36662 | 126.43253 | w | highway=residential;name:ko-Latn=Wonsandosagil
-원산도4길 | 36.36607 | 126.43323 | w | highway=residential;name:ko-Latn=Wonsandosagil
-원산도4길 | 36.3641 | 126.43504 | w | highway=service;name:ko-Latn=Wonsandosagil
-원산도5길 | 36.37957 | 126.39699 | w | highway=tertiary;surface=asphalt
-원산도5길 | 36.37601 | 126.40166 | w | highway=tertiary;junction=roundabout;oneway=yes;surface=asphalt
-원산도5길 | 36.37506 | 126.40656 | w | highway=tertiary;surface=asphalt
-원산도5길 | 36.37159 | 126.41302 | w | highway=residential;name:ko-Latn=Wonsandoogil
-원산도6길 | 36.369 | 126.4111 | w | highway=residential;name:ko-Latn=Wonsandoyukgil;surface=concrete;tracktype=grade
-원산도6길 | 36.36691 | 126.41297 | w | highway=service;name:ko-Latn=Wonsandoyukgil
-원산도6길 | 36.36591 | 126.41173 | w | highway=service;name:ko-Latn=Wonsandoyukgil
-원산도6길 | 36.36672 | 126.41167 | w | highway=service;name:ko-Latn=Wonsandoyukgil
-원산도6길 | 36.3668 | 126.41415 | w | highway=service
-원산도6길 | 36.36936 | 126.41316 | w | highway=service;name:ko-Latn=Wonsandoyukgil
-원산도6길 | 36.36693 | 126.41375 | w | highway=residential;name:ko-Latn=Wonsandoyukgil
-원산도6길 | 36.36966 | 126.41435 | w | highway=service;name:ko-Latn=Wonsandoyukgil
-원산도6길 | 36.36648 | 126.41953 | w | highway=residential;name:ko-Latn=Wonsandoyukgil;surface=concrete;tracktype=grade
-원산도6길 | 36.36623 | 126.41629 | w | highway=residential;name:ko-Latn=Wonsandoyukgil;surface=concrete;tracktype=grade
-원산도6길 | 36.36822 | 126.41334 | w | highway=service
-원산도6길 | 36.36613 | 126.41711 | w | highway=service;name:ko-Latn=Wonsandoyukgil
-원산도6길 | 36.36536 | 126.4176 | w | highway=service;name:ko-Latn=Wonsandoyukgil
-원산도6길 | 36.36568 | 126.41733 | w | highway=service;name:ko-Latn=Wonsandoyukgil
-원산도7길 | 36.36893 | 126.39883 | w | highway=residential;surface=asphalt
-원산도7길 | 36.36889 | 126.39662 | w | highway=tertiary;surface=asphalt
-원산도7길 | 36.36984 | 126.40564 | w | highway=tertiary;surface=asphalt
-원산도7길 | 36.36941 | 126.40252 | w | highway=tertiary;surface=asphalt
-원산도7길 | 36.3692 | 126.40056 | w | highway=residential;surface=asphalt
-원산도7길 | 36.36937 | 126.39946 | w | highway=tertiary;surface=asphalt
-원산도7길 | 36.37149 | 126.40819 | w | highway=residential;surface=asphalt
-원산도공영주차장 | 36.36909 | 126.42832 | w | amenity=parking
-원산도공영주차장 | 36.36918 | 126.42624 | w | amenity=parking
-원산도공영주차장 | 36.36992 | 126.4252 | w | amenity=parking
-원산도공인중개사사무소 | 36.3643 | 126.43246 | n | addr:city=보령시;addr:housenumber=48-12;addr:postcode=33411;addr:province=충청남도;addr
-원산도리 | 36.36992 | 126.42221 | n | name:el=Ουόνσαντο-ρι;name:ko-Latn=Wonsando-ri;place=village
-원산도맛집 | 36.37328 | 126.43036 | n | addr:city=보령시;addr:housenumber=107-49;addr:postcode=33411;addr:province=충청남도;add
-원산도백사장민박 | 36.36033 | 126.45392 | n | name:ko-Latn=Wonsandobaeksajangminbak;tourism=motel
-원산도보건진료소 | 36.38218 | 126.43326 | n | amenity=clinic;name:ko-Latn=Wonsandobogeonjinnyoso
-원산도보건진료소 | 36.36959 | 126.428 | w | addr:city=보령시;addr:housenumber=108;addr:postcode=33411;addr:province=충청남도;addr:s
-원산도정든민박 | 36.37422 | 126.40777 | n | name:ko-Latn=Wonsandojeongdeunminbak;tourism=motel
-원산도중기연합회 | 36.37147 | 126.41818 | n | addr:city=보령시;addr:housenumber=124;addr:postcode=33411;addr:province=충청남도;addr:s
-원산도캠핑장 소록도야영장 | 36.36257 | 126.43301 | n | tourism=camp_pitch
-원산도캠핑장 소록도야영장 | 36.3625 | 126.43303 | w | backcountry=yes;tourism=camp_site
-원산도해수욕장 | 36.36273 | 126.42837 | w | lifeguard=no;natural=beach
-원산도해수욕장 종합관리사무소 | 36.36376 | 126.42785 | w | building=yes
-원산도해수욕장주차장 | 36.36307 | 126.43393 | w | amenity=parking
-유영목재 | 37.58642 | 127.0491 | n | addr:city=서울특별시;addr:district=동대문구;addr:housenumber=143;addr:postcode=02462;addr
-인생건어물맥주 영흥점 | 37.25696 | 126.49522 | n | amenity=bar
-인천 영흥도 해상 | 37.23881 | 126.48574 | n | tourism=viewpoint
-인천영흥고등학교 | 37.2659 | 126.47968 | n | addr:housenumber=107;amenity=school;website=https://youngheung.icems.kr/;wikidat
-인천영흥중학교 | 37.26592 | 126.48039 | n | addr:housenumber=107;amenity=school;website=https://youngheung.icems.kr/
-인천옹진농협 영흥지점 | 37.26037 | 126.4938 | w | addr:housenumber=25;building=yes;office=company
-인천항(남항) | 37.4437 | 126.61115 | w | area=yes;harbour=yes;name:ja=仁川港(南港);name:zh=仁川港(南港)
-인천해양경찰서 영흥파출소 | 37.25491 | 126.49827 | w | addr:housenumber=109-18;amenity=police;building=yes
-인천환경공단 승기사업소 진두공공하수처리시설 | 37.26158 | 126.49006 | w | man_made=wastewater_plant;name:ru=Общественные очистные сооружения в Джинду
-장미막창 영흥점 | 37.25802 | 126.49482 | w | addr:housenumber=11-4;amenity=restaurant;building=yes
-장충동 진두부집 | 37.56092 | 127.0053 | n | addr:city=중구;addr:housenumber=39;addr:province=서울특별시;addr:street=동호로24길;addr:sub
-전곡항 | 37.1877 | 126.65076 | n | amenity=ferry_terminal;ferry=yes;name:ru=Порт Чонгок;public_transport=station
-전곡항교차로 | 37.19099 | 126.65587 | n | junction=yes
-전곡항로 | 37.19292 | 126.66417 | w | highway=secondary;name:ja=全谷港路;name:ko-Hani=全谷港路;name:zh=全谷港路;name:zh-Hans=全谷港路;
-전곡항로 | 37.18716 | 126.65314 | w | highway=residential;name:ja=全谷港路;name:ko-Hani=全谷港路;name:zh=全谷港路;name:zh-Hans=全谷港
-전곡항로 | 37.19052 | 126.65576 | w | highway=tertiary;name:ja=全谷港路;name:ko-Hani=全谷港路;name:zh=全谷港路;name:zh-Hans=全谷港路;n
-전곡항로14번길 | 37.18571 | 126.65267 | w | highway=residential
-전곡항로32번길 | 37.18699 | 126.65389 | w | highway=residential
-전곡항로50번길 | 37.18831 | 126.65517 | w | highway=residential
-전곡항로62번길 | 37.18913 | 126.65596 | w | highway=residential
-전곡항마리나 | 37.1867 | 126.65185 | n | addr:city=화성시;addr:district=만세구;addr:housenumber=5;addr:postcode=18554;addr:prov
-전곡항앞교차로 | 37.18651 | 126.65254 | n | junction=yes;name:ko-Latn=Jeongokhangapgyocharo
-족발야시장 영흥도점 | 37.25721 | 126.49562 | w | addr:housenumber=15;amenity=restaurant;building=yes
-지오천막사 | 36.99014 | 126.93251 | n | shop=천막,텐트제조
-진두길 | 37.23971 | 126.62336 | w | highway=service;lanes=2;lit=no;oneway=no
-진두길 | 37.2391 | 126.62014 | w | highway=residential
-진두길 | 37.23889 | 126.62275 | w | highway=service
-진두길 | 37.23955 | 126.62291 | w | highway=service
-진두길 | 37.24057 | 126.62293 | w | highway=service
-진두길 | 37.24478 | 126.62593 | w | highway=service
-진두길 | 37.24112 | 126.62199 | w | highway=service
-진두길 | 37.24112 | 126.62228 | w | highway=service
-진두길 | 37.24552 | 126.61939 | w | highway=service
-진두길 | 37.24251 | 126.62097 | w | highway=service
-진두길 | 37.2417 | 126.62102 | w | highway=service
-진두길 | 37.24146 | 126.62207 | w | highway=service
-진두길 | 37.24059 | 126.62103 | w | highway=service
-진두길 | 37.2427 | 126.62112 | w | highway=service
-진두길 | 37.23976 | 126.61537 | w | highway=service
-진두방앗간 | 37.26079 | 126.49826 | w | addr:housenumber=112;building=yes
-진두방파제 | 37.25571 | 126.50015 | w | area=yes;man_made=breakwater
-진두선착장 | 37.25356 | 126.49986 | n | amenity=ferry_terminal;ferry=yes;name:ru=Паромный терминал Джинду;public_transpo
-진두조은빌 | 37.26083 | 126.49755 | w | addr:housenumber=108;building=yes
-진두프라자 | 37.25722 | 126.49496 | w | addr:housenumber=150;amenity=marketplace;building=yes
-진두항 등대 | 37.25213 | 126.49853 | n | man_made=lighthouse;name:ru=Маяк в Джинду
-천리포1길 | 36.79348 | 126.14886 | w | highway=tertiary
-천리포1길 | 36.80878 | 126.15676 | w | highway=residential
-천리포수목원 | 36.8128 | 126.15865 | n | leisure=garden;name:ko-Latn=Cheolliposumokwon;tourism=picnic_site
-천리포수목원 | 36.79885 | 126.1495 | n | leisure=garden
-천리포수목원 | 36.79776 | 126.14941 | w | garden:type=botanical;leisure=garden;name:ko-Latn=Cheolliposumokwon;wikidata=Q12
-천리포펜션 | 36.79587 | 126.15111 | n | name:ko-Latn=Cheollipopensyeon;tourism=chalet
-천안흥타령관 | 36.78499 | 127.16554 | w | addr:city=천안시;addr:district=동남구;addr:housenumber=412;addr:postcode=31072;addr:pr
-콩물에빠진두부 | 37.54199 | 127.01653 | n | addr:city=서울특별시;addr:district=성동구;addr:full=서울특별시 성동구 한림말1길 8;addr:housenumber=8
-크라운호프 영흥도점 | 37.25782 | 126.49417 | n | amenity=bar
-큰가리기섬 | 37.31582 | 126.60594 | w | natural=coastline;place=islet
-탄도항 | 37.19035 | 126.64618 | n | amenity=ferry_terminal;ferry=yes;name:ru=Порт Тандо;public_transport=station
-탄도항 | 37.19214 | 126.6431 | w | landuse=harbour
-탄도항 방파제 등대 | 37.18978 | 126.64554 | n | man_made=lighthouse;name:ru=Маяк в порту Тандо у волнореза
-탄도항노을캠핑장 | 37.1941 | 126.64544 | w | group_only=yes;tourism=camp_site
-탄도항중화요리 | 37.19334 | 126.64709 | n | amenity=restaurant
-통진두레문화센터 | 37.69585 | 126.58676 | w | amenity=theatre;building=yes
-하나의료조합 영흥우리의원 | 37.25865 | 126.49379 | n | amenity=dentist;healthcare=dentist
-한강백사장 | 37.51798 | 127.08348 | w | access=yes;dog=no;natural=beach;operator=서울특별시 한강사업본부;surface=sand
-한결 연안부두 | 37.4818 | 126.90526 | n | addr:city=서울특별시;addr:district=관악구;addr:housenumber=40;addr:postcode=08769;addr:s
-한국마트 영흥점 | 37.2552 | 126.49658 | w | addr:housenumber=109-10;amenity=marketplace;building=yes
-한전kps영흥사업처사택 | 37.24981 | 126.47437 | w | landuse=residential
-해군영흥도전적비 | 37.25682 | 126.48566 | n | historic=monument
-해양경찰 드르니출장소 | 36.58974 | 126.31481 | w | building=yes
-해양경찰 마검포파출소 | 36.62212 | 126.28556 | w | addr:city=태안군;addr:housenumber=427-24;addr:province=충청남도;addr:street=마검포길;addr:t
-현대오일뱅크 오천농협주유소 | 36.44469 | 126.54208 | w | addr:city=보령시;addr:housenumber=564-5;addr:postcode=33412;addr:province=충청남도;addr
-홍원 | 37.55244 | 126.93806 | n | amenity=restaurant;cuisine=chinese
-홍원2리마을회관 | 37.01405 | 126.87945 | n | amenity=townhall
-홍원4리다목적회관 | 37.02185 | 126.87482 | n | amenity=townhall
-홍원6길 | 37.01148 | 126.86717 | w | highway=residential;surface=asphalt
-홍원6길 | 37.00892 | 126.86525 | w | highway=track;surface=asphalt;tracktype=grade1
-홍원6길 | 37.01004 | 126.86633 | w | highway=unclassified;surface=asphalt
-홍원6길 | 37.01261 | 126.86736 | w | highway=residential;oneway=yes;surface=asphalt
-홍원6길 | 37.0127 | 126.86737 | w | highway=residential;oneway=yes;surface=asphalt
-홍원6길19번길 | 37.00997 | 126.86772 | w | highway=residential
-홍원6길19번길 | 37.01057 | 126.86743 | w | highway=residential
-홍원6길19번길 | 37.00912 | 126.86859 | w | highway=residential
-홍원교차로 | 37.0112 | 126.88239 | n | junction=yes
-홍원교회 | 37.01528 | 126.87544 | w | addr:housenumber=431-6;addr:street=포승장안로;building=church
-홍원길 | 36.15731 | 126.5006 | w | highway=unclassified;review=no
-홍원길 | 37.0128 | 126.86178 | w | highway=residential;oneway=yes;surface=asphalt
-홍원길 | 37.01601 | 126.868 | w | highway=unclassified;surface=asphalt
-홍원길 | 36.15299 | 126.50393 | w | highway=tertiary;review=no
-홍원길 | 37.01276 | 126.86163 | w | highway=residential;oneway=yes
-홍원길 | 37.01275 | 126.86737 | w | highway=unclassified;oneway=yes;surface=asphalt
-홍원길 | 37.0127 | 126.86736 | w | highway=residential;oneway=yes;surface=asphalt
-홍원길 | 37.01324 | 126.85498 | w | highway=residential;oneway=yes;surface=asphalt
-홍원길 | 37.0182 | 126.86985 | w | highway=residential;oneway=yes;surface=asphalt
-홍원길 | 37.01823 | 126.87009 | w | highway=residential;oneway=yes;surface=asphalt
-홍원길 | 37.01813 | 126.8693 | w | highway=residential;oneway=yes;surface=asphalt
-홍원농깨길 | 37.02745 | 126.87264 | w | highway=track;surface=concrete;tracktype=grade1
-홍원농깨길 | 37.02339 | 126.8701 | w | highway=service
-홍원농깨길 | 37.02546 | 126.8673 | w | highway=service
-홍원농깨길 | 37.02731 | 126.86474 | w | highway=track;surface=concrete;tracktype=grade1
-홍원농깨길 | 37.02825 | 126.86826 | w | highway=track;surface=asphalt;tracktype=grade1
-홍원농깨길 | 37.02834 | 126.86918 | w | highway=track
-홍원로 | 36.65152 | 126.6649 | w | highway=residential;lanes=4;maxspeed=50
-홍원리 | 37.01745 | 126.87267 | n | name:el=Χόνγουον-ρι;name:ja=洪原里;name:ko-Latn=Hongwon-ri;place=village
-홍원리 | 36.52954 | 126.68576 | n | name:el=Χόνγουον-ρι;name:ko-Latn=Hongwon-ri;place=village
-홍원리 사거리 | 37.01823 | 126.87015 | n | junction=yes
-홍원리 하원 교회 | 36.53342 | 126.68619 | w | amenity=place_of_worship;building=yes;denomination=protestant
-홍원리 하원 구 마을 회관 | 36.5314 | 126.68524 | w | building=yes
-홍원리 하원 마을 회관 | 36.53204 | 126.68852 | w | building=yes
-홍원리마을회관 | 36.53744 | 126.67889 | n | amenity=townhall
-홍원사 | 37.572 | 126.84069 | n | amenity=place_of_worship;religion=buddhist
-홍원삼계로 | 37.01829 | 126.88906 | w | check_date=2023-07-19;highway=secondary;maxspeed=70;oneway=yes;opening_date=2025
-홍원삼계로 | 37.01785 | 126.88878 | w | highway=secondary;maxspeed=70;oneway=yes;ref=302;surface=asphalt
-홍원삼계로 | 37.0398 | 126.93943 | w | check_date=2023-07-19;highway=secondary;oneway=yes;opening_date=2025-07-00;ref=3
-홍원삼계로 | 37.03838 | 126.93522 | w | bridge=yes;check_date=2023-07-19;highway=secondary;layer=1;oneway=yes;opening_da
-홍원삼계로 | 37.0397 | 126.93926 | w | highway=secondary;oneway=yes;ref=302
-홍원삼계로 | 37.03831 | 126.93528 | w | bridge=yes;highway=secondary;layer=1;oneway=yes;ref=302
-홍원삼계로 | 37.038 | 126.93355 | w | highway=secondary;oneway=yes;ref=302
-홍원삼계로 | 37.03807 | 126.93228 | w | bridge=yes;highway=secondary;layer=1;oneway=yes;ref=302
-홍원삼계로 | 37.03811 | 126.9335 | w | check_date=2023-07-19;highway=secondary;oneway=yes;opening_date=2025-07-00;ref=3
-홍원삼계로 | 37.03817 | 126.93225 | w | bridge=yes;check_date=2023-07-19;highway=secondary;layer=1;oneway=yes;opening_da
-홍원삼계로 | 37.03724 | 126.91795 | w | check_date=2023-07-19;highway=secondary;oneway=yes;opening_date=2025-07-00;ref=3
-홍원삼계로 | 37.03345 | 126.90829 | w | bridge=yes;check_date=2023-07-19;highway=secondary;layer=1;oneway=yes;opening_da
-홍원삼계로 | 37.0374 | 126.91913 | w | highway=secondary;oneway=yes;ref=302
-홍원삼계로 | 37.0334 | 126.90837 | w | bridge=yes;highway=secondary;layer=1;oneway=yes
-홍원삼계로 | 37.02787 | 126.90271 | w | check_date=2023-07-19;highway=secondary;oneway=yes;opening_date=2025-07-00;ref=3
-홍원삼계로 | 37.02354 | 126.89608 | w | bridge=yes;highway=secondary;layer=1;oneway=yes;ref=302;surface=302
-홍원삼계로 | 37.0279 | 126.90309 | w | highway=secondary;oneway=yes;ref=302
-홍원삼계로 | 37.02345 | 126.89612 | w | bridge=yes;highway=secondary;layer=1;oneway=yes;ref=302
-홍원초등학교 | 37.0144 | 126.88935 | w | addr:housenumber=26;addr:street=외원길;building=yes
-홍원초등학교 | 37.01427 | 126.88931 | w | addr:housenumber=26;addr:street=외원길;amenity=school;isced:level=1;wikidata=Q19941
-효자도 ~ 원산도(선촌) | 36.38109 | 126.43754 | w | route=ferry
-효자도 ~ 원산도(저두) | 36.37062 | 126.44963 | w | route=ferry
+{4: 2, 6: 88, 7: 26}
+['항포', 37.70586, 126.29551, None, '강화군', None]
+['삼보해운', 37.6999, 126.38106, None, '강화군', None]
+['원머루나루', 37.69565, 126.53247, None, '김포시', None]
+['석포리 선착장', 37.69419, 126.36797, None, '강화군', None]
+['장지포', 37.69155, 126.39082, None, '강화군', None]
+['불음도선착장', 37.66483, 126.21028, None, '강화군', None]
+['신안포', 37.66047, 126.54304, None, '김포시', None]
+['덕포', 37.65766, 126.54363, None, '김포시', None]
+['장구넘어포구', 37.65465, 126.32699, None, '강화군', None]
+['가능포', 37.65208, 126.42585, None, '강화군', None]
+['어류정항', 37.6447, 126.34371, None, '강화군', None]
+['대명항', 37.64012, 126.54146, None, '김포시', None]
+['선수선착장', 37.6384, 126.38558, None, '강화군', None]
+['인천 컨테이너부두', 37.56461, 126.5968, None, '검단구', None]
+['아라인천여객터미널', 37.55801, 126.60599, None, '서해구', None]
+['경인항다목적부두', 37.55736, 126.61156, None, '서해구', None]
+['예단포선착장', 37.53175, 126.50247, None, '영종구', None]
+['장봉도선착장', 37.53035, 126.38472, None, '영종구', None]
+['신도 선착장', 37.51352, 126.43959, None, '영종구', None]
+['마장포', 37.50844, 126.5521, None, '영종구', None]
+['북항다목적부두', 37.50657, 126.6322, None, '서해구', None]
+['인천북항부두운영시설', 37.50385, 126.64147, None, '서해구', None]
+['삼목여객터미널', 37.50001, 126.45257, None, '영종구', None]
+['한진인천북항', 37.49797, 126.6215, None, '서해구', None]
+['삼목선착장지하차도', 37.49721, 126.45393, None, '영종구', None]
+['영종나루터', 37.49244, 126.58114, None, '영종구', None]
+['만석부두로13번길', 37.49045, 126.6218, None, '제물포구', None]
+['만석부두로', 37.48995, 126.6223, None, '제물포구', None]
+['만석부두로7번길', 37.48867, 126.62053, None, '제물포구', None]
+['화수부두로', 37.48817, 126.63016, None, '제물포구', None]
+['만석부두로6번길', 37.48797, 126.62273, None, '제물포구', None]
+['동원로얄듀크마리나포레', 37.48442, 126.55483, None, '영종구', None]
+['8부두', 37.4777, 126.61461, None, '제물포구', None]
+['월미선착장', 37.47559, 126.59752, None, '제물포구', None]
+['신포', 37.46893, 126.62368, None, '제물포구', None]
+['인천항', 37.4667, 126.61348, None, '제물포구', None]
+['7잔교', 37.46442, 126.59358, None, '제물포구', None]
+['인천해양경찰서 전용부두', 37.46412, 126.59457, None, '제물포구', None]
+['6잔교', 37.46365, 126.59481, None, '제물포구', None]
+['5잔교', 37.46271, 126.59461, None, '제물포구', None]
+['4잔교', 37.46162, 126.59476, None, '제물포구', None]
+['석탄부두선', 37.46115, 126.62517, None, '제물포구', None]
+['3잔교', 37.46054, 126.59496, None, '제물포구', None]
+['왕산마리나길', 37.45972, 126.36532, None, '영종구', None]
+['2잔교', 37.45948, 126.59498, None, '제물포구', None]
+['Dock A', 37.45824, 126.3594, None, '영종구', None]
+['1잔교', 37.45807, 126.59486, None, '제물포구', None]
+['Wangsan码头港', 37.45797, 126.35789, None, '영종구', None]
+['Dock B', 37.45771, 126.35932, None, '영종구', None]
+['Dock C', 37.45732, 126.35827, None, '영종구', None]
+['왕산마리나', 37.45713, 126.35894, None, '영종구', None]
+['Dock D', 37.45706, 126.3579, None, '영종구', None]
+['Dock E', 37.45682, 126.35756, None, '영종구', None]
+['Dock F', 37.45655, 126.35821, None, '영종구', None]
+['1호잔교', 37.45644, 126.60096, None, '제물포구', None]
+['Dock G', 37.45631, 126.35861, None, '영종구', None]
+['Dock H', 37.45595, 126.35887, None, '영종구', None]
+['2호잔교', 37.45579, 126.60003, None, '제물포구', None]
+['Dock J', 37.45558, 126.35985, None, '영종구', None]
+['3호잔교', 37.45539, 126.59933, None, '제물포구', None]
+['하모니플라워호', 37.45534, 126.59954, None, '제물포구', None]
+['Dock I', 37.45519, 126.35927, None, '영종구', None]
+['왕산해수욕장(왕산요트경기장)', 37.45517, 126.3721, None, '영종구', None]
+['4호잔교', 37.45503, 126.59836, None, '제물포구', None]
+['인천항', 37.45493, 126.60012, None, '제물포구', None]
+['인천항 연안여객터미널', 37.45399, 126.5986, None, '제물포구', None]
+['연안부두로43번길', 37.45396, 126.60318, None, '제물포구', None]
+['연안부두로33번길', 37.45391, 126.60572, None, '제물포구', None]
+['남항유어선부두', 37.45382, 126.6143, None, '제물포구', None]
+['인천항 제1 국제여객터미널', 37.45364, 126.59629, None, '제물포구', None]
+['연안부두로', 37.45333, 126.60039, None, '제물포구', None]
+['연안부두로53번길', 37.45333, 126.60262, None, '제물포구', None]
+['연안부두로55번길', 37.45308, 126.60146, None, '제물포구', None]
+['연안부두로75번길', 37.45194, 126.60141, None, '제물포구', None]
+['연안부두로128번길', 37.44906, 126.59506, None, '제물포구', None]
+['연안부두로115번길', 37.44849, 126.60069, None, '제물포구', None]
+['연안부두로148번길', 37.44688, 126.59529, None, '제물포구', None]
+['석탄부두선', 37.4442, 126.60325, None, '제물포구', None]
+['인천항(남항)', 37.4437, 126.61115, None, '제물포구', None]
+['인천항크루즈터미널', 37.4252, 126.59159, None, '연수구', None]
+['인천항국제여객터미널', 37.42458, 126.60046, None, '연수구', None]
+['거잠포 선착장', 37.4215, 126.42554, None, '영종구', None]
+['마리나명품세탁', 37.41475, 126.61234, None, '연수구', None]
+['마리나헤어', 37.4109, 126.61246, None, '연수구', None]
+['GS더프레시 송도마리나점', 37.41083, 126.61241, None, '연수구', None]
+['큰무리선착장', 37.40984, 126.41434, None, '영종구', None]
+['피크닉선창', 37.39516, 126.63585, None, '연수구', None]
+['월곶포구', 37.38848, 126.73949, None, '시흥시', None]
+['광명선착장', 37.37503, 126.43612, None, '영종구', None]
+['관리부두', 37.35149, 126.66568, None, '연수구', None]
+['인천신항', 37.34565, 126.6303, None, '연수구', '단원구']
+['크루즈선착장', 37.34198, 126.62505, None, '연수구', '단원구']
+['시화방조제 중간선착장', 37.312, 126.6052, None, '안산시', '단원구']
+['방아머리항', 37.297, 126.57373, None, '안산시', '단원구']
+['구방아머리선착장', 37.29179, 126.58347, None, '안산시', '단원구']
+['방아머리선착장', 37.2905, 126.57846, None, '안산시', '단원구']
+['진두방파제', 37.25571, 126.50015, None, None, None]
+['넛출선착장', 37.25378, 126.5101, None, '안산시', '단원구']
+['진두선착장', 37.25356, 126.49986, None, None, None]
+['다싯물선착장', 37.25234, 126.30193, None, None, None]
+['달바위선착장', 37.24417, 126.31862, None, None, None]
+['선재도선착장', 37.24124, 126.53487, None, '안산시', '단원구']
+['선감포구', 37.23524, 126.62323, None, '안산시', '단원구']
+['선재선착장', 37.2338, 126.53879, None, '안산시', '단원구']
+['흥성리선착장', 37.23358, 126.54147, None, '안산시', '단원구']
+['마리나', 37.23194, 126.62368, None, '안산시', '단원구']
+['진리도우 선착장', 37.22634, 126.15637, None, None, None]
+['선감선착장', 37.2179, 126.62771, None, '안산시', '단원구']
+['서포리선착장', 37.2143, 126.11044, None, None, None]
+['말부흥선착장', 37.21166, 126.61698, None, '안산시', '단원구']
+['알리아마린', 37.20039, 126.64305, None, '안산시', '단원구']
+['행낭곡항', 37.20004, 126.57018, None, '안산시', '단원구']
+['대아마린', 37.19865, 126.64532, None, '안산시', '단원구']
+['경기마린', 37.19863, 126.64525, None, '안산시', '단원구']
+['탄도항', 37.19035, 126.64618, None, '안산시', '단원구']
+['전곡항', 37.1877, 126.65076, None, '화성시', '만세구']
+['전곡항마리나', 37.1867, 126.65185, None, '화성시', '만세구']
+['런던요트 (요트체험)', 37.18641, 126.65189, None, '화성시', '만세구']
+['소이작도선착장', 37.18136, 126.24307, None, None, None]
+['제부항', 37.17992, 126.62172, None, '화성시', '만세구']
+['대이작도선착장', 37.17886, 126.24762, None, None, None]
+['제부마린크르즈', 37.17741, 126.62689, None, '화성시', '만세구']
+['에코프로아', 37.17721, 126.62605, None, '화성시', '만세구']
+['대부', 37.17708, 126.62804, None, '화성시', '만세구']
+['제부마린스테이', 37.17692, 126.62716, None, '화성시', '만세구']
+['선착장', 37.17687, 126.62198, None, '화성시', '만세구']
+['AB', 37.1767, 126.62641, None, '화성시', '만세구']
+['한진', 37.17657, 126.62789, None, '화성시', '만세구']
+['뽀빠이', 37.17649, 126.62578, None, '화성시', '만세구']
+['마이', 37.17621, 126.62688, None, '화성시', '만세구']
+['승봉도선착장', 37.16976, 126.29035, None, None, None]
+['부두치', 37.16078, 126.3211, None, None, None]
+['궁평항', 37.11642, 126.68134, None, '화성시', '만세구']
+['풍도항선착장', 37.11246, 126.39359, None, '안산시', '단원구']
+['육도선착장', 37.10063, 126.45137, None, '안산시', '단원구']
+['육도항선착장', 37.09723, 126.45429, None, '안산시', '단원구']
+['매향3리선착장', 37.07425, 126.73279, None, '화성시', '만세구']
+['국화도선착장', 37.06101, 126.56058, None, '화성시', '만세구']
+['난지도항', 37.05336, 126.45046, None, '당진시', '단원구']
+['왜목항', 37.04867, 126.52837, None, '당진시', '만세구']
+['청룡해운관광유람선', 37.0429, 126.44191, None, '당진시', '단원구']
+['소난지항', 37.04176, 126.45319, None, '당진시', '단원구']
+['장고항선착장', 37.0364, 126.56025, None, '당진시', '만세구']
+['소난지도선착장', 37.03313, 126.45408, None, '당진시', None]
+['도비도항', 37.01799, 126.46086, None, '당진시', None]
+['대산항국제여객터미널', 37.01451, 126.42209, None, '서산시', None]
+['대산항', 37.01314, 126.42456, None, '서산시', None]
+['삼길포항', 37.00424, 126.45327, None, '서산시', None]
+['성구미포구', 37.00083, 126.69496, None, '당진시', '만세구']
+['안섬포구', 36.98736, 126.73897, None, '당진시', '만세구']
+['제3부두', 36.97762, 126.83334, None, '평택시', None]
+['벌말선착장', 36.96125, 126.33339, None, '서산시', None]
+['평택항국제여객터미널', 36.95603, 126.84375, None, '평택시', None]
+['서부두제1정문', 36.94739, 126.82956, None, '평택시', None]
+['평택당진항국제여객터미널', 36.94487, 126.8526, None, '평택시', None]
+['평택당진항국제여객부두(2)', 36.94423, 126.85344, None, '평택시', None]
+['서부두', 36.94177, 126.88137, None, '평택시', None]
+['고파도항', 36.91245, 126.34009, None, '서산시', None]
+['왕산포구', 36.87299, 126.36516, None, '서산시', None]
+['구도항', 36.82759, 126.32343, None, '서산시', None]
+['어은돌항', 36.75073, 126.12663, None, '태안군', None]
+['황골', 36.68312, 126.20129, None, '태안군', None]
+['안흥유람선', 36.68064, 126.13532, None, '태안군', None]
+['21세기관광유람선', 36.67921, 126.15307, None, '태안군', None]
+['마검포', 36.62148, 126.28426, None, '태안군', None]
+['황도항', 36.5999, 126.38475, None, '태안군', None]
+['드르니항', 36.58907, 126.31363, None, '태안군', None]
+['백사장항', 36.5857, 126.316, None, '태안군', None]
+['남당항', 36.5392, 126.46931, None, '홍성군', None]
+['죽도선착장', 36.52175, 126.4417, None, '홍성군', None]
+['방포', 36.51457, 126.33736, None, '태안군', None]
+['오천선착장', 36.44013, 126.52156, None, '보령시', None]
+['오천항', 36.43965, 126.51945, None, '보령시', None]
+['회변항', 36.4326, 126.50083, None, '보령시', None]
+['육도선착장', 36.40922, 126.45581, None, '보령시', None]
+['월도선착장', 36.40887, 126.46992, None, '보령시', None]
+['허육도선착장', 36.40538, 126.45388, None, '보령시', None]
+['허육도선착장 공중화장실', 36.40454, 126.45714, None, '보령시', None]
+['추도선착장', 36.40434, 126.43866, None, '보령시', None]
+['소도선착장', 36.4014, 126.4369, None, '보령시', None]
+['소도방파제', 36.40082, 126.43525, None, '보령시', None]
+['영목여객선터미널', 36.39994, 126.42776, None, '태안군', None]
+['안면도유람선', 36.39959, 126.42713, None, '태안군', None]
+['영목선착장', 36.39955, 126.42795, None, '태안군', None]
+['장고도항', 36.39925, 126.35511, None, '보령시', None]
+['영목항', 36.39877, 126.42691, None, '태안군', None]
+['선촌항', 36.38309, 126.43391, None, '보령시', None]
+['효자도선착장', 36.37874, 126.44006, None, '보령시', None]
+['진고지선착장', 36.37667, 126.43762, None, '보령시', None]
+['저두선착장', 36.36393, 126.45602, None, '보령시', None]
+['저두항', 36.36216, 126.45494, None, '보령시', None]
+['대천항선착장', 36.32838, 126.51239, None, '보령시', None]
+['대천연안여객선터미널', 36.32713, 126.51167, None, '보령시', None]
+['마리나민박', 36.3172, 126.50992, None, '보령시', None]
+['죽도항', 36.27565, 126.53869, None, '보령시', None]
+['보령요트경기장', 36.26871, 126.54778, None, '보령시', None]
+['무창포항', 36.24887, 126.53709, None, '보령시', None]
+['죽도선착장', 36.03893, 126.52933, None, '군산시', None]
+['개야도선착장', 36.03216, 126.55717, None, '군산시', None]
+['장항항', 36.00729, 126.68524, None, '서천군', None]
+['군산유람선', 35.99331, 126.70866, None, '군산시', None]
+['째보선창', 35.98708, 126.72167, None, '군산시', None]
+['서래포구', 35.98295, 126.72734, None, '군산시', None]
+['군산여객터미널', 35.97807, 126.6295, None, '군산시', None]
+['군산항5부두', 35.97377, 126.5864, None, '군산시', None]
+['군산항', 35.97195, 126.55976, None, '군산시', None]
+['군산항6부두', 35.97153, 126.55456, None, '군산시', None]
+['군산항1부두', 35.97053, 126.6287, None, '군산시', None]
+['군산항3부두', 35.96913, 126.61638, None, '군산시', None]
+['월명유람선', 35.94579, 126.5324, None, '군산시', None]
+['비응항', 35.93802, 126.53101, None, '군산시', None]
+['말도항', 35.85553, 126.31875, None, '군산시', None]
+['말도/명도 선착장', 35.85258, 126.34188, None, '군산시', None]
+['명도항', 35.84905, 126.34935, None, '군산시', None]
+['방축도항', 35.84813, 126.37786, None, '군산시', None]
+['방축도선착장', 35.84755, 126.37853, None, '군산시', None]
+['신시도항', 35.82319, 126.47424, None, '군산시', None]
+['관리도항', 35.81821, 126.37487, None, '군산시', None]
+['관리도선착장', 35.81753, 126.37534, None, '군산시', None]
+['선유도항', 35.81059, 126.4171, None, '군산시', None]
+['장자도선착장', 35.81031, 126.39467, None, '군산시', None]
+['무녀도항', 35.80709, 126.41738, None, '군산시', None]
+['무녀도항 - 비안도항', 35.76881, 126.43085, None, '군산시', None]
+['비안도항', 35.73511, 126.46236, None, '군산시', None]
+['가력도항', 35.72648, 126.53149, None, '부안군', None]
+['상왕등도항', 35.65802, 126.11071, None, '부안군', None]
+['성천항', 35.65451, 126.49924, None, '부안군', None]
+['식도항', 35.62493, 126.28842, None, '부안군', None]
+['격포유람선', 35.62283, 126.46755, None, '부안군', None]
+['위도 방파제', 35.62073, 126.30161, None, '부안군', None]
+['위도여객선터미널', 35.61786, 126.30071, None, '부안군', None]
+['곰소항', 35.58609, 126.60957, None, '부안군', None]
+['동호항', 35.51849, 126.48737, None, '고창군', None]
+['계마항', 35.3896, 126.40688, None, '영광군', None]
+['대석만항', 35.37291, 126.05558, None, '영광군', None]
+['석만도선착장', 35.3726, 126.05553, None, '영광군', None]
+['안마도선착장', 35.34569, 126.01799, None, '영광군', None]
+['안마도항', 35.34549, 126.01796, None, '영광군', None]
+['송이도선착장', 35.27335, 126.1491, None, '영광군', None]
