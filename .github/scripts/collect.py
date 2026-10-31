@@ -1,7 +1,8 @@
 """쭈갑 물때: 바다 날씨 자료 모으기 (GitHub Actions에서 하루 8번 실행)
 
 - 기상청 단기예보: 출항지 앞바다 격자의 풍속·풍향·파고·하늘·강수 (앞으로 약 3일, 1시간 간격)
-- 국립해양조사원 조위관측소 최신 관측: 실제 수온(지금, 24시간 전), 바람
+- 국립해양조사원 조위관측소 최신 관측: 실제 수온(지금, 24시간 전)
+  출항지 관측소에 수온이 없거나(센서 고장·점검) 서버가 응답하지 않으면 가까운 관측소 값을 쓰고, 어디 값인지 함께 적는다
 
 결과는 앱이 읽는 data/weather.json 한 파일로 저장한다.
 인증키는 GitHub 비밀 저장소(DATA_GO_KR_KEY)에서만 읽고, 로그나 파일에는 남기지 않는다.
@@ -14,17 +15,19 @@ KST = timezone(timedelta(hours=9))
 KEY = re.sub(r'\s+', '', os.environ.get('DATA_GO_KR_KEY', ''))
 OUT = next((a for a in sys.argv[1:] if not a.startswith('--')), 'weather.json')
 
-# 출항지별: 예보 받을 앞바다 지점(앞쪽부터 시도, 파고가 나오는 첫 격자를 씀) · 수온 관측소
+# 출항지별: 예보 받을 앞바다 지점(앞쪽부터 시도, 파고가 나오는 첫 격자를 씀)
+#          수온 관측소(앞쪽이 가장 가까운 곳, 값이 없으면 다음 곳) · 중기 해상예보 해역
 STATIONS = {
-    'incheon':    {'sea': [(37.40, 126.45), (37.35, 126.35)], 'obs': 'DT_0001', 'mid': '12A20000'},   # 인천 · 서해중부
-    'bangameori': {'sea': [(37.30, 126.48), (37.22, 126.36)], 'obs': 'DT_0008', 'mid': '12A20000'},   # 안산
-    'yeongheung': {'sea': [(37.22, 126.36), (37.20, 126.30)], 'obs': 'DT_0043', 'mid': '12A20000'},   # 영흥도
-    'anheung':    {'sea': [(36.67, 126.05), (36.62, 126.00)], 'obs': 'DT_0067', 'mid': '12A20000'},   # 안흥
-    'ocheon':     {'sea': [(36.40, 126.40), (36.35, 126.35)], 'obs': 'DT_0025', 'mid': '12A20000'},   # 보령
-    'hongwon':    {'sea': [(36.12, 126.42), (36.10, 126.35)], 'obs': 'DT_0051', 'mid': '12A20000'},   # 서천마량
-    'gunsan':     {'sea': [(35.95, 126.42), (35.90, 126.35)], 'obs': 'DT_0018', 'mid': '12A30000'},   # 군산
-    'gyeokpo':    {'sea': [(35.62, 126.38), (35.60, 126.30)], 'obs': 'DT_0068', 'mid': '12A30000'},   # 위도
+    'incheon':    {'sea': [(37.40, 126.45), (37.35, 126.35)], 'obs': ['DT_0001', 'DT_0008'], 'mid': '12A20000'},             # 인천 → 안산
+    'bangameori': {'sea': [(37.30, 126.48), (37.22, 126.36)], 'obs': ['DT_0008', 'DT_0001'], 'mid': '12A20000'},             # 안산 → 인천
+    'yeongheung': {'sea': [(37.22, 126.36), (37.20, 126.30)], 'obs': ['DT_0043', 'DT_0008', 'DT_0001'], 'mid': '12A20000'},  # 영흥도 → 안산 → 인천
+    'anheung':    {'sea': [(36.67, 126.05), (36.62, 126.00)], 'obs': ['DT_0067', 'DT_0025'], 'mid': '12A20000'},             # 안흥 → 보령
+    'ocheon':     {'sea': [(36.40, 126.40), (36.35, 126.35)], 'obs': ['DT_0025', 'DT_0067'], 'mid': '12A20000'},             # 보령 → 안흥
+    'hongwon':    {'sea': [(36.12, 126.42), (36.10, 126.35)], 'obs': ['DT_0051', 'DT_0025', 'DT_0018'], 'mid': '12A20000'},  # 서천마량 → 보령 → 군산
+    'gunsan':     {'sea': [(35.95, 126.42), (35.90, 126.35)], 'obs': ['DT_0018', 'DT_0051', 'DT_0068'], 'mid': '12A30000'},  # 군산 → 서천마량 → 위도
+    'gyeokpo':    {'sea': [(35.62, 126.38), (35.60, 126.30)], 'obs': ['DT_0068', 'DT_0018'], 'mid': '12A30000'},             # 위도 → 군산
 }
+OBS_FRESH_H = 12   # 이보다 오래된 수온은 '지금 수온'으로 쓰지 않는다
 KMA_URL = 'https://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getVilageFcst'
 OBS_URL = 'https://apis.data.go.kr/1192136/dtRecent/GetDTRecentApiService'
 MID_URL = 'https://apis.data.go.kr/1360000/MidFcstInfoService/getMidSeaFcst'   # 중기 해상예보 (3~10일 뒤 날씨·파고)
@@ -135,45 +138,61 @@ def pack_fcst(items):
     return out
 
 
-def fetch_obs(code, now, prev_obs):
-    """오늘 매시 관측에서 가장 최근 수온. 24시간 전 값은 지난 실행들에서 모아 둔 기록(hist)에서 찾는다.
-    해양조사원 서버가 느릴 때가 있어 한 번에 오래(25초) 기다리고, 실패하면 ('timeout'|'error') 를 돌려준다."""
-    try:
-        raw = get_json(OBS_URL, {'type': 'json', 'obsCode': code, 'reqDate': now.strftime('%Y%m%d'), 'min': 60, 'pageNo': 1, 'numOfRows': 300}, tries=1, timeout=25)
-    except RuntimeError as e:
-        note(f'수온 {code}: 응답 없음 ({str(e)[-80:]})', 'warning')
-        return None, 'timeout'
-    c, msg, items = unwrap(raw)
-    if not items:
-        note(f'수온 {code}: 결과코드 {c} {msg} :: {json.dumps(raw, ensure_ascii=False)[:200]}', 'warning')
+def fetch_obs(code, now, prev_hist):
+    """관측소 하나의 오늘 매시 관측에서 가장 최근 수온(값이 있는 것). 24시간 전 값은 지난 실행들에서 모아 둔 기록(hist)에서 찾는다.
+    돌려주는 것: (결과 또는 None, 'ok'|'timeout'|'error'|'empty')"""
+    c = msg = None
+    for k in range(2):   # 해양조사원 서버가 잠깐씩 '알 수 없는 오류'를 낼 때가 있어 한 번 더
+        try:
+            raw = get_json(OBS_URL, {'type': 'json', 'obsCode': code, 'reqDate': now.strftime('%Y%m%d'), 'min': 60, 'pageNo': 1, 'numOfRows': 30}, tries=1, timeout=20)
+        except RuntimeError as e:
+            note(f'수온 {code}: 응답 없음 ({str(e)[-80:]})', 'warning')
+            return None, 'timeout'
+        c, msg, items = unwrap(raw)
+        if items:
+            break
+        if k == 0:
+            time.sleep(3)
+    else:
+        note(f'수온 {code}: 결과코드 {c} {msg}', 'warning')
         return None, 'error'
     def f(v):
         try:
             return round(float(v), 1)
         except (TypeError, ValueError):
             return None
-    pts = []
-    for r in items:
-        t = str(r.get('obsrvnDt') or r.get('obsrvn_dt') or r.get('record_time') or '')[:16].replace('T', ' ')
-        w = f(r.get('wtem', r.get('water_temp')))
-        if t and w is not None:
-            pts.append((t, w, f(r.get('wspd')), f(r.get('wndrct')), f(r.get('artmp'))))
-    if not pts:
-        note(f'수온 {code}: 수온 값이 비어 있음', 'warning')
-        return None, 'error'
-    pts.sort()
-    t, w, ws, wd, at = pts[-1]
-    # 기록: 지난 48시간의 매시 수온
-    hist = {h[0]: h[1] for h in ((prev_obs or {}).get('hist') or [])}
-    hist.update({p[0]: p[1] for p in pts})
-    t_last = datetime.strptime(t, '%Y-%m-%d %H:%M')
-    keep = (t_last - timedelta(hours=48)).strftime('%Y-%m-%d %H:%M')
-    hist = sorted((k, v) for k, v in hist.items() if k >= keep)
-    target = t_last - timedelta(hours=24)
-    near = [(abs((datetime.strptime(k, '%Y-%m-%d %H:%M') - target).total_seconds()), v) for k, v in hist]
-    near = [x for x in near if x[0] <= 90 * 60]
-    w24 = min(near)[1] if near else None
-    return {'t': t, 'wtem': w, 'wtem24': w24, 'wspd': ws, 'wdir': wd, 'atmp': at, 'hist': [list(h) for h in hist]}, 'ok'
+    name = next((r.get('obsvtrNm') for r in items if r.get('obsvtrNm')), None)
+    def points(rows):
+        pts = []
+        for r in rows:
+            t = str(r.get('obsrvnDt') or r.get('obsrvn_dt') or r.get('record_time') or '')[:16].replace('T', ' ')
+            w = f(r.get('wtem', r.get('water_temp')))
+            if t and w is not None and -2 < w < 35:
+                pts.append((t, w))
+        return pts
+    hist = {h[0]: h[1] for h in (prev_hist or [])}
+    hist.update(dict(points(items)))
+    keep = (now - timedelta(hours=48)).strftime('%Y-%m-%d %H:%M')
+    def near24(h):
+        if not h:
+            return None
+        t_last = datetime.strptime(max(h), '%Y-%m-%d %H:%M').replace(tzinfo=KST) - timedelta(hours=24)
+        c = [(abs((datetime.strptime(k, '%Y-%m-%d %H:%M').replace(tzinfo=KST) - t_last).total_seconds()), v) for k, v in h.items()]
+        c = [x for x in c if x[0] <= 90 * 60]
+        return min(c)[1] if c else None
+    # 24시간 전 값이 기록에 없으면(처음 실행 등) 어제 관측을 한 번 더 받아 채운다
+    if hist and near24(hist) is None:
+        try:
+            raw2 = get_json(OBS_URL, {'type': 'json', 'obsCode': code, 'reqDate': (now - timedelta(days=1)).strftime('%Y%m%d'), 'min': 60, 'pageNo': 1, 'numOfRows': 30}, tries=1, timeout=20)
+            hist.update(dict(points(unwrap(raw2)[2] or [])))
+        except RuntimeError:
+            pass
+    hist = dict(sorted((k, v) for k, v in hist.items() if k >= keep))
+    if not hist:
+        note(f'수온 {code}({name}): 수온 값이 비어 있음', 'warning')
+        return {'name': name, 'hist': []}, 'empty'
+    t = max(hist); w = hist[t]
+    return {'name': name, 't': t, 'wtem': w, 'wtem24': near24(hist), 'hist': [[k, v] for k, v in hist.items()]}, 'ok'
 
 
 def mid_tmfc(now):
@@ -236,9 +255,29 @@ def main():
     base = kma_base(now)
     log(f'기준 시각 {now:%Y-%m-%d %H:%M} KST, 기상청 발표 {base[0]} {base[1]}')
     out = {'generated': now.isoformat(timespec='minutes'), 'stations': {}}
+    # 수온: 관측소마다 한 번씩만 받는다 (여러 출항지가 같은 관측소를 함께 쓰므로)
+    prev_codes = dict(prev.get('obs') or {})
+    for pst in (prev.get('stations') or {}).values():   # 예전 형식(출항지마다 기록)에서 옮겨 오기
+        o = pst.get('obs') or {}
+        if o.get('code') and o.get('hist') and o['code'] not in prev_codes:
+            prev_codes[o['code']] = {'hist': o['hist']}
+    codes, obs_timeouts = {}, 0
+    for code in dict.fromkeys(c for cfg in STATIONS.values() for c in cfg['obs']):
+        pc = prev_codes.get(code) or {}
+        if obs_timeouts >= 2:   # 서버가 연달아 응답이 없으면 이번에는 건너뛰고 지난 기록을 유지
+            if pc:
+                codes[code] = pc
+            continue
+        o, why = fetch_obs(code, now, pc.get('hist'))
+        obs_timeouts = obs_timeouts + 1 if why == 'timeout' else 0
+        if o and (o.get('hist') or not pc):
+            codes[code] = o
+        elif pc:
+            codes[code] = pc
+    out['obs'] = codes
     cache = {}
     ok_f = ok_o = 0
-    obs_timeouts = 0
+    wt = []
     mids = {}
     for reg in sorted({c['mid'] for c in STATIONS.values()}):
         m = fetch_mid(reg, now)
@@ -250,7 +289,7 @@ def main():
     out['mid'] = mids
     for key, cfg in STATIONS.items():
         pst = (prev.get('stations') or {}).get(key) or {}
-        st = {'fc': {}, 'obs': pst.get('obs')}
+        st = {'fc': {}}
         got = None
         for lat, lon in cfg['sea']:
             g = to_grid(lat, lon)
@@ -274,17 +313,24 @@ def main():
             st['fc'] = dict(sorted(merged.items()))
             st['grid'] = list(g); st['base'] = ' '.join(used) if used else None
             ok_f += 1
-            note(f'{key}: 격자 {g}, 예보 {len(fc)}시간, 파고 {"있음" if any(v[2] is not None for v in fc.values()) else "없음"}')
+            log(f'{key}: 격자 {g}, 예보 {len(fc)}시간, 파고 {"있음" if any(v[2] is not None for v in fc.values()) else "없음"}')
         else:
             st['fc'] = pst.get('fc') or {}
             note(f'{key}: 예보 못 받음 (이전 자료 유지)', 'warning')
-        # 해양조사원 서버가 연달아 응답이 없으면 이번에는 수온을 건너뛰고 지난 값을 유지 (실행 시간을 아끼려고)
-        if obs_timeouts < 2:
-            o, why = fetch_obs(cfg['obs'], now, pst.get('obs'))
-            obs_timeouts = obs_timeouts + 1 if why == 'timeout' else 0
-            if o:
-                o['code'] = cfg['obs']; st['obs'] = o; ok_o += 1
-                note(f'{key} 수온 {o["wtem"]}℃ ({o["t"]}), 24시간 전 {o["wtem24"]}')
+        # 수온: 가까운 관측소부터, 12시간 안의 값이 있는 첫 곳
+        for k, code in enumerate(cfg['obs']):
+            o = codes.get(code) or {}
+            if o.get('wtem') is None or not o.get('t'):
+                continue
+            age = now - datetime.strptime(o['t'], '%Y-%m-%d %H:%M').replace(tzinfo=KST)
+            if age > timedelta(hours=OBS_FRESH_H):
+                continue
+            st['obs'] = {'code': code, 'name': o.get('name'), 'near': k > 0, 't': o['t'], 'wtem': o['wtem'], 'wtem24': o.get('wtem24')}
+            ok_o += 1
+            wt.append(f'{key} {o["wtem"]}℃({o.get("name")}{"·대체" if k else ""} {o["t"][11:]})')
+            break
+        else:
+            wt.append(f'{key} 없음')
         st['mid'] = cfg['mid']
         out['stations'][key] = st
     if ok_f == 0 and ok_o == 0:
@@ -292,25 +338,27 @@ def main():
     os.makedirs(os.path.dirname(os.path.abspath(OUT)), exist_ok=True)
     with open(OUT, 'w') as fp:
         json.dump(out, fp, ensure_ascii=False, separators=(',', ':'))
+    note('수온: ' + ', '.join(wt))
     note(f'저장: 예보 {ok_f}/8곳, 수온 {ok_o}/8곳' + ('' if obs_timeouts < 2 else ' (해양조사원 서버 응답 없음 → 수온은 다음 실행에 다시)'))
 
 
 def diag():
     now = datetime.now(KST); d, t = kma_base(now)
-    tests = [
-        ('KHOA 최신관측 dtRecent', OBS_URL, {'type': 'json', 'obsCode': 'DT_0001', 'reqDate': now.strftime('%Y%m%d'), 'min': 60, 'pageNo': 1, 'numOfRows': 5}),
-        ('KHOA 최신관측 http', OBS_URL.replace('https://', 'http://'), {'type': 'json', 'obsCode': 'DT_0001', 'reqDate': now.strftime('%Y%m%d'), 'pageNo': 1, 'numOfRows': 5}),
-        ('KHOA 최신관측 보령', OBS_URL, {'type': 'json', 'obsCode': 'DT_0025'}),
-        ('KHOA 조석예보(대조)', 'https://apis.data.go.kr/1192136/tideFcstHghLw/GetTideFcstHghLwApiService', {'type': 'json', 'obsCode': 'DT_0001', 'reqDate': now.strftime('%Y%m%d'), 'pageNo': 1, 'numOfRows': 5}),
-        ('KHOA 타이드베드(대조)', 'https://apis.data.go.kr/1192136/tidebed/GetTidebedApiService', {'type': 'json', 'lat': 36.44, 'lot': 126.52, 'reqDate': now.strftime('%Y%m%d'), 'min': 60, 'pageNo': 1, 'numOfRows': 2}),
-    ]
+    td = now.strftime('%Y%m%d')
+    tests = [(f'수온 {c}', OBS_URL, {'type': 'json', 'obsCode': c, 'reqDate': td, 'min': 60, 'pageNo': 1, 'numOfRows': 30})
+             for c in dict.fromkeys(c for cfg in STATIONS.values() for c in cfg['obs'])]
     for name, url, params in tests:
         t0 = time.time()
         q = urllib.parse.urlencode(params, safe='')
         try:
             with urllib.request.urlopen(f'{url}?serviceKey={KEY}&{q}', timeout=15) as r:
                 body = r.read().decode('utf-8', 'replace')
-            note(f'{name}: HTTP {r.status} {time.time() - t0:.1f}s :: {re.sub(r"\s+", " ", body)[:320].replace(KEY, "***")}')
+            try:
+                js = json.loads(body); its = js['body']['items']['item']; its = its if isinstance(its, list) else [its]
+                ws = [x for x in its if x.get('wtem') is not None]
+                note(f'{name}: {js["header"]["resultCode"]} {len(its)}건 ({its[0].get("obsvtrNm")}), 최신 {its[0].get("obsrvnDt")}, 수온 있는 최신 {ws[0].get("obsrvnDt") + " " + str(ws[0].get("wtem")) if ws else "없음"}')
+            except Exception:
+                note(f'{name}: HTTP {r.status} {time.time() - t0:.1f}s :: {re.sub(r"\s+", " ", body)[:300].replace(KEY, "***")}')
         except Exception as e:
             note(f'{name}: 실패 {time.time() - t0:.1f}s :: {type(e).__name__} {str(e)[:200].replace(KEY, "***")}', 'warning')
 
