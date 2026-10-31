@@ -1,4 +1,5 @@
-land.geojson 3288 KB
-places.geojsonseq 6221 KB
-flats.geojsonseq 1125 KB
-land.geojson 3288 KB
+Traceback (most recent call last):
+  File "/home/runner/work/jjugap/jjugap/.github/probe/probe.py", line 6, in <module>
+    from shapely.geometry import shape, mapping
+ModuleNotFoundError: No module named 'shapely'
+
