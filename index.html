@@ -3138,7 +3138,7 @@ const TideHarm = (() => {
       points.unshift({ id: String(f.at), t: f.at, lat: +f.lat.toFixed(6), lon: +f.lon.toFixed(6), acc: Math.round(f.acc), virtual: f.virtual,
         port: i.k, mul: i.dd.name, lv: i.dd.lv, h: Math.round(i.h), rising: i.rising, stand: i.stand, pct: i.pct, wind: i.wind, wave: i.wave, wt: i.wt, jj: clampN(f.jj), gap: clampN(f.gap), etc, memo,
         spot: !!i.spot, cur: i.cur ? { kn: +(i.cur.sp / KN).toFixed(1), dir: Math.round(i.cur.dir), calm: i.cur.calm, at: i.cur.name, model: !!i.cur.model } : null, wtAt: i.wtName || null });
-      savePts(); form = null; mode = 'info'; toast('포인트를 저장했어요'); paintPanel(true); draw();
+      savePts(); form = null; mode = 'info'; sheetDown(); toast('포인트를 저장했어요'); paintPanel(true); draw();
     }
     // 숫자 칸: 누르면 전체 선택(바로 새 숫자를 치게), 숫자만 받기, 비우고 나가면 0
     panel.addEventListener('focusin', e => {
@@ -3200,7 +3200,7 @@ const TideHarm = (() => {
       else if (a === 'edit') showEdit(b.dataset.id);
       else if (a === 'commit') commit();
       else if (a === 'cancel' && form && form.edit) { const id = form.edit; form = null; showDetail(id); }
-      else if (a === 'cancel' || a === 'back') { form = null; mode = 'info'; selId = null; paintPanel(true); draw(); }
+      else if (a === 'cancel' || a === 'back') { if (a === 'cancel') sheetDown(); form = null; mode = 'info'; selId = null; paintPanel(true); draw(); }
       else if (a === 'list') showList();
       else if (a === 'pick') { const p = points.find(q => q.id === b.dataset.id); if (p) { follow = false; $('mv-me').classList.remove('on'); v.s = Math.max(v.s, 4000); placeAt(p.lon, p.lat, focusY()); } showDetail(b.dataset.id); }
       else if (a === 'del') showDetail(b.dataset.id, true);
@@ -3297,6 +3297,8 @@ const TideHarm = (() => {
       sheetMode = m; try { localStorage.setItem(SHEET_KEY, m); } catch (_) {}
       applySheet(anim);
     }
+    // 새 포인트 저장을 끝내거나 취소하면: 판을 접어 다시 지도를 보는 상태로 (다음에 열 때 기본 상태는 그대로)
+    function sheetDown() { if (sheetMode !== 'peek') { sheetMode = 'peek'; if (!fitRaf) fitRaf = requestAnimationFrame(refit); } }
     // 저장·목록 화면을 열 때: 접혀 있으면 펼친다 (높이는 새 내용을 그린 뒤 refit 이 맞춘다)
     function sheetAtLeast(m) { if (ORDER.indexOf(sheetMode) < ORDER.indexOf(m)) { sheetMode = m; if (!fitRaf) fitRaf = requestAnimationFrame(refit); } }
     function dragStart(e, tap) {
@@ -3775,7 +3777,7 @@ if ('serviceWorker' in navigator) addEventListener('load', () => {
   const sw = navigator.serviceWorker; let ctl = sw.controller, reloading = false;
   // 새 버전이 올라오면 한 번 새로 열어 바로 반영 (처음 설치할 때는 제외)
   sw.addEventListener('controllerchange', () => { if (ctl && !reloading) { reloading = true; location.reload(); } ctl = sw.controller; });
-  sw.register('sw.js?v=2f6d6e23').then(reg => {
+  sw.register('sw.js?v=44bc070a').then(reg => {
     // 앱을 켜 둔 채 다른 화면에 갔다 돌아오면 새 버전이 있는지 확인
     document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') reg.update().catch(() => {}); });
   }).catch(() => {});
