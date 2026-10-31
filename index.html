@@ -29,7 +29,7 @@
   --calm:#1C8B6B; --mid:#B97E0A; --strong:#C9452F;
   --calm-soft:rgba(28,139,107,.15); --mid-soft:rgba(194,133,12,.17); --strong-soft:rgba(201,69,47,.15);
   --sat:#2F62C4; --sun:#C9452F; --hi:#2560AE; --lo:#A9870C; --moon-ic:#7C88AE;
-  --map-sea:#CFE4E8; --map-land:#EEE7D7; --map-coast:#93AAA8; --map-lab:#3C5556; --map-cur:#0B6E78;
+  --map-sea:#CBE6EE; --map-shallow:rgba(255,255,255,.42); --map-land:#F7F2E7; --map-shade:rgba(120,96,60,.16); --map-coast:#CDBE9F; --map-flat:#D9E5DC; --map-isl:#77847D; --map-bay:#3F8394; --map-lab:#3C5556; --map-cur:#0B6E78;
   --font-display:"Black Han Sans","Apple SD Gothic Neo","Malgun Gothic",sans-serif;
   --font-body:"IBM Plex Sans KR","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;
 }
@@ -43,7 +43,7 @@
     --calm:#45C59A; --mid:#EDB43C; --strong:#F2745C;
     --calm-soft:rgba(69,197,154,.16); --mid-soft:rgba(237,180,60,.16); --strong-soft:rgba(242,116,92,.16);
     --sat:#7AA2F0; --sun:#F2745C; --hi:#7FB2EE; --lo:#EACB52; --moon-ic:#E8D9A8;
-  --map-sea:#0D2427; --map-land:#3A4038; --map-coast:#5E7A75; --map-lab:#B4C8C3; --map-cur:#63CDD4;
+  --map-sea:#0D2328; --map-shallow:rgba(120,200,210,.09); --map-land:#27302D; --map-shade:rgba(0,0,0,.35); --map-coast:#3F504B; --map-flat:#17312F; --map-isl:#93A8A1; --map-bay:#62AAB6; --map-lab:#B4C8C3; --map-cur:#63CDD4;
     color-scheme:dark;
   }
 }
@@ -56,7 +56,7 @@
   --calm:#45C59A; --mid:#EDB43C; --strong:#F2745C;
   --calm-soft:rgba(69,197,154,.16); --mid-soft:rgba(237,180,60,.16); --strong-soft:rgba(242,116,92,.16);
   --sat:#7AA2F0; --sun:#F2745C; --hi:#7FB2EE; --lo:#EACB52; --moon-ic:#E8D9A8;
-  --map-sea:#0D2427; --map-land:#3A4038; --map-coast:#5E7A75; --map-lab:#B4C8C3; --map-cur:#63CDD4;
+  --map-sea:#0D2328; --map-shallow:rgba(120,200,210,.09); --map-land:#27302D; --map-shade:rgba(0,0,0,.35); --map-coast:#3F504B; --map-flat:#17312F; --map-isl:#93A8A1; --map-bay:#62AAB6; --map-lab:#B4C8C3; --map-cur:#63CDD4;
   color-scheme:dark;
 }
 /* 앱 안의 모드 전환 버튼으로 고른 모드가 기기·뷰어 설정보다 우선한다 (기본은 다크) */
@@ -69,7 +69,7 @@ html:root[data-app="dark"]{
   --calm:#45C59A; --mid:#EDB43C; --strong:#F2745C;
   --calm-soft:rgba(69,197,154,.16); --mid-soft:rgba(237,180,60,.16); --strong-soft:rgba(242,116,92,.16);
   --sat:#7AA2F0; --sun:#F2745C; --hi:#7FB2EE; --lo:#EACB52; --moon-ic:#E8D9A8;
-  --map-sea:#0D2427; --map-land:#3A4038; --map-coast:#5E7A75; --map-lab:#B4C8C3; --map-cur:#63CDD4;
+  --map-sea:#0D2328; --map-shallow:rgba(120,200,210,.09); --map-land:#27302D; --map-shade:rgba(0,0,0,.35); --map-coast:#3F504B; --map-flat:#17312F; --map-isl:#93A8A1; --map-bay:#62AAB6; --map-lab:#B4C8C3; --map-cur:#63CDD4;
   color-scheme:dark;
 }
 html:root[data-app="light"]{
@@ -81,7 +81,7 @@ html:root[data-app="light"]{
   --calm:#1C8B6B; --mid:#B97E0A; --strong:#C9452F;
   --calm-soft:rgba(28,139,107,.15); --mid-soft:rgba(194,133,12,.17); --strong-soft:rgba(201,69,47,.15);
   --sat:#2F62C4; --sun:#C9452F; --hi:#2560AE; --lo:#A9870C; --moon-ic:#7C88AE;
-  --map-sea:#CFE4E8; --map-land:#EEE7D7; --map-coast:#93AAA8; --map-lab:#3C5556; --map-cur:#0B6E78;
+  --map-sea:#CBE6EE; --map-shallow:rgba(255,255,255,.42); --map-land:#F7F2E7; --map-shade:rgba(120,96,60,.16); --map-coast:#CDBE9F; --map-flat:#D9E5DC; --map-isl:#77847D; --map-bay:#3F8394; --map-lab:#3C5556; --map-cur:#0B6E78;
   color-scheme:light;
 }
 /* 모드를 바꾸는 순간에만 색이 부드럽게 넘어가게 */
@@ -686,7 +686,7 @@ h2{margin:0; font-size:16px; font-weight:700; text-wrap:balance}
       <button id="mv-me" class="on" aria-label="내 위치로"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="6.2" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="2.4" fill="currentColor"/><path d="M12 2.5v3.3M12 18.2v3.3M2.5 12h3.3M18.2 12h3.3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
     </div>
     <div class="mv-scale" id="mv-scale"><i></i><span></span></div>
-    <div class="mv-attr">지도: 통계청 행정구역경계(2013)</div>
+    <div class="mv-attr">지도 © OpenStreetMap 기여자</div>
     <div class="mv-toast" id="mv-toast" hidden></div>
   </div>
   <div class="mv-panel" id="mv-panel"></div>
@@ -2451,7 +2451,7 @@ const TideHarm = (() => {
   // 아래 큰 달력에서 날짜를 고르면 다시 맨 위 바다 그림으로
   const motion = () => matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth';
   // ---------- 내 위치 지도: 바다 위에서 GPS로 내 자리를 지도에 찍고, 가장 가까운 출항지 기준 물때·조류·날씨·수온을 보여준다.
-  // 지도는 앱에 넣어 둔 해안선(통계청 행정구역경계)을 직접 그려서 인터넷이 끊겨도 보인다. 포인트는 이 폰에만 저장.
+  // 지도는 앱에 넣어 둔 OpenStreetMap 육지·갯벌·섬 이름을 직접 그려서 인터넷이 끊겨도 보인다. 포인트는 이 폰에만 저장.
   (() => {
     const btn = $('me-btn'), view = $('mapv'), cv = $('mv-cv'), box = $('mv-map'), panel = $('mv-panel'), gpsEl = $('mv-gps');
     const ctx = cv.getContext('2d'), KX = Math.cos(36.6 * Math.PI / 180), ME = '#2F7DF6';
@@ -2461,7 +2461,7 @@ const TideHarm = (() => {
     let isOpen = false, skipPop = false, W = 0, H = 0, dpr = 1;
     let v = { lon: 126.4, lat: 36.45, s: 900 };          // 지도 가운데와 배율(1도당 화면 점 수)
     let me = null, gps = null, follow = true, watchId = null, wake = null, mode = 'info', selId = null, form = null, raf = 0, lastPanel = 0;
-    let land = null, landState = 'idle';                  // 해안선 Path2D (경도×KX, -위도 좌표)
+    let landState = 'idle';
     let points = [];
     try { points = JSON.parse(localStorage.getItem(PT_KEY) || '[]') || []; } catch (_) { points = []; }
     const savePts = () => { try { localStorage.setItem(PT_KEY, JSON.stringify(points)); } catch (_) {} $('mv-pts-n').textContent = points.length; };
@@ -2480,19 +2480,33 @@ const TideHarm = (() => {
     const toG = (x, y) => ({ lon: v.lon + (x - W / 2) / (KX * v.s), lat: v.lat - (y - H / 2) / v.s });
     const clampS = s => Math.max(60, Math.min(160000, s));
 
-    // ---------- 해안선 불러오기 (data/coast.json: 1e-5도 정수 차분)
+    // ---------- 바다 지도 불러오기 (data/basemap.json: OpenStreetMap 육지·갯벌·섬 이름, 1e-5도 정수 차분)
+    // 멀리 볼 때(L0)와 가까이 볼 때(L1) 두 단계. 0.25도 칸마다 Path2D 하나로 묶어 화면에 보이는 칸만 그린다
+    let basemap = null, bcv = null, bkey = '';
     function loadLand() {
-      if (landState !== 'idle') return; landState = 'loading';
-      fetch('data/coast.json').then(r => r.json()).then(d => {
-        const p = new Path2D(), q = d.q, [o0, o1] = d.o;
-        for (const r of d.r) {
-          let x = r[0], y = r[1];
-          p.moveTo((o0 + x / q) * KX, -(o1 + y / q));
-          for (let i = 2; i < r.length; i += 2) { x += r[i]; y += r[i + 1]; p.lineTo((o0 + x / q) * KX, -(o1 + y / q)); }
-          p.closePath();
-        }
-        land = p; landState = 'ok'; draw();
-      }).catch(() => { landState = 'error'; draw(); });
+      if (landState !== 'idle' && landState !== 'error') return; landState = 'loading';
+      fetch('data/basemap.json').then(r => { if (!r.ok) throw new Error(r.status); return r.json(); }).then(d => {
+        const q = d.q, [o0, o1] = d.o, CELL = 0.25;
+        const build = polys => {
+          const cells = new Map();
+          for (const poly of polys) {
+            let x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9; const rings = [];
+            for (const r of poly) {
+              let x = r[0], y = r[1]; const pts = [(o0 + x / q) * KX, -(o1 + y / q)];
+              for (let i = 2; i < r.length; i += 2) { x += r[i]; y += r[i + 1]; pts.push((o0 + x / q) * KX, -(o1 + y / q)); }
+              for (let i = 0; i < pts.length; i += 2) { const a = pts[i], b = pts[i + 1]; if (a < x0) x0 = a; if (a > x1) x1 = a; if (b < y0) y0 = b; if (b > y1) y1 = b; }
+              rings.push(pts);
+            }
+            const key = Math.floor((x0 + x1) / 2 / CELL) + ',' + Math.floor((y0 + y1) / 2 / CELL);
+            let c = cells.get(key); if (!c) cells.set(key, c = { p: new Path2D(), x0: 1e9, y0: 1e9, x1: -1e9, y1: -1e9 });
+            for (const pts of rings) { c.p.moveTo(pts[0], pts[1]); for (let i = 2; i < pts.length; i += 2) c.p.lineTo(pts[i], pts[i + 1]); c.p.closePath(); }
+            c.x0 = Math.min(c.x0, x0); c.y0 = Math.min(c.y0, y0); c.x1 = Math.max(c.x1, x1); c.y1 = Math.max(c.y1, y1);
+          }
+          return [...cells.values()];
+        };
+        basemap = { L: d.L.map(build), F: d.F.map(build), lab: d.lab };
+        landState = 'ok'; bkey = ''; draw();
+      }).catch(() => { landState = 'error'; bkey = ''; draw(); });
     }
     function resize() {
       const r = box.getBoundingClientRect(); dpr = Math.min(2.5, window.devicePixelRatio || 1);
@@ -2500,18 +2514,71 @@ const TideHarm = (() => {
     }
     const css = k => getComputedStyle(document.documentElement).getPropertyValue(k).trim();
     // ---------- 그리기
+    // 출항지 이름표 자리 (섬 이름과 겹치지 않게 먼저 계산)
+    function portBoxes(g, font) {
+      g.font = `700 11.5px ${font}`;
+      return Object.keys(TideHarm.STATIONS).map(k => {
+        const S = TideHarm.STATIONS[k], [x, y] = toS(S.lon, S.lat), t = short(k), w = g.measureText(t).width + 16;
+        const bx = x + 9 + w > W - 58 ? x - 9 - w : x + 9;   // 오른쪽 끝이면 왼쪽에 이름
+        return { k, x, y, t, bx, by: y - 10, w, h: 20 };
+      }).filter(b => b.x > -80 && b.x < W + 80 && b.y > -30 && b.y < H + 30);
+    }
+    // 바탕(바다·갯벌·땅·섬 이름)은 화면이 움직이거나 확대할 때만 새로 그려 두고, 매 장면에는 그 그림을 붙인다
+    function renderBase(C, font) {
+      const key = [v.lon, v.lat, v.s, W, H, dpr, C.sea, landState].join('|');
+      if (key === bkey && bcv) return; bkey = key;
+      if (!bcv) bcv = document.createElement('canvas');
+      if (bcv.width !== cv.width || bcv.height !== cv.height) { bcv.width = cv.width; bcv.height = cv.height; }
+      const g = bcv.getContext('2d');
+      g.setTransform(dpr, 0, 0, dpr, 0, 0); g.fillStyle = C.sea; g.fillRect(0, 0, W, H);
+      if (!basemap) {
+        g.fillStyle = C.lab; g.font = `600 13px ${font}`; g.textAlign = 'center';
+        g.fillText(landState === 'error' ? '지도를 불러오지 못했어요 (인터넷 연결 후 한 번 열어 주세요)' : '지도를 불러오는 중…', W / 2, 40); g.textAlign = 'start';
+        return;
+      }
+      const lod = v.s < 2600 ? 0 : 1, m = 30 / v.s;
+      const vx0 = v.lon * KX - W / 2 / v.s - m, vx1 = v.lon * KX + W / 2 / v.s + m, vy0 = -v.lat - H / 2 / v.s - m, vy1 = -v.lat + H / 2 / v.s + m;
+      const vis = cs => cs.filter(c => c.x1 >= vx0 && c.x0 <= vx1 && c.y1 >= vy0 && c.y0 <= vy1);
+      const lands = vis(basemap.L[lod]), flats = vis(basemap.F[lod]);
+      g.save(); g.setTransform(dpr * v.s, 0, 0, dpr * v.s, dpr * (W / 2 - v.lon * KX * v.s), dpr * (H / 2 + v.lat * v.s));
+      g.lineJoin = 'round'; g.lineCap = 'round';
+      // 해안 가까운 얕은 물: 육지 둘레를 넓게 두 번 그어 바깥으로 갈수록 옅어지게
+      g.strokeStyle = C.shallow;
+      for (const w of [10, 4.5]) { g.lineWidth = w / v.s; for (const c of lands) g.stroke(c.p); }
+      // 갯벌
+      g.fillStyle = C.flat; for (const c of flats) g.fill(c.p, 'evenodd');
+      // 땅: 살짝 그림자 → 바탕 → 해안선
+      g.save(); g.translate(0, 1.6 / v.s); g.fillStyle = C.shade; for (const c of lands) g.fill(c.p, 'evenodd'); g.restore();
+      g.fillStyle = C.land; for (const c of lands) g.fill(c.p, 'evenodd');
+      g.strokeStyle = C.coast; g.lineWidth = 0.9 / v.s; for (const c of lands) g.stroke(c.p);
+      g.restore();
+      // 이름표: 큰 섬·만부터, 다른 이름표·출항지와 겹치면 뺀다. 작은 섬은 섬 아래쪽 바다에
+      // 확대·축소 단추, 축척, 출처 글씨 자리도 비워 둔다
+      const placed = [[W - 64, 0, W, 165], [0, H - 42, 112, H], [W - 175, H - 26, W, H], ...portBoxes(g, font).map(b => [b.bx - 3, b.by - 3, b.bx + b.w + 3, b.by + b.h + 3])];
+      const hit = a => placed.some(b => a[0] < b[2] && a[2] > b[0] && a[1] < b[3] && a[3] > b[1]);
+      g.textAlign = 'center'; g.textBaseline = 'middle'; g.lineJoin = 'round';
+      for (const [name, lon, lat, minS, kind] of basemap.lab) {
+        if (v.s < minS) continue;
+        const [x0, y0] = toS(lon, lat); if (x0 < -40 || x0 > W + 40 || y0 < -20 || y0 > H + 20) continue;
+        const big = kind === 0 && minS <= 700, fs = kind === 1 ? 12 : big ? 12.5 : 11;
+        g.font = `${big || kind === 1 ? 700 : 600} ${fs}px ${font}`;
+        const tw = g.measureText(name).width, diam = kind === 0 ? 10 * v.s / minS : 0;
+        const onLand = kind === 0 && diam > tw + 6, y = kind === 0 && !onLand ? y0 + Math.min(diam / 2, 30) + fs * 0.8 : y0;
+        const box = [x0 - tw / 2 - 3, y - fs / 2 - 3, x0 + tw / 2 + 3, y + fs / 2 + 3];
+        if (box[0] < 2 || box[2] > W - 2 || hit(box)) continue;
+        placed.push(box);
+        g.lineWidth = 3.2; g.strokeStyle = onLand ? C.land : C.sea; g.strokeText(name, x0, y);
+        g.fillStyle = kind === 1 ? C.bay : C.isl; g.fillText(name, x0, y);
+      }
+      g.textAlign = 'start'; g.textBaseline = 'alphabetic';
+    }
     function draw() {
       if (!isOpen || !W) return;
-      const C = { sea: css('--map-sea'), land: css('--map-land'), coast: css('--map-coast'), lab: css('--map-lab'), cur: css('--map-cur'), card: css('--card'), ink: css('--ink') };
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.fillStyle = C.sea; ctx.fillRect(0, 0, W, H);
-      if (land) {
-        ctx.save(); ctx.setTransform(dpr * v.s, 0, 0, dpr * v.s, dpr * (W / 2 - v.lon * KX * v.s), dpr * (H / 2 + v.lat * v.s));
-        ctx.fillStyle = C.land; ctx.fill(land); ctx.lineWidth = 1 / v.s; ctx.strokeStyle = C.coast; ctx.stroke(land); ctx.restore();
-      } else {
-        ctx.fillStyle = C.lab; ctx.font = `600 13px ${getComputedStyle(document.body).fontFamily}`; ctx.textAlign = 'center';
-        ctx.fillText(landState === 'error' ? '해안선 지도를 불러오지 못했어요 (인터넷 연결 후 한 번 열어 주세요)' : '지도를 불러오는 중…', W / 2, 40); ctx.textAlign = 'start';
-      }
+      const C = { sea: css('--map-sea'), shallow: css('--map-shallow'), land: css('--map-land'), shade: css('--map-shade'), coast: css('--map-coast'), flat: css('--map-flat'),
+                  isl: css('--map-isl'), bay: css('--map-bay'), lab: css('--map-lab'), cur: css('--map-cur'), card: css('--card'), ink: css('--ink') };
       const font = getComputedStyle(document.body).fontFamily;
+      renderBase(C, font);
+      ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.drawImage(bcv, 0, 0); ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       // 조류예보 지점의 지금 흐름: 흘러가는 쪽으로 화살표, 셀수록 길게 (30초마다 다시 계산)
       if (SP && v.s > 420) {
         const now = Date.now();
@@ -2528,14 +2595,14 @@ const TideHarm = (() => {
           const [x, y] = toS(c.lon, c.lat); if (x < -40 || x > W + 40 || y < -40 || y > H + 40) continue;
           const calm = k.sp < Math.max(8, c.mx * 0.08), r = k.dir * Math.PI / 180, ux = Math.sin(r), uy = -Math.cos(r);
           const L = (model ? 10 : 12) + Math.min(1, k.sp / 160) * 22;
-          ctx.globalAlpha = model ? 0.42 : 0.92;
+          ctx.globalAlpha = model ? 0.34 : 0.92;
           if (calm) { ctx.lineWidth = 1.8; ctx.beginPath(); ctx.arc(x, y, 4, 0, 2 * Math.PI); ctx.stroke(); }
           else {
             const x1 = x + ux * L / 2, y1 = y + uy * L / 2;
             ctx.lineWidth = 2.6; ctx.beginPath(); ctx.moveTo(x - ux * L / 2, y - uy * L / 2); ctx.lineTo(x1 - ux * 4, y1 - uy * 4); ctx.stroke();
             ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x1 - ux * 8 + uy * 5, y1 - uy * 8 - ux * 5); ctx.lineTo(x1 - ux * 8 - uy * 5, y1 - uy * 8 + ux * 5); ctx.closePath(); ctx.fill();
           }
-          if (v.s > 1100) {
+          if (v.s > (model ? 2400 : 1100)) {
             const t = calm ? '물돌이' : `${(k.sp / KN).toFixed(1)}노트`, ty = y + (uy > 0.3 ? -L / 2 - 6 : L / 2 + 13);
             ctx.font = `${model ? 600 : 700} 10.5px ${font}`; ctx.textAlign = 'center'; ctx.globalAlpha = model ? 0.6 : 1;
             ctx.lineWidth = 3; ctx.strokeStyle = C.sea; ctx.strokeText(t, x, ty); ctx.fillText(t, x, ty); ctx.strokeStyle = C.cur; ctx.textAlign = 'start';
@@ -2556,13 +2623,12 @@ const TideHarm = (() => {
         }
       }
       // 출항지
-      for (const k of Object.keys(TideHarm.STATIONS)) {
-        const S = TideHarm.STATIONS[k], [x, y] = toS(S.lon, S.lat);
-        if (x < -60 || x > W + 60 || y < -30 || y > H + 30) continue;
-        ctx.fillStyle = C.ink; ctx.strokeStyle = C.card; ctx.lineWidth = 2;
-        ctx.beginPath(); ctx.rect(x - 4, y - 4, 8, 8); ctx.fill(); ctx.stroke();
-        ctx.font = `700 11.5px ${font}`; const lw = ctx.measureText(short(k)).width, lx = x + 8 + lw > W - 58 ? x - 8 - lw : x + 8;   // 오른쪽 끝이면 왼쪽에 이름
-        ctx.lineWidth = 3; ctx.strokeStyle = C.sea; ctx.strokeText(short(k), lx, y + 4); ctx.fillStyle = C.lab; ctx.fillText(short(k), lx, y + 4);
+      for (const b of portBoxes(ctx, font)) {
+        ctx.save(); ctx.shadowColor = 'rgba(0,0,0,.18)'; ctx.shadowBlur = 4; ctx.shadowOffsetY = 1;
+        ctx.fillStyle = C.card; ctx.beginPath(); ctx.roundRect ? ctx.roundRect(b.bx, b.by, b.w, b.h, 10) : ctx.rect(b.bx, b.by, b.w, b.h); ctx.fill(); ctx.restore();
+        ctx.fillStyle = C.ink; ctx.font = `700 11.5px ${font}`; ctx.textBaseline = 'middle'; ctx.fillText(b.t, b.bx + 8, b.by + b.h / 2 + 0.5); ctx.textBaseline = 'alphabetic';
+        ctx.fillStyle = C.ink; ctx.strokeStyle = C.card; ctx.lineWidth = 2.2;
+        ctx.beginPath(); ctx.arc(b.x, b.y, 4.6, 0, 2 * Math.PI); ctx.fill(); ctx.stroke();
       }
       // 저장한 포인트
       for (const p of points) {
@@ -3242,7 +3308,7 @@ if ('serviceWorker' in navigator) addEventListener('load', () => {
   const sw = navigator.serviceWorker; let ctl = sw.controller, reloading = false;
   // 새 버전이 올라오면 한 번 새로 열어 바로 반영 (처음 설치할 때는 제외)
   sw.addEventListener('controllerchange', () => { if (ctl && !reloading) { reloading = true; location.reload(); } ctl = sw.controller; });
-  sw.register('sw.js?v=cd7af5ea').then(reg => {
+  sw.register('sw.js?v=5c76dd41').then(reg => {
     // 앱을 켜 둔 채 다른 화면에 갔다 돌아오면 새 버전이 있는지 확인
     document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') reg.update().catch(() => {}); });
   }).catch(() => {});
