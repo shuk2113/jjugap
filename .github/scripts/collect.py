@@ -227,7 +227,11 @@ def diag():
     tests = [
         ('KMA https', KMA_URL, {'pageNo': 1, 'numOfRows': 20, 'dataType': 'JSON', 'base_date': d, 'base_time': t, 'nx': 55, 'ny': 124}),
         ('KMA http', KMA_URL.replace('https://', 'http://'), {'pageNo': 1, 'numOfRows': 20, 'dataType': 'JSON', 'base_date': d, 'base_time': t, 'nx': 55, 'ny': 124}),
-        ('KHOA https', OBS_URL, {'type': 'json', 'obsCode': 'DT_0001', 'reqDate': now.strftime('%Y%m%d'), 'min': 60, 'pageNo': 1, 'numOfRows': 5}),
+        ('KHOA 기본', OBS_URL, {'type': 'json', 'obsCode': 'DT_0001'}),
+        ('KHOA 날짜', OBS_URL, {'type': 'json', 'obsCode': 'DT_0001', 'reqDate': now.strftime('%Y%m%d')}),
+        ('KHOA 날짜+min', OBS_URL, {'type': 'json', 'obsCode': 'DT_0001', 'reqDate': now.strftime('%Y%m%d'), 'min': 60}),
+        ('KHOA 날짜+행수', OBS_URL, {'type': 'json', 'obsCode': 'DT_0001', 'reqDate': now.strftime('%Y%m%d'), 'pageNo': 1, 'numOfRows': 20}),
+        ('KHOA xml', OBS_URL, {'obsCode': 'DT_0001'}),
     ]
     for name, url, params in tests:
         t0 = time.time()
