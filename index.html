@@ -327,7 +327,29 @@ h2{margin:0; font-size:16px; font-weight:700; text-wrap:balance}
 .pcal.closing{animation:pcOut .15s ease forwards} .pc-back.closing{animation:fadeOut .15s ease forwards}
 @keyframes pcIn{from{opacity:0; transform:translateY(-10px) scale(.97)}} @keyframes pcOut{to{opacity:0; transform:translateY(-6px) scale(.985)}}
 .pc-head{display:flex; align-items:center; justify-content:space-between; height:36px; margin-bottom:4px}
-.pc-title{font-size:14.5px; font-weight:700; font-variant-numeric:tabular-nums}
+.pc-title{display:inline-flex; align-items:center; gap:7px; height:32px; padding:0 12px; border:0; border-radius:999px; background:transparent; font:inherit; font-size:14.5px; font-weight:700; color:var(--ink); font-variant-numeric:tabular-nums; -webkit-tap-highlight-color:transparent; transition:background-color .15s}
+.pc-title:active{background:var(--well)}
+.pc-title .chev{width:6px; height:6px; border-right:1.8px solid var(--ink-2); border-bottom:1.8px solid var(--ink-2); transform:translateY(-2px) rotate(45deg); transition:transform .25s cubic-bezier(.3,.7,.2,1)}
+.pc-title[aria-expanded="true"] .chev{transform:translateY(1px) rotate(225deg)}
+/* 팝업 속 연·월 고르기 (아래 큰 달력의 열두 달 판과 같은 방식, 더 가볍게) */
+.pc-mp{display:flex; flex-direction:column; gap:4px; animation:pcMpIn .2s cubic-bezier(.2,.7,.2,1)}
+@keyframes pcMpIn{from{opacity:0; transform:scale(.98)}}
+.pc-mp-year{display:flex; align-items:center; justify-content:center; gap:4px}
+#pc-ytxt{min-width:4.6em; text-align:center; font-size:16px; font-weight:700; font-variant-numeric:tabular-nums}
+.pc-mp-stage{flex:1; display:flex; overflow:hidden}
+.pc-mp-track{display:flex; width:100%; will-change:transform; transform:translate3d(-100%,0,0)}
+.pc-mp-page{flex:0 0 100%; min-width:0; display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); grid-auto-rows:1fr; gap:2px 6px; align-content:stretch}
+.pc-mm{display:flex; align-items:center; justify-content:center; min-height:40px; padding:0; border:0; background:transparent; font:inherit; color:var(--ink); -webkit-tap-highlight-color:transparent}
+.pc-mm span{position:relative; display:inline-flex; align-items:center; justify-content:center; min-width:56px; height:34px; padding:0 12px; border-radius:999px; font-size:14.5px; font-weight:500; font-variant-numeric:tabular-nums; transition:background-color .2s, transform .12s}
+.pc-mm:active span{background:var(--well); transform:scale(.95)}
+.pc-mm.cur span{background:color-mix(in srgb, var(--ink) 14%, transparent); font-weight:700}
+.pc-mm.now span::after{content:""; position:absolute; left:50%; bottom:3px; width:4px; height:4px; margin-left:-2px; border-radius:50%; background:var(--calm)}
+.pc-mp-today{align-self:center; display:inline-flex; align-items:center; gap:6px; height:30px; margin-top:2px; padding:0 14px; border:0; border-radius:999px; background:var(--well); font:inherit; font-size:12.5px; font-weight:600; color:var(--ink); -webkit-tap-highlight-color:transparent; transition:transform .12s}
+.pc-mp-today:active{transform:scale(.96)}
+.pcal.mp-on #pc-prev, .pcal.mp-on #pc-next{visibility:hidden}   /* 열두 달 판에서는 해 화살표만 */
+.pc-mp-today i{width:6px; height:6px; border-radius:50%; background:var(--calm)}
+.pc-swap{animation:pcSwap .22s cubic-bezier(.2,.7,.2,1)} @keyframes pcSwap{from{opacity:0; transform:translateY(6px)}}
+@media (prefers-reduced-motion: reduce){ .pc-mp, .pc-swap{animation:none} .pc-title .chev{transition:none} }
 .pc-nav{width:36px; height:36px; display:grid; place-items:center; padding:0; border:0; border-radius:50%; background:transparent; color:var(--ink-2); -webkit-tap-highlight-color:transparent; transition:background-color .15s}
 .pc-nav:active{background:var(--well)} .pc-nav svg{width:16px; height:16px}
 .pcal .cal-week{gap:3px; margin-bottom:3px; font-size:10.5px}
@@ -565,12 +587,23 @@ h2{margin:0; font-size:16px; font-weight:700; text-wrap:balance}
 <div class="pcal" id="pcal" role="dialog" aria-modal="true" aria-label="날짜 고르기" tabindex="-1" hidden>
   <div class="pc-head">
     <button class="pc-nav" id="pc-prev" aria-label="이전 달"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M10 3.5 5.5 8l4.5 4.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
-    <b class="pc-title" id="pc-title">2026년 10월</b>
+    <button class="pc-title" id="pc-tbtn" aria-expanded="false" aria-label="연도와 월 고르기"><span id="pc-title">2026년 10월</span><i class="chev" aria-hidden="true"></i></button>
     <button class="pc-nav" id="pc-next" aria-label="다음 달"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M6 3.5 10.5 8 6 12.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
   </div>
+  <div class="pc-body" id="pc-body">
   <div class="cal-week" aria-hidden="true"><span>일</span><span>월</span><span>화</span><span>수</span><span>목</span><span>금</span><span>토</span></div>
   <div class="pc-stage" id="pc-stage"><div class="pc-track" id="pc-track"><div class="cal" aria-hidden="true"></div><div class="cal" id="pc-grid"></div><div class="cal" aria-hidden="true"></div></div></div>
   <div class="pc-foot" aria-hidden="true"><span><i class="d-calm"></i>물 약함</span><span><i class="d-mid"></i>보통</span><span><i class="d-strong"></i>물 셈</span><span class="pc-sep">아래 줄은 날씨·파도</span></div>
+  </div>
+  <div class="pc-mp" id="pc-mp" hidden>
+    <div class="pc-mp-year">
+      <button class="pc-nav" id="pc-yprev" aria-label="이전 해"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M10 3.5 5.5 8l4.5 4.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+      <b id="pc-ytxt">2026년</b>
+      <button class="pc-nav" id="pc-ynext" aria-label="다음 해"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M6 3.5 10.5 8 6 12.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+    </div>
+    <div class="pc-mp-stage" id="pc-mp-stage"><div class="pc-mp-track" id="pc-mp-track"><div class="pc-mp-page" aria-hidden="true"></div><div class="pc-mp-page"></div><div class="pc-mp-page" aria-hidden="true"></div></div></div>
+    <button class="pc-mp-today" id="pc-mp-today"><i aria-hidden="true"></i>이번 달</button>
+  </div>
 </div>
 <div class="sheet-back" id="st-back" hidden></div>
 <div class="sheet" id="st-sheet" role="dialog" aria-modal="true" aria-label="출항지 고르기" hidden>
@@ -1744,6 +1777,7 @@ const TideHarm = (() => {
     // 좌우 스와이프: 판이 손가락에 붙어 움직이고, 충분히 밀거나 빠르게 튕기면 옆 해로 착 넘어간다
     let g = null, dragged = false;
     panel.addEventListener('pointerdown', e => {
+      if (e.pointerType === 'mouse' && e.button !== 0) return;
       finish();
       g = { id: e.pointerId, x0: e.clientX, y0: e.clientY, mode: 'pending', lx: e.clientX, lt: e.timeStamp, vx: 0 };
       dragged = false;
@@ -1761,13 +1795,21 @@ const TideHarm = (() => {
       g.lx = e.clientX; g.lt = e.timeStamp;
       place(dx, 0);
     });
+    let tapAt = 0;
     panel.addEventListener('pointerup', e => {
       if (!g || e.pointerId !== g.id) return;
       const dx = e.clientX - g.x0, { mode, vx } = g; g = null;
-      if (mode !== 'drag') return;
+      if (mode !== 'drag') {
+        // 거의 안 움직이고 뗐으면 click을 기다리지 않고 손가락 아래 버튼을 바로 누른다
+        const el = document.elementFromPoint(e.clientX, e.clientY), b = el && el.closest('button');
+        if (b && panel.contains(b)) { tapAt = Date.now(); b.click(); }
+        return;
+      }
       const flick = Math.abs(vx) > 0.35 && Math.abs(dx) > 16;
       if (Math.abs(dx) > stage.clientWidth * 0.2 || flick) go(dx < 0 ? 1 : -1); else place(0, 160);
     });
+    // 이미 바로 누른 뒤 브라우저가 뒤늦게 보내는 진짜 click은 무시
+    panel.addEventListener('click', e => { if (e.isTrusted && Date.now() - tapAt < 700) { e.stopPropagation(); e.preventDefault(); } }, true);
     panel.addEventListener('pointercancel', () => { if (g && g.mode === 'drag') place(0, 160); g = null; });
     // 밀다가 손을 뗀 자리의 달이 눌리지 않게
     panel.addEventListener('click', e => { if (dragged) { e.stopPropagation(); e.preventDefault(); dragged = false; } }, true);
@@ -1986,49 +2028,83 @@ const TideHarm = (() => {
   const motion = () => matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth';
   // 날짜를 누르면 그 자리에서 작은 달력이 뜬다 (아래 큰 달력과 같은 칸을 힘을 뺀 모양으로)
   (() => {
-    const btn = $('date-btn'), pop = $('pcal'), back = $('pc-back'), stage = $('pc-stage'), track = $('pc-track'), panes = track.children;
+    const btn = $('date-btn'), pop = $('pcal'), back = $('pc-back'), body = $('pc-body'), mp = $('pc-mp'), tbtn = $('pc-tbtn');
     let inFrame = false; try { inFrame = window.top !== window.self; } catch (_) { inFrame = true; }
     const useHist = !inFrame;   // 설치한 앱에서는 폰의 '뒤로' 버튼으로도 닫힌다
     const reduceM = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
-    let isOpen = false, pv = null, closeT = 0, skipPop = false, anim = null, g = null, lastTouch = 0;
-    // 세 장(지난달·이번 달·다음 달)을 나란히 두고 손가락을 따라 바로 움직인다
-    const setX = (dx, ms, ease) => {
-      track.style.transition = ms ? `transform ${ms}ms ${ease || 'cubic-bezier(.2,.8,.2,1)'}` : 'none';
-      track.style.transform = `translate3d(calc(-100% + ${dx.toFixed(1)}px),0,0)`;
-    };
-    const fitH = (ms, pane) => {
-      stage.style.transition = ms ? `height ${ms}ms cubic-bezier(.2,.8,.2,1)` : 'none';
-      stage.style.height = (pane || panes[1]).offsetHeight + 'px';
-    };
-    const title = v => { $('pc-title').textContent = `${v.y}년 ${v.m}월`; };
-    function paint() {
-      const a = monthStep(pv, -1), c = monthStep(pv, 1);
-      title(pv);
-      panes[0].innerHTML = calHTML(a.y, a.m); panes[1].innerHTML = calHTML(pv.y, pv.m); panes[2].innerHTML = calHTML(c.y, c.m);
-      roles(); setX(0, 0); fitH(0);
+    const tv = ymd(today);
+    let isOpen = false, pv = null, py = 0, closeT = 0, skipPop = false, g = null, lastTouch = 0;
+
+    // 넘기는 판: 세 장(앞·가운데·뒤)을 나란히 두고 손가락을 바로 따라 움직인다.
+    // 넘긴 뒤에는 다시 그리지 않고 순서만 돌린다 (손가락이 닿아 있는 칸을 지우면 그 터치가 끝까지 전달되지 않는다)
+    function pager(stage, track, o) {
+      const P = { anim: null, panes: track.children };
+      P.setX = (dx, ms, ease) => {
+        track.style.transition = ms ? `transform ${ms}ms ${ease || 'cubic-bezier(.2,.8,.2,1)'}` : 'none';
+        track.style.transform = `translate3d(calc(-100% + ${dx.toFixed(1)}px),0,0)`;
+      };
+      P.roles = () => [...P.panes].forEach((el, k) => { el.setAttribute('aria-hidden', String(k !== 1)); if (o.id) el.id = k === 1 ? o.id : ''; el.querySelectorAll('button').forEach(b => { b.tabIndex = k === 1 ? 0 : -1; }); });
+      P.paint = () => { [-1, 0, 1].forEach(d => o.render(P.panes[d + 1], d)); P.roles(); o.title(0); P.setX(0, 0); if (o.fit) o.fit(0, P.panes[1]); };
+      P.commit = () => {
+        if (!P.anim) return; clearTimeout(P.anim.t); const d = P.anim.dir; P.anim = null;
+        o.step(d);
+        if (d > 0) track.appendChild(track.firstElementChild); else track.insertBefore(track.lastElementChild, track.firstElementChild);
+        o.render(d > 0 ? track.lastElementChild : track.firstElementChild, d);
+        P.roles(); o.title(0); P.setX(0, 0); if (o.fit) o.fit(0, P.panes[1]);
+      };
+      P.finish = () => { if (P.anim) P.commit(); };
+      // 놓는 순간의 속도를 이어받아 남은 거리를 미끄러져 간다
+      P.slide = (dir, v = 0, from = 0) => {
+        P.finish();
+        if (reduceM()) { o.step(dir); P.paint(); return; }
+        const w = stage.clientWidth, rem = Math.max(1, w - Math.abs(from));
+        const dur = Math.round(Math.max(130, Math.min(260, rem / Math.max(Math.abs(v), rem / 260))));
+        o.title(dir);
+        P.setX(-dir * w, dur, 'cubic-bezier(.2,.75,.3,1)'); if (o.fit) o.fit(dur, P.panes[dir > 0 ? 2 : 0]);
+        P.anim = { dir, t: setTimeout(P.commit, dur + 10) };
+      };
+      P.stage = stage;
+      return P;
     }
-    // 달 넘기기: 놓는 순간의 속도를 이어받아 남은 거리를 미끄러져 간다
-    function slide(dir, v = 0, from = 0) {
-      finish();
-      if (reduceM()) { pv = monthStep(pv, dir); paint(); return; }
-      const w = stage.clientWidth, rem = Math.max(1, w - Math.abs(from));
-      const dur = Math.round(Math.max(130, Math.min(260, rem / Math.max(Math.abs(v), rem / 260))));
-      title(monthStep(pv, dir));
-      setX(-dir * w, dur, 'cubic-bezier(.2,.75,.3,1)'); fitH(dur, panes[dir > 0 ? 2 : 0]);
-      anim = { dir, t: setTimeout(commit, dur + 10) };
+    // 날짜 판 (몇 물 · 날씨 · 파도)
+    const mAt = (v, d) => (d ? monthStep(v, d) : v);   // d달 뒤 (0이면 그대로)
+    const dstage = $('pc-stage');
+    const days = pager(dstage, $('pc-track'), {
+      id: 'pc-grid',
+      step: d => { pv = monthStep(pv, d); },
+      render: (el, d) => { const v = mAt(pv, d); el.innerHTML = calHTML(v.y, v.m); },
+      title: d => { const v = mAt(pv, d); $('pc-title').textContent = `${v.y}년 ${v.m}월`; },
+      fit: (ms, pane) => { dstage.style.transition = ms ? `height ${ms}ms cubic-bezier(.2,.8,.2,1)` : 'none'; dstage.style.height = pane.offsetHeight + 'px'; }
+    });
+    // 열두 달 판 (좌우로 해 넘기기)
+    const years = pager($('pc-mp-stage'), $('pc-mp-track'), {
+      step: d => { py += d; },
+      render: (el, d) => {
+        const y = py + d; let h = '';
+        for (let m = 1; m <= 12; m++) {
+          const cls = ['pc-mm']; if (y === pv.y && m === pv.m) cls.push('cur'); if (y === tv.y && m === tv.m) cls.push('now');
+          h += `<button class="${cls.join(' ')}" data-y="${y}" data-m="${m}" aria-label="${y}년 ${m}월"><span>${m}월</span></button>`;
+        }
+        el.innerHTML = h;
+      },
+      title: d => { $('pc-ytxt').textContent = `${py + d}년`; }
+    });
+    const mpOn = () => !mp.hidden;
+    function openMp() {
+      days.finish(); py = pv.y;
+      mp.style.minHeight = body.offsetHeight + 'px';
+      body.hidden = true; mp.hidden = false; years.paint();
+      tbtn.setAttribute('aria-expanded', 'true'); pop.classList.add('mp-on');
     }
-    // 넘긴 뒤 자리 잡기: 세 장을 다시 그리지 않고 순서만 돌린다.
-    // (손가락이 닿아 있는 칸을 지워 버리면 그 터치가 끝까지 전달되지 않아 '한 번에 안 눌리는' 일이 생긴다)
-    function commit() {
-      if (!anim) return; clearTimeout(anim.t); const d = anim.dir; anim = null;
-      pv = monthStep(pv, d);
-      if (d > 0) track.appendChild(track.firstElementChild); else track.insertBefore(track.lastElementChild, track.firstElementChild);
-      const far = d > 0 ? track.lastElementChild : track.firstElementChild, fm = monthStep(pv, d);
-      far.innerHTML = calHTML(fm.y, fm.m);
-      roles(); title(pv); setX(0, 0); fitH(0);
+    function closeMp() {
+      if (!mpOn()) return; years.finish();
+      mp.hidden = true; body.hidden = false; tbtn.setAttribute('aria-expanded', 'false'); pop.classList.remove('mp-on');
     }
-    function roles() { [...panes].forEach((el, i) => { const cur = i === 1; el.id = cur ? 'pc-grid' : ''; el.setAttribute('aria-hidden', String(!cur)); }); }
-    function finish() { if (anim) commit(); }
+    // 연·월을 고르면 날짜 판으로 돌아와 그 달을 살짝 떠오르듯 보여준다
+    function showMonth(y, m) {
+      closeMp(); pv = { y, m }; days.paint();
+      if (!reduceM()) { const c = days.panes[1]; c.classList.remove('pc-swap'); void c.offsetWidth; c.classList.add('pc-swap'); }
+    }
     // 날짜 바로 아래에 띄우되, 화면 밖으로 넘치면 위로 올린다
     function place() {
       const r = btn.getBoundingClientRect(), h = pop.offsetHeight;
@@ -2037,8 +2113,9 @@ const TideHarm = (() => {
     function open() {
       if (isOpen) return; clearTimeout(closeT);
       back.classList.remove('closing'); pop.classList.remove('closing');
+      mp.hidden = true; body.hidden = false; tbtn.setAttribute('aria-expanded', 'false'); pop.classList.remove('mp-on');
       back.hidden = false; pop.hidden = false;
-      const v = ymd(sel); pv = { y: v.y, m: v.m }; paint();
+      const v = ymd(sel); pv = { y: v.y, m: v.m }; days.paint();
       place(); isOpen = true;
       btn.setAttribute('aria-expanded', 'true');
       try { pop.focus({ preventScroll: true }); } catch (_) {}
@@ -2046,29 +2123,37 @@ const TideHarm = (() => {
     }
     function close(fromPop) {
       if (!isOpen) return; isOpen = false; g = null; btn.setAttribute('aria-expanded', 'false');
-      if (anim) { clearTimeout(anim.t); anim = null; }
+      [days, years].forEach(P => { if (P.anim) { clearTimeout(P.anim.t); P.anim = null; } });
       if (useHist && !fromPop && history.state && history.state.pcal) { skipPop = true; history.back(); }
       const done = () => { back.hidden = true; pop.hidden = true; back.classList.remove('closing'); pop.classList.remove('closing'); };
       if (reduceM()) { done(); return; }
       back.classList.add('closing'); pop.classList.add('closing'); closeT = setTimeout(done, 150);
     }
-    // 날짜 고르기: 고른 칸을 바로 표시하고 닫은 뒤, 화면 전체는 그다음에 바꾼다 (터치가 바로 먹는 느낌)
+    // 날짜 고르기: 고른 칸을 바로 표시하고 닫은 뒤, 화면 전체는 그다음에 바꾼다
     function pick(cell) {
       if (!isOpen) return;
-      panes[1].querySelectorAll('.is-sel').forEach(c => c.classList.remove('is-sel')); cell.classList.add('is-sel');
+      days.panes[1].querySelectorAll('.is-sel').forEach(c => c.classList.remove('is-sel')); cell.classList.add('is-sel');
       const n = +cell.dataset.dn; close(); setTimeout(() => select(n), 0);
     }
     btn.onclick = () => (isOpen ? close() : open());
     back.onclick = () => close();
-    $('pc-prev').onclick = () => slide(-1);
-    $('pc-next').onclick = () => slide(1);
-    // 손가락 처리: 6px만 움직여도 가로/세로를 정하고, 가로면 달력이 손가락을 그대로 따라온다.
-    // 거의 안 움직이고 뗀 경우는 브라우저의 click을 기다리지 않고 바로 그 날짜를 고른다.
+    tbtn.onclick = () => (mpOn() ? closeMp() : openMp());
+    $('pc-prev').onclick = () => { closeMp(); days.slide(-1); };
+    $('pc-next').onclick = () => { closeMp(); days.slide(1); };
+    $('pc-yprev').onclick = () => years.slide(-1);
+    $('pc-ynext').onclick = () => years.slide(1);
+    $('pc-mp-today').onclick = () => showMonth(tv.y, tv.m);
+    $('pc-track').addEventListener('click', e => { const b = e.target.closest('[data-dn]'); if (b && b.parentElement === days.panes[1]) pick(b); });
+    $('pc-mp-track').addEventListener('click', e => { const b = e.target.closest('[data-m]'); if (b && b.parentElement === years.panes[1]) showMonth(+b.dataset.y, +b.dataset.m); });
+
+    // 손가락 처리: 6px만 움직여도 가로/세로를 정하고, 가로면 판이 손가락을 그대로 따라온다.
+    // 거의 안 움직이고 뗀 경우는 브라우저의 click을 기다리지 않고 손가락 아래 버튼을 바로 누른다
+    // (밀어서 넘긴 직후에는 폰 브라우저가 다음 한 번의 click을 삼키는 경우가 있다)
     pop.addEventListener('touchstart', e => {
       if (e.touches.length > 1) { g = null; return; }
-      const t = e.touches[0];
-      finish();   // 넘어가는 도중에 다시 닿으면 바로 자리를 잡아, 이 터치가 날짜 고르기든 다음 넘기기든 그대로 먹게 한다
-      g = { x0: t.clientX, y0: t.clientY, dx: 0, mode: null, pts: [[e.timeStamp, t.clientX]] };
+      const t = e.touches[0], P = mpOn() ? years : days;
+      days.finish(); years.finish();   // 넘어가는 도중에 다시 닿으면 바로 자리를 잡는다
+      g = { P, x0: t.clientX, y0: t.clientY, dx: 0, mode: null, pts: [[e.timeStamp, t.clientX]], inStage: P.stage.contains(e.target) || e.target === P.stage };
     }, { passive: true });
     pop.addEventListener('touchmove', e => {
       if (!g) return;
@@ -2077,31 +2162,28 @@ const TideHarm = (() => {
       if (g.mode !== 'h') return;
       g.dx = dx; g.pts.push([e.timeStamp, t.clientX]);
       while (g.pts.length > 2 && e.timeStamp - g.pts[0][0] > 90) g.pts.shift();
-      setX(dx, 0);
+      g.P.setX(dx, 0);
     }, { passive: true });
     pop.addEventListener('touchend', e => {
       if (!g) return; const s = g; g = null;
       if (s.mode === 'h') {
         const p0 = s.pts[0], p1 = s.pts[s.pts.length - 1], v = (p1[1] - p0[1]) / Math.max(1, p1[0] - p0[0]);
-        const w = stage.clientWidth, flick = Math.abs(v) > 0.2 && Math.sign(v) === Math.sign(s.dx);
-        if (Math.abs(s.dx) > w * 0.2 || (flick && Math.abs(s.dx) > 14)) slide(s.dx < 0 ? 1 : -1, v, s.dx);
-        else setX(0, 180);
+        const w = s.P.stage.clientWidth, flick = Math.abs(v) > 0.2 && Math.sign(v) === Math.sign(s.dx);
+        if (Math.abs(s.dx) > w * 0.2 || (flick && Math.abs(s.dx) > 14)) s.P.slide(s.dx < 0 ? 1 : -1, v, s.dx);
+        else s.P.setX(0, 180);
         return;
       }
       if (s.mode) return;
-      const t = e.changedTouches[0], el = document.elementFromPoint(t.clientX, t.clientY), cell = el && el.closest('[data-dn]');
-      if (cell && cell.parentElement === panes[1]) { e.preventDefault(); lastTouch = Date.now(); pick(cell); }
+      const t = e.changedTouches[0], el = document.elementFromPoint(t.clientX, t.clientY), b = el && el.closest('button');
+      if (b && pop.contains(b)) { e.preventDefault(); lastTouch = Date.now(); b.click(); }
     }, { passive: false });
-    pop.addEventListener('touchcancel', () => { if (g && g.mode === 'h') setX(0, 180); g = null; });
-    // 마우스·키보드로 고를 때
-    track.addEventListener('click', e => {
-      if (Date.now() - lastTouch < 700) return;
-      const b = e.target.closest('[data-dn]'); if (b && b.parentElement === panes[1]) pick(b);
-    });
-    document.addEventListener('keydown', e => { if (e.key === 'Escape' && isOpen) close(); });
+    pop.addEventListener('touchcancel', () => { if (g && g.mode === 'h') g.P.setX(0, 180); g = null; });
+    // 손가락으로 이미 누른 뒤 브라우저가 뒤늦게 보내는 진짜 click은 무시 (코드로 누른 click은 통과)
+    pop.addEventListener('click', e => { if (e.isTrusted && Date.now() - lastTouch < 700) { e.stopPropagation(); e.preventDefault(); } }, true);
+    document.addEventListener('keydown', e => { if (e.key === 'Escape' && isOpen) { if (mpOn()) closeMp(); else close(); } });
     addEventListener('popstate', () => { if (skipPop) { skipPop = false; return; } if (isOpen) close(true); });
-    addEventListener('resize', () => { if (isOpen) { setX(0, 0); fitH(0); place(); } });
-    pcRepaint = () => { if (isOpen && !anim && !g) paint(); };
+    addEventListener('resize', () => { if (!isOpen) return; days.setX(0, 0); years.setX(0, 0); if (!mpOn()) dstage.style.height = days.panes[1].offsetHeight + 'px'; place(); });
+    pcRepaint = () => { if (isOpen && !days.anim && !g && !mpOn()) days.paint(); };
   })();
   $('cal').addEventListener('click', e => {
     if (Date.now() - calTapAt < 700) return;   // 손가락으로 이미 고른 경우
@@ -2179,7 +2261,7 @@ if ('serviceWorker' in navigator) addEventListener('load', () => {
   const sw = navigator.serviceWorker; let ctl = sw.controller, reloading = false;
   // 새 버전이 올라오면 한 번 새로 열어 바로 반영 (처음 설치할 때는 제외)
   sw.addEventListener('controllerchange', () => { if (ctl && !reloading) { reloading = true; location.reload(); } ctl = sw.controller; });
-  sw.register('sw.js?v=998828a5').then(reg => {
+  sw.register('sw.js?v=4f933650').then(reg => {
     // 앱을 켜 둔 채 다른 화면에 갔다 돌아오면 새 버전이 있는지 확인
     document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') reg.update().catch(() => {}); });
   }).catch(() => {});
