@@ -204,7 +204,7 @@ h2{margin:0; font-size:16px; font-weight:700; text-wrap:balance}
 .scrub-wrap{display:flex; flex-direction:column; gap:6px; padding:12px 14px 12px; border-top:1px solid var(--line)}
 .scrub-head{display:flex; flex-direction:column; align-items:stretch; gap:6px}
 .sh-row{display:flex; align-items:center; justify-content:space-between; gap:8px; height:30px}
-.scrub-cap{min-height:3em; text-align:center; font-size:11.5px; color:var(--ink-2)}
+.scrub-cap{min-height:4.5em; text-align:center; font-size:11.5px; color:var(--ink-2)}
 .now-btn{flex:none; white-space:nowrap; height:28px; padding:0 12px; border:0; border-radius:999px; background:var(--well); font:inherit; font-size:12.5px; font-weight:700; color:var(--ink); -webkit-tap-highlight-color:transparent}
 .now-btn.off{visibility:hidden; pointer-events:none}
 .scrub{touch-action:pan-y; cursor:pointer; -webkit-user-select:none; user-select:none; -webkit-tap-highlight-color:transparent}
@@ -214,7 +214,35 @@ h2{margin:0; font-size:16px; font-weight:700; text-wrap:balance}
 .sc-curve{fill:none; stroke:var(--hi); stroke-width:2; stroke-linejoin:round}
 .sc-dot{stroke:var(--card); stroke-width:1.5} .sc-dot.H{fill:var(--hi)} .sc-dot.L{fill:var(--lo)}
 .sc-lab{font-family:var(--font-body); font-size:9.5px; fill:var(--ink-2); text-anchor:middle; dominant-baseline:central}
-.sc-now{fill:var(--ink-2)}
+/* '지금' 표시: 초록 점선 + 이름표 + 곡선 위에서 퍼져 나가는 동그라미 */
+.sc-now-line{stroke:var(--calm); stroke-width:1.3; stroke-dasharray:3 2.5}
+.sc-now-dot{fill:var(--calm); stroke:var(--card); stroke-width:1.5}
+.sc-now-pulse{fill:var(--calm); transform-box:fill-box; transform-origin:center; animation:nowPulse 1.8s ease-out infinite}
+@keyframes nowPulse{0%{transform:scale(.6); opacity:.6} 100%{transform:scale(2.6); opacity:0}}
+.sc-now-tagbg{fill:var(--calm)}
+.sc-now-tagtx{font-family:var(--font-body); font-size:8.5px; font-weight:700; fill:var(--card); text-anchor:middle; dominant-baseline:central}
+.live-dot{display:inline-block; width:8px; height:8px; margin-right:7px; border-radius:50%; background:var(--calm); vertical-align:2px; animation:liveBlink 1.6s ease-in-out infinite}
+@keyframes liveBlink{0%,100%{opacity:1; box-shadow:0 0 0 0 var(--calm-soft)} 50%{opacity:.45; box-shadow:0 0 0 5px transparent}}
+/* 시간 막대 맨 아래 3시간 날씨 띠 */
+.wxb-sel{fill:var(--well)}
+.wxb-past{opacity:.42}
+.wxb-ico{color:var(--ink-2)}
+.wxb-sun{color:#F2B33D} .wxb-moon{color:#E8D9A8} .wxb-rainc{color:var(--hi)}
+.wxb-txt{font-family:var(--font-body); font-size:9.5px; font-weight:700; fill:var(--ink); text-anchor:middle; dominant-baseline:central; font-variant-numeric:tabular-nums}
+.wxb-sub{font-family:var(--font-body); font-size:8.5px; fill:var(--ink-2); text-anchor:middle; dominant-baseline:central; font-variant-numeric:tabular-nums}
+.wxb-txt.lv1{fill:var(--mid)} .wxb-txt.lv2{fill:var(--strong)}
+.wxb-bar.lv0{fill:var(--calm)} .wxb-bar.lv1{fill:var(--mid)} .wxb-bar.lv2{fill:var(--strong)}
+.wxb-msg{font-family:var(--font-body); font-size:10px; fill:var(--ink-2); text-anchor:middle; dominant-baseline:central}
+.wxb-rays{transform-box:fill-box; transform-origin:center; animation:wxSpin 16s linear infinite}
+.wxb-cloud{animation:wxBob 3.6s ease-in-out infinite alternate}
+.wxb-drop{animation:wxDrop 1s linear infinite}
+.wxb-flake{animation:wxDrop 2.2s linear infinite}
+.wxb-sway{transform-box:fill-box; transform-origin:center; animation:wxSway var(--dur, 2s) ease-in-out infinite alternate}
+@keyframes wxSpin{to{transform:rotate(360deg)}}
+@keyframes wxBob{from{transform:translateX(-1px)} to{transform:translateX(1.4px)}}
+@keyframes wxDrop{0%{transform:translateY(-2px); opacity:0} 25%{opacity:1} 100%{transform:translateY(4px); opacity:0}}
+@keyframes wxSway{from{transform:rotate(calc(var(--amp, 4deg) * -1))} to{transform:rotate(var(--amp, 4deg))}}
+@media (prefers-reduced-motion: reduce){ .sc-now-pulse, .live-dot, .wxb-rays, .wxb-cloud, .wxb-drop, .wxb-flake, .wxb-sway{animation:none} }
 .sc-base{stroke:var(--line); stroke-width:1}
 .sc-flow{opacity:.85} .sc-flow.up{fill:var(--hi)} .sc-flow.down{fill:var(--lo)}
 .sc-thumb-line{stroke:var(--ink); stroke-width:1.5}
@@ -383,7 +411,7 @@ h2{margin:0; font-size:16px; font-weight:700; text-wrap:balance}
     <div class="scrub-wrap">
       <div class="scrub-head" aria-live="polite"><div class="sh-row"><span class="stag-time" id="stag-time">-</span><button class="now-btn off" id="now-btn" tabindex="-1" aria-hidden="true">지금</button></div><div class="stags"><span class="stag" id="stag-state">-</span><span class="stag" id="stag-flow">-</span></div></div>
       <div class="scrub" id="scrub">
-        <svg id="scrub-svg" viewBox="0 0 360 94" role="img" aria-label="하루 물 높이 시간 막대">
+        <svg id="scrub-svg" viewBox="0 0 360 160" role="img" aria-label="하루 물 높이 시간 막대">
           <defs>
             <linearGradient id="sc-fill" x1="0" y1="0" x2="0" y2="1">
               <stop offset="0" style="stop-color:var(--hi); stop-opacity:.35"></stop>
@@ -391,7 +419,15 @@ h2{margin:0; font-size:16px; font-weight:700; text-wrap:balance}
             </linearGradient>
           </defs>
           <g id="scrub-plot"></g>
-          <line class="sc-thumb-line" id="sc-thumb-line" x1="0" y1="2" x2="0" y2="78"></line>
+          <g id="sc-wx"></g>
+          <g id="sc-nowg">
+            <line class="sc-now-line" id="sc-now-line" x1="0" y1="15" x2="0" y2="92"></line>
+            <circle class="sc-now-pulse" id="sc-now-pulse" cx="0" cy="0" r="5"></circle>
+            <circle class="sc-now-dot" id="sc-now-dot" cx="0" cy="0" r="3.2"></circle>
+            <rect class="sc-now-tagbg" id="sc-now-tagbg" x="0" y="0" width="28" height="13" rx="6.5"></rect>
+            <text class="sc-now-tagtx" id="sc-now-tagtx" x="0" y="6.8">지금</text>
+          </g>
+          <line class="sc-thumb-line" id="sc-thumb-line" x1="0" y1="16" x2="0" y2="92"></line>
           <circle class="sc-thumb-dot" id="sc-thumb-dot" cx="0" cy="0" r="6"></circle>
         </svg>
       </div>
@@ -720,8 +756,9 @@ const TideHarm = (() => {
   let tideSt = 'incheon';
   try { const k = localStorage.getItem('jjukgap-station'); if (k && TideHarm.STATIONS[k]) tideSt = k; } catch (e) {}
   const flowRef = () => TideHarm.STATIONS[tideSt].ref;
-  const FB = 64, FH = 12; // 시간 막대 아래 조류 띠의 기준선과 최대 높이
-  const SX0 = 12, SX1 = 348, SYT = 6, SYB = 46, HMIN = -50, HMAX = 1000;
+  const FB = 78, FH = 12; // 시간 막대 아래 조류 띠의 기준선과 최대 높이
+  const SX0 = 12, SX1 = 348, SYT = 20, SYB = 60, HMIN = -50, HMAX = 1000;
+  const WXY = 108;        // 3시간 날씨 띠가 시작하는 높이
   const sx = min => SX0 + (SX1 - SX0) * min / 1440;
   const sy = h => SYB - (SYB - SYT) * (h - HMIN) / (HMAX - HMIN);
   const kstMin = ms => { const d = new Date(ms + 9 * 3600000); return d.getUTCHours() * 60 + d.getUTCMinutes() + d.getUTCSeconds() / 60; };
@@ -747,7 +784,7 @@ const TideHarm = (() => {
     for (let m = 0; m <= 1440; m += 10) {   // 밤 시간은 막대에 옅게 칠한다
       const dark = sunAt(sel, m).alt < -0.8;
       if (dark && ns === null) ns = m;
-      if (ns !== null && (!dark || m === 1440)) { const e = dark ? 1440 : m; g += `<rect class="sc-night" x="${sx(ns).toFixed(1)}" y="0" width="${(sx(e) - sx(ns)).toFixed(1)}" height="${FB + FH + 2}"></rect>`; ns = null; }
+      if (ns !== null && (!dark || m === 1440)) { const e = dark ? 1440 : m; g += `<rect class="sc-night" x="${sx(ns).toFixed(1)}" y="15" width="${(sx(e) - sx(ns)).toFixed(1)}" height="${FB + FH + 2 - 15}"></rect>`; ns = null; }
     }
     const d = pts.map((p, i) => `${i ? 'L' : 'M'}${sx(p.min).toFixed(1)} ${sy(p.h).toFixed(1)}`).join(' ');
     g += `<path class="sc-area" d="${d} L${SX1} ${SYB} L${SX0} ${SYB} Z"></path><path class="sc-curve" d="${d}"></path>`;
@@ -760,16 +797,88 @@ const TideHarm = (() => {
       g += `<rect class="sc-flow ${r > 0 ? 'up' : 'down'}" x="${(sx(m) + 0.3).toFixed(1)}" y="${(r > 0 ? FB - hg : FB).toFixed(1)}" width="${(bw - 0.6).toFixed(2)}" height="${hg.toFixed(1)}"></rect>`;
     }
     dayEx.forEach(e => { g += `<circle class="sc-dot ${e.type}" cx="${sx(e.min).toFixed(1)}" cy="${sy(e.h).toFixed(1)}" r="3.5"></circle>`; });
-    [0, 6, 12, 18, 24].forEach(h => { g += `<text class="sc-lab" x="${Math.min(SX1 - 8, Math.max(SX0 + 8, sx(h * 60))).toFixed(1)}" y="88">${h}시</text>`; });
-    if (sel === today) { const x = sx(kstMin(Date.now())); g += `<path class="sc-now" d="M${(x - 4).toFixed(1)} 0 L${(x + 4).toFixed(1)} 0 L${x.toFixed(1)} 5 Z"></path>`; }
+    [0, 6, 12, 18, 24].forEach(h => { g += `<text class="sc-lab" x="${Math.min(SX1 - 8, Math.max(SX0 + 8, sx(h * 60))).toFixed(1)}" y="101">${h}시</text>`; });
     $('scrub-plot').innerHTML = g;
-    $('scrub-cap').textContent = `막대를 밀어 시간 이동 · 아래 띠는 조류 세기 (파랑 들물, 갈색 날물) · ${TideHarm.STATIONS[tideSt].name} 기준`;
+    placeNow(); renderWxStrip();
+    $('scrub-cap').textContent = `막대를 밀어 시간 이동 · 띠는 조류(파랑 들물, 갈색 날물) · 맨 아래는 3시간 날씨(바람 m/s, 파도 m) · ${TideHarm.STATIONS[tideSt].name} 기준`;
     const list = $('tide-list'), nowMs = Date.now();
     list.style.setProperty('--n', String(Math.max(3, dayEx.length)));
     list.innerHTML = dayEx.map(e => `<button class="ti ${e.type}${sel === today && e.ms <= nowMs ? ' past' : ''}" data-min="${e.min.toFixed(2)}" aria-label="${e.type === 'H' ? '만조' : '간조'} ${hhmm(e.min)} ${meters(e.h)}로 이동">`
       + `<span class="k">${e.type === 'H' ? '▲ 만조' : '▼ 간조'}</span><span class="t">${hhmm(e.min)}</span><span class="v">${meters(e.h)}</span></button>`).join('');
     $('scrub-svg').setAttribute('aria-label', `하루 물 높이 시간 막대. ${dayEx.map(e => `${e.type === 'H' ? '만조' : '간조'} ${hhmm(e.min)}`).join(', ')}`);
     updateTime();
+  }
+  // '지금' 표시: 오늘을 볼 때만, 1초마다 자리를 옮긴다
+  function placeNow() {
+    const gN = $('sc-nowg');
+    if (sel !== today) { gN.style.display = 'none'; return; }
+    gN.style.display = '';
+    const nm = kstMin(Date.now()), x = sx(nm), y = sy(TideHarm.heightAt(tideSt, dayStartOf(sel) + nm * 60000));
+    const set = (id, a) => { const el = $(id); for (const k in a) el.setAttribute(k, typeof a[k] === 'number' ? a[k].toFixed(1) : a[k]); };
+    set('sc-now-line', { x1: x, x2: x }); set('sc-now-pulse', { cx: x, cy: y }); set('sc-now-dot', { cx: x, cy: y });
+    const tx = Math.max(SX0, Math.min(SX1 - 28, x - 14));
+    set('sc-now-tagbg', { x: tx }); set('sc-now-tagtx', { x: tx + 14 });
+  }
+  // 3시간 날씨 띠: 아이콘(해·구름·비·눈) · 바람 화살표와 세기 · 파도 높이 · 출조 신호 색 막대
+  const WXB_ICO = {
+    sun: (x, y) => `<g class="wxb-sun"><g class="wxb-rays"><path d="M${x} ${y - 7.5}v2M${x} ${y + 5.5}v2M${x - 7.5} ${y}h2M${x + 5.5} ${y}h2M${x - 5.3} ${y - 5.3}l1.4 1.4M${x + 3.9} ${y + 3.9}l1.4 1.4M${x - 5.3} ${y + 5.3}l1.4-1.4M${x + 3.9} ${y - 3.9}l1.4-1.4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></g><circle cx="${x}" cy="${y}" r="3.4" fill="currentColor"/></g>`,
+    moon: (x, y) => `<g class="wxb-moon"><path d="M${x + 2.5} ${y - 5.5}a5.6 5.6 0 1 0 3.6 8.4a4.6 4.6 0 0 1-3.6-8.4z" fill="currentColor"/></g>`,
+    part: (x, y, night) => `${night ? `<g class="wxb-moon"><path d="M${x - 1} ${y - 7}a4.2 4.2 0 1 0 2.7 6.3a3.4 3.4 0 0 1-2.7-6.3z" fill="currentColor"/></g>` : `<g class="wxb-sun"><circle cx="${x - 2.6}" cy="${y - 2.6}" r="3" fill="currentColor"/></g>`}<g class="wxb-cloud"><path d="M${x - 3.5} ${y + 5}h7.5a2.8 2.8 0 0 0 0-5.6a3.6 3.6 0 0 0-6.8 1a2.3 2.3 0 0 0-.7 4.6z" fill="var(--card)" stroke="currentColor" stroke-width="1.3"/></g>`,
+    cloud: (x, y) => `<g class="wxb-cloud"><path d="M${x - 5} ${y + 4}h9.5a3.3 3.3 0 0 0 0-6.6a4.4 4.4 0 0 0-8.4 1.2a2.7 2.7 0 0 0-1.1 5.4z" fill="none" stroke="currentColor" stroke-width="1.4"/></g>`,
+    rain: (x, y) => `<g class="wxb-cloud"><path d="M${x - 5} ${y + 1}h9.5a3.1 3.1 0 0 0 0-6.2a4.2 4.2 0 0 0-8 1.1a2.6 2.6 0 0 0-1.5 5.1z" fill="none" stroke="currentColor" stroke-width="1.4"/></g><g class="wxb-rainc">${[-3.5, 0, 3.5].map((dx, i) => `<path class="wxb-drop" style="animation-delay:${(i * 0.33).toFixed(2)}s" d="M${x + dx} ${y + 3.5}l-.8 2.4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>`).join('')}</g>`,
+    snow: (x, y) => `<g class="wxb-cloud"><path d="M${x - 5} ${y + 1}h9.5a3.1 3.1 0 0 0 0-6.2a4.2 4.2 0 0 0-8 1.1a2.6 2.6 0 0 0-1.5 5.1z" fill="none" stroke="currentColor" stroke-width="1.4"/></g>${[-3.5, 0.5, 3.5].map((dx, i) => `<circle class="wxb-flake" style="animation-delay:${(i * 0.7).toFixed(1)}s" cx="${x + dx}" cy="${y + 4.5}" r="1" fill="currentColor"/>`).join('')}`
+  };
+  let wxBlocks = [];
+  function renderWxStrip() {
+    const gW = $('sc-wx'); if (!gW || typeof WX === 'undefined') return;
+    const st = WX && WX.stations && WX.stations[tideSt], nowH = sel === today ? Math.floor(kstMin(Date.now()) / 60) : (sel < today ? 24 : -1);
+    let g = '', any = false; wxBlocks = []; const empties = [];
+    for (let b = 0; b < 8; b++) {
+      const x0 = sx(b * 180), x1 = sx((b + 1) * 180), cx = (x0 + x1) / 2;
+      let lv = -1, rep = null;
+      for (let h = b * 3; h < b * 3 + 3; h++) {
+        const q = st && st.fc && st.fc[wxYmd(sel) + String(h).padStart(2, '0')]; if (!q) continue;
+        if (!rep || h === b * 3 + 1) rep = q;
+        lv = Math.max(lv, windLv(q[0] == null ? null : Math.round(q[0])), waveLv(q[2] == null ? null : Math.round(q[2] * 10) / 10));
+      }
+      wxBlocks.push({ x0, x1 });
+      const past = b * 3 + 3 <= nowH;
+      g += `<rect class="wxb-selbg" data-b="${b}" x="${(x0 + 1).toFixed(1)}" y="${WXY - 2}" width="${(x1 - x0 - 2).toFixed(1)}" height="${160 - WXY + 1}" rx="6" fill="transparent"></rect>`;
+      if (!rep) { empties.push(cx); continue; }
+      any = true;
+      const [w0, vec, v0, sky, pty] = rep, wsd = w0 == null ? null : Math.round(w0), wav = v0 == null ? null : Math.round(v0 * 10) / 10;
+      const night = sunAt(sel, b * 180 + 90).alt < -0.8;
+      const kind = pty === 1 || pty === 2 || pty === 4 ? 'rain' : pty === 3 ? 'snow' : sky === 1 ? (night ? 'moon' : 'sun') : sky === 3 ? 'part' : 'cloud';
+      const wl = windLv(wsd), sw = Math.min(14, wsd ?? 0);
+      g += `<g class="${past ? 'wxb-past' : ''}"><g class="wxb-ico">${WXB_ICO[kind](cx, WXY + 9, night)}</g>`;
+      if (wsd != null) {
+        const ax = cx - 8.5, ay = WXY + 27;
+        g += `<g transform="rotate(${vec == null ? 0 : Math.round(vec + 180)} ${ax.toFixed(1)} ${ay})"><g class="wxb-sway" style="--amp:${(3 + sw * 0.9).toFixed(1)}deg; --dur:${(2.4 - sw * 0.12).toFixed(2)}s">`
+          + `<path d="M${ax.toFixed(1)} ${ay - 5}l3 4.2h-2v5.4h-2v-5.4h-2z" class="wxb-arrow" fill="currentColor" style="color:var(${wl === 2 ? '--strong' : wl === 1 ? '--mid' : '--ink-2'})"/></g></g>`
+          + `<text class="wxb-txt${wl > 0 ? ' lv' + wl : ''}" x="${(cx + 4).toFixed(1)}" y="${ay}">${wsd}</text>`;
+      }
+      if (wav != null) g += `<text class="wxb-sub" x="${cx.toFixed(1)}" y="${WXY + 41}">${wav.toFixed(1)}m</text>`;
+      if (lv >= 0) g += `<rect class="wxb-bar lv${lv}" x="${(x0 + 4).toFixed(1)}" y="${WXY + 48}" width="${(x1 - x0 - 8).toFixed(1)}" height="3" rx="1.5"></rect>`;
+      g += '</g>';
+    }
+    // 예보가 없는 칸(지나간 이른 시간 등)은 흐린 줄표로
+    if (any) empties.forEach(cx => { g += `<text class="wxb-sub" x="${cx.toFixed(1)}" y="${WXY + 22}">–</text>`; });
+    if (!any) {
+      let msg;
+      if (wxState === 'frame') msg = '시간대별 바다 날씨는 폰에 설치한 앱에서 보여요';
+      else if (wxState === 'loading') msg = '바다 날씨를 불러오는 중…';
+      else if (wxState === 'error' || !st) msg = '바다 날씨를 불러오지 못했어요';
+      else { const ks = Object.keys(st.fc).sort(), lastK = ks[ks.length - 1]; msg = lastK && wxYmd(sel) > lastK.slice(0, 8) ? `날씨 예보는 ${wxMd(lastK)}까지 나와요` : '이 날의 날씨 예보가 없어요'; }
+      g += `<text class="wxb-msg" x="180" y="${WXY + 24}">${msg}</text>`;
+    }
+    gW.innerHTML = g;
+    selWxBlock(true);
+  }
+  let wxSelB = -1;
+  function selWxBlock(force) {
+    const b = Math.min(7, Math.floor(tMin / 180));
+    if (b === wxSelB && !force) return; wxSelB = b;
+    document.querySelectorAll('#sc-wx .wxb-selbg').forEach(r => r.classList.toggle('wxb-sel', +r.dataset.b === b));
   }
   function updateTime() {
     const ds = dayStartOf(sel), ms = ds + tMin * 60000;
@@ -786,7 +895,11 @@ const TideHarm = (() => {
     let state, cls;
     if (near) { state = `${near.type === 'H' ? '만조' : '간조'} · 정조`; cls = near.type === 'H' ? 'up' : 'down'; }
     else if (rate > 0) { state = '들물 ↑'; cls = 'up'; } else { state = '날물 ↓'; cls = 'down'; }
-    $('stag-time').textContent = isNow ? `지금 ${ampm(tMin)}` : ampm(tMin);
+    const following = followNow && sel === today;
+    if (following) {
+      const d = new Date(Date.now() + 9 * 3600000), hh = d.getUTCHours();
+      $('stag-time').innerHTML = `<i class="live-dot" aria-hidden="true"></i>지금 ${hh < 12 ? '오전' : '오후'} ${hh % 12 || 12}:${String(d.getUTCMinutes()).padStart(2, '0')}:${String(d.getUTCSeconds()).padStart(2, '0')}`;
+    } else $('stag-time').textContent = isNow ? `지금 ${ampm(tMin)}` : ampm(tMin);
     $('stag-state').innerHTML = `<span class="${cls}">${state}</span> · ${meters(h)}`;
     $('stag-flow').innerHTML = pct < 8 ? '조류 거의 없음' : `조류 <span class="${rate > 0 ? 'up' : 'down'}">${pct}% ${rate > 0 ? '→' : '←'}</span>`;
     let msg;
@@ -796,7 +909,8 @@ const TideHarm = (() => {
     $('adv-now').textContent = msg;
     $('adv-day').textContent = `하루 전체로는: ${LV[dd.lv].advice}`;
     [...$('tide-list').children].forEach(b => b.classList.toggle('active', !!near && Math.abs(+b.dataset.min - near.min) < 0.5));
-    { const nb = $('now-btn'), off = !(sel === today && !isNow); nb.classList.toggle('off', off); nb.tabIndex = off ? -1 : 0; nb.setAttribute('aria-hidden', String(off)); }
+    { const nb = $('now-btn'), off = sel !== today || following; nb.classList.toggle('off', off); nb.tabIndex = off ? -1 : 0; nb.setAttribute('aria-hidden', String(off)); }
+    selWxBlock();
     $('sea').setAttribute('aria-label', `${ampm(tMin)} 바다 그림. ${state}, 물 높이 ${meters(h)}, 조류 세기 ${pct}%.`);
     paintWx();
   }
@@ -863,13 +977,13 @@ const TideHarm = (() => {
   }
   async function loadWx() {
     let inFrame = false; try { inFrame = window.top !== window.self; } catch (_) { inFrame = true; }
-    if (inFrame && !WX) { wxState = 'frame'; paintWx(); return; }
+    if (inFrame && !WX) { wxState = 'frame'; paintWx(); renderWxStrip(); return; }
     try {
       const r = await fetch('data/weather.json', { cache: 'no-cache' });
       if (!r.ok) throw new Error(r.status);
       WX = await r.json(); wxState = 'ok'; wxAt = Date.now();
     } catch (_) { if (!WX) wxState = 'error'; }
-    paintWx();
+    paintWx(); renderWxStrip();
   }
   document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && Date.now() - wxAt > 20 * 60000) loadWx(); });
   // 시간 막대 조작: 톡 누르면 그 시각으로, 옆으로 밀면 따라가고, 만조·간조 근처에서 놓으면 그 시각에 착 붙는다
@@ -879,11 +993,14 @@ const TideHarm = (() => {
     const clampMin = m => Math.max(0, Math.min(1439, m));
     const minAt = cx => { const r = scrub.getBoundingClientRect(); return clampMin(((cx - r.left) / r.width * 360 - SX0) / (SX1 - SX0) * 1440); };
     const snap = m => { const e = dayEx.find(e => Math.abs(e.min - m) <= 15); return e ? e.min : m; };
+    const tweenOn = () => tweening;
+    let tweening = false;
     function setTMin(m, animate) {
-      m = clampMin(m); cancelAnimationFrame(tween);
+      m = clampMin(m); cancelAnimationFrame(tween); tweening = false;
       if (!animate || matchMedia('(prefers-reduced-motion: reduce)').matches) { tMin = m; updateTime(); return; }
       const from = tMin, t0 = performance.now(), dur = 360;
-      const step = now => { const k = Math.min(1, (now - t0) / dur); tMin = from + (m - from) * (1 - Math.pow(1 - k, 3)); updateTime(); if (k < 1) tween = requestAnimationFrame(step); };
+      tweening = true;
+      const step = now => { const k = Math.min(1, (now - t0) / dur); tMin = from + (m - from) * (1 - Math.pow(1 - k, 3)); updateTime(); if (k < 1) tween = requestAnimationFrame(step); else tweening = false; };
       tween = requestAnimationFrame(step);
     }
     scrub.addEventListener('pointerdown', e => { g = { id: e.pointerId, x0: e.clientX, y0: e.clientY, mode: 'pending' }; });
@@ -907,6 +1024,7 @@ const TideHarm = (() => {
     $('now-btn').onclick = () => { followNow = true; setTMin(kstMin(Date.now()), true); };
     // 1분마다 '지금'을 따라가는 중이면 시각을 갱신
     setInterval(() => { if (sel === today) { if (followNow) tMin = kstMin(Date.now()); renderTide(); } }, 60000);
+    setInterval(() => { if (sel !== today || document.hidden) return; placeNow(); if (followNow && !tweenOn()) { tMin = kstMin(Date.now()); updateTime(); } }, 1000);
   }
 
   // 한 달 물때 파도: 곡선 높이 = 물살 세기, 배 = 고른 날
@@ -1840,5 +1958,5 @@ const TideHarm = (() => {
 </script>
 
 <script>
-if ('serviceWorker' in navigator) addEventListener('load', () => navigator.serviceWorker.register('sw.js?v=0c94ec47').catch(() => {}));
+if ('serviceWorker' in navigator) addEventListener('load', () => navigator.serviceWorker.register('sw.js?v=c2397c69').catch(() => {}));
 </script>
