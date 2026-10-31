@@ -51,6 +51,10 @@ def enc(r):
     return out
 
 def polys_of(g):
+    if g['type'] == 'GeometryCollection':
+        out = []
+        for x in g['geometries']: out += polys_of(x) if x['type'] in ('Polygon', 'MultiPolygon', 'GeometryCollection') else []
+        return out
     return g['coordinates'] if g['type'] == 'MultiPolygon' else [g['coordinates']]
 
 def level(g, tol, min_diag):
@@ -72,6 +76,13 @@ L0, n0 = level(land, 0.0006, 0.004)
 L1, n1 = level(land, 0.0001, 0.0004)
 F0, m0 = level(flats, 0.0008, 0.01)
 F1, m1 = level(flats, 0.00025, 0.002)
+# 방조제 안 호수·저수지·큰 강 (OSM 육지 자료에는 땅으로 들어가 있어서 물로 다시 칠한다)
+water = json.load(open(D + 'water_union.geojson'))['geometry']
+# 바다와 먼 내륙(동경 127.05도 동쪽) 물은 빼고, 멀리 볼 때는 큰 것만
+water = {'type': 'MultiPolygon', 'coordinates': [p for p in polys_of(water) if (lambda b: (b[0] + b[2]) / 2 < 127.05)(bbox(p[0]))]}
+W0, w0 = level(water, 0.0008, 0.02)
+W1, w1 = level(water, 0.0002, 0.003)
+print('호수·강 W0', len(W0), w0, 'W1', len(W1), w1)
 print('육지 L0', len(L0), n0, 'L1', len(L1), n1, '갯벌', m0, m1)
 
 # ---------- 이름표
@@ -151,6 +162,9 @@ for line in open(D + 'places.geojsonseq'):
         if p.get('place') == 'archipelago': kind = 'group'
     if not (LON0 <= x <= 127.4 and LAT0 <= y <= 38.1): continue
     labs.append([name, x, y, a, kind])
+for nm, x, y, a, typ in json.load(open(D + 'water_names.json')):
+    nm = clean(nm)
+    if nm and typ in ('lake', 'reservoir', 'lagoon') and a * KX > 3 / 12392 * 0.8 and x < 127.05: labs.append([nm, x, y, a * KX, 'lake'])
 # 같은 이름이 가까이 겹치면 큰 쪽만
 labs.sort(key=lambda l: -l[3])
 keep = []
@@ -160,12 +174,12 @@ for l in labs:
 out_l = []
 for name, x, y, a, kind in keep:
     # 섬이 화면에서 대략 지름 18점 이상 보일 때부터 이름 (작은 섬·점 자료는 많이 당겼을 때만)
-    if kind == 'bay': minS = max(600, min(5000, 20 / math.sqrt(max(a, 1e-6))))
+    if kind in ('bay', 'lake'): minS = max(600, min(5000, 20 / math.sqrt(max(a, 1e-6))))
     elif kind == 'group': minS = 900
     else: minS = max(250, min(60000, 10 / math.sqrt(a))) if a > 0 else 5000
-    out_l.append([name, round(x, 5), round(y, 5), round(minS), {'island': 0, 'bay': 1, 'group': 2}[kind]])
+    out_l.append([name, round(x, 5), round(y, 5), round(minS), {'island': 0, 'bay': 1, 'group': 2, 'lake': 1}[kind]])
 print('이름표', len(out_l), '예:', [l[:1] + l[3:4] for l in out_l[:25]])
 js = json.dumps({'src': '© OpenStreetMap 기여자 (ODbL)', 'date': open(D + 'when.txt').read().split('timestamp=')[-1][:10] if 'timestamp=' in open(D + 'when.txt').read() else '',
-                 'o': [LON0, LAT0], 'q': Q, 'L': [L0, L1], 'F': [[], []], 'lab': out_l}, ensure_ascii=False, separators=(',', ':'))
+                 'o': [LON0, LAT0], 'q': Q, 'L': [L0, L1], 'F': [[], []], 'W': [W0, W1], 'lab': out_l}, ensure_ascii=False, separators=(',', ':'))
 open('deploy/data/basemap.json', 'w').write(js)
 print('크기', len(js.encode()) // 1024, 'KB')
