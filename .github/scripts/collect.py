@@ -134,36 +134,45 @@ def pack_fcst(items):
     return out
 
 
-def fetch_obs(code, now):
-    """오늘·어제 매시 관측에서 가장 최근 수온과 24시간 전 수온"""
-    rows = []
-    for day in (now - timedelta(days=1), now):
-        try:
-            raw = get_json(OBS_URL, {'type': 'json', 'obsCode': code, 'reqDate': day.strftime('%Y%m%d'), 'min': 60, 'pageNo': 1, 'numOfRows': 300})
-            c, msg, items = unwrap(raw)
-        except RuntimeError as e:
-            log('  관측 오류', e); continue
-        if c not in ('00', '0') and not items:
-            note(f'관측 {code} {day:%Y%m%d}: 결과코드 {c} {msg} :: {json.dumps(raw, ensure_ascii=False)[:300]}', 'warning')
-        rows += items
+def fetch_obs(code, now, prev_obs):
+    """오늘 매시 관측에서 가장 최근 수온. 24시간 전 값은 지난 실행들에서 모아 둔 기록(hist)에서 찾는다.
+    해양조사원 서버가 느릴 때가 있어 한 번에 오래(25초) 기다리고, 실패하면 ('timeout'|'error') 를 돌려준다."""
+    try:
+        raw = get_json(OBS_URL, {'type': 'json', 'obsCode': code, 'reqDate': now.strftime('%Y%m%d'), 'min': 60, 'pageNo': 1, 'numOfRows': 300}, tries=1, timeout=25)
+    except RuntimeError as e:
+        note(f'수온 {code}: 응답 없음 ({str(e)[-80:]})', 'warning')
+        return None, 'timeout'
+    c, msg, items = unwrap(raw)
+    if not items:
+        note(f'수온 {code}: 결과코드 {c} {msg} :: {json.dumps(raw, ensure_ascii=False)[:200]}', 'warning')
+        return None, 'error'
     def f(v):
         try:
             return round(float(v), 1)
         except (TypeError, ValueError):
             return None
     pts = []
-    for r in rows:
-        t = str(r.get('obsrvnDt') or r.get('obsrvn_dt') or r.get('record_time') or '')[:16]
+    for r in items:
+        t = str(r.get('obsrvnDt') or r.get('obsrvn_dt') or r.get('record_time') or '')[:16].replace('T', ' ')
         w = f(r.get('wtem', r.get('water_temp')))
         if t and w is not None:
             pts.append((t, w, f(r.get('wspd')), f(r.get('wndrct')), f(r.get('artmp'))))
     if not pts:
-        return None
+        note(f'수온 {code}: 수온 값이 비어 있음', 'warning')
+        return None, 'error'
     pts.sort()
     t, w, ws, wd, at = pts[-1]
-    t_last = datetime.strptime(t[:16].replace('T', ' '), '%Y-%m-%d %H:%M')
-    old = [p for p in pts if datetime.strptime(p[0][:16].replace('T', ' '), '%Y-%m-%d %H:%M') <= t_last - timedelta(hours=23)]
-    return {'t': t, 'wtem': w, 'wtem24': old[-1][1] if old else None, 'wspd': ws, 'wdir': wd, 'atmp': at}
+    # 기록: 지난 48시간의 매시 수온
+    hist = {h[0]: h[1] for h in ((prev_obs or {}).get('hist') or [])}
+    hist.update({p[0]: p[1] for p in pts})
+    t_last = datetime.strptime(t, '%Y-%m-%d %H:%M')
+    keep = (t_last - timedelta(hours=48)).strftime('%Y-%m-%d %H:%M')
+    hist = sorted((k, v) for k, v in hist.items() if k >= keep)
+    target = t_last - timedelta(hours=24)
+    near = [(abs((datetime.strptime(k, '%Y-%m-%d %H:%M') - target).total_seconds()), v) for k, v in hist]
+    near = [x for x in near if x[0] <= 90 * 60]
+    w24 = min(near)[1] if near else None
+    return {'t': t, 'wtem': w, 'wtem24': w24, 'wspd': ws, 'wdir': wd, 'atmp': at, 'hist': [list(h) for h in hist]}, 'ok'
 
 
 def main():
@@ -179,6 +188,7 @@ def main():
     out = {'generated': now.isoformat(timespec='minutes'), 'stations': {}}
     cache = {}
     ok_f = ok_o = 0
+    obs_timeouts = 0
     for key, cfg in STATIONS.items():
         pst = (prev.get('stations') or {}).get(key) or {}
         st = {'fc': {}, 'obs': pst.get('obs')}
@@ -209,17 +219,20 @@ def main():
         else:
             st['fc'] = pst.get('fc') or {}
             note(f'{key}: 예보 못 받음 (이전 자료 유지)', 'warning')
-        o = fetch_obs(cfg['obs'], now)
-        if o:
-            o['code'] = cfg['obs']; st['obs'] = o; ok_o += 1
-            note(f'{key} 수온 {o["wtem"]}℃ ({o["t"]}), 24시간 전 {o["wtem24"]}')
+        # 해양조사원 서버가 연달아 응답이 없으면 이번에는 수온을 건너뛰고 지난 값을 유지 (실행 시간을 아끼려고)
+        if obs_timeouts < 2:
+            o, why = fetch_obs(cfg['obs'], now, pst.get('obs'))
+            obs_timeouts = obs_timeouts + 1 if why == 'timeout' else 0
+            if o:
+                o['code'] = cfg['obs']; st['obs'] = o; ok_o += 1
+                note(f'{key} 수온 {o["wtem"]}℃ ({o["t"]}), 24시간 전 {o["wtem24"]}')
         out['stations'][key] = st
     if ok_f == 0 and ok_o == 0:
-        sys.exit('예보·관측을 하나도 받지 못했어요 (인증키 활용신청 승인 대기 중일 수 있어요)')
+        sys.exit('예보·관측을 하나도 받지 못했어요')
     os.makedirs(os.path.dirname(os.path.abspath(OUT)), exist_ok=True)
     with open(OUT, 'w') as fp:
         json.dump(out, fp, ensure_ascii=False, separators=(',', ':'))
-    log(f'저장: 예보 {ok_f}/8곳, 수온 {ok_o}/8곳')
+    note(f'저장: 예보 {ok_f}/8곳, 수온 {ok_o}/8곳' + ('' if obs_timeouts < 2 else ' (해양조사원 서버 응답 없음 → 수온은 다음 실행에 다시)'))
 
 
 def diag():
