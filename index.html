@@ -207,16 +207,16 @@ h2{margin:0; font-size:16px; font-weight:700; text-wrap:balance}
 .mv-tools{position:absolute; right:10px; top:10px; display:flex; flex-direction:column; gap:8px}
 .mv-tools button{width:42px; height:42px; display:grid; place-items:center; padding:0; border:1px solid var(--line); border-radius:12px; background:var(--card); font:inherit; font-size:22px; line-height:1; color:var(--ink); box-shadow:0 2px 8px rgba(0,0,0,.12); -webkit-tap-highlight-color:transparent}
 .mv-tools button svg{width:20px; height:20px; color:var(--ink-2)} .mv-tools button.on svg{color:#2F7DF6}
-.mv-scale{position:absolute; left:10px; bottom:26px; display:flex; flex-direction:column; gap:2px; font-size:10.5px; font-weight:700; color:var(--map-lab); pointer-events:none}
+.mv-scale{position:absolute; left:10px; bottom:calc(var(--sheet-h, 0px) + 10px); transition:bottom .24s cubic-bezier(.2,.8,.2,1); display:flex; flex-direction:column; gap:2px; font-size:10.5px; font-weight:700; color:var(--map-lab); pointer-events:none}
 .mv-scale i{display:block; height:5px; border:1.5px solid var(--map-lab); border-top:0}
-.mv-attr{position:absolute; right:6px; bottom:21px; padding:1px 6px; border-radius:7px; background:var(--map-sea); font-size:9.5px; color:var(--map-lab); opacity:.85; pointer-events:none}
+.mv-attr{position:absolute; right:6px; bottom:calc(var(--sheet-h, 0px) + 6px); transition:bottom .24s cubic-bezier(.2,.8,.2,1); padding:1px 6px; border-radius:7px; background:var(--map-sea); font-size:9.5px; color:var(--map-lab); opacity:.85; pointer-events:none}
 .mv-toast{position:absolute; left:50%; top:12px; transform:translateX(-50%); max-width:calc(100% - 90px); padding:8px 14px; border-radius:999px; background:rgba(8,20,24,.82); color:#fff; font-size:12.5px; font-weight:600; text-align:center; pointer-events:none}
-.mv-sheet{flex:none; position:relative; z-index:2; display:flex; flex-direction:column; margin-top:-16px; background:var(--card); border-radius:18px 18px 0 0; box-shadow:0 -4px 16px rgba(0,0,0,.12)}
+.mv-sheet{position:absolute; left:0; right:0; bottom:0; z-index:2; display:flex; flex-direction:column; background:var(--card); border-radius:18px 18px 0 0; box-shadow:0 -4px 16px rgba(0,0,0,.12)}
 .mv-grab{flex:none; height:22px; display:flex; align-items:center; justify-content:center; touch-action:none; cursor:grab; -webkit-tap-highlight-color:transparent}
 .mv-grab i{width:40px; height:5px; border-radius:3px; background:var(--ink-2); opacity:.32}
 .mv-grab:focus-visible{outline:2px solid #2F7DF6; outline-offset:-4px; border-radius:18px 18px 0 0}
 .mv-panel{position:relative; flex:none; max-height:46vh; overflow-y:auto; padding:2px 14px calc(12px + env(safe-area-inset-bottom, 0px)); overscroll-behavior:contain}
-.mv-panel.sized{max-height:none} .mv-panel.anim{transition:height .24s cubic-bezier(.2,.8,.2,1)}
+.mv-panel.sized{max-height:none} .mv-drag .mv-scale, .mv-drag .mv-attr{transition:none} .mv-panel.anim{transition:height .24s cubic-bezier(.2,.8,.2,1)}
 .mv-panel .mv-where, .mv-panel .mv-h{touch-action:none}
 .mv-where{display:flex; align-items:baseline; justify-content:space-between; gap:8px; flex-wrap:wrap}
 .mv-where b{font-size:15.5px} .mv-where span{font-size:11.5px; color:var(--ink-2); font-variant-numeric:tabular-nums}
@@ -2488,6 +2488,11 @@ const TideHarm = (() => {
     const toS = (lon, lat) => [W / 2 + (lon - v.lon) * KX * v.s, H / 2 - (lat - v.lat) * v.s];
     const toG = (x, y) => ({ lon: v.lon + (x - W / 2) / (KX * v.s), lat: v.lat - (y - H / 2) / v.s });
     const clampS = s => Math.max(60, Math.min(160000, s));
+    // 판에 가리지 않는 지도 윗부분의 가운데 높이, 그리고 어떤 점을 화면 높이 y 에 두기
+    const sheetCover = () => { const el = $('mv-sheet'); return el ? el.getBoundingClientRect().height : 0; };
+    const focusY = () => Math.max(70, (H - Math.min(sheetCover(), H - 140)) / 2);
+    let fy = null;   // 따라가기 때 내 위치를 둘 화면 높이 (판을 움직여도 바꾸지 않는다)
+    const placeAt = (lon, lat, y) => { v.lon = lon; v.lat = lat - (H / 2 - y) / v.s; };
 
     // ---------- 바다 지도 불러오기 (data/basemap.json: OpenStreetMap 육지·갯벌·섬 이름, 1e-5도 정수 차분)
     // 멀리 볼 때(L0)와 가까이 볼 때(L1) 두 단계. 0.25도 칸마다 Path2D 하나로 묶어 화면에 보이는 칸만 그린다
@@ -2563,7 +2568,7 @@ const TideHarm = (() => {
       g.restore();
       // 이름표: 큰 섬·만부터, 다른 이름표·출항지와 겹치면 뺀다. 작은 섬은 섬 아래쪽 바다에
       // 확대·축소 단추, 축척, 출처 글씨 자리도 비워 둔다
-      const placed = [[W - 64, 0, W, 165], [0, H - 58, 112, H], [W - 175, H - 42, W, H], ...portBoxes(g, font).map(b => [b.bx - 3, b.by - 3, b.bx + b.w + 3, b.by + b.h + 3])];
+      const placed = [[W - 64, 0, W, 165], ...portBoxes(g, font).map(b => [b.bx - 3, b.by - 3, b.bx + b.w + 3, b.by + b.h + 3])];
       const hit = a => placed.some(b => a[0] < b[2] && a[2] > b[0] && a[1] < b[3] && a[3] > b[1]);
       g.textAlign = 'center'; g.textBaseline = 'middle'; g.lineJoin = 'round';
       for (const [name, lon, lat, minS, kind] of basemap.lab) {
@@ -2964,7 +2969,7 @@ const TideHarm = (() => {
       else if (a === 'commit') commit();
       else if (a === 'cancel' || a === 'back') { form = null; mode = 'info'; selId = null; paintPanel(true); draw(); }
       else if (a === 'list') showList();
-      else if (a === 'pick') { const p = points.find(q => q.id === b.dataset.id); if (p) { follow = false; $('mv-me').classList.remove('on'); v.lon = p.lon; v.lat = p.lat; v.s = Math.max(v.s, 4000); } showDetail(b.dataset.id); }
+      else if (a === 'pick') { const p = points.find(q => q.id === b.dataset.id); if (p) { follow = false; $('mv-me').classList.remove('on'); v.s = Math.max(v.s, 4000); placeAt(p.lon, p.lat, focusY()); } showDetail(b.dataset.id); }
       else if (a === 'del') showDetail(b.dataset.id, true);
       else if (a === 'del-yes') { points = points.filter(q => q.id !== b.dataset.id); savePts(); selId = null; toast('포인트를 지웠어요'); showList(); draw(); }
     });
@@ -2979,7 +2984,7 @@ const TideHarm = (() => {
       const first = !me; me = { ...gps };
       setGps(`GPS ±${Math.round(c.accuracy)}m · ${ampm(kstMin(pos.timestamp))}`, c.accuracy <= 50 ? 'ok' : 'warn');
       if (first) fitMeAndPort();
-      else if (follow) { v.lon = me.lon; v.lat = me.lat; }
+      else if (follow) placeAt(me.lon, me.lat, fy ?? focusY());
       paintPanel(first); kick(); draw();
     }
     function onErr(err) {
@@ -2994,11 +2999,14 @@ const TideHarm = (() => {
     }
     // 내 위치를 가운데에 두고, 가까운 출항지(40km 안)도 화면에 들어오게 배율을 맞춘다
     function fitMeAndPort() {
-      if (!me) return; v.lon = me.lon; v.lat = me.lat;
+      if (!me) return; fy = focusY();
       const nr = nearest(me), S = TideHarm.STATIONS[nr.k];
-      if (nr.d > 40 || !W) { v.s = Math.max(v.s, 2600); return; }
-      const dx = Math.abs(S.lon - me.lon) * KX, dy = Math.abs(S.lat - me.lat);
-      v.s = clampS(Math.min((W / 2 - 86) / Math.max(dx, 1e-4), (H / 2 - 44) / Math.max(dy, 1e-4), 9000));   // 오른쪽 버튼·이름표 자리를 비운다
+      if (nr.d > 40 || !W) v.s = Math.max(v.s, 2600);
+      else {
+        const dx = Math.abs(S.lon - me.lon) * KX, dy = Math.abs(S.lat - me.lat);
+        v.s = clampS(Math.min((W / 2 - 86) / Math.max(dx, 1e-4), (fy - 44) / Math.max(dy, 1e-4), 9000));   // 오른쪽 버튼·이름표 자리를 비운다
+      }
+      placeAt(me.lon, me.lat, fy);
     }
     function stopGps() { if (watchId != null) { navigator.geolocation.clearWatch(watchId); watchId = null; } }
     // 화면 꺼짐 막기 (지원하는 폰에서만)
@@ -3019,6 +3027,8 @@ const TideHarm = (() => {
     function setH(h, anim) {
       panel.classList.add('sized'); panel.classList.toggle('anim', !!anim);
       panel.style.height = Math.round(h) + 'px';
+      view.classList.toggle('mv-drag', !anim);
+      view.style.setProperty('--sheet-h', Math.round(h + grab.offsetHeight) + 'px');
     }
     function applySheet(anim) {
       const hs = sheetHeights(); setH(hs[sheetMode], anim);
@@ -3078,7 +3088,7 @@ const TideHarm = (() => {
     new ResizeObserver(() => { if (isOpen) resize(); }).observe(box);
     setInterval(() => { if (isOpen && mode === 'info') paintPanel(true); }, 15000);
     // 확대 · 축소 · 내 위치로
-    const zoomAt = (f, x = W / 2, y = H / 2) => { const g = toG(x, y); v.s = clampS(v.s * f); const g2 = toG(x, y); v.lon += g.lon - g2.lon; v.lat += g.lat - g2.lat; if (follow && me) { v.lon = me.lon; v.lat = me.lat; } draw(); };
+    const zoomAt = (f, x = W / 2, y = focusY()) => { const g = toG(x, y); v.s = clampS(v.s * f); const g2 = toG(x, y); v.lon += g.lon - g2.lon; v.lat += g.lat - g2.lat; if (follow && me) placeAt(me.lon, me.lat, fy ?? focusY()); draw(); };
     $('mv-zin').onclick = () => zoomAt(1.8);
     $('mv-zout').onclick = () => zoomAt(1 / 1.8);
     $('mv-me').onclick = () => {
@@ -3372,7 +3382,7 @@ if ('serviceWorker' in navigator) addEventListener('load', () => {
   const sw = navigator.serviceWorker; let ctl = sw.controller, reloading = false;
   // 새 버전이 올라오면 한 번 새로 열어 바로 반영 (처음 설치할 때는 제외)
   sw.addEventListener('controllerchange', () => { if (ctl && !reloading) { reloading = true; location.reload(); } ctl = sw.controller; });
-  sw.register('sw.js?v=84dc7c79').then(reg => {
+  sw.register('sw.js?v=59db1f1c').then(reg => {
     // 앱을 켜 둔 채 다른 화면에 갔다 돌아오면 새 버전이 있는지 확인
     document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') reg.update().catch(() => {}); });
   }).catch(() => {});
