@@ -1,0 +1,276 @@
+{
+ "8": {
+  "title": "조위관측소 조화상수",
+  "n": 52,
+  "sample": [
+   {
+    "id": "DT_0063",
+    "name": "가덕도",
+    "lat": 35.024,
+    "lon": 128.81
+   },
+   {
+    "id": "DT_0032",
+    "name": "강화대교",
+    "lat": 37.731,
+    "lon": 126.522
+   }
+  ],
+  "keys": [
+   "id",
+   "title",
+   "desc",
+   "createdDt",
+   "modifyDt",
+   "url",
+   "keywords",
+   "type",
+   "modifyCycle",
+   "observatoryType",
+   "observatoryItem",
+   "reqParam",
+   "resParam",
+   "sample"
+  ]
+ },
+ "16": {
+  "title": "수치조류도 예측 유향 유속",
+  "n": 121,
+  "sample": [
+   {
+    "id": "DT_0063",
+    "name": "가덕도",
+    "lat": 35.024,
+    "lon": 128.81
+   },
+   {
+    "id": "TW_0088",
+    "name": "감천항",
+    "lat": 35.052,
+    "lon": 129.003
+   }
+  ],
+  "keys": [
+   "id",
+   "title",
+   "desc",
+   "createdDt",
+   "modifyDt",
+   "url",
+   "keywords",
+   "type",
+   "modifyCycle",
+   "observatoryType",
+   "observatoryItem",
+   "reqParam",
+   "resParam",
+   "sample"
+  ]
+ },
+ "17": {
+  "title": "면(지역)단위 수치조류도 예측 유향 유속(GeoJson)",
+  "n": 121,
+  "sample": [
+   {
+    "id": "DT_0063",
+    "name": "가덕도",
+    "lat": 35.024,
+    "lon": 128.81
+   },
+   {
+    "id": "TW_0088",
+    "name": "감천항",
+    "lat": 35.052,
+    "lon": 129.003
+   }
+  ],
+  "keys": [
+   "id",
+   "title",
+   "desc",
+   "createdDt",
+   "modifyDt",
+   "url",
+   "keywords",
+   "type",
+   "modifyCycle",
+   "observatoryType",
+   "observatoryItem",
+   "reqParam",
+   "resParam",
+   "sample"
+  ]
+ },
+ "18": {
+  "title": "수치조류도 지점별 최강창낙조",
+  "n": 121,
+  "sample": [
+   {
+    "id": "DT_0063",
+    "name": "가덕도",
+    "lat": 35.024,
+    "lon": 128.81
+   },
+   {
+    "id": "TW_0088",
+    "name": "감천항",
+    "lat": 35.052,
+    "lon": 129.003
+   }
+  ],
+  "keys": [
+   "id",
+   "title",
+   "desc",
+   "createdDt",
+   "modifyDt",
+   "url",
+   "keywords",
+   "type",
+   "modifyCycle",
+   "observatoryType",
+   "observatoryItem",
+   "reqParam",
+   "resParam",
+   "sample"
+  ]
+ },
+ "36": {
+  "title": "해수욕장 정보",
+  "n": 356,
+  "sample": [
+   {
+    "id": "BCH110",
+    "name": "38(기사문)해수욕장",
+    "data_type": "BEACH",
+    "lat": 38.005,
+    "lon": 128.731
+   },
+   {
+    "id": "BCH226",
+    "name": "가계해수욕장",
+    "data_type": "BEACH",
+    "lat": 34.434,
+    "lon": 126.354
+   }
+  ],
+  "keys": [
+   "id",
+   "title",
+   "desc",
+   "createdDt",
+   "modifyDt",
+   "url",
+   "keywords",
+   "type",
+   "modifyCycle",
+   "observatoryType",
+   "observatoryItem",
+   "reqParam",
+   "resParam",
+   "sample"
+  ]
+ },
+ "37": {
+  "title": "기본수준점",
+  "n": 517,
+  "sample": [
+   {
+    "id": "194",
+    "name": "가거도항(광주신안)",
+    "lat": 34.05,
+    "lon": 125.128
+   },
+   {
+    "id": "561",
+    "name": "가곡리(충남당진)  ",
+    "lat": 37.001,
+    "lon": 126.695
+   }
+  ],
+  "keys": [
+   "id",
+   "title",
+   "desc",
+   "createdDt",
+   "modifyDt",
+   "url",
+   "keywords",
+   "type",
+   "modifyCycle",
+   "observatoryType",
+   "observatoryItem",
+   "reqParam",
+   "resParam",
+   "sample"
+  ]
+ },
+ "38": {
+  "title": "이어도 해양과학기지 대기중 방사선 총량",
+  "n": 3,
+  "sample": [
+   {
+    "id": "IE_0061",
+    "name": "신안가거초",
+    "lat": 33.941,
+    "lon": 124.592
+   },
+   {
+    "id": "IE_0062",
+    "name": "옹진소청초",
+    "lat": 37.423,
+    "lon": 124.738
+   }
+  ],
+  "keys": [
+   "id",
+   "title",
+   "desc",
+   "createdDt",
+   "modifyDt",
+   "url",
+   "keywords",
+   "type",
+   "modifyCycle",
+   "observatoryType",
+   "observatoryItem",
+   "reqParam",
+   "resParam",
+   "sample"
+  ]
+ },
+ "40": {
+  "title": "관측소별 데이터 제공현황",
+  "n": 121,
+  "sample": [
+   {
+    "id": "DT_0063",
+    "name": "가덕도",
+    "lat": 35.024,
+    "lon": 128.81
+   },
+   {
+    "id": "TW_0088",
+    "name": "감천항",
+    "lat": 35.052,
+    "lon": 129.003
+   }
+  ],
+  "keys": [
+   "id",
+   "title",
+   "desc",
+   "createdDt",
+   "modifyDt",
+   "url",
+   "keywords",
+   "type",
+   "modifyCycle",
+   "observatoryType",
+   "observatoryItem",
+   "reqParam",
+   "resParam",
+   "sample"
+  ]
+ }
+}
