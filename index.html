@@ -28,7 +28,7 @@
   --pe:#F07C14; --jig:#E2457A;
   --calm:#1C8B6B; --mid:#B97E0A; --strong:#C9452F;
   --calm-soft:rgba(28,139,107,.15); --mid-soft:rgba(194,133,12,.17); --strong-soft:rgba(201,69,47,.15);
-  --sat:#2F62C4; --sun:#C9452F; --hi:#2560AE; --lo:#93652A;
+  --sat:#2F62C4; --sun:#C9452F; --hi:#2560AE; --lo:#A9870C; --moon-ic:#7C88AE;
   --font-display:"Black Han Sans","Apple SD Gothic Neo","Malgun Gothic",sans-serif;
   --font-body:"IBM Plex Sans KR","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;
 }
@@ -41,7 +41,7 @@
     --pe:#FF9535; --jig:#FF6A98;
     --calm:#45C59A; --mid:#EDB43C; --strong:#F2745C;
     --calm-soft:rgba(69,197,154,.16); --mid-soft:rgba(237,180,60,.16); --strong-soft:rgba(242,116,92,.16);
-    --sat:#7AA2F0; --sun:#F2745C; --hi:#7FB2EE; --lo:#D8A764;
+    --sat:#7AA2F0; --sun:#F2745C; --hi:#7FB2EE; --lo:#EACB52; --moon-ic:#E8D9A8;
     color-scheme:dark;
   }
 }
@@ -53,7 +53,7 @@
   --pe:#FF9535; --jig:#FF6A98;
   --calm:#45C59A; --mid:#EDB43C; --strong:#F2745C;
   --calm-soft:rgba(69,197,154,.16); --mid-soft:rgba(237,180,60,.16); --strong-soft:rgba(242,116,92,.16);
-  --sat:#7AA2F0; --sun:#F2745C; --hi:#7FB2EE; --lo:#D8A764;
+  --sat:#7AA2F0; --sun:#F2745C; --hi:#7FB2EE; --lo:#EACB52; --moon-ic:#E8D9A8;
   color-scheme:dark;
 }
 /* 앱 안의 모드 전환 버튼으로 고른 모드가 기기·뷰어 설정보다 우선한다 (기본은 다크) */
@@ -65,7 +65,7 @@ html:root[data-app="dark"]{
   --pe:#FF9535; --jig:#FF6A98;
   --calm:#45C59A; --mid:#EDB43C; --strong:#F2745C;
   --calm-soft:rgba(69,197,154,.16); --mid-soft:rgba(237,180,60,.16); --strong-soft:rgba(242,116,92,.16);
-  --sat:#7AA2F0; --sun:#F2745C; --hi:#7FB2EE; --lo:#D8A764;
+  --sat:#7AA2F0; --sun:#F2745C; --hi:#7FB2EE; --lo:#EACB52; --moon-ic:#E8D9A8;
   color-scheme:dark;
 }
 html:root[data-app="light"]{
@@ -76,7 +76,7 @@ html:root[data-app="light"]{
   --pe:#F07C14; --jig:#E2457A;
   --calm:#1C8B6B; --mid:#B97E0A; --strong:#C9452F;
   --calm-soft:rgba(28,139,107,.15); --mid-soft:rgba(194,133,12,.17); --strong-soft:rgba(201,69,47,.15);
-  --sat:#2F62C4; --sun:#C9452F; --hi:#2560AE; --lo:#93652A;
+  --sat:#2F62C4; --sun:#C9452F; --hi:#2560AE; --lo:#A9870C; --moon-ic:#7C88AE;
   color-scheme:light;
 }
 /* 모드를 바꾸는 순간에만 색이 부드럽게 넘어가게 */
@@ -204,12 +204,18 @@ h2{margin:0; font-size:16px; font-weight:700; text-wrap:balance}
 .scrub-wrap{display:flex; flex-direction:column; gap:6px; padding:12px 14px 12px; border-top:1px solid var(--line)}
 .scrub-head{display:flex; flex-direction:column; align-items:stretch; gap:6px}
 .sh-row{display:flex; align-items:center; justify-content:space-between; gap:8px; height:30px}
-.scrub-cap{min-height:4.5em; text-align:center; font-size:11.5px; color:var(--ink-2)}
+.scrub-cap{height:34px; text-align:center; font-size:11.5px; line-height:17px; color:var(--ink-2)}
+.scrub-cap span{display:block; white-space:nowrap; overflow:hidden}
+.scrub-cap .up{display:inline; color:var(--hi); font-weight:700} .scrub-cap .down{display:inline; color:var(--lo); font-weight:700}
 .now-btn{flex:none; white-space:nowrap; height:28px; padding:0 12px; border:0; border-radius:999px; background:var(--well); font:inherit; font-size:12.5px; font-weight:700; color:var(--ink); -webkit-tap-highlight-color:transparent}
 .now-btn.off{visibility:hidden; pointer-events:none}
 .scrub{touch-action:pan-y; cursor:pointer; -webkit-user-select:none; user-select:none; -webkit-tap-highlight-color:transparent}
 #scrub-svg{display:block; width:100%; height:auto}
 .sc-night{fill:var(--ink); opacity:.09}
+/* 일출(해)·일몰(달) 표시: 밤 영역 경계 위 */
+.sc-sunm{transition:opacity .25s} .sc-sunm.off{opacity:0}
+.sc-sun-ic{color:#E9A92E} .sc-moon-ic{color:var(--moon-ic)}
+.sc-sun-t{font-family:var(--font-body); font-size:8.5px; font-weight:600; fill:var(--ink-2); dominant-baseline:central; font-variant-numeric:tabular-nums}
 .sc-area{fill:url(#sc-fill)}
 .sc-curve{fill:none; stroke:var(--hi); stroke-width:2; stroke-linejoin:round}
 .sc-dot{stroke:var(--card); stroke-width:1.5} .sc-dot.H{fill:var(--hi)} .sc-dot.L{fill:var(--lo)}
@@ -227,7 +233,7 @@ h2{margin:0; font-size:16px; font-weight:700; text-wrap:balance}
 .wxb-sel{fill:var(--well)}
 .wxb-past{opacity:.42}
 .wxb-ico{color:var(--ink-2)}
-.wxb-sun{color:#F2B33D} .wxb-moon{color:#E8D9A8} .wxb-rainc{color:var(--hi)}
+.wxb-sun{color:#F2B33D} .wxb-moon{color:var(--moon-ic)} .wxb-rainc{color:var(--hi)}
 .wxb-txt{font-family:var(--font-body); font-size:9.5px; font-weight:700; fill:var(--ink); text-anchor:middle; dominant-baseline:central; font-variant-numeric:tabular-nums}
 .wxb-sub{font-family:var(--font-body); font-size:8.5px; fill:var(--ink-2); text-anchor:middle; dominant-baseline:central; font-variant-numeric:tabular-nums}
 .wxb-txt.lv1{fill:var(--mid)} .wxb-txt.lv2{fill:var(--strong)}
@@ -438,7 +444,7 @@ h2{margin:0; font-size:16px; font-weight:700; text-wrap:balance}
           <circle class="sc-thumb-dot" id="sc-thumb-dot" cx="0" cy="0" r="6"></circle>
         </svg>
       </div>
-      <div class="scrub-cap" id="scrub-cap">막대를 밀어 시간 이동 · 아래 띠는 조류 세기 (파랑 들물, 갈색 날물)</div>
+      <div class="scrub-cap" id="scrub-cap"><span>막대를 밀어 시간 이동 · 띠는 조류(<b class="up">파랑 들물</b>, <b class="down">노랑 날물</b>)</span><span>아래는 3시간 날씨(바람 m/s, 파도 m)</span></div>
       <div class="tide-list" id="tide-list"></div>
     </div>
     <p class="advice" id="advice"><b id="adv-now"></b><span class="adv-rest" id="adv-rest"><span id="adv-day"></span><span class="adv-wx" id="adv-wx"></span></span></p>
@@ -783,21 +789,40 @@ const TideHarm = (() => {
     const alt = Math.asin(Math.sin(lat) * Math.sin(decl) + Math.cos(lat) * Math.cos(decl) * Math.cos(ha * R)) / R;
     return { alt, ha };
   }
+  // 해 뜨는·지는 시각(분): 밤 영역과 같은 기준(해 높이 -0.8°)으로 10분 간격을 훑은 뒤 반씩 좁혀 찾는다
+  function sunTimes(n) {
+    const f = m => sunAt(n, m).alt + 0.8, out = { rise: null, set: null };
+    for (let m = 0; m < 1440; m += 10) {
+      const a = f(m), b = f(m + 10); if ((a < 0) === (b < 0)) continue;
+      let lo = m, hi = m + 10; for (let i = 0; i < 12; i++) { const mid = (lo + hi) / 2; if ((f(mid) < 0) === (a < 0)) lo = mid; else hi = mid; }
+      out[a < 0 ? 'rise' : 'set'] = (lo + hi) / 2;
+    }
+    return out;
+  }
+  const hm = min => { const m = Math.round(min); return `${Math.floor(m / 60)}:${String(m % 60).padStart(2, '0')}`; };
+  const SUN_IC = (x, y) => `<path d="${[0, 45, 90, 135, 180, 225, 270, 315].map(a => { const c = Math.cos(a * R), s = Math.sin(a * R); return `M${(x + c * 4.6).toFixed(2)} ${(y + s * 4.6).toFixed(2)}L${(x + c * 6).toFixed(2)} ${(y + s * 6).toFixed(2)}`; }).join('')}" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><circle cx="${x}" cy="${y}" r="2.9" fill="currentColor"/>`;
+  const MOON_IC = (x, y) => `<path d="M${(x + 1.2).toFixed(1)} ${(y - 4.6).toFixed(1)}a4.7 4.7 0 1 0 3.3 7a3.8 3.8 0 0 1-3.3-7z" fill="currentColor"/>`;
+  let sunMarks = [], capFor = null;
+  function fitCap() {
+    const el = $('scrub-cap'); if (!el) return; el.style.fontSize = '';
+    let fs = 11.5; const over = () => [...el.children].some(c => c.scrollWidth > c.clientWidth + 0.5);
+    while (fs > 9.5 && over()) { fs -= 0.25; el.style.fontSize = fs + 'px'; }
+  }
+  addEventListener('resize', () => fitCap());
+  if (document.fonts) document.fonts.ready.then(() => fitCap());
   let tMin = kstMin(Date.now()), followNow = true, dayEx = [], dayMaxRate = 1;
   const dayStartOf = n => n * DAY - 9 * 3600000;
   function renderTide() {
     const ex = TideHarm.extremes(tideSt, sel), pts = TideHarm.curve(tideSt, sel, 10), ds = dayStartOf(sel);
     dayEx = ex.map(e => ({ ...e, min: (e.ms - ds) / 60000 }));
     dayMaxRate = Math.max(...pts.slice(1).map((p, i) => Math.abs(p.h - pts[i].h) / 10)) || 1;
-    let g = '', ns = null;
-    for (let m = 0; m <= 1440; m += 10) {   // 밤 시간은 막대에 옅게 칠한다
-      const dark = sunAt(sel, m).alt < -0.8;
-      if (dark && ns === null) ns = m;
-      if (ns !== null && (!dark || m === 1440)) { const e = dark ? 1440 : m; g += `<rect class="sc-night" x="${sx(ns).toFixed(1)}" y="15" width="${(sx(e) - sx(ns)).toFixed(1)}" height="${FB + FH + 2 - 15}"></rect>`; ns = null; }
-    }
+    let g = '';
+    const sun = sunTimes(sel), night = (a, b) => `<rect class="sc-night" x="${sx(a).toFixed(1)}" y="15" width="${(sx(b) - sx(a)).toFixed(1)}" height="${FB + FH + 2 - 15}"></rect>`;
+    if (sun.rise != null) g += night(0, sun.rise);   // 밤 시간은 막대에 옅게 칠한다
+    if (sun.set != null) g += night(sun.set, 1440);
     const d = pts.map((p, i) => `${i ? 'L' : 'M'}${sx(p.min).toFixed(1)} ${sy(p.h).toFixed(1)}`).join(' ');
     g += `<path class="sc-area" d="${d} L${SX1} ${SYB} L${SX0} ${SYB} Z"></path><path class="sc-curve" d="${d}"></path>`;
-    // 조류 띠: 10분마다 조류 세기 (위 파랑 = 들물, 아래 갈색 = 날물, 길수록 셈)
+    // 조류 띠: 10분마다 조류 세기 (위 파랑 = 들물, 아래 노랑 = 날물, 길수록 셈)
     g += `<line class="sc-base" x1="${SX0}" y1="${FB}" x2="${SX1}" y2="${FB}"></line>`;
     const bw = (SX1 - SX0) / 144;
     for (let m = 0; m < 1440; m += 10) {
@@ -807,9 +832,13 @@ const TideHarm = (() => {
     }
     dayEx.forEach(e => { g += `<circle class="sc-dot ${e.type}" cx="${sx(e.min).toFixed(1)}" cy="${sy(e.h).toFixed(1)}" r="3.5"></circle>`; });
     [0, 6, 12, 18, 24].forEach(h => { g += `<text class="sc-lab" x="${Math.min(SX1 - 8, Math.max(SX0 + 8, sx(h * 60))).toFixed(1)}" y="101">${h}시</text>`; });
+    // 밤 영역 위: 일출엔 해, 일몰엔 달 + 시각 (낮 쪽으로 붙여 쓴다)
+    sunMarks = [];
+    if (sun.rise != null) { const x = sx(sun.rise), t = hm(sun.rise); g += `<g class="sc-sunm" id="sc-rise"><g class="sc-sun-ic">${SUN_IC(x, 7)}</g><text class="sc-sun-t" x="${(x + 7.5).toFixed(1)}" y="7.3">${t}</text></g>`; sunMarks.push({ id: 'sc-rise', a: x - 6.5, b: x + 8 + t.length * 4.6 }); }
+    if (sun.set != null) { const x = sx(sun.set), t = hm(sun.set); g += `<g class="sc-sunm" id="sc-set"><g class="sc-moon-ic">${MOON_IC(x, 7)}</g><text class="sc-sun-t" x="${(x - 7.5).toFixed(1)}" y="7.3" text-anchor="end">${t}</text></g>`; sunMarks.push({ id: 'sc-set', a: x - 8 - t.length * 4.6, b: x + 6 }); }
     $('scrub-plot').innerHTML = g;
     placeNow(); renderWxStrip();
-    $('scrub-cap').textContent = `막대를 밀어 시간 이동 · 띠는 조류(파랑 들물, 갈색 날물) · 맨 아래는 3시간 날씨(바람 m/s, 파도 m) · ${TideHarm.STATIONS[tideSt].name} 기준`;
+    if (capFor !== tideSt) { capFor = tideSt; $('scrub-cap').lastElementChild.textContent = `아래는 3시간 날씨(바람 m/s, 파도 m) · ${TideHarm.STATIONS[tideSt].name} 기준`; fitCap(); }
     const list = $('tide-list'), nowMs = Date.now();
     list.style.setProperty('--n', String(Math.max(3, dayEx.length)));
     list.innerHTML = dayEx.map(e => `<button class="ti ${e.type}${sel === today && e.ms <= nowMs ? ' past' : ''}" data-min="${e.min.toFixed(2)}" aria-label="${e.type === 'H' ? '만조' : '간조'} ${hhmm(e.min)} ${meters(e.h)}로 이동">`
@@ -819,13 +848,14 @@ const TideHarm = (() => {
   }
   // '지금' 표시: 오늘을 볼 때만, 1초마다 자리를 옮긴다
   function placeNow() {
-    const gN = $('sc-nowg');
+    const gN = $('sc-nowg'), nm = kstMin(Date.now()), x = sx(nm), tx = Math.max(SX0, Math.min(SX1 - 28, x - 14));
+    // '지금' 이름표와 겹치는 해·달 표시는 잠시 숨긴다
+    sunMarks.forEach(m => { const el = $(m.id); if (el) el.classList.toggle('off', sel === today && m.b > tx - 2 && m.a < tx + 30); });
     if (sel !== today) { gN.style.display = 'none'; return; }
     gN.style.display = '';
-    const nm = kstMin(Date.now()), x = sx(nm), y = sy(TideHarm.heightAt(tideSt, dayStartOf(sel) + nm * 60000));
+    const y = sy(TideHarm.heightAt(tideSt, dayStartOf(sel) + nm * 60000));
     const set = (id, a) => { const el = $(id); for (const k in a) el.setAttribute(k, typeof a[k] === 'number' ? a[k].toFixed(1) : a[k]); };
     set('sc-now-line', { x1: x, x2: x }); set('sc-now-pulse', { cx: x, cy: y }); set('sc-now-dot', { cx: x, cy: y });
-    const tx = Math.max(SX0, Math.min(SX1 - 28, x - 14));
     set('sc-now-tagbg', { x: tx }); set('sc-now-tagtx', { x: tx + 14 });
   }
   // 3시간 날씨 띠: 아이콘(해·구름·비·눈) · 바람 화살표와 세기 · 파도 높이 · 출조 신호 색 막대
@@ -2005,7 +2035,7 @@ if ('serviceWorker' in navigator) addEventListener('load', () => {
   const sw = navigator.serviceWorker; let ctl = sw.controller, reloading = false;
   // 새 버전이 올라오면 한 번 새로 열어 바로 반영 (처음 설치할 때는 제외)
   sw.addEventListener('controllerchange', () => { if (ctl && !reloading) { reloading = true; location.reload(); } ctl = sw.controller; });
-  sw.register('sw.js?v=2af2e39e').then(reg => {
+  sw.register('sw.js?v=05e436f2').then(reg => {
     // 앱을 켜 둔 채 다른 화면에 갔다 돌아오면 새 버전이 있는지 확인
     document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') reg.update().catch(() => {}); });
   }).catch(() => {});
