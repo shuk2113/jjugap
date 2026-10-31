@@ -6,6 +6,7 @@
 
 결과는 앱이 읽는 data/weather.json 으로 저장한다.
 지도 화면(바다 위 내 위치)에서 쓰는 앞바다 격자 예보는 따로 data/seagrid.json 으로 저장한다 (약 10km 간격 바다 격자).
+같은 격자마다 해양조사원 ROMS 수치예측모델의 시간별 흐름(방향·세기)과 수온도 담는다 (하루 몇 번만 새로 받음).
 인증키는 GitHub 비밀 저장소(DATA_GO_KR_KEY)에서만 읽고, 로그나 파일에는 남기지 않는다.
 """
 import json, math, os, re, sys, time, urllib.parse, urllib.request
@@ -46,7 +47,9 @@ def ok_temp(w):
     return w is not None and 0.5 < w < 33
 KMA_URL = 'https://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getVilageFcst'
 OBS_URL = 'https://apis.data.go.kr/1192136/dtRecent/GetDTRecentApiService'
-MID_URL = 'https://apis.data.go.kr/1360000/MidFcstInfoService/getMidSeaFcst'   # 중기 해상예보 (3~10일 뒤 날씨·파고)
+MID_URL = 'https://apis.data.go.kr/1360000/MidFcstInfoService/getMidSeaFcst'
+ROMS_URL = 'https://apis.data.go.kr/1192136/roms/GetRomsApiService'   # 해양조사원 ROMS 수치예측모델 (약 3km 격자, 1시간 간격, 약 7일)
+ROMS_EVERY_H = 8   # ROMS 는 하루 한 번 새로 계산되므로 이 시간마다만 다시 받는다   # 중기 해상예보 (3~10일 뒤 날씨·파고)
 
 
 def log(*a):
@@ -377,9 +380,44 @@ def main():
     note(f'저장: 예보 {ok_f}/8곳, 수온 {ok_o}/8곳' + ('' if obs_timeouts < 2 else ' (해양조사원 서버 응답 없음 → 수온은 다음 실행에 다시)'))
 
 
+def fetch_roms(la, lo):
+    """격자 칸 가운데에서 가장 가까운 ROMS 점의 시간별 [시각 'YYYYMMDDHH', 흐름 방향(도, 흘러가는 쪽), 세기(cm/s), 수온(℃)]"""
+    for r in (0.016, 0.03):
+        box = {'ymin': round(la - r, 4), 'ymax': round(la + r, 4), 'xmin': round(lo - r * 1.15, 4), 'xmax': round(lo + r * 1.15, 4)}
+        raw = get_json(ROMS_URL, {'type': 'json', 'pageNo': 1, 'numOfRows': 100, **box}, tries=3, timeout=40)
+        code, msg, items = unwrap(raw)
+        if items:
+            break
+    if not items:
+        return None
+    total = int(((raw.get('body') or {}).get('totalCount')) or len(items))
+    rows = list(items); pg = 1
+    while len(rows) < total and pg < 60:
+        pg += 1
+        rows += unwrap(get_json(ROMS_URL, {'type': 'json', 'pageNo': pg, 'numOfRows': 100, **box}, tries=3, timeout=40))[2]
+    pts = {}
+    for x in rows:
+        try:
+            pts.setdefault((float(x['lat']), float(x['lot'])), []).append(x)
+        except (KeyError, TypeError, ValueError):
+            pass
+    if not pts:
+        return None
+    near = min(pts, key=lambda q: (q[0] - la) ** 2 + ((q[1] - lo) * 0.8) ** 2)
+    out = {}
+    for x in pts[near]:
+        try:
+            k = str(x['predcDt']).replace('-', '').replace(' ', '')[:10]
+            out[k] = (float(x['crdir']), float(x['crsp']) * 100, float(x['wtem']))
+        except (KeyError, TypeError, ValueError):
+            pass
+    return out
+
+
 def sea_grid(now, base, cache, path):
-    """지도 화면용: 바다 격자(약 10km 간격)마다 시간별 풍속·풍향·파고.
-    {generated, t0: 'YYYYMMDDHH'(첫 시각), c: [[위도, 경도, [풍속…], [풍향/10…], [파고…]], …]}"""
+    """지도 화면용: 바다 격자(약 10km 간격)마다 시간별 기상청 풍속·풍향·파고와 ROMS 흐름·수온.
+    {generated, t0: 'YYYYMMDDHH'(첫 시각), rr: ROMS 예측 시작, rf: ROMS 받은 때,
+     c: [[위도, 경도, [풍속…], [풍향/10…], [파고…], [흐름방향/5…], [흐름세기 cm/s…], [수온×10…]], …]}"""
     cells = json.load(open(SEA_CELLS))
     try:
         prev = json.load(open(path))
@@ -392,41 +430,62 @@ def sea_grid(now, base, cache, path):
     if prev.get('t0') and prev.get('c'):
         p0 = datetime.strptime(prev['t0'], '%Y%m%d%H')
         for row in prev['c']:
-            key = (row[0], row[1])
-            old[key] = {(p0 + timedelta(hours=i)).strftime('%Y%m%d%H'): (row[2][i], row[3][i], row[4][i]) for i in range(len(row[2]))}
+            key = (row[0], row[1]); row = row + [[None] * len(row[2])] * (8 - len(row))
+            old[key] = {(p0 + timedelta(hours=i)).strftime('%Y%m%d%H'): tuple(row[j][i] for j in range(2, 8)) for i in range(len(row[2]))}
+    # ROMS: 지난번에 받은 지 ROMS_EVERY_H 시간이 지났거나 없으면 다시
+    rf = prev.get('rf')
+    want_roms = not rf or (now - datetime.fromisoformat(rf)).total_seconds() > ROMS_EVERY_H * 3600
     def one(cell):
         x, y, la, lo = cell
-        if (x, y) in cache:
-            return cell, cache[(x, y)][1]
-        try:
-            used, items = fetch_fcst(x, y, base)
-            return cell, pack_fcst(items)
-        except RuntimeError:
-            return cell, {}
+        fc = cache[(x, y)][1] if (x, y) in cache else None
+        if fc is None:
+            try:
+                used, items = fetch_fcst(x, y, base)
+                fc = pack_fcst(items)
+            except RuntimeError:
+                fc = {}
+        ro = None
+        if want_roms:
+            try:
+                ro = fetch_roms(la, lo)
+            except RuntimeError:
+                ro = None
+        return cell, fc, ro
     with ThreadPoolExecutor(4) as ex:
         got = list(ex.map(one, cells))
-    rows, ok = [], 0
-    for (x, y, la, lo), fc in got:
+    rows, ok, rok, rr = [], 0, 0, prev.get('rr')
+    for (x, y, la, lo), fc, ro in got:
         if fc:
             ok += 1
+        if ro:
+            rok += 1; rr = min(ro) if not rr or min(ro) > rr else rr
         o = old.get((la, lo), {})
-        ws, vs, hs = [], [], []
+        cols = [[] for _ in range(6)]
         for h in hours:
-            v = fc.get(h)
+            v = fc.get(h); oh = o.get(h) or (None,) * 6
             if v:
-                ws.append(v[0]); vs.append(None if v[1] is None else round(v[1] / 10)); hs.append(v[2])
-            elif h in o:
-                ws.append(o[h][0]); vs.append(o[h][1]); hs.append(o[h][2])
+                w3 = (v[0], None if v[1] is None else round(v[1] / 10), v[2])
             else:
-                ws.append(None); vs.append(None); hs.append(None)
-        if any(w is not None for w in ws):
-            rows.append([la, lo, ws, vs, hs])
-    if not ok and prev:
+                w3 = oh[:3]
+            r = ro.get(h) if ro else None
+            r3 = (round(r[0] / 5) % 72, round(r[1]), round(r[2] * 10)) if r else oh[3:]
+            for j, val in enumerate(w3 + tuple(r3)):
+                cols[j].append(val)
+        if any(w is not None for w in cols[0]) or any(w is not None for w in cols[4]):
+            rows.append([la, lo] + cols)
+    if not ok and not rok and prev:
         note('앞바다 격자 예보: 하나도 못 받아 지난 자료 유지', 'warning')
         return
+    out = {'generated': now.isoformat(timespec='minutes'), 't0': t0, 'c': rows}
+    if want_roms and rok:
+        out['rf'] = now.isoformat(timespec='minutes')
+    elif rf:
+        out['rf'] = rf
+    if rr:
+        out['rr'] = rr
     with open(path, 'w') as fp:
-        json.dump({'generated': now.isoformat(timespec='minutes'), 't0': t0, 'c': rows}, fp, ensure_ascii=False, separators=(',', ':'))
-    note(f'앞바다 격자 예보: {ok}/{len(cells)}곳 받음')
+        json.dump(out, fp, ensure_ascii=False, separators=(',', ':'))
+    note(f'앞바다 격자 예보: {ok}/{len(cells)}곳 받음' + (f', ROMS 흐름·수온 {rok}/{len(cells)}곳' if want_roms else ', ROMS는 지난 것 유지'))
 
 
 def diag():
