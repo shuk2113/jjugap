@@ -25,6 +25,11 @@ W=$(echo "$B" | sed -E 's/.*bubble ([0-9]+),([0-9]+) ([0-9]+)x([0-9]+).*/\3/'); 
 if [ -n "$X" ] && [ "$X" -eq "$X" ] 2>/dev/null; then adb shell input tap $((X + W / 2)) $((Y + H * 38 / 100)); fi
 sleep 10
 shot 5-after-tap
+# 앱 안에서 업데이트: 같은 파일을 받아 설치 화면을 여는지
+adb shell appops set $P REQUEST_INSTALL_PACKAGES allow
+adb shell am start -n $P/.MainActivity --es act update
+sleep 20
+shot 6-update
 adb shell dumpsys activity services $P > "$OUT/services.txt" 2>&1
 adb logcat -d > "$OUT/logcat-all.txt"
 grep -E "jjugap|AndroidRuntime|FATAL|chromium|Console" "$OUT/logcat-all.txt" | tail -500 > "$OUT/log.txt"

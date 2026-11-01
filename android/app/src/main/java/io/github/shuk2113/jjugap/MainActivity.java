@@ -79,12 +79,14 @@ public class MainActivity extends Activity {
         });
         String act = actOf(getIntent());
         web.loadUrl(HOME + (act != null ? "?act=" + act : ""));
+        if ("update".equals(getIntent().getStringExtra("act"))) Updater.start(this);
     }
 
     @Override
     protected void onNewIntent(Intent i) {
         super.onNewIntent(i);
         setIntent(i);
+        if ("update".equals(i.getStringExtra("act"))) { Updater.start(this); return; }
         String act = actOf(i);
         if (act != null && web != null) {
             web.evaluateJavascript("window.jjugapAct ? jjugapAct('" + act + "') : location.replace('" + HOME + "?act=" + act + "')", null);
@@ -95,6 +97,12 @@ public class MainActivity extends Activity {
     protected void onStart() {
         super.onStart();
         TrackService.setAppVisible(true);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Updater.resume(this);   // '이 출처 허용'을 켜고 돌아오면 이어서 업데이트
     }
 
     @Override
@@ -167,6 +175,8 @@ public class MainActivity extends Activity {
     /** 웹 앱에서 부르는 것들 (window.JjugapNative) */
     class Bridge {
         @JavascriptInterface public String version() { return "1"; }
+        @JavascriptInterface public long versionCode() { return Updater.versionCode(MainActivity.this); }
+        @JavascriptInterface public void update() { runOnUiThread(() -> Updater.start(MainActivity.this)); }
         @JavascriptInterface public void setMapOpen(boolean on) { runOnUiThread(() -> MainActivity.this.setMapOpen(on)); }
         @JavascriptInterface public boolean isTracking() { return TrackService.running(); }
         @JavascriptInterface public String takeFixes() { return TrackService.takeFixes(); }
