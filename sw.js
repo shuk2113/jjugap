@@ -1,5 +1,5 @@
 // 쭈갑 물때 오프라인 지원: 앱 화면은 인터넷이 되면 새로 받고, 안 되면 저장해 둔 것으로 연다
-const CACHE = 'jjugap-c1bf7b72';
+const CACHE = 'jjugap-be589e71';
 const CORE = ['./', './index.html', './manifest.webmanifest', './icon-192.png', './icon-512.png', './icon-180.png', './sc-save.png', './sc-map.png', './badge-96.png', './data/basemap.json', './data/spots.json', './data/ports.json'];
 const FIXED = ['/data/basemap.json', '/data/spots.json', '/data/ports.json', '/data/coast.json'];   // 앱과 함께 바뀌는 고정 자료 (바다 지도, 이 자리 계산 자료)
 // 새 버전을 받을 때는 브라우저가 묵혀 둔 사본(깃허브는 10분)을 건너뛰고 서버에서 바로 받는다

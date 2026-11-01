@@ -4354,6 +4354,7 @@ const TideHarm = (() => {
     function open() {
       if (isOpen) return; isOpen = true; view.hidden = false; mode = 'info'; selId = null; form = null;
       if (!me) { const S = TideHarm.STATIONS[tideSt]; v = { lon: S.lon - 0.05, lat: S.lat - 0.02, s: 1400 }; }
+      sheetMode = 'peek';   // 지도에 처음 들어올 때는 늘 판을 접어 지도가 넓게 보이게 (저장·목록·출항지 고르기는 그 뒤에 알아서 펼친다)
       loadLand(); loadMapPorts(); loadSpots(); startGps(); wakeOn(); paintPanel(true); applySheet(false); resize(); kick(); autoPill(); autoPill.last = '';
       if (NAT) { try { NAT.setMapOpen(true); } catch (_) {} }
       if (useHist) { try { history.pushState({ mapv: 1 }, ''); } catch (_) {} }
@@ -4677,7 +4678,7 @@ if ('serviceWorker' in navigator) addEventListener('load', () => {
   const sw = navigator.serviceWorker; let ctl = sw.controller, reloading = false;
   // 새 버전이 올라오면 한 번 새로 열어 바로 반영 (처음 설치할 때는 제외)
   sw.addEventListener('controllerchange', () => { if (ctl && !reloading) { reloading = true; location.reload(); } ctl = sw.controller; });
-  sw.register('sw.js?v=c1bf7b72').then(reg => {
+  sw.register('sw.js?v=be589e71').then(reg => {
     // 앱을 켜 둔 채 다른 화면에 갔다 돌아오면 새 버전이 있는지 확인
     document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') reg.update().catch(() => {}); });
   }).catch(() => {});
