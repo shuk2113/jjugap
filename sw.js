@@ -1,10 +1,19 @@
 // 쭈갑 물때 오프라인 지원: 앱 화면은 인터넷이 되면 새로 받고, 안 되면 저장해 둔 것으로 연다
-const CACHE = 'jjugap-439faaea';
-const CORE = ['./', './index.html', './manifest.webmanifest', './icon-192.png', './icon-512.png', './icon-180.png', './data/basemap.json', './data/spots.json', './data/ports.json'];
+const CACHE = 'jjugap-11c9caa7';
+const CORE = ['./', './index.html', './manifest.webmanifest', './icon-192.png', './icon-512.png', './icon-180.png', './sc-save.png', './sc-map.png', './badge-96.png', './data/basemap.json', './data/spots.json', './data/ports.json'];
 const FIXED = ['/data/basemap.json', '/data/spots.json', '/data/ports.json', '/data/coast.json'];   // 앱과 함께 바뀌는 고정 자료 (바다 지도, 이 자리 계산 자료)
 self.addEventListener('install', e => { e.waitUntil(caches.open(CACHE).then(c => c.addAll(CORE)).then(() => self.skipWaiting())); });
 self.addEventListener('activate', e => {
   e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k !== CACHE && k.startsWith('jjugap-')).map(k => caches.delete(k)))).then(() => self.clients.claim()));
+});
+// 알림줄 바로가기를 누르면: 열려 있는 앱 화면으로 가서 지도(또는 포인트 저장)를, 없으면 새로 연다
+self.addEventListener('notificationclick', e => {
+  const act = e.action || (e.notification.data && e.notification.data.act) || 'map'; e.notification.close();
+  e.waitUntil(self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then(cs => {
+    const c = cs.find(x => x.url.startsWith(self.registration.scope));
+    if (c) { c.postMessage({ jjugap: act }); return c.focus(); }
+    return self.clients.openWindow('./?act=' + act);
+  }));
 });
 self.addEventListener('fetch', e => {
   const req = e.request; if (req.method !== 'GET') return;

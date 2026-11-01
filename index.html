@@ -219,7 +219,7 @@ h2{margin:0; font-size:16px; font-weight:700; text-wrap:balance}
 .mv-fab.lift > span{transform:scale(1.12)} .mv-fab.lift b{box-shadow:0 10px 24px rgba(0,0,0,.35)}
 .mv-fab.off{opacity:0; pointer-events:none}
 .mv-fab:focus-visible{outline:none} .mv-fab:focus-visible b{outline:3px solid #fff; outline-offset:-6px}
-.mv-toast{position:absolute; left:50%; top:12px; transform:translateX(-50%); max-width:calc(100% - 90px); padding:8px 14px; border-radius:999px; background:rgba(8,20,24,.82); color:#fff; font-size:12.5px; font-weight:600; text-align:center; pointer-events:none}
+.mv-toast{position:absolute; left:10px; top:48px; z-index:3; max-width:calc(100% - 74px); padding:8px 14px; border-radius:16px; line-height:1.4; background:rgba(8,20,24,.82); color:#fff; font-size:12.5px; font-weight:600; text-align:left; pointer-events:none}
 .mv-sheet{position:absolute; left:0; right:0; bottom:0; z-index:2; will-change:transform; display:flex; flex-direction:column; background:var(--card); border-radius:18px 18px 0 0; box-shadow:0 -4px 16px rgba(0,0,0,.12)}
 .mv-grab{flex:none; height:22px; display:flex; align-items:center; justify-content:center; touch-action:none; cursor:grab; -webkit-tap-highlight-color:transparent}
 .mv-grab i{width:40px; height:5px; border-radius:3px; background:var(--ink-2); opacity:.32}
@@ -287,8 +287,22 @@ h2{margin:0; font-size:16px; font-weight:700; text-wrap:balance}
 .mv-menu button:active, .mv-menu button:focus-visible{background:var(--well); outline:none}
 .mv-menu button svg{width:20px; height:20px} .mv-menu button.del{color:#E5484D}
 @keyframes mvPop{from{opacity:0; transform:scale(.9)}}
-.mv-snack{position:absolute; left:50%; top:12px; z-index:3; transform:translateX(-50%); display:flex; align-items:center; gap:12px; padding:6px 6px 6px 16px; border-radius:999px; background:rgba(8,20,24,.9); color:#fff; font-size:13px; font-weight:600; white-space:nowrap; box-shadow:0 4px 14px rgba(0,0,0,.25)}
-.mv-snack button{height:32px; padding:0 13px; border:0; border-radius:999px; background:rgba(255,255,255,.14); font:inherit; font-size:13px; font-weight:800; color:#8EC5FF; -webkit-tap-highlight-color:transparent}
+.mv-auto{position:absolute; left:10px; top:10px; z-index:1; display:flex; align-items:center; gap:7px; height:30px; padding:0 12px 0 10px; border:1px solid var(--line); border-radius:999px;
+  background:linear-gradient(90deg, rgba(34,176,125,.28) calc(var(--pg, 0) * 100%), var(--card) 0); font:inherit; font-size:12px; font-weight:700; color:var(--ink); box-shadow:0 2px 8px rgba(0,0,0,.14); -webkit-tap-highlight-color:transparent}
+.mv-auto i{width:8px; height:8px; border-radius:50%; background:#22B07D; box-shadow:0 0 0 3px rgba(34,176,125,.22)}
+.mv-auto:not(.wait){background:var(--card)} .mv-auto.off i, .mv-auto.idle i{background:var(--ink-2); box-shadow:none} .mv-auto.off{color:var(--ink-2)}
+.mv-auto.wait i{animation:mvBlink 1.2s ease-in-out infinite} .mv-auto.done i{background:#FF9F1A; box-shadow:0 0 0 3px rgba(255,159,26,.25)}
+@keyframes mvBlink{50%{opacity:.25}}
+.mv-set{margin:4px 0 10px; border-bottom:1px solid var(--line)}
+.mv-sw{width:100%; display:flex; align-items:center; gap:12px; padding:11px 2px; border:0; border-top:1px solid var(--line); background:none; font:inherit; text-align:left; color:var(--ink); -webkit-tap-highlight-color:transparent}
+.mv-sw span{flex:1; display:flex; flex-direction:column; gap:3px} .mv-sw b{font-size:13.5px} .mv-sw small{font-size:11px; line-height:1.45; color:var(--ink-2); word-break:keep-all}
+.mv-sw i{flex:none; position:relative; width:42px; height:24px; border-radius:12px; background:var(--line); transition:background .2s}
+.mv-sw i::after{content:''; position:absolute; left:3px; top:3px; width:18px; height:18px; border-radius:50%; background:#fff; box-shadow:0 1px 3px rgba(0,0,0,.3); transition:transform .2s}
+.mv-sw.on i{background:#22B07D} .mv-sw.on i::after{transform:translateX(18px)}
+.mv-set .mv-tip{margin:0; padding:9px 2px 11px; border-top:1px solid var(--line)}
+.mv-list b .mv-autot{display:inline-block; margin-left:6px; padding:1px 7px; border-radius:999px; border:1px solid var(--line); color:var(--ink-2); font-style:normal; font-size:10.5px; font-weight:700; vertical-align:1px}
+.mv-snack{position:absolute; left:10px; top:48px; z-index:3; max-width:calc(100% - 74px); display:flex; align-items:center; gap:10px; padding:6px 6px 6px 14px; border-radius:16px; background:rgba(8,20,24,.9); color:#fff; font-size:13px; font-weight:600; line-height:1.35; box-shadow:0 4px 14px rgba(0,0,0,.25)}
+.mv-snack span{min-width:0} .mv-snack button{flex:none; height:32px; padding:0 13px; border:0; border-radius:999px; background:rgba(255,255,255,.14); font:inherit; font-size:13px; font-weight:800; color:#8EC5FF; -webkit-tap-highlight-color:transparent}
 .mv-list b .mv-no{display:inline-grid; place-items:center; width:19px; height:19px; margin-right:6px; border:1.6px solid; border-radius:50%; background:#fff; font-style:normal; font-size:10.5px; font-weight:800; vertical-align:1px}
 .mv-list b .mv-best{display:inline-block; margin-left:6px; padding:1px 7px; border-radius:999px; background:linear-gradient(#FFE680, #FFA51F); color:#5C3300; font-style:normal; font-size:10.5px; font-weight:800; vertical-align:1px}
 .mv-list{list-style:none; margin:0 0 10px; padding:0; display:flex; flex-direction:column; gap:6px}
@@ -764,6 +778,7 @@ h2{margin:0; font-size:16px; font-weight:700; text-wrap:balance}
     <button class="mv-fab" id="mv-save" type="button" aria-label="포인트 저장 (꾹 누르면 자리를 옮길 수 있어요)"><span><b><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21.3s-6.6-5.9-6.6-11.3a6.6 6.6 0 0 1 13.2 0c0 5.4-6.6 11.3-6.6 11.3z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M12 7v6M9 10h6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg></b><em>포인트 저장</em></span></button>
     <div class="mv-toast" id="mv-toast" hidden></div>
     <div class="mv-snack" id="mv-snack" role="status" hidden><span></span><button type="button">되돌리기</button></div>
+    <button class="mv-auto" id="mv-auto" type="button" aria-label="5분 머문 곳 자동 기록 켜기·끄기"><i></i><span>자동 기록 켜짐</span></button>
   </div>
   <div class="mv-sheet" id="mv-sheet">
     <div class="mv-grab" id="mv-grab" role="button" tabindex="0" aria-label="정보 판 크기 바꾸기 (끌어서 올리고 내리기)"><i></i></div>
@@ -2893,9 +2908,9 @@ const TideHarm = (() => {
           if (info.best) { const g = ctx.createLinearGradient(x, y - r, x, y + r); g.addColorStop(0, '#FFE680'); g.addColorStop(1, '#FF9F1A'); ctx.fillStyle = g; }
           else ctx.fillStyle = c ? tr.color : C.sea;
           ctx.beginPath(); ctx.arc(x, y, r, 0, 2 * Math.PI); ctx.fill(); ctx.restore();
-          ctx.globalAlpha = A; ctx.lineWidth = on ? 2.8 : 1.9; ctx.strokeStyle = c ? '#FFFFFF' : tr.color; ctx.stroke();
+          ctx.globalAlpha = A; ctx.lineWidth = on ? 2.8 : 1.9; ctx.strokeStyle = c ? '#FFFFFF' : tr.color; if (!c && p.auto && !p.edited) ctx.setLineDash([3, 2.4]); ctx.stroke(); ctx.setLineDash([]);
           ctx.fillStyle = info.best ? '#5C3300' : c ? '#FFFFFF' : tr.color; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-          ctx.font = `800 ${c >= 100 ? 9.5 : r > 13 ? 12 : 10.5}px ${font}`; ctx.fillText(String(c), x, y + 0.5);
+          ctx.font = `800 ${c >= 100 ? 9.5 : r > 13 ? 12 : 10.5}px ${font}`; ctx.fillText(!c && p.auto && !p.edited ? '?' : String(c), x, y + 0.5);
           if (info.best) {   // 왕관
             const cy = y - r - 2.5; ctx.beginPath();
             ctx.moveTo(x - 6.4, cy); ctx.lineTo(x - 7.2, cy - 6.8); ctx.lineTo(x - 3, cy - 3.4); ctx.lineTo(x, cy - 8.5); ctx.lineTo(x + 3, cy - 3.4); ctx.lineTo(x + 7.2, cy - 6.8); ctx.lineTo(x + 6.4, cy); ctx.closePath();
@@ -3191,7 +3206,7 @@ const TideHarm = (() => {
     const etcN = p => (p.etc || []).reduce((a, e) => a + (e.c || 0), 0);
     const catchTxt = p => {
       const parts = [p.jj ? `쭈꾸미 ${p.jj}` : '', p.gap ? `갑오징어 ${p.gap}` : '', ...(p.etc || []).filter(e => e.c > 0).map(e => `${e.n || '기타'} ${e.c}`)].filter(Boolean);
-      return parts.length ? parts.join(' · ') : '조과 없음';
+      return parts.length ? parts.join(' · ') : p.auto && !p.edited ? '마릿수 아직' : '조과 없음';
     };
     // ---------- 탄 배 · 출항지: 하루에 한 번만 고르면 그날 저장하는 포인트마다 저절로 붙는다
     // 오늘 처음 저장할 때는 지금 앱의 출항지와, 그 출항지에서 지난번에 탄 배를 미리 넣어 둔다 (다르면 고르기만)
@@ -3220,7 +3235,11 @@ const TideHarm = (() => {
     }
     function rememberTrip(at, boat, depName) {
       const today = kstDay(Date.now());
-      if (kstDay(at) === today) saveJ(TRIP_KEY, { d: today, boat, depName });
+      if (kstDay(at) === today) {
+        saveJ(TRIP_KEY, { d: today, boat, depName });
+        let ch = false; for (const q of points) if (q.tripGuess && kstDay(q.t) === today) { Object.assign(q, tripOf({ boat, depName })); delete q.tripGuess; ch = true; }
+        if (ch) savePts();
+      }
       if (boat) saveJ(BOAT_KEY, [{ n: boat, depName, t: Date.now() }, ...boatsMem().filter(b => b.n !== boat)].slice(0, 10));
     }
     function tripRow(f) {
@@ -3293,6 +3312,9 @@ const TideHarm = (() => {
         where: `${short(p.port)}에서 ${dirOf(S, p)}쪽 ${kmTxt(distKm(S, p))}`, cond: `${p.mul} · ${p.stand ? p.stand.replace(' · ', ' ') : (p.rising ? '들물' : '날물')} ${meters(p.h)}` };
       mode = 'save'; selId = id; paintForm(); draw();
     }
+    // 저장할 때 함께 남기는 그때의 물때·물 높이·조류·바람·수온
+    const condOf = i => ({ port: i.k, mul: i.dd.name, lv: i.dd.lv, h: Math.round(i.h), rising: i.rising, stand: i.stand, pct: i.pct, wind: i.wind, wave: i.wave, wt: i.wt,
+      spot: !!i.spot, cur: i.cur ? { kn: +(i.cur.sp / KN).toFixed(1), dir: Math.round(i.cur.dir), calm: i.cur.calm, at: i.cur.name, model: !!i.cur.model } : null, wtAt: i.wtName || null });
     const tripOf = f => { const boat = (f.boat || '').trim().slice(0, 16), depName = (f.depName || '').trim().slice(0, 20);
       return { boat, depName, dep: Object.keys(TideHarm.STATIONS).find(k => TideHarm.STATIONS[k].name === depName) || '' }; };
     function commit() {
@@ -3303,11 +3325,10 @@ const TideHarm = (() => {
         if (p) { Object.assign(p, tripOf(f)); p.jj = clampN(f.jj); p.gap = clampN(f.gap); p.etc = etc; p.memo = memo; p.edited = Date.now(); savePts(); if (kstDay(p.t) === kstDay(Date.now())) rememberTrip(p.t, p.boat, p.depName); }
         form = null; toast('고친 내용을 저장했어요'); showDetail(f.edit); draw(); return;
       }
-      const i = f.i;
       points.unshift({ id: String(f.at), t: f.at, lat: +f.lat.toFixed(6), lon: +f.lon.toFixed(6), acc: Math.round(f.acc), virtual: f.virtual,
-        ...tripOf(f), port: i.k, mul: i.dd.name, lv: i.dd.lv, h: Math.round(i.h), rising: i.rising, stand: i.stand, pct: i.pct, wind: i.wind, wave: i.wave, wt: i.wt, jj: clampN(f.jj), gap: clampN(f.gap), etc, memo,
-        spot: !!i.spot, cur: i.cur ? { kn: +(i.cur.sp / KN).toFixed(1), dir: Math.round(i.cur.dir), calm: i.cur.calm, at: i.cur.name, model: !!i.cur.model } : null, wtAt: i.wtName || null });
+        ...tripOf(f), ...condOf(f.i), jj: clampN(f.jj), gap: clampN(f.gap), etc, memo });
       rememberTrip(f.at, points[0].boat, points[0].depName);
+      if (!f.virtual) absorbAuto(points[0]);
       savePts(); form = null; mode = 'info'; sheetDown(); toast('포인트를 저장했어요'); paintPanel(true); draw();
     }
     // 숫자 칸: 누르면 전체 선택(바로 새 숫자를 치게), 숫자만 받기, 비우고 나가면 0
@@ -3354,7 +3375,7 @@ const TideHarm = (() => {
         const items = tr.pts.slice().reverse().map(p => {
           const S = TideHarm.STATIONS[p.port] || TideHarm.STATIONS[nearest(p).k], ti = TG.by.get(p.id);
           return `<li class="mv-row" data-id="${p.id}"><button class="mv-trash" data-act="swdel" data-id="${p.id}" tabindex="-1" aria-label="이 포인트 지우기">${ICON_TRASH}</button>`
-            + `<button class="mv-item" data-act="pick" data-id="${p.id}"><b>${tr.pts.length > 1 ? `<em class="mv-no" style="color:${tr.color};border-color:${tr.color}">${ti.n}</em>` : ''}${ampm(kstMin(p.t))} · ${esc(catchTxt(p))}${ti.best ? '<em class="mv-best">이날 최고</em>' : ''}</b>`
+            + `<button class="mv-item" data-act="pick" data-id="${p.id}"><b>${tr.pts.length > 1 ? `<em class="mv-no" style="color:${tr.color};border-color:${tr.color}">${ti.n}</em>` : ''}${ampm(kstMin(p.t))} · ${esc(catchTxt(p))}${ti.best ? '<em class="mv-best">이날 최고</em>' : ''}${p.auto ? '<em class="mv-autot">자동</em>' : ''}</b>`
             + `<span>${esc(short(p.port))}에서 ${dirOf(S, p)}쪽 ${kmTxt(distKm(S, p))} · ${p.mul} · 조류 ${pctTxt(p)}${p.wt == null ? '' : ` · 수온 ${p.wt.toFixed(1)}℃`}</span></button></li>`;
         }).join('');
         return `<section class="mv-tg${fold ? ' fold' : ''}"><button class="mv-grp" data-act="fold" data-k="${esc(tr.key)}" aria-expanded="${!fold}">`
@@ -3364,7 +3385,11 @@ const TideHarm = (() => {
       panel.innerHTML = `<div class="mv-h"><b>저장한 포인트 ${points.length}곳</b><span>이 폰에만 저장돼요</span></div>` +
         (points.length ? `<p class="mv-tip">포인트를 꾹 누르면 고치기·지우기, 왼쪽으로 밀어도 지울 수 있어요.</p><div class="mv-trips">${body}</div>`
           : `<p class="mv-empty">아직 저장한 포인트가 없어요. 배 위에서 지도 아래 파란 핀 단추를 누르면 그 자리와 물때·조류·수온이 함께 남아요.</p>`) +
-        `<div class="mv-btns"><button data-act="back">닫기</button></div>`;
+        `<div class="mv-set">`
+        + `<button type="button" class="mv-sw${autoOn ? ' on' : ''}" data-act="auto-tog" role="switch" aria-checked="${autoOn}"><span><b>5분 머문 곳 자동 기록</b><small>지도 화면이 켜져 있을 때 배가 한자리에 5분 넘게 머물면 포인트로 남겨요. 마릿수는 나중에 넣어요.</small></span><i></i></button>`
+        + `<button type="button" class="mv-sw${notiOn ? ' on' : ''}" data-act="noti-tog" role="switch" aria-checked="${notiOn}"><span><b>앱을 나가면 알림줄에 바로가기</b><small>지도를 켠 채 나가면 알림이 생겨요. 누르면 지도로, '포인트 저장'을 누르면 바로 저장 화면이 열려요.</small></span><i></i></button>`
+        + `<p class="mv-tip">홈 화면에 저장 단추 놓기: 쭈갑 물때 아이콘을 꾹 누르면 나오는 '포인트 저장'을 다시 꾹 눌러 원하는 곳에 끌어다 놓으세요.</p></div>`
+        + `<div class="mv-btns"><button data-act="back">닫기</button></div>`;
       panel.scrollTop = keepTop;
     }
     function toggleFold(b) {
@@ -3379,16 +3404,16 @@ const TideHarm = (() => {
         const i = points.findIndex(q => q.id === id); if (i < 0) return;
         const [p] = points.splice(i, 1); savePts(); if (selId === id) selId = null;
         if (mode === 'list') showList(); draw();
-        snack('포인트를 지웠어요', () => { if (!points.some(q => q.id === p.id)) { points.splice(Math.min(i, points.length), 0, p); savePts(); } if (mode === 'list') showList(); draw(); });
+        snack('포인트를 지웠어요', '되돌리기', () => { if (!points.some(q => q.id === p.id)) { points.splice(Math.min(i, points.length), 0, p); savePts(); } if (mode === 'list') showList(); draw(); toast('되돌렸어요'); });
       };
       if (!row || RM.matches) return go();
       row.style.height = row.offsetHeight + 'px'; void row.offsetHeight; row.classList.add('gone'); setTimeout(go, 230);
     }
-    function snack(t, undo) {
-      const el = $('mv-snack'); clearTimeout(undoT); $('mv-toast').hidden = true;
-      el.querySelector('span').textContent = t; el.hidden = false;
-      el.querySelector('button').onclick = () => { clearTimeout(undoT); el.hidden = true; undo(); toast('되돌렸어요'); };
-      undoT = setTimeout(() => { el.hidden = true; }, 5000);
+    function snack(t, label, fn, ms = 5000) {
+      const el = $('mv-snack'), b = el.querySelector('button'); clearTimeout(undoT); $('mv-toast').hidden = true;
+      el.querySelector('span').textContent = t; b.textContent = label; el.hidden = false;
+      b.onclick = () => { clearTimeout(undoT); el.hidden = true; fn(); };
+      undoT = setTimeout(() => { el.hidden = true; }, ms);
     }
     // 꾹 누르면 나오는 고르기 창
     function openMenu(row) {
@@ -3459,7 +3484,7 @@ const TideHarm = (() => {
       const p = points.find(q => q.id === id); if (!p) { mode = 'info'; selId = null; paintPanel(true); return; }
       mode = 'detail'; selId = id; const S = TideHarm.STATIONS[p.port];
       panel.innerHTML = `
-        <div class="mv-h"><b>${when(p.t)} 포인트</b><span>${p.virtual ? '가상 위치' : `GPS ±${p.acc}m`}${p.edited ? ' · 고침' : ''}</span></div>
+        <div class="mv-h"><b>${when(p.t)} 포인트</b><span>${p.auto ? '자동 기록 · ' : ''}${p.virtual ? '가상 위치' : `GPS ±${p.acc}m`}${p.edited ? ' · 고침' : ''}</span></div>
         <div class="mv-grid">
           <div class="mv-c wide"><small>조과</small><b>${esc(catchTxt(p))}</b></div>
           ${(() => { const ti = tripGroups().by.get(p.id), n = ti ? ti.tr.pts.length : 1;
@@ -3470,16 +3495,22 @@ const TideHarm = (() => {
           <div class="mv-c"><small>물때 · 물</small><b>${p.mul} · ${p.stand ? p.stand.replace(' · ', ' ') : (p.rising ? '들물' : '날물')} ${meters(p.h)}</b></div>
           <div class="mv-c"><small>조류 · 수온</small><b>${pctTxt(p)}${p.wt == null ? '' : ` · ${p.wt.toFixed(1)}℃`}</b></div>
         </div>
-        <p class="mv-note">${p.memo ? esc(p.memo) + ' · ' : ''}${dm(p.lat, 'N', 'S')} ${dm(p.lon, 'E', 'W')}${p.wind == null ? '' : ` · 바람 ${p.wind}m/s`}${p.wave == null ? '' : ` · 파도 ${p.wave.toFixed(1)}m`}</p>
+        <p class="mv-note">${p.stayFrom ? `${ampm(kstMin(p.stayFrom))}~${ampm(kstMin(p.stayTo || p.t))} 머문 곳 · ` : ''}${p.memo ? esc(p.memo) + ' · ' : ''}${dm(p.lat, 'N', 'S')} ${dm(p.lon, 'E', 'W')}${p.wind == null ? '' : ` · 바람 ${p.wind}m/s`}${p.wave == null ? '' : ` · 파도 ${p.wave.toFixed(1)}m`}</p>
         <div class="mv-btns">${ask ? `<button class="del" data-act="del-yes" data-id="${p.id}">정말 지우기</button><button data-act="pick" data-id="${p.id}">그대로 두기</button>`
           : `<button class="pri" data-act="edit" data-id="${p.id}">고치기</button><button data-act="list">목록</button><button class="del" data-act="del" data-id="${p.id}">지우기</button><button data-act="back">닫기</button>`}</div>`;
       draw();
     }
     let toastT = 0;
-    function toast(t) { const el = $('mv-toast'); el.textContent = t; el.hidden = false; clearTimeout(toastT); toastT = setTimeout(() => { el.hidden = true; }, 1800); }
+    function toast(t) {
+      const el = $('mv-toast'), sn = $('mv-snack'); el.textContent = t; el.hidden = false;
+      el.style.top = sn.hidden ? '' : (sn.offsetTop + sn.offsetHeight + 6) + 'px';   // 되알림이 떠 있으면 그 아래에
+      clearTimeout(toastT); toastT = setTimeout(() => { el.hidden = true; }, 2200);
+    }
     panel.addEventListener('click', e => {
       const b = e.target.closest('[data-act]'); if (!b) return; const a = b.dataset.act;
       if (a === 'fold') return toggleFold(b);
+      if (a === 'auto-tog') return setAuto(!autoOn);
+      if (a === 'noti-tog') return setNoti(!notiOn);
       if (a === 'swdel') return delPoint(b.dataset.id, b.closest('.mv-row'));
       if (a === 'save') showSave();
       else if (a === 'inc' || a === 'dec') { const k = b.dataset.k, el = $('mv-n-' + k); const n = setN(k, getN(k) + (a === 'inc' ? 1 : -1)); if (el) el.value = n; }
@@ -3515,6 +3546,8 @@ const TideHarm = (() => {
       if (first && mode !== 'pick') fitMeAndPort();
       else if (follow) placeAt(me.lon, me.lat, fy ?? focusY());
       paintPanel(first); kick(); draw();
+      autoFeed(me);
+      if (pendingSave && mode !== 'pick') { pendingSave = false; showSave(); }
     }
     function onErr(err) {
       gpsMsg = err.code === 1 ? (inFrame ? '이 화면에서는 위치를 받을 수 없어요. 폰에 설치한 앱(웹 주소)에서 써 주세요.' : '위치 권한이 꺼져 있어요. 휴대폰 설정에서 이 앱(브라우저)의 위치 권한을 켜 주세요.')
@@ -3538,6 +3571,129 @@ const TideHarm = (() => {
       placeAt(me.lon, me.lat, fy);
     }
     function stopGps() { if (watchId != null) { navigator.geolocation.clearWatch(watchId); watchId = null; } }
+    // ---------- 5분 머문 곳 자동 기록: 지도를 켜 둔 동안 배가 한자리(반경 약 250m)에 5분 넘게 머물면 포인트로 남긴다
+    // 웹 앱이라 화면이 꺼지거나 다른 앱으로 가 있는 동안은 휴대폰이 앱을 멈춘다. 다시 켰을 때 그 전과 같은 자리면 계속 머문 것으로 본다
+    const AUTO_KEY = 'jjukgap-auto', STAY_MS = 5 * 60000, STAY_R = 250, LEAVE_R = 400;
+    let autoOn = true, track = [], stay = null, stayFrom = 0, landCtx = null, lastFixT = 0, pendingSave = false;
+    try { autoOn = localStorage.getItem(AUTO_KEY) !== 'off'; } catch (_) {}
+    const pill = $('mv-auto');
+    // 육지(OSM 해안선 자세한 단계) 안인가: 모르면 null
+    function onLand(lat, lon) {
+      if (!basemap || !basemap.L || !basemap.L[1]) return null;
+      const X = lon * KX, Y = -lat; landCtx = landCtx || document.createElement('canvas').getContext('2d');
+      return basemap.L[1].some(c => X >= c.x0 && X <= c.x1 && Y >= c.y0 && Y <= c.y1 && landCtx.isPointInPath(c.p, X, Y, 'evenodd'));
+    }
+    const nearPort = p => Object.keys(TideHarm.STATIONS).some(k => distKm(p, TideHarm.STATIONS[k]) < 0.5);
+    function autoFeed(fix) {
+      if (!autoOn || !fix || fix.virtual || !(fix.acc <= 80)) { autoPill(); return; }
+      const t = fix.t || Date.now(), last = track[track.length - 1];
+      if (last && t <= last.t) return;
+      lastFixT = Date.now();
+      // 3분 넘게 끊겼으면(화면 꺼짐 등) 새로 시작. 단, 20분 안에 같은 자리로 돌아왔으면 계속 머문 것으로
+      if (last && t - last.t > 180000 && (t - last.t > 20 * 60000 || distKm(last, fix) * 1000 > STAY_R)) track = [];
+      track.push({ lat: fix.lat, lon: fix.lon, t }); while (track.length > 2 && t - track[1].t > 30 * 60000) track.shift();
+      if (stay) {
+        if (distKm(stay, fix) * 1000 <= LEAVE_R) {
+          stay.last = t;
+          if (stay.id && t - (stay.saved || 0) > 60000) { const p = points.find(q => q.id === stay.id); if (p) { p.stayTo = t; stay.saved = t; savePts(); } }
+          autoPill(); return;
+        }
+        endStay(); track = [track[track.length - 1]];
+      }
+      // 지금 자리에서 반경 안에 계속 있었던 처음 시각
+      let k = track.length - 1; while (k > 0 && distKm(track[k - 1], fix) * 1000 <= STAY_R) k--;
+      stayFrom = track[k].t;
+      if (t - stayFrom >= STAY_MS) recordStay(track.slice(k), stayFrom, t);
+      autoPill();
+    }
+    function recordStay(seg, from, t) {
+      const lat = seg.reduce((a, q) => a + q.lat, 0) / seg.length, lon = seg.reduce((a, q) => a + q.lon, 0) / seg.length, c = { lat, lon };
+      stay = { lat, lon, from, last: t, id: null };
+      if (onLand(lat, lon) === true || nearPort(c)) { stay.skip = true; return; }   // 항구나 육지에서 기다린 것은 빼기
+      // 머무는 동안 직접 저장한 포인트가 있으면 그것으로 (겹쳐 남기지 않는다)
+      const mine = points.find(q => !q.auto && q.t >= from - 60000 && distKm(q, c) * 1000 <= LEAVE_R);
+      if (mine) { stay.id = mine.id; stay.saved = t; if (!mine.stayFrom) { mine.stayFrom = from; mine.stayTo = t; savePts(); } return; }
+      const i = infoAt(c), tr = tripFor(t), id = String(t);
+      points.unshift({ id, t, lat: +lat.toFixed(6), lon: +lon.toFixed(6), acc: Math.round((me && me.acc) || 0), virtual: false, auto: true, stayFrom: from, stayTo: t,
+        ...tripOf(tr), ...(tr.hint ? { tripGuess: true } : {}), ...condOf(i), jj: 0, gap: 0, etc: [], memo: '' });
+      stay.id = id; stay.saved = t; savePts(); draw();
+      if (mode === 'list') showList(); else if (mode === 'detail' && selId) showDetail(selId);
+      try { navigator.vibrate && navigator.vibrate([30, 70, 30]); } catch (_) {}
+      snack('5분 머문 곳을 포인트로 남겼어요', '마릿수 넣기', () => showEdit(id), 9000);
+    }
+    function endStay() {
+      if (stay && stay.id) { const p = points.find(q => q.id === stay.id); if (p && p.stayFrom) { p.stayTo = stay.last; savePts(); } }
+      stay = null;
+    }
+    // 직접 저장한 포인트가 지금 머무는 자리면, 먼저 남긴 자동 기록은 이 포인트로 합친다
+    function absorbAuto(m) {
+      if (!stay || distKm(stay, m) * 1000 > LEAVE_R) return;
+      const a = stay.id && points.find(q => q.id === stay.id);
+      if (a && a !== m && a.auto && !a.edited) { points = points.filter(q => q !== a); m.stayFrom = a.stayFrom; m.stayTo = Date.now(); }
+      stay.id = m.id; stay.skip = false; stay.saved = Date.now();
+    }
+    function autoPill() {
+      if (!pill) return;
+      let cls = '', txt = '자동 기록 켜짐';
+      if (!autoOn) { cls = 'off'; txt = '자동 기록 꺼짐'; }
+      else if (!me || me.virtual) { cls = 'idle'; txt = me ? '자동 기록 · 가상 위치라 쉬는 중' : '자동 기록 · GPS 찾는 중'; }
+      else if (stay) { if (stay.id) { cls = 'done'; txt = '이 자리 기록됨'; } }
+      else if (track.length) {
+        const d = track[track.length - 1].t - stayFrom;
+        if (d >= 60000) { cls = 'wait'; txt = `한자리 ${Math.floor(d / 60000)}분째 · 5분이면 기록`; pill.style.setProperty('--pg', Math.min(1, d / STAY_MS).toFixed(3)); }
+      }
+      pill.className = 'mv-auto ' + cls; pill.querySelector('span').textContent = txt;
+    }
+    function setAuto(on) {
+      autoOn = on; track = []; stay = null; try { localStorage.setItem(AUTO_KEY, on ? 'on' : 'off'); } catch (_) {}
+      autoPill(); toast(on ? '자동 기록을 켰어요 · 지도 화면이 켜져 있는 동안 돼요' : '자동 기록을 껐어요');
+      if (mode === 'list') showList();
+    }
+    pill.onclick = () => setAuto(!autoOn);
+    // 가만히 있으면 GPS 소식이 뜸해질 수 있어 25초 넘게 없으면 한 번 물어본다
+    setInterval(() => {
+      if (!isOpen || !autoOn || document.visibilityState !== 'visible' || !navigator.geolocation || (me && me.virtual)) return;
+      if (Date.now() - lastFixT > 25000) navigator.geolocation.getCurrentPosition(onPos, () => {}, { enableHighAccuracy: true, maximumAge: 10000, timeout: 20000 });
+      autoPill();
+    }, 20000);
+    // ---------- 앱을 나가면 알림줄에 바로가기 (켠 경우): 알림을 누르면 지도로, '포인트 저장'을 누르면 바로 저장 화면
+    const NOTI_KEY = 'jjukgap-noti', NOTI_TAG = 'jjugap-map';
+    let notiOn = false; try { notiOn = localStorage.getItem(NOTI_KEY) === 'on'; } catch (_) {}
+    const canNoti = () => !inFrame && 'Notification' in window && 'serviceWorker' in navigator;
+    async function setNoti(on) {
+      if (on) {
+        if (!canNoti()) { toast('이 화면에서는 알림을 쓸 수 없어요. 폰에 설치한 앱에서 켜 주세요'); return; }
+        let perm = Notification.permission;
+        if (perm === 'default') { try { perm = await Notification.requestPermission(); } catch (_) {} }
+        notiOn = perm === 'granted';
+        toast(notiOn ? '앱을 나가면 알림줄에 바로가기가 생겨요' : '휴대폰 설정에서 이 앱의 알림을 허용해 주세요');
+      } else notiOn = false;
+      try { localStorage.setItem(NOTI_KEY, notiOn ? 'on' : 'off'); } catch (_) {}
+      if (mode === 'list') showList();
+    }
+    function notiSync(show) {
+      if (!canNoti()) return;
+      navigator.serviceWorker.ready.then(reg => {
+        if (show) return reg.showNotification('쭈갑 물때 · 바다 지도', { tag: NOTI_TAG, body: '눌러서 지도로 돌아가기 · 자동 기록은 앱 화면이 켜져 있을 때만 돼요',
+          icon: 'icon-192.png', badge: 'badge-96.png', silent: true, data: { act: 'map' }, actions: [{ action: 'save', title: '포인트 저장' }, { action: 'map', title: '지도 열기' }] });
+        return reg.getNotifications({ tag: NOTI_TAG }).then(ns => ns.forEach(n => n.close()));
+      }).catch(() => {});
+    }
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'hidden') { if (notiOn && isOpen && Notification.permission === 'granted') notiSync(true); }
+      else notiSync(false);
+    });
+    // ---------- 바로가기로 열기: 홈 화면 '포인트 저장'(?act=save) · '바다 지도'(?act=map), 알림줄 단추
+    function quickAct(a) {
+      if (mode === 'pick') return;
+      open();
+      if (a !== 'save') return;
+      if (me && !me.virtual) showSave();
+      else { pendingSave = true; toast('위치를 찾는 중이에요. 잡히면 바로 저장 화면이 열려요'); }
+    }
+    const act0 = new URLSearchParams(location.search).get('act');
+    if (act0 === 'save' || act0 === 'map') { try { history.replaceState(history.state, '', location.pathname + location.hash); } catch (_) {} setTimeout(() => quickAct(act0), 0); }
+    if ('serviceWorker' in navigator) navigator.serviceWorker.addEventListener('message', e => { const a = e.data && e.data.jjugap; if (a === 'save' || a === 'map') quickAct(a); });
     // 화면 꺼짐 막기 (지원하는 폰에서만)
     async function wakeOn() { try { if ('wakeLock' in navigator && !wake) { wake = await navigator.wakeLock.request('screen'); wake.addEventListener('release', () => { wake = null; }); } } catch (_) { wake = null; } }
     function wakeOff() { try { wake && wake.release(); } catch (_) {} wake = null; }
@@ -3762,11 +3918,11 @@ const TideHarm = (() => {
     function open() {
       if (isOpen) return; isOpen = true; view.hidden = false; mode = 'info'; selId = null; form = null;
       if (!me) { const S = TideHarm.STATIONS[tideSt]; v = { lon: S.lon - 0.05, lat: S.lat - 0.02, s: 1400 }; }
-      loadLand(); loadSpots(); startGps(); wakeOn(); paintPanel(true); applySheet(false); resize(); kick();
+      loadLand(); loadSpots(); startGps(); wakeOn(); paintPanel(true); applySheet(false); resize(); kick(); autoPill();
       if (useHist) { try { history.pushState({ mapv: 1 }, ''); } catch (_) {} }
     }
     function close(fromPop) {
-      if (!isOpen) return; isOpen = false; closeMenu(); view.hidden = true; stopGps(); wakeOff();
+      if (!isOpen) return; isOpen = false; closeMenu(); view.hidden = true; stopGps(); wakeOff(); endStay(); track = []; pendingSave = false;
       if (mode === 'pick') { mode = 'info'; pickCb = null; }
       if (useHist && !fromPop && history.state && history.state.mapv) { skipPop = true; history.back(); }
     }
@@ -4074,7 +4230,7 @@ if ('serviceWorker' in navigator) addEventListener('load', () => {
   const sw = navigator.serviceWorker; let ctl = sw.controller, reloading = false;
   // 새 버전이 올라오면 한 번 새로 열어 바로 반영 (처음 설치할 때는 제외)
   sw.addEventListener('controllerchange', () => { if (ctl && !reloading) { reloading = true; location.reload(); } ctl = sw.controller; });
-  sw.register('sw.js?v=439faaea').then(reg => {
+  sw.register('sw.js?v=11c9caa7').then(reg => {
     // 앱을 켜 둔 채 다른 화면에 갔다 돌아오면 새 버전이 있는지 확인
     document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') reg.update().catch(() => {}); });
   }).catch(() => {});
