@@ -207,6 +207,8 @@ h2{margin:0; font-size:16px; font-weight:700; text-wrap:balance}
 .mv-tools{position:absolute; right:10px; top:10px; display:flex; flex-direction:column; gap:8px}
 .mv-tools button{width:42px; height:42px; display:grid; place-items:center; padding:0; border:1px solid var(--line); border-radius:12px; background:var(--card); font:inherit; font-size:22px; line-height:1; color:var(--ink); box-shadow:0 2px 8px rgba(0,0,0,.12); -webkit-tap-highlight-color:transparent}
 .mv-tools button svg{width:20px; height:20px; color:var(--ink-2)} .mv-tools button.on svg{color:#2F7DF6}
+.mv-tools button.mini{width:34px; height:34px; border-radius:10px; align-self:center} .mv-tools button.mini svg{width:18px; height:18px}
+#mv-pnm .sl{display:none} #mv-pnm.off .sl{display:inline} #mv-pnm.off svg{opacity:.8}
 .mv-scale{position:absolute; left:10px; bottom:10px; transform:translate3d(0,calc(-1 * var(--sheet-h, 0px)),0); transition:transform .28s cubic-bezier(.2,.85,.25,1); display:flex; flex-direction:column; gap:2px; font-size:10.5px; font-weight:700; color:var(--map-lab); pointer-events:none}
 .mv-scale i{display:block; height:5px; border:1.5px solid var(--map-lab); border-top:0}
 .mv-attr{position:absolute; right:6px; bottom:6px; transform:translate3d(0,calc(-1 * var(--sheet-h, 0px)),0); transition:transform .28s cubic-bezier(.2,.85,.25,1); padding:1px 6px; border-radius:7px; background:var(--map-sea); font-size:9.5px; color:var(--map-lab); opacity:.85; pointer-events:none}
@@ -779,6 +781,7 @@ a.mv-row-btn{text-decoration:none; gap:10px} .mv-row-btn span{font-size:20px; li
     <div class="mv-tools">
       <button id="mv-zin" aria-label="확대">+</button><button id="mv-zout" aria-label="축소">−</button>
       <button id="mv-me" class="on" aria-label="내 위치로"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="6.2" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="2.4" fill="currentColor"/><path d="M12 2.5v3.3M12 18.2v3.3M2.5 12h3.3M18.2 12h3.3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
+      <button id="mv-pnm" class="mini" type="button" aria-pressed="false" aria-label="항구 이름 숨기기"><svg viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="4.9" r="2.1"/><path d="M12 7v13.4M8.6 10.3h6.8M4.9 13.4c.6 4.2 3.6 7 7.1 7s6.5-2.8 7.1-7M3.4 14.8l1.5-1.4 1.6 1.3M17.5 14.7l1.6-1.3 1.5 1.4"/></g><path class="sl" d="M4 20L20 4" stroke="var(--card)" stroke-width="5" stroke-linecap="round"/><path class="sl" d="M4 20L20 4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
     </div>
     <div class="mv-scale" id="mv-scale"><i></i><span></span></div>
     <div class="mv-attr">지도 © OpenStreetMap 기여자</div>
@@ -2909,6 +2912,7 @@ const TideHarm = (() => {
     // 자리 잡기는 가끔만(가만히 있을 때는 화면이 바뀔 때, 손으로 움직이는 중에는 0.1초마다) 하고, 이미 보이던 이름표를 먼저 지킨다.
     // 우선순위: 큰 섬·만 → 항구 → 작은 섬. 다른 이름표·출항지와 겹치면 빼고, 나타나고 사라질 때는 서서히(흐려지기)
     let labC = null, lodNow = null, layKey = '', layT = 0, labT = 0, ghosts = [];
+    let portsOff = false; try { portsOff = localStorage.getItem('jjukgap-map-ports') === 'off'; } catch (_) {}   // 항구 이름 숨기기 (이 폰에 기억)
     const shownL = new Map();   // id → { c, land(섬: 땅 위에 쓰기) | side(항구: 1 오른쪽 · -1 왼쪽), a(보이는 정도), on }
     function labCands() {
       if (labC) return labC;
@@ -2930,7 +2934,7 @@ const TideHarm = (() => {
     function layoutLabels(font) {
       layKey = [v.lon, v.lat, v.s, W, H].join('|'); layT = performance.now();
       const L = labCands(); if (!L) return;
-      const placed = [[W - 64, 0, W, 165], ...portBoxes(ctx, font).map(b => [b.bx - 3, b.by - 3, b.bx + b.w + 3, b.by + b.h + 3])];
+      const placed = [[W - 64, 0, W, 208], ...portBoxes(ctx, font).map(b => [b.bx - 3, b.by - 3, b.bx + b.w + 3, b.by + b.h + 3])];
       const hit = a => placed.some(b => a[0] < b[2] && a[2] > b[0] && a[1] < b[3] && a[3] > b[1]);
       const keep = new Set(), M = 40;
       const place = c => {
@@ -2964,6 +2968,7 @@ const TideHarm = (() => {
       };
       // 등급마다 이미 보이던 것 먼저, 그다음 새로운 것
       for (const list of L) {
+        if (portsOff && list === L[1]) continue;   // 항구 이름을 숨겼으면 건너뛴다 (보이던 것은 서서히 사라짐)
         for (const c of list) if (shownL.has(c.id) && shownL.get(c.id).on) place(c);
         for (const c of list) if (!keep.has(c.id) && !(shownL.has(c.id) && shownL.get(c.id).on)) place(c);
       }
@@ -4241,6 +4246,14 @@ const TideHarm = (() => {
     // 확대 · 축소 · 내 위치로
     const zoomAt = (f, x = W / 2, y = focusY()) => { const g = toG(x, y); v.s = clampS(v.s * f); const g2 = toG(x, y); v.lon += g.lon - g2.lon; v.lat += g.lat - g2.lat; if (follow && me) placeAt(me.lon, me.lat, fy ?? focusY()); draw(); };
     $('mv-zin').onclick = () => zoomAt(1.8);
+    // 항구 이름 숨기기·보이기 (기본 출항지와 섬 이름은 그대로)
+    const pnmBtn = $('mv-pnm');
+    const paintPnm = () => { pnmBtn.classList.toggle('off', portsOff); pnmBtn.setAttribute('aria-pressed', String(portsOff)); pnmBtn.setAttribute('aria-label', portsOff ? '항구 이름 보이기' : '항구 이름 숨기기'); };
+    paintPnm();
+    pnmBtn.onclick = () => {
+      portsOff = !portsOff; try { localStorage.setItem('jjukgap-map-ports', portsOff ? 'off' : 'on'); } catch (_) {}
+      paintPnm(); layKey = ''; draw(); toast(portsOff ? '항구 이름을 숨겼어요' : '항구 이름을 다시 보여 줘요');
+    };
     $('mv-zout').onclick = () => zoomAt(1 / 1.8);
     $('mv-me').onclick = () => {
       if (me && me.virtual) { me = gps ? { ...gps } : null; setGps(gps ? `GPS ±${Math.round(gps.acc)}m` : 'GPS 찾는 중…', gps ? 'ok' : 'warn'); toast('실제 GPS 위치로 돌아왔어요'); }
@@ -4535,7 +4548,7 @@ if ('serviceWorker' in navigator) addEventListener('load', () => {
   const sw = navigator.serviceWorker; let ctl = sw.controller, reloading = false;
   // 새 버전이 올라오면 한 번 새로 열어 바로 반영 (처음 설치할 때는 제외)
   sw.addEventListener('controllerchange', () => { if (ctl && !reloading) { reloading = true; location.reload(); } ctl = sw.controller; });
-  sw.register('sw.js?v=df6e914c').then(reg => {
+  sw.register('sw.js?v=407c21a8').then(reg => {
     // 앱을 켜 둔 채 다른 화면에 갔다 돌아오면 새 버전이 있는지 확인
     document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') reg.update().catch(() => {}); });
   }).catch(() => {});
