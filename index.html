@@ -2380,6 +2380,9 @@ const TideHarm = (() => {
       return portsP;
     }
     const norm = t => String(t || '').replace(/\s+/g, '').toLowerCase();
+    // 기본 출항지를 흔히 부르는 다른 이름 (항·포구 목록에서는 같은 곳이라 뺐다)
+    const ST_AKA = { incheon: '연안부두 인천항연안여객터미널', bangameori: '방아머리항 방아머리선착장', ocheon: '오천항 오천선착장', gunsan: '군산항',
+      hongwon: '홍원항', gyeokpo: '격포항', anheung: '안흥 신진도', yeongheung: '영흥' };
     // 점수: 이름이 검색어로 시작 > 이름에 들어 있음 > 지역까지 합쳐 모든 낱말이 들어 있음 > 글자 순서대로 들어 있음
     function score(q, toks, name, sub) {
       const n = norm(name), h = n + norm(sub);
@@ -2388,6 +2391,13 @@ const TideHarm = (() => {
       if (toks.every(t => h.includes(t))) return 2;
       let i = 0; for (const ch of h) { if (ch === q[i]) i++; if (i === q.length) return 1; }
       return 0;
+    }
+    // 다른 이름 점수: 낱말 하나와 똑같으면 top, 여러 낱말을 이어 붙인 데 들어 있으면 2.5, 그 밖엔 2까지
+    function akaScore(q, toks, aka, top) {
+      if (!aka) return 0;
+      if (aka.split(' ').some(w => norm(w) === q)) return top;
+      if (norm(aka).includes(q)) return 2.5;
+      return Math.min(2, score(q, toks, aka, ''));
     }
     const hl = (name, q) => { const i = norm(name).indexOf(q); if (i < 0 || name.includes(' ')) return esc(name); return esc(name.slice(0, i)) + '<mark>' + esc(name.slice(i, i + q.length)) + '</mark>' + esc(name.slice(i + q.length)); };
     const esc = t => String(t).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
@@ -2406,11 +2416,14 @@ const TideHarm = (() => {
       }
       if (!PORTS) { list.innerHTML = '<p class="st-none">항·포구 목록을 불러오는 중이에요…</p>'; loadPorts(); return; }
       const rs = [];
-      for (const k of [...customs, ...ST_KEYS]) { const S = TideHarm.STATIONS[k], sc = score(q, toks, S.name, S.sub || ''); if (sc) rs.push({ sc: sc + 0.5, k, name: S.name, sub: S.custom ? cSub(S) : '기본 출항지 · ' + diffText(S), lat: S.lat, lon: S.lon }); }
+      for (const k of [...customs, ...ST_KEYS]) { const S = TideHarm.STATIONS[k], sc = Math.max(score(q, toks, S.name, S.sub || ''), akaScore(q, toks, ST_AKA[k], 4)); if (sc) rs.push({ sc: sc + 0.5, k, name: S.name, sub: S.custom ? cSub(S) : '기본 출항지 · ' + diffText(S), lat: S.lat, lon: S.lon }); }
       for (const r of PORTS) {
-        const sc = score(q, toks, r[0], r[3]); if (!sc) continue;
+        let sc = score(q, toks, r[0], r[3]), aka = '';
+        const sa = akaScore(q, toks, r[5], 3.5);   // 다른 이름으로 찾음
+        if (sa > sc) { if (!sc) aka = r[5].split(' ').find(w => norm(w).includes(q) || norm(q).includes(norm(w))) || ''; sc = sa; }
+        if (!sc) continue;
         if (rs.some(x => norm(x.name) === norm(r[0]) && distKm(x.lat, x.lon, r[1], r[2]) < 1.5)) continue;   // 이미 고른 곳
-        rs.push({ sc, name: r[0], sub: `${r[3]} · 지금 출항지에서 ${kmFrom(r[1], r[2])}`, lat: r[1], lon: r[2], region: r[3] });
+        rs.push({ sc, name: r[0], sub: `${r[3]}${aka && aka !== r[0] ? ` · ${aka}` : ''} · 지금 출항지에서 ${kmFrom(r[1], r[2])}`, lat: r[1], lon: r[2], region: r[3] });
       }
       rs.sort((a, b) => b.sc - a.sc || a.name.length - b.name.length);
       results = rs.slice(0, 40);
@@ -2789,11 +2802,24 @@ const TideHarm = (() => {
         ctx.restore();
       }
     }
+    let mapPorts = null, mapPortsP = null;
+    function loadMapPorts() {
+      if (mapPortsP) return;
+      mapPortsP = fetch('data/ports.json').then(r => (r.ok ? r.json() : [])).then(d => {
+        if (!Array.isArray(d)) return;
+        portsList = portsList || d;
+        const minS = [1000, 1500, 2600];   // 큰 항 · 선착장 · 작은 포구가 보이기 시작하는 배율
+        mapPorts = d.filter(r => !Object.keys(TideHarm.STATIONS).some(k => { const S = TideHarm.STATIONS[k]; return distKm(S, { lat: r[1], lon: r[2] }) < 0.8; }))
+          .map(r => ({ n: r[0], lat: r[1], lon: r[2], minS: minS[r[4] ?? (/항(\(.*\))?$/.test(r[0]) ? 0 : /선착장|터미널|마리나/.test(r[0]) ? 1 : 2)] || 3800, k: r[4] ?? 2 }))
+          .sort((a, b) => a.k - b.k || a.n.length - b.n.length);
+        bkey = ''; draw();
+      }).catch(() => { mapPortsP = null; });
+    }
     let bv = null, BM = 0, interacting = false;   // 바탕을 그린 때의 화면 · 바깥 여유(점) · 손가락으로 움직이는 중
     // 지금 화면에서 본 바탕 그림의 배율·위치
     const baseXf = () => { const k = v.s / bv.s; return { k, tx: W / 2 * (1 - k) + (bv.lon - v.lon) * KX * v.s, ty: H / 2 * (1 - k) - (bv.lat - v.lat) * v.s }; };
     function renderBase(C, font) {
-      const tick = Math.floor(Date.now() / 30000), okey = [W, H, dpr, C.sea, C.land, landState, spState, SEA ? SEA.t0 : 0, tick].join('|');
+      const tick = Math.floor(Date.now() / 30000), okey = [W, H, dpr, C.sea, C.land, landState, spState, SEA ? SEA.t0 : 0, mapPorts ? mapPorts.length : 0, tick].join('|');
       const key = [v.lon, v.lat, v.s, okey].join('|');
       if (key === bkey && bcv) return;
       if (interacting && bcv && bv && bv.okey === okey) {
@@ -2835,9 +2861,11 @@ const TideHarm = (() => {
       // 확대·축소 단추, 축척, 출처 글씨 자리도 비워 둔다
       const placed = [[W - 64, 0, W, 165], ...portBoxes(g, font).map(b => [b.bx - 3, b.by - 3, b.bx + b.w + 3, b.by + b.h + 3])];
       const hit = a => placed.some(b => a[0] < b[2] && a[2] > b[0] && a[1] < b[3] && a[3] > b[1]);
+      // 섬·만 이름표 (big: 넓은 화면에서도 보이는 큰 섬·만, 아니면 나머지)
+      const drawLabs = big0 => {
       g.textAlign = 'center'; g.textBaseline = 'middle'; g.lineJoin = 'round';
       for (const [name, lon, lat, minS, kind] of basemap.lab) {
-        if (v.s < minS) continue;
+        if (v.s < minS || (minS <= 700) !== big0) continue;
         const [x0, y0] = toS(lon, lat); if (x0 < -BM - 40 || x0 > W + BM + 40 || y0 < -BM - 20 || y0 > H + BM + 20) continue;
         const big = kind === 0 && minS <= 700, fs = kind === 1 ? 12 : big ? 12.5 : 11;
         g.font = `${big || kind === 1 ? 700 : 600} ${fs}px ${font}`;
@@ -2849,12 +2877,32 @@ const TideHarm = (() => {
         g.lineWidth = 3.2; g.strokeStyle = onLand ? C.land : C.sea; g.strokeText(name, x0, y);
         g.fillStyle = kind === 1 ? C.bay : C.isl; g.fillText(name, x0, y);
       }
+      };
+      // 큰 섬·만 이름 → 항·포구 → 작은 섬 이름 순서로 자리를 잡는다
+      drawLabs(true);
+      if (mapPorts) {
+        g.font = `700 10.5px ${font}`; g.textBaseline = 'middle'; g.textAlign = 'left';
+        for (const pt of mapPorts) {
+          if (v.s < pt.minS) continue;
+          const [x0, y0] = toS(pt.lon, pt.lat); if (x0 < -BM - 60 || x0 > W + BM + 60 || y0 < -BM - 20 || y0 > H + BM + 20) continue;
+          const tw = pt.tw || (pt.tw = g.measureText(pt.n).width), bw = tw + 12;
+          // 화면 안의 점은 이름표가 화면 가장자리에 잘리지 않는 쪽(오른쪽 먼저)에, 바깥 여유 자리의 점은 그 여유 안에
+          const lo = x0 >= 0 && x0 <= W ? 2 : -BM + 2, hi = x0 >= 0 && x0 <= W ? W - 2 : W + BM - 2;
+          let box = [x0 + 6, y0 - 8, x0 + 6 + bw, y0 + 8];
+          if (hit(box) || box[2] > hi) { box = [x0 - 6 - bw, y0 - 8, x0 - 6, y0 + 8]; if (hit(box) || box[0] < lo) continue; }
+          placed.push([box[0] - 2, box[1] - 2, box[2] + 2, box[3] + 2], [x0 - 5, y0 - 5, x0 + 5, y0 + 5]);
+          g.globalAlpha = 0.9; g.fillStyle = C.card; g.beginPath(); g.roundRect ? g.roundRect(box[0], box[1], bw, 16, 8) : g.rect(box[0], box[1], bw, 16); g.fill(); g.globalAlpha = 1;
+          g.fillStyle = C.ink; g.fillText(pt.n, box[0] + 6, y0 + 0.5);
+          g.lineWidth = 1.8; g.strokeStyle = C.card; g.fillStyle = C.port; g.beginPath(); g.arc(x0, y0, 3.3, 0, 2 * Math.PI); g.fill(); g.stroke();
+        }
+      }
+      drawLabs(false);
       g.textAlign = 'start'; g.textBaseline = 'alphabetic';
       drawArrows(g, C, font, BM);
     }
     // 색·글꼴은 테마가 바뀔 때만 다시 읽는다 (매 장면마다 읽으면 느려서)
     let Cc = null, fontC = '';
-    const mapColors = () => Cc || (Cc = { sea: css('--map-sea'), shallow: css('--map-shallow'), land: css('--map-land'), shade: css('--map-shade'), coast: css('--map-coast'), flat: css('--map-flat'),
+    const mapColors = () => Cc || (Cc = { port: css('--map-port') || css('--ink'), sea: css('--map-sea'), shallow: css('--map-shallow'), land: css('--map-land'), shade: css('--map-shade'), coast: css('--map-coast'), flat: css('--map-flat'),
       isl: css('--map-isl'), bay: css('--map-bay'), lab: css('--map-lab'), cur: css('--map-cur'), card: css('--card'), ink: css('--ink') });
     try { matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => { Cc = null; if (isOpen) draw(); }); } catch (_) {}
     // 그리기 요청은 한 화면(프레임)에 한 번으로 모은다
@@ -4053,7 +4101,7 @@ const TideHarm = (() => {
     function open() {
       if (isOpen) return; isOpen = true; view.hidden = false; mode = 'info'; selId = null; form = null;
       if (!me) { const S = TideHarm.STATIONS[tideSt]; v = { lon: S.lon - 0.05, lat: S.lat - 0.02, s: 1400 }; }
-      loadLand(); loadSpots(); startGps(); wakeOn(); paintPanel(true); applySheet(false); resize(); kick(); autoPill(); autoPill.last = '';
+      loadLand(); loadMapPorts(); loadSpots(); startGps(); wakeOn(); paintPanel(true); applySheet(false); resize(); kick(); autoPill(); autoPill.last = '';
       if (NAT) { try { NAT.setMapOpen(true); } catch (_) {} }
       if (useHist) { try { history.pushState({ mapv: 1 }, ''); } catch (_) {} }
     }
@@ -4368,7 +4416,7 @@ if ('serviceWorker' in navigator) addEventListener('load', () => {
   const sw = navigator.serviceWorker; let ctl = sw.controller, reloading = false;
   // 새 버전이 올라오면 한 번 새로 열어 바로 반영 (처음 설치할 때는 제외)
   sw.addEventListener('controllerchange', () => { if (ctl && !reloading) { reloading = true; location.reload(); } ctl = sw.controller; });
-  sw.register('sw.js?v=af7102a8').then(reg => {
+  sw.register('sw.js?v=d2cac699').then(reg => {
     // 앱을 켜 둔 채 다른 화면에 갔다 돌아오면 새 버전이 있는지 확인
     document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') reg.update().catch(() => {}); });
   }).catch(() => {});
