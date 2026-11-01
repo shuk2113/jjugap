@@ -299,6 +299,9 @@ h2{margin:0; font-size:16px; font-weight:700; text-wrap:balance}
 .mv-sw i{flex:none; position:relative; width:42px; height:24px; border-radius:12px; background:var(--line); transition:background .2s}
 .mv-sw i::after{content:''; position:absolute; left:3px; top:3px; width:18px; height:18px; border-radius:50%; background:#fff; box-shadow:0 1px 3px rgba(0,0,0,.3); transition:transform .2s}
 .mv-sw.on i{background:#22B07D} .mv-sw.on i::after{transform:translateX(18px)}
+.mv-row-btn{width:100%; display:flex; align-items:center; justify-content:space-between; padding:13px 2px; border:0; border-top:1px solid var(--line); background:none; font:inherit; font-size:13.5px; font-weight:700; color:var(--ink); text-align:left; -webkit-tap-highlight-color:transparent}
+.mv-row-btn span{font-size:20px; line-height:1; color:var(--ink-2)}
+.mv-paste{display:block; min-height:86px; resize:none; line-height:1.4}
 .mv-set .mv-tip{margin:0; padding:9px 2px 11px; border-top:1px solid var(--line)}
 .mv-list b .mv-autot{display:inline-block; margin-left:6px; padding:1px 7px; border-radius:999px; border:1px solid var(--line); color:var(--ink-2); font-style:normal; font-size:10.5px; font-weight:700; vertical-align:1px}
 .mv-snack{position:absolute; left:10px; top:48px; z-index:3; max-width:calc(100% - 74px); display:flex; align-items:center; gap:10px; padding:6px 6px 6px 14px; border-radius:16px; background:rgba(8,20,24,.9); color:#fff; font-size:13px; font-weight:600; line-height:1.35; box-shadow:0 4px 14px rgba(0,0,0,.25)}
@@ -3126,8 +3129,8 @@ const TideHarm = (() => {
     const arw = deg => ARW[Math.round(((deg % 360) + 360) % 360 / 45) % 8];
     const inTxt = ms => { const m = Math.max(0, Math.round(ms / 60000)); return m < 60 ? `${m}분 뒤` : `${Math.floor(m / 60)}시간${m % 60 ? ` ${m % 60}분` : ''} 뒤`; };
     // ---------- 지금 이 자리의 정보: 계산 자료가 있으면 이 자리 값, 없으면 가장 가까운 출항지 값
-    function infoAt(p) {
-      const i = portInfo(p), now = Date.now(), n0 = Math.floor((now + 9 * 3600000) / DAY);
+    function infoAt(p, at = Date.now()) {
+      const i = portInfo(p, at), now = at, n0 = Math.floor((now + 9 * 3600000) / DAY);
       const m = spotTide(p);
       if (m) {
         const r = m.at(now), exs = [n0 - 1, n0, n0 + 1, n0 + 2].flatMap(n => spotExt(m, n));
@@ -3156,14 +3159,14 @@ const TideHarm = (() => {
       return i;
     }
     // ---------- 가장 가까운 출항지 기준 값 (계산 자료가 없을 때·출항지 보기용)
-    function portInfo(p) {
-      const nr = nearest(p), k = nr.k, S = TideHarm.STATIONS[k], now = Date.now(), dd = dayData(today);
+    function portInfo(p, atMs = Date.now()) {
+      const nr = nearest(p), k = nr.k, S = TideHarm.STATIONS[k], now = atMs, td = Math.floor((now + 9 * 3600000) / DAY), dd = dayData(td);
       const h = TideHarm.heightAt(k, now), rate = TideHarm.rateAt(k, now), pct = Math.round(Math.min(1, Math.abs(rate) / S.ref) * 100);
-      const ex = [...TideHarm.extremes(k, today), ...TideHarm.extremes(k, today + 1)].find(e => e.ms > now);
-      const st = WX && WX.stations && WX.stations[wxOf(k)], hr = Math.floor(kstMin(now) / 60), r = wxRow(st, today, hr);
+      const ex = [...TideHarm.extremes(k, td), ...TideHarm.extremes(k, td + 1)].find(e => e.ms > now);
+      const st = WX && WX.stations && WX.stations[wxOf(k)], hr = Math.floor(kstMin(now) / 60), r = wxRow(st, td, hr);
       const o = st && st.obs, at = o && o.t ? Date.parse(o.t.replace(' ', 'T') + ':00+09:00') : NaN;
       const wt = o && o.wtem > 0.5 && (now - at) / 3600000 <= 12 ? o : null;
-      const nearEx = [...TideHarm.extremes(k, today - 1), ...TideHarm.extremes(k, today), ...TideHarm.extremes(k, today + 1)].find(e => Math.abs(e.ms - now) <= 25 * 60000);
+      const nearEx = [...TideHarm.extremes(k, td - 1), ...TideHarm.extremes(k, td), ...TideHarm.extremes(k, td + 1)].find(e => Math.abs(e.ms - now) <= 25 * 60000);
       return { k, d: nr.d, dir: dirOf(S, p), dd, h, rising: rate > 0, pct, ex, stand: nearEx ? (nearEx.type === 'H' ? '만조 · 정조' : '간조 · 정조') : null,
         wind: r && r[0] != null ? Math.round(r[0]) : null, vec: r ? r[1] : null, wave: r && r[2] != null ? Math.round(r[2] * 10) / 10 : null,
         wt: wt ? wt.wtem : null, wtName: wt ? `${wt.name || ''}${wt.near ? '(근처)' : ''}` : '' };
@@ -3172,7 +3175,7 @@ const TideHarm = (() => {
     function paintPanel(force) {
       if (!isOpen) return;
       const nowMs = Date.now(); if (!force && nowMs - lastPanel < 900) return; lastPanel = nowMs;
-      if (mode === 'save' || mode === 'list' || mode === 'detail' || mode === 'pick') return;
+      if (mode === 'save' || mode === 'list' || mode === 'detail' || mode === 'pick' || mode === 'move') return;
       if (!me) {
         panel.innerHTML = `<p class="mv-empty">${gpsMsg || '위치를 찾는 중이에요…'}<br>지도를 <b>길게 누르면</b> 그 자리를 내 위치로 가정해서 정보를 볼 수 있어요.</p><p class="mv-safe">낚시 정보 확인용이에요. 항해·안전에는 쓰지 마세요.</p>`;
         return;
@@ -3386,11 +3389,44 @@ const TideHarm = (() => {
         (points.length ? `<p class="mv-tip">포인트를 꾹 누르면 고치기·지우기, 왼쪽으로 밀어도 지울 수 있어요.</p><div class="mv-trips">${body}</div>`
           : `<p class="mv-empty">아직 저장한 포인트가 없어요. 배 위에서 지도 아래 파란 핀 단추를 누르면 그 자리와 물때·조류·수온이 함께 남아요.</p>`) +
         `<div class="mv-set">`
-        + `<button type="button" class="mv-sw${autoOn ? ' on' : ''}" data-act="auto-tog" role="switch" aria-checked="${autoOn}"><span><b>5분 머문 곳 자동 기록</b><small>지도 화면이 켜져 있을 때 배가 한자리에 5분 넘게 머물면 포인트로 남겨요. 마릿수는 나중에 넣어요.</small></span><i></i></button>`
-        + `<button type="button" class="mv-sw${notiOn ? ' on' : ''}" data-act="noti-tog" role="switch" aria-checked="${notiOn}"><span><b>앱을 나가면 알림줄에 바로가기</b><small>지도를 켠 채 나가면 알림이 생겨요. 누르면 지도로, '포인트 저장'을 누르면 바로 저장 화면이 열려요.</small></span><i></i></button>`
+        + `<button type="button" class="mv-sw${autoOn ? ' on' : ''}" data-act="auto-tog" role="switch" aria-checked="${autoOn}"><span><b>5분 머문 곳 자동 기록</b><small>${NAT ? '지도를 켜 두면 홈 화면에 나가 있거나 화면이 꺼져도, 배가 한자리에 5분 넘게 머문 곳을 포인트로 남겨요.' : '지도 화면이 켜져 있을 때 배가 한자리에 5분 넘게 머물면 포인트로 남겨요.'} 마릿수는 나중에 넣어요.</small></span><i></i></button>`
+        + (NAT ? `<button type="button" class="mv-sw${natBubble() ? ' on' : ''}" data-act="bubble-tog" role="switch" aria-checked="${natBubble()}"><span><b>홈 화면에 '포인트 저장' 단추 띄우기</b><small>지도를 켠 채 홈 화면으로 나가면 떠 있는 단추가 생겨요. 끌어서 옮기고, 누르면 바로 저장 화면이 열려요. 아래 ×로 끌어 놓으면 숨겨요.</small></span><i></i></button>`
+          : `<button type="button" class="mv-sw${notiOn ? ' on' : ''}" data-act="noti-tog" role="switch" aria-checked="${notiOn}"><span><b>앱을 나가면 알림줄에 바로가기</b><small>지도를 켠 채 나가면 알림이 생겨요. 누르면 지도로, '포인트 저장'을 누르면 바로 저장 화면이 열려요.</small></span><i></i></button>`)
+        + `<button type="button" class="mv-row-btn" data-act="move">다른 폰·앱으로 포인트 옮기기<span>›</span></button>`
         + `<p class="mv-tip">홈 화면에 저장 단추 놓기: 쭈갑 물때 아이콘을 꾹 누르면 나오는 '포인트 저장'을 다시 꾹 눌러 원하는 곳에 끌어다 놓으세요.</p></div>`
         + `<div class="mv-btns"><button data-act="back">닫기</button></div>`;
       panel.scrollTop = keepTop;
+    }
+    // ---------- 포인트 옮기기: 크롬에 설치한 앱 ↔ 안드로이드 앱, 다른 폰. 기록을 글자 묶음으로 복사해서 새 쪽에 붙여넣는다
+    const MOVE_HEAD = '쭈갑물때-기록:';
+    function showMove() {
+      mode = 'move'; closeMenu(); sheetAtLeast('open');
+      panel.innerHTML = `<div class="mv-h"><b>포인트 옮기기</b><span>지금 ${points.length}곳</span></div>
+        <p class="mv-note">크롬에 설치한 앱과 안드로이드 앱은 기록을 따로 저장해요. 원래 쓰던 쪽에서 <b>지금 기록 복사하기</b>를 누르고, 새로 쓸 쪽 이 화면의 아래 칸을 길게 눌러 <b>붙여넣기</b>한 뒤 <b>가져오기</b>를 누르세요. 이미 있는 포인트는 겹치지 않아요.</p>
+        <div class="mv-btns"><button class="pri" data-act="move-copy">지금 기록 복사하기</button></div>
+        <textarea class="mv-memo mv-paste" id="mv-paste" rows="3" placeholder="여기를 길게 눌러 붙여넣기" autocomplete="off"></textarea>
+        <div class="mv-btns"><button class="pri" data-act="move-in">가져오기</button><button data-act="list">목록으로</button></div>`;
+    }
+    async function moveCopy() {
+      const t = MOVE_HEAD + JSON.stringify({ v: 1, points, boats: boatsMem(), trip: loadJ(TRIP_KEY, null), ports: customPorts, defs: customPorts.length ? spotDefs : null });
+      let ok = false;
+      try { await navigator.clipboard.writeText(t); ok = true; } catch (_) {}
+      if (!ok) { const ta = $('mv-paste'); if (ta) { ta.value = t; ta.select(); try { ok = document.execCommand('copy'); } catch (_) {} ta.value = ''; ta.blur(); } }
+      toast(ok ? `${points.length}곳 기록을 복사했어요. 새로 쓸 앱에서 붙여넣으세요` : '복사가 안 됐어요. 한 번 더 눌러 주세요');
+    }
+    function moveIn() {
+      const raw = (($('mv-paste') || {}).value || '').trim(), at = raw.indexOf(MOVE_HEAD);
+      let d = null; if (at >= 0) { try { d = JSON.parse(raw.slice(at + MOVE_HEAD.length)); } catch (_) { d = null; } }
+      if (!d || !Array.isArray(d.points)) { toast('옮길 기록이 아니에요. 복사한 글을 그대로 붙여넣어 주세요'); return; }
+      const have = new Set(points.map(q => q.id)); let n = 0;
+      for (const q of d.points) if (q && q.id && !have.has(q.id) && Number.isFinite(q.lat) && Number.isFinite(q.lon) && Number.isFinite(q.t)) { points.push(q); have.add(q.id); n++; }
+      points.sort((a, b) => b.t - a.t); savePts();
+      if (Array.isArray(d.boats)) { const mine = boatsMem(); saveJ(BOAT_KEY, [...mine, ...d.boats.filter(b => b && b.n && !mine.some(x => x.n === b.n))].slice(0, 10)); }
+      if (d.defs && !spotDefs) { spotDefs = d.defs; try { localStorage.setItem(DEFS_KEY, JSON.stringify(spotDefs)); } catch (_) {} }
+      let np = 0; if (Array.isArray(d.ports)) for (const c of d.ports) if (c && c.k && !customPorts.some(x => x.k === c.k) && registerCustom(c)) { customPorts.push(c); np++; }
+      if (np) saveCustom();
+      toast(n ? `${n}곳을 가져왔어요${np ? ` · 내가 고른 출항지 ${np}곳도` : ''}` : '새로 가져올 포인트가 없어요 (이미 다 있어요)');
+      showList(); draw();
     }
     function toggleFold(b) {
       const k = b.dataset.k, on = !folded.has(k);
@@ -3511,6 +3547,10 @@ const TideHarm = (() => {
       if (a === 'fold') return toggleFold(b);
       if (a === 'auto-tog') return setAuto(!autoOn);
       if (a === 'noti-tog') return setNoti(!notiOn);
+      if (a === 'bubble-tog') { try { NAT.setBubble(!natBubble()); } catch (_) {} return setTimeout(() => { if (mode === 'list') showList(); }, 300); }
+      if (a === 'move') return showMove();
+      if (a === 'move-copy') return moveCopy();
+      if (a === 'move-in') return moveIn();
       if (a === 'swdel') return delPoint(b.dataset.id, b.closest('.mv-row'));
       if (a === 'save') showSave();
       else if (a === 'inc' || a === 'dec') { const k = b.dataset.k, el = $('mv-n-' + k); const n = setN(k, getN(k) + (a === 'inc' ? 1 : -1)); if (el) el.value = n; }
@@ -3539,6 +3579,7 @@ const TideHarm = (() => {
     let gpsMsg = '';
     function setGps(t, cls) { gpsEl.textContent = t; gpsEl.className = cls || ''; }
     function onPos(pos) {
+      if (NAT && isOpen) natFixes();
       const c = pos.coords; gps = { lat: c.latitude, lon: c.longitude, acc: c.accuracy, heading: Number.isFinite(c.heading) && c.speed > 0.5 ? c.heading : null, t: pos.timestamp };
       if (me && me.virtual) { setGps('가상 위치 · GPS 잡힘 (‘내 위치로’를 누르면 돌아가요)', 'warn'); return; }
       const first = !me; me = { ...gps };
@@ -3613,13 +3654,14 @@ const TideHarm = (() => {
       // 머무는 동안 직접 저장한 포인트가 있으면 그것으로 (겹쳐 남기지 않는다)
       const mine = points.find(q => !q.auto && q.t >= from - 60000 && distKm(q, c) * 1000 <= LEAVE_R);
       if (mine) { stay.id = mine.id; stay.saved = t; if (!mine.stayFrom) { mine.stayFrom = from; mine.stayTo = t; savePts(); } return; }
-      const i = infoAt(c), tr = tripFor(t), id = String(t);
+      const i = infoAt(c, t), tr = tripFor(t), id = String(t);
       points.unshift({ id, t, lat: +lat.toFixed(6), lon: +lon.toFixed(6), acc: Math.round((me && me.acc) || 0), virtual: false, auto: true, stayFrom: from, stayTo: t,
         ...tripOf(tr), ...(tr.hint ? { tripGuess: true } : {}), ...condOf(i), jj: 0, gap: 0, etc: [], memo: '' });
       stay.id = id; stay.saved = t; savePts(); draw();
       if (mode === 'list') showList(); else if (mode === 'detail' && selId) showDetail(selId);
       try { navigator.vibrate && navigator.vibrate([30, 70, 30]); } catch (_) {}
       snack('5분 머문 곳을 포인트로 남겼어요', '마릿수 넣기', () => showEdit(id), 9000);
+      if (NAT) { try { NAT.saved(`${ampm(kstMin(t))} · 5분 머문 곳을 포인트로 남겼어요`); } catch (_) {} }
     }
     function endStay() {
       if (stay && stay.id) { const p = points.find(q => q.id === stay.id); if (p && p.stayFrom) { p.stayTo = stay.last; savePts(); } }
@@ -3643,6 +3685,7 @@ const TideHarm = (() => {
         if (d >= 60000) { cls = 'wait'; txt = `한자리 ${Math.floor(d / 60000)}분째 · 5분이면 기록`; pill.style.setProperty('--pg', Math.min(1, d / STAY_MS).toFixed(3)); }
       }
       pill.className = 'mv-auto ' + cls; pill.querySelector('span').textContent = txt;
+      if (NAT && isOpen && txt !== autoPill.last) { autoPill.last = txt; try { NAT.setStatus(txt); } catch (_) {} }
     }
     function setAuto(on) {
       autoOn = on; track = []; stay = null; try { localStorage.setItem(AUTO_KEY, on ? 'on' : 'off'); } catch (_) {}
@@ -3659,7 +3702,7 @@ const TideHarm = (() => {
     // ---------- 앱을 나가면 알림줄에 바로가기 (켠 경우): 알림을 누르면 지도로, '포인트 저장'을 누르면 바로 저장 화면
     const NOTI_KEY = 'jjukgap-noti', NOTI_TAG = 'jjugap-map';
     let notiOn = false; try { notiOn = localStorage.getItem(NOTI_KEY) === 'on'; } catch (_) {}
-    const canNoti = () => !inFrame && 'Notification' in window && 'serviceWorker' in navigator;
+    const canNoti = () => !inFrame && !window.JjugapNative && 'Notification' in window && 'serviceWorker' in navigator;
     async function setNoti(on) {
       if (on) {
         if (!canNoti()) { toast('이 화면에서는 알림을 쓸 수 없어요. 폰에 설치한 앱에서 켜 주세요'); return; }
@@ -3680,9 +3723,28 @@ const TideHarm = (() => {
       }).catch(() => {});
     }
     document.addEventListener('visibilitychange', () => {
-      if (document.visibilityState === 'hidden') { if (notiOn && isOpen && Notification.permission === 'granted') notiSync(true); }
+      if (document.visibilityState === 'hidden') { if (notiOn && isOpen && canNoti() && Notification.permission === 'granted') notiSync(true); }
       else notiSync(false);
     });
+    // ---------- 안드로이드 앱(설치 파일)으로 열었을 때: 지도를 켜 두면 홈 화면에 나가 있거나 화면이 꺼져도 앱이 GPS를 모아 두고(알림줄에 표시),
+    // 홈 화면에 '포인트 저장' 단추를 띄운다. 모아 둔 GPS는 여기서 받아 자동 기록에 그대로 넣는다
+    const NAT = window.JjugapNative || null;
+    function natFixes() {
+      if (!NAT || !isOpen) return;
+      let arr = []; try { arr = JSON.parse(NAT.takeFixes() || '[]'); } catch (_) { arr = []; }
+      if (!arr.length) return;
+      for (const f of arr) { gps = { lat: f[0], lon: f[1], acc: f[2], heading: null, t: f[3] }; if (me && me.virtual) continue; me = { ...gps }; lastFixT = Date.now(); autoFeed(me); }
+      if (document.visibilityState === 'visible') {
+        if (me && !me.virtual) setGps(`GPS ±${Math.round(me.acc)}m · ${ampm(kstMin(me.t))}`, me.acc <= 50 ? 'ok' : 'warn');
+        if (follow && me) placeAt(me.lon, me.lat, fy ?? focusY());
+        paintPanel(true); draw();
+      }
+    }
+    if (NAT) {
+      setInterval(natFixes, 15000);
+      document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') { natFixes(); if (isOpen) NAT.setMapOpen(true); if (mode === 'list') showList(); } });
+    }
+    const natBubble = () => { try { return !!(NAT && NAT.bubbleOn()); } catch (_) { return false; } };
     // ---------- 바로가기로 열기: 홈 화면 '포인트 저장'(?act=save) · '바다 지도'(?act=map), 알림줄 단추
     function quickAct(a) {
       if (mode === 'pick') return;
@@ -3692,8 +3754,10 @@ const TideHarm = (() => {
       else { pendingSave = true; toast('위치를 찾는 중이에요. 잡히면 바로 저장 화면이 열려요'); }
     }
     const act0 = new URLSearchParams(location.search).get('act');
+    if (!act0 && NAT) { try { if (NAT.isTracking()) setTimeout(() => quickAct('map'), 0); } catch (_) {} }
     if (act0 === 'save' || act0 === 'map') { try { history.replaceState(history.state, '', location.pathname + location.hash); } catch (_) {} setTimeout(() => quickAct(act0), 0); }
     if ('serviceWorker' in navigator) navigator.serviceWorker.addEventListener('message', e => { const a = e.data && e.data.jjugap; if (a === 'save' || a === 'map') quickAct(a); });
+    window.jjugapAct = a => { if (a === 'save' || a === 'map') quickAct(a); };   // 안드로이드 앱의 홈 화면 단추·알림에서 부른다
     // 화면 꺼짐 막기 (지원하는 폰에서만)
     async function wakeOn() { try { if ('wakeLock' in navigator && !wake) { wake = await navigator.wakeLock.request('screen'); wake.addEventListener('release', () => { wake = null; }); } } catch (_) { wake = null; } }
     function wakeOff() { try { wake && wake.release(); } catch (_) {} wake = null; }
@@ -3918,11 +3982,13 @@ const TideHarm = (() => {
     function open() {
       if (isOpen) return; isOpen = true; view.hidden = false; mode = 'info'; selId = null; form = null;
       if (!me) { const S = TideHarm.STATIONS[tideSt]; v = { lon: S.lon - 0.05, lat: S.lat - 0.02, s: 1400 }; }
-      loadLand(); loadSpots(); startGps(); wakeOn(); paintPanel(true); applySheet(false); resize(); kick(); autoPill();
+      loadLand(); loadSpots(); startGps(); wakeOn(); paintPanel(true); applySheet(false); resize(); kick(); autoPill(); autoPill.last = '';
+      if (NAT) { try { NAT.setMapOpen(true); } catch (_) {} }
       if (useHist) { try { history.pushState({ mapv: 1 }, ''); } catch (_) {} }
     }
     function close(fromPop) {
-      if (!isOpen) return; isOpen = false; closeMenu(); view.hidden = true; stopGps(); wakeOff(); endStay(); track = []; pendingSave = false;
+      if (!isOpen) return; natFixes(); isOpen = false; closeMenu(); view.hidden = true; stopGps(); wakeOff(); endStay(); track = []; pendingSave = false;
+      if (NAT) { try { NAT.setMapOpen(false); } catch (_) {} }
       if (mode === 'pick') { mode = 'info'; pickCb = null; }
       if (useHist && !fromPop && history.state && history.state.mapv) { skipPop = true; history.back(); }
     }
@@ -4230,7 +4296,7 @@ if ('serviceWorker' in navigator) addEventListener('load', () => {
   const sw = navigator.serviceWorker; let ctl = sw.controller, reloading = false;
   // 새 버전이 올라오면 한 번 새로 열어 바로 반영 (처음 설치할 때는 제외)
   sw.addEventListener('controllerchange', () => { if (ctl && !reloading) { reloading = true; location.reload(); } ctl = sw.controller; });
-  sw.register('sw.js?v=11c9caa7').then(reg => {
+  sw.register('sw.js?v=eb86c689').then(reg => {
     // 앱을 켜 둔 채 다른 화면에 갔다 돌아오면 새 버전이 있는지 확인
     document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') reg.update().catch(() => {}); });
   }).catch(() => {});
