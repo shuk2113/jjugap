@@ -9,6 +9,7 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.PowerManager;
 import android.provider.Settings;
 import android.webkit.GeolocationPermissions;
 import android.webkit.JavascriptInterface;
@@ -28,6 +29,7 @@ public class MainActivity extends Activity {
     static final int REQ_LOC = 11, REQ_NOTI = 12;
 
     WebView web;
+    static MainActivity live;   // 위치 기록 서비스가 모아 둔 GPS를 바로 넘겨줄 화면
     GeolocationPermissions.Callback geoCb;
     String geoOrigin;
     boolean mapOpen;
@@ -49,6 +51,7 @@ public class MainActivity extends Activity {
         super.onCreate(b);
         web = new WebView(this);
         setContentView(web);
+        live = this;
         WebSettings s = web.getSettings();
         s.setJavaScriptEnabled(true);
         s.setDomStorageEnabled(true);
@@ -118,8 +121,26 @@ public class MainActivity extends Activity {
         else moveTaskToBack(true);
     }
 
+    // 화면이 잠겨 있어도 모아 둔 GPS를 웹 앱이 바로 처리하게 (웹 앱의 시계는 잠금 중에 느려질 수 있어서)
+    void pushFixes() {
+        if (web != null) web.evaluateJavascript("window.jjugapNatFixes && jjugapNatFixes()", null);
+    }
+
+    boolean batteryOk() {
+        PowerManager pm = getSystemService(PowerManager.class);
+        return pm == null || pm.isIgnoringBatteryOptimizations(getPackageName());
+    }
+
+    void askBattery() {
+        try { startActivity(new Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS, Uri.parse("package:" + getPackageName()))); }
+        catch (Exception e) {
+            try { startActivity(new Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS)); } catch (Exception ignored) { }
+        }
+    }
+
     @Override
     protected void onDestroy() {
+        if (live == this) live = null;
         if (web != null) { web.destroy(); web = null; }
         super.onDestroy();
     }
@@ -175,6 +196,8 @@ public class MainActivity extends Activity {
     /** 웹 앱에서 부르는 것들 (window.JjugapNative) */
     class Bridge {
         @JavascriptInterface public String version() { return "1"; }
+        @JavascriptInterface public boolean batteryOk() { return MainActivity.this.batteryOk(); }
+        @JavascriptInterface public void askBattery() { runOnUiThread(MainActivity.this::askBattery); }
         @JavascriptInterface public long versionCode() { return Updater.versionCode(MainActivity.this); }
         @JavascriptInterface public void update() { runOnUiThread(() -> Updater.start(MainActivity.this)); }
         @JavascriptInterface public void setMapOpen(boolean on) { runOnUiThread(() -> MainActivity.this.setMapOpen(on)); }

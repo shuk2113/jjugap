@@ -43,7 +43,7 @@ public class TrackService extends Service implements LocationListener {
     static volatile boolean appVisible = true;
     static volatile String status = "자동 기록 켜짐";
     static TrackService self;
-    static long lastT;
+    static long lastT, lastPush;
     static double lastLat, lastLon;
 
     LocationManager lm;
@@ -170,6 +170,10 @@ public class TrackService extends Service implements LocationListener {
             if (fixes.size() > 20000) fixes.remove(0);
             lastT = t; lastLat = l.getLatitude(); lastLon = l.getLongitude();
         }
+        // 20초마다 웹 앱에 바로 넘겨 처리 (화면 잠금 중에도 5분 머문 곳이 제때 기록되게)
+        long now = System.currentTimeMillis();
+        MainActivity a = MainActivity.live;
+        if (a != null && now - lastPush > 20000) { lastPush = now; a.pushFixes(); }
     }
 
     @Override public void onStatusChanged(String p, int s, Bundle b) { }
