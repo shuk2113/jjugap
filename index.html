@@ -300,7 +300,7 @@ h2{margin:0; font-size:16px; font-weight:700; text-wrap:balance}
 .mv-sw i::after{content:''; position:absolute; left:3px; top:3px; width:18px; height:18px; border-radius:50%; background:#fff; box-shadow:0 1px 3px rgba(0,0,0,.3); transition:transform .2s}
 .mv-sw.on i{background:#22B07D} .mv-sw.on i::after{transform:translateX(18px)}
 .mv-row-btn{width:100%; display:flex; align-items:center; justify-content:space-between; padding:13px 2px; border:0; border-top:1px solid var(--line); background:none; font:inherit; font-size:13.5px; font-weight:700; color:var(--ink); text-align:left; -webkit-tap-highlight-color:transparent}
-.mv-row-btn span{font-size:20px; line-height:1; color:var(--ink-2)}
+a.mv-row-btn{text-decoration:none; gap:10px} .mv-row-btn span{font-size:20px; line-height:1; color:var(--ink-2)}
 .mv-paste{display:block; min-height:86px; resize:none; line-height:1.4}
 .mv-set .mv-tip{margin:0; padding:9px 2px 11px; border-top:1px solid var(--line)}
 .mv-list b .mv-autot{display:inline-block; margin-left:6px; padding:1px 7px; border-radius:999px; border:1px solid var(--line); color:var(--ink-2); font-style:normal; font-size:10.5px; font-weight:700; vertical-align:1px}
@@ -3369,7 +3369,14 @@ const TideHarm = (() => {
     const ICON_TRASH = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 6.5h15M9.5 6.5V4.8c0-.7.5-1.2 1.2-1.2h2.6c.7 0 1.2.5 1.2 1.2v1.7M6.5 6.5l.9 12.6c.1.9.8 1.5 1.6 1.5h6c.9 0 1.6-.6 1.6-1.5l.9-12.6M10 10.5v6.5M14 10.5v6.5" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg>';
     const ICON_EDIT = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 19.5l1-4.2L15.8 5a1.9 1.9 0 0 1 2.7 0l.5.5a1.9 1.9 0 0 1 0 2.7L8.7 18.5l-4.2 1zM13.8 7l3.2 3.2" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg>';
     const ICON_CHEV = '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 6l4 4 4-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+    // 안드로이드 앱 파일이 올라와 있으면(app/version.txt) 안드로이드 폰의 크롬 앱 목록에 '앱 받기'를 보인다
+    let appVer = null, appChecked = false;
+    function checkApp() {
+      if (appChecked || NAT || inFrame || !/Android/i.test(navigator.userAgent)) return; appChecked = true;
+      fetch('app/version.txt', { cache: 'no-store' }).then(r => (r.ok ? r.text() : null)).then(t => { if (t && /^\d+/.test(t.trim())) { appVer = t.trim(); if (mode === 'list') showList(); } }).catch(() => {});
+    }
     function showList() {
+      checkApp();
       sheetAtLeast('open'); closeMenu(); openRow = null; lg = null;
       mode = 'list';
       const TG = tripGroups(), keepTop = panel.scrollTop;
@@ -3393,6 +3400,7 @@ const TideHarm = (() => {
         + (NAT ? `<button type="button" class="mv-sw${natBubble() ? ' on' : ''}" data-act="bubble-tog" role="switch" aria-checked="${natBubble()}"><span><b>홈 화면에 '포인트 저장' 단추 띄우기</b><small>지도를 켠 채 홈 화면으로 나가면 떠 있는 단추가 생겨요. 끌어서 옮기고, 누르면 바로 저장 화면이 열려요. 아래 ×로 끌어 놓으면 숨겨요.</small></span><i></i></button>`
           : `<button type="button" class="mv-sw${notiOn ? ' on' : ''}" data-act="noti-tog" role="switch" aria-checked="${notiOn}"><span><b>앱을 나가면 알림줄에 바로가기</b><small>지도를 켠 채 나가면 알림이 생겨요. 누르면 지도로, '포인트 저장'을 누르면 바로 저장 화면이 열려요.</small></span><i></i></button>`)
         + `<button type="button" class="mv-row-btn" data-act="move">다른 폰·앱으로 포인트 옮기기<span>›</span></button>`
+        + (!NAT && appVer ? `<a class="mv-row-btn" href="app/jjugap.apk" download="jjugap.apk">안드로이드 앱 받기 (홈 화면에 떠 있는 저장 단추·화면이 꺼져도 자동 기록)<span>›</span></a>` : '')
         + `<p class="mv-tip">홈 화면에 저장 단추 놓기: 쭈갑 물때 아이콘을 꾹 누르면 나오는 '포인트 저장'을 다시 꾹 눌러 원하는 곳에 끌어다 놓으세요.</p></div>`
         + `<div class="mv-btns"><button data-act="back">닫기</button></div>`;
       panel.scrollTop = keepTop;
@@ -4296,7 +4304,7 @@ if ('serviceWorker' in navigator) addEventListener('load', () => {
   const sw = navigator.serviceWorker; let ctl = sw.controller, reloading = false;
   // 새 버전이 올라오면 한 번 새로 열어 바로 반영 (처음 설치할 때는 제외)
   sw.addEventListener('controllerchange', () => { if (ctl && !reloading) { reloading = true; location.reload(); } ctl = sw.controller; });
-  sw.register('sw.js?v=eb86c689').then(reg => {
+  sw.register('sw.js?v=108b6c6c').then(reg => {
     // 앱을 켜 둔 채 다른 화면에 갔다 돌아오면 새 버전이 있는지 확인
     document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') reg.update().catch(() => {}); });
   }).catch(() => {});
