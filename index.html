@@ -266,12 +266,33 @@ h2{margin:0; font-size:16px; font-weight:700; text-wrap:balance}
 .mv-selw{position:relative; flex:1; min-width:0; display:flex}
 .mv-selw::after{content:''; position:absolute; right:11px; top:50%; width:7px; height:7px; margin-top:-6px; border:solid var(--ink-2); border-width:0 2px 2px 0; transform:rotate(45deg); pointer-events:none}
 .mv-hint{margin:6px 0 0; font-size:11.5px; line-height:1.45; color:#2F7DF6; word-break:keep-all}
-.mv-grp{margin:6px 2px 0; font-size:12px; font-weight:700; color:var(--ink-2)} .mv-grp:first-child{margin-top:0}
-.mv-grp i{display:inline-block; width:9px; height:9px; margin-right:6px; border-radius:50%; vertical-align:0}
+.mv-tip{margin:-2px 0 8px; font-size:11px; color:var(--ink-2)}
+.mv-tg + .mv-tg{margin-top:4px}
+.mv-grp{width:100%; display:flex; align-items:center; gap:7px; padding:7px 2px; border:0; background:none; font:inherit; font-size:12.5px; font-weight:700; color:var(--ink-2); text-align:left; -webkit-tap-highlight-color:transparent; touch-action:manipulation}
+.mv-grp i{flex:none; width:9px; height:9px; border-radius:50%}
+.mv-grp .t{flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.mv-grp .n{flex:none; font-size:11.5px; font-weight:600}
+.mv-grp svg{flex:none; width:15px; height:15px; transition:transform .2s} .mv-tg.fold .mv-grp svg{transform:rotate(-90deg)}
+.mv-tg.fold .mv-list{display:none}
+.mv-row{position:relative; overflow:hidden; border-radius:12px; touch-action:pan-y; -webkit-touch-callout:none; -webkit-user-select:none; user-select:none; transition:height .22s ease, opacity .22s ease, margin .22s ease}
+.mv-row.gone{height:0 !important; opacity:0; margin-bottom:-6px}
+.mv-trash{position:absolute; top:0; right:0; bottom:0; width:76px; display:grid; place-items:center; padding:0; border:0; border-radius:0 12px 12px 0; background:#E5484D; color:#fff; opacity:0; -webkit-tap-highlight-color:transparent}
+.mv-trash svg{width:24px; height:24px} .mv-row.swiping .mv-trash, .mv-row.open .mv-trash{opacity:1}
+.mv-list .mv-item{position:relative; z-index:1; transition:transform .22s cubic-bezier(.2,.85,.25,1), background .15s}
+.mv-row.press .mv-item{transform:scale(.97); background:var(--line)}
+.mv-menu-back{position:absolute; inset:0; z-index:8; background:rgba(0,0,0,.12)}
+.mv-menu{position:absolute; z-index:9; min-width:150px; padding:6px; border-radius:14px; background:var(--card); box-shadow:0 10px 30px rgba(0,0,0,.3); animation:mvPop .16s cubic-bezier(.2,.85,.25,1)}
+.mv-menu.up{transform-origin:right bottom} .mv-menu.down{transform-origin:right top}
+.mv-menu button{width:100%; display:flex; align-items:center; gap:10px; height:44px; padding:0 12px; border:0; border-radius:10px; background:none; font:inherit; font-size:15px; font-weight:700; color:var(--ink); -webkit-tap-highlight-color:transparent}
+.mv-menu button:active, .mv-menu button:focus-visible{background:var(--well); outline:none}
+.mv-menu button svg{width:20px; height:20px} .mv-menu button.del{color:#E5484D}
+@keyframes mvPop{from{opacity:0; transform:scale(.9)}}
+.mv-snack{position:absolute; left:50%; top:12px; z-index:3; transform:translateX(-50%); display:flex; align-items:center; gap:12px; padding:6px 6px 6px 16px; border-radius:999px; background:rgba(8,20,24,.9); color:#fff; font-size:13px; font-weight:600; white-space:nowrap; box-shadow:0 4px 14px rgba(0,0,0,.25)}
+.mv-snack button{height:32px; padding:0 13px; border:0; border-radius:999px; background:rgba(255,255,255,.14); font:inherit; font-size:13px; font-weight:800; color:#8EC5FF; -webkit-tap-highlight-color:transparent}
 .mv-list b .mv-no{display:inline-grid; place-items:center; width:19px; height:19px; margin-right:6px; border:1.6px solid; border-radius:50%; background:#fff; font-style:normal; font-size:10.5px; font-weight:800; vertical-align:1px}
 .mv-list b .mv-best{display:inline-block; margin-left:6px; padding:1px 7px; border-radius:999px; background:linear-gradient(#FFE680, #FFA51F); color:#5C3300; font-style:normal; font-size:10.5px; font-weight:800; vertical-align:1px}
 .mv-list{list-style:none; margin:0 0 10px; padding:0; display:flex; flex-direction:column; gap:6px}
-.mv-list button{width:100%; display:flex; flex-direction:column; align-items:flex-start; gap:2px; padding:9px 12px; border:0; border-radius:12px; background:var(--well); font:inherit; text-align:left; color:var(--ink); -webkit-tap-highlight-color:transparent}
+.mv-list .mv-item{width:100%; display:flex; flex-direction:column; align-items:flex-start; gap:2px; padding:9px 12px; border:0; border-radius:12px; background:var(--well); font:inherit; text-align:left; color:var(--ink); -webkit-tap-highlight-color:transparent}
 .mv-list b{font-size:13.5px} .mv-list span{font-size:11.5px; color:var(--ink-2)}
 .mv-empty{margin:6px 0 12px; font-size:13px; color:var(--ink-2); line-height:1.5}
 @media (prefers-reduced-motion: reduce){ .mapv{animation:none} }
@@ -742,6 +763,7 @@ h2{margin:0; font-size:16px; font-weight:700; text-wrap:balance}
     <div class="mv-attr">지도 © OpenStreetMap 기여자</div>
     <button class="mv-fab" id="mv-save" type="button" aria-label="포인트 저장 (꾹 누르면 자리를 옮길 수 있어요)"><span><b><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21.3s-6.6-5.9-6.6-11.3a6.6 6.6 0 0 1 13.2 0c0 5.4-6.6 11.3-6.6 11.3z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M12 7v6M9 10h6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg></b><em>포인트 저장</em></span></button>
     <div class="mv-toast" id="mv-toast" hidden></div>
+    <div class="mv-snack" id="mv-snack" role="status" hidden><span></span><button type="button">되돌리기</button></div>
   </div>
   <div class="mv-sheet" id="mv-sheet">
     <div class="mv-grab" id="mv-grab" role="button" tabindex="0" aria-label="정보 판 크기 바꾸기 (끌어서 올리고 내리기)"><i></i></div>
@@ -2835,21 +2857,21 @@ const TideHarm = (() => {
         const p0 = xy[0], S0 = p0.p.dep && TideHarm.STATIONS[p0.p.dep];
         if (S0 && distKm(S0, p0.p) < 80) {
           const [sx, sy] = toS(S0.lon, S0.lat), L = Math.hypot(p0.x - sx, p0.y - sy);
-          if (L > p0.r + 12) { const k = (L - p0.r - 4) / L; ctx.setLineDash([2, 6]); ctx.strokeStyle = tr.color; ctx.globalAlpha = A * 0.6; ctx.lineWidth = 2.2;
+          if (L > p0.r + 12) { const k = (L - p0.r - 4) / L; ctx.setLineDash([2, 6]); ctx.strokeStyle = tr.color; ctx.globalAlpha = A * 0.6; ctx.lineWidth = 1.8;
             ctx.beginPath(); ctx.moveTo(sx, sy); ctx.lineTo(sx + (p0.x - sx) * k, sy + (p0.y - sy) * k); ctx.stroke(); ctx.setLineDash([]); }
         }
         // 뱃길: 바다색 테두리 → 출조 색 선 → 흰 화살 무늬
         if (xy.length > 1) {
           const path = () => { ctx.beginPath(); xy.forEach((o, i) => (i ? ctx.lineTo(o.x, o.y) : ctx.moveTo(o.x, o.y))); };
-          path(); ctx.strokeStyle = C.sea; ctx.globalAlpha = A * 0.75; ctx.lineWidth = 7.5; ctx.stroke();
-          path(); ctx.strokeStyle = tr.color; ctx.globalAlpha = A * 0.92; ctx.lineWidth = 3.4; ctx.stroke();
-          ctx.strokeStyle = '#FFFFFF'; ctx.lineWidth = 1.8; ctx.globalAlpha = A * 0.95;
+          path(); ctx.strokeStyle = C.sea; ctx.globalAlpha = A * 0.7; ctx.lineWidth = 5.6; ctx.stroke();
+          path(); ctx.strokeStyle = tr.color; ctx.globalAlpha = A * 0.92; ctx.lineWidth = 2.5; ctx.stroke();
+          ctx.strokeStyle = '#FFFFFF'; ctx.lineWidth = 1.5; ctx.globalAlpha = A * 0.95;
           for (let i = 1; i < xy.length; i++) {
             const a = xy[i - 1], b = xy[i], dx = b.x - a.x, dy = b.y - a.y, L = Math.hypot(dx, dy); if (L < a.r + b.r + 16) continue;
             const ux = dx / L, uy = dy / L, s0 = a.r + 8, s1 = L - b.r - 8, n = Math.max(1, Math.floor((s1 - s0) / 44)), step = (s1 - s0) / n;
             for (let k = 0; k < n; k++) {
               const s = s0 + step * (k + 0.5), cx = a.x + ux * s, cy = a.y + uy * s;
-              ctx.beginPath(); ctx.moveTo(cx - ux * 3 - uy * 3.6, cy - uy * 3 + ux * 3.6); ctx.lineTo(cx + ux * 2, cy + uy * 2); ctx.lineTo(cx - ux * 3 + uy * 3.6, cy - uy * 3 - ux * 3.6); ctx.stroke();
+              ctx.beginPath(); ctx.moveTo(cx - ux * 2.5 - uy * 3, cy - uy * 2.5 + ux * 3); ctx.lineTo(cx + ux * 1.7, cy + uy * 1.7); ctx.lineTo(cx - ux * 2.5 + uy * 3, cy - uy * 2.5 - ux * 3); ctx.stroke();
             }
           }
         }
@@ -2859,30 +2881,30 @@ const TideHarm = (() => {
           ctx.globalAlpha = A;
           if (info.best) {
             goldOn = true;
-            const ph = still ? 0.25 : (tnow % 1800) / 1800, gr = r + 12 + Math.sin(ph * 2 * Math.PI) * 3;
+            const ph = still ? 0.25 : (tnow % 1800) / 1800, gr = r + 10 + Math.sin(ph * 2 * Math.PI) * 2.5;
             const g = ctx.createRadialGradient(x, y, r * 0.7, x, y, gr); g.addColorStop(0, 'rgba(255,200,60,.6)'); g.addColorStop(1, 'rgba(255,200,60,0)');
             ctx.fillStyle = g; ctx.beginPath(); ctx.arc(x, y, gr, 0, 2 * Math.PI); ctx.fill();
             [-40, 18, 96, 158].forEach((deg, k) => {
-              const t = still ? 0.85 : 0.35 + 0.65 * Math.abs(Math.sin(tnow / 480 + k * 1.9)), an = deg * Math.PI / 180, d = r + 9 + (k % 2) * 3;
-              star(x + Math.cos(an) * d, y + Math.sin(an) * d, (k % 2 ? 3.6 : 4.8) * t, k % 2 ? '#FFFFFF' : '#FFE07A');
+              const t = still ? 0.85 : 0.35 + 0.65 * Math.abs(Math.sin(tnow / 480 + k * 1.9)), an = deg * Math.PI / 180, d = r + 7.5 + (k % 2) * 2.5;
+              star(x + Math.cos(an) * d, y + Math.sin(an) * d, (k % 2 ? 3.1 : 4.1) * t, k % 2 ? '#FFFFFF' : '#FFE07A');
             });
           }
           ctx.save(); ctx.shadowColor = 'rgba(0,0,0,.32)'; ctx.shadowBlur = 6; ctx.shadowOffsetY = 1.5;
           if (info.best) { const g = ctx.createLinearGradient(x, y - r, x, y + r); g.addColorStop(0, '#FFE680'); g.addColorStop(1, '#FF9F1A'); ctx.fillStyle = g; }
           else ctx.fillStyle = c ? tr.color : C.sea;
           ctx.beginPath(); ctx.arc(x, y, r, 0, 2 * Math.PI); ctx.fill(); ctx.restore();
-          ctx.globalAlpha = A; ctx.lineWidth = on ? 3.2 : 2.2; ctx.strokeStyle = c ? '#FFFFFF' : tr.color; ctx.stroke();
+          ctx.globalAlpha = A; ctx.lineWidth = on ? 2.8 : 1.9; ctx.strokeStyle = c ? '#FFFFFF' : tr.color; ctx.stroke();
           ctx.fillStyle = info.best ? '#5C3300' : c ? '#FFFFFF' : tr.color; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-          ctx.font = `800 ${c >= 100 ? 10.5 : r > 15 ? 13.5 : 11.5}px ${font}`; ctx.fillText(String(c), x, y + 0.5);
+          ctx.font = `800 ${c >= 100 ? 9.5 : r > 13 ? 12 : 10.5}px ${font}`; ctx.fillText(String(c), x, y + 0.5);
           if (info.best) {   // 왕관
-            const cy = y - r - 3; ctx.beginPath();
-            ctx.moveTo(x - 7.5, cy); ctx.lineTo(x - 8.5, cy - 8); ctx.lineTo(x - 3.6, cy - 4); ctx.lineTo(x, cy - 10); ctx.lineTo(x + 3.6, cy - 4); ctx.lineTo(x + 8.5, cy - 8); ctx.lineTo(x + 7.5, cy); ctx.closePath();
-            ctx.fillStyle = '#FFC93C'; ctx.fill(); ctx.lineWidth = 1.6; ctx.strokeStyle = '#FFFFFF'; ctx.lineJoin = 'round'; ctx.stroke();
+            const cy = y - r - 2.5; ctx.beginPath();
+            ctx.moveTo(x - 6.4, cy); ctx.lineTo(x - 7.2, cy - 6.8); ctx.lineTo(x - 3, cy - 3.4); ctx.lineTo(x, cy - 8.5); ctx.lineTo(x + 3, cy - 3.4); ctx.lineTo(x + 7.2, cy - 6.8); ctx.lineTo(x + 6.4, cy); ctx.closePath();
+            ctx.fillStyle = '#FFC93C'; ctx.fill(); ctx.lineWidth = 1.4; ctx.strokeStyle = '#FFFFFF'; ctx.lineJoin = 'round'; ctx.stroke();
           }
           if (v.s > 1100 && tr.pts.length > 1) {   // 저장한 순서
-            const bx = x - r * 0.74, by = y - r * 0.74;
-            ctx.fillStyle = '#FFFFFF'; ctx.beginPath(); ctx.arc(bx, by, 7.4, 0, 2 * Math.PI); ctx.fill(); ctx.lineWidth = 1.6; ctx.strokeStyle = tr.color; ctx.stroke();
-            ctx.fillStyle = tr.color; ctx.font = `800 9.5px ${font}`; ctx.fillText(String(info.n), bx, by + 0.5);
+            const bx = x - r * 0.76, by = y - r * 0.76;
+            ctx.fillStyle = '#FFFFFF'; ctx.beginPath(); ctx.arc(bx, by, 6.3, 0, 2 * Math.PI); ctx.fill(); ctx.lineWidth = 1.4; ctx.strokeStyle = tr.color; ctx.stroke();
+            ctx.fillStyle = tr.color; ctx.font = `800 8.5px ${font}`; ctx.fillText(String(info.n), bx, by + 0.5);
           }
           ctx.textAlign = 'start'; ctx.textBaseline = 'alphabetic';
         }
@@ -3217,12 +3239,12 @@ const TideHarm = (() => {
     // 출조로 묶기: 출조 색(처음 나간 날 순서로 정해져 바뀌지 않음) · 출조 안에서 저장한 순서 · 그 출조에서 가장 많이 잡은 곳(5마리 이상)
     const TRIP_COLORS = ['#FF7A3D', '#F0559D', '#9B6CFF', '#1FAF7C', '#E5484D'];
     const caughtOf = p => (p.jj || 0) + (p.gap || 0) + etcN(p);
-    const ptR = c => 10 + Math.min(9, 2.4 * Math.sqrt(c));
+    const ptR = c => 8.5 + Math.min(7.5, 2 * Math.sqrt(c));
     function tripGroups() {
       if (tripCache) return tripCache;
       const m = new Map();
       for (const p of points) { const k = [kstDay(p.t), p.boat || '', p.depName || ''].join('|'); if (!m.has(k)) m.set(k, []); m.get(k).push(p); }
-      const list = [...m.values()].map(pts => ({ pts: pts.slice().sort((a, b) => a.t - b.t) })).sort((a, b) => a.pts[0].t - b.pts[0].t);
+      const list = [...m.entries()].map(([key, pts]) => ({ key, pts: pts.slice().sort((a, b) => a.t - b.t) })).sort((a, b) => a.pts[0].t - b.pts[0].t);
       const by = new Map();
       list.forEach((tr, i) => {
         tr.color = TRIP_COLORS[i % TRIP_COLORS.length]; tr.max = Math.max(0, ...tr.pts.map(caughtOf));
@@ -3317,18 +3339,121 @@ const TideHarm = (() => {
     panel.addEventListener('focusout', e => { const t = e.target; if (form && t.classList.contains('mv-n')) t.value = getN(t.dataset.k); });
     panel.addEventListener('keydown', e => { if (e.key === 'Enter' && e.target.classList.contains('mv-n')) e.target.blur(); });
 
+    // ---------- 포인트 목록: 출조마다 묶고(머리를 누르면 접기·펴기), 줄을 꾹 누르면 고치기·지우기, 왼쪽으로 밀면 휴지통
+    const FOLD_KEY = 'jjukgap-fold';
+    let folded = new Set(loadJ(FOLD_KEY, []) || []), menu = null, lg = null, openRow = null, eatClick = false, undoT = 0;
+    const ICON_TRASH = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 6.5h15M9.5 6.5V4.8c0-.7.5-1.2 1.2-1.2h2.6c.7 0 1.2.5 1.2 1.2v1.7M6.5 6.5l.9 12.6c.1.9.8 1.5 1.6 1.5h6c.9 0 1.6-.6 1.6-1.5l.9-12.6M10 10.5v6.5M14 10.5v6.5" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+    const ICON_EDIT = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 19.5l1-4.2L15.8 5a1.9 1.9 0 0 1 2.7 0l.5.5a1.9 1.9 0 0 1 0 2.7L8.7 18.5l-4.2 1zM13.8 7l3.2 3.2" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+    const ICON_CHEV = '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 6l4 4 4-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
     function showList() {
-      sheetAtLeast('open');
+      sheetAtLeast('open'); closeMenu(); openRow = null; lg = null;
       mode = 'list';
+      const TG = tripGroups(), keepTop = panel.scrollTop;
+      const body = TG.list.map(tr => {
+        const first = tr.pts[0], fold = folded.has(tr.key), tot = tr.pts.reduce((a, q) => a + caughtOf(q), 0);
+        const items = tr.pts.slice().reverse().map(p => {
+          const S = TideHarm.STATIONS[p.port] || TideHarm.STATIONS[nearest(p).k], ti = TG.by.get(p.id);
+          return `<li class="mv-row" data-id="${p.id}"><button class="mv-trash" data-act="swdel" data-id="${p.id}" tabindex="-1" aria-label="이 포인트 지우기">${ICON_TRASH}</button>`
+            + `<button class="mv-item" data-act="pick" data-id="${p.id}"><b>${tr.pts.length > 1 ? `<em class="mv-no" style="color:${tr.color};border-color:${tr.color}">${ti.n}</em>` : ''}${ampm(kstMin(p.t))} · ${esc(catchTxt(p))}${ti.best ? '<em class="mv-best">이날 최고</em>' : ''}</b>`
+            + `<span>${esc(short(p.port))}에서 ${dirOf(S, p)}쪽 ${kmTxt(distKm(S, p))} · ${p.mul} · 조류 ${pctTxt(p)}${p.wt == null ? '' : ` · 수온 ${p.wt.toFixed(1)}℃`}</span></button></li>`;
+        }).join('');
+        return `<section class="mv-tg${fold ? ' fold' : ''}"><button class="mv-grp" data-act="fold" data-k="${esc(tr.key)}" aria-expanded="${!fold}">`
+          + `<i style="background:${tr.color}"></i><span class="t">${md(kstDay(first.t))} · ${tripTxt(first) || '배·출항지 기록 없음'}</span><span class="n">${tr.pts.length}곳 · ${tot}마리</span>${ICON_CHEV}</button>`
+          + `<ul class="mv-list">${items}</ul></section>`;
+      }).join('');
       panel.innerHTML = `<div class="mv-h"><b>저장한 포인트 ${points.length}곳</b><span>이 폰에만 저장돼요</span></div>` +
-        (points.length ? `<ul class="mv-list">${(() => { let last = null; return points.map(p => {
-          const S = TideHarm.STATIONS[p.port] || TideHarm.STATIONS[nearest(p).k], key = [kstDay(p.t), p.boat || '', p.depName || ''].join('|');
-          const ti = tripGroups().by.get(p.id) || { tr: { color: '#999', pts: [p] }, n: 1 };
-          const head = key === last ? '' : `<li class="mv-grp"><i style="background:${ti.tr.color}"></i>${md(kstDay(p.t))} · ${tripTxt(p) || '배·출항지 기록 없음'}</li>`; last = key;
-          return head + `<li><button data-act="pick" data-id="${p.id}"><b>${ti.tr.pts.length > 1 ? `<em class="mv-no" style="color:${ti.tr.color};border-color:${ti.tr.color}">${ti.n}</em>` : ''}${ampm(kstMin(p.t))} · ${esc(catchTxt(p))}${ti.best ? '<em class="mv-best">이날 최고</em>' : ''}</b><span>${esc(short(p.port))}에서 ${dirOf(S, p)}쪽 ${kmTxt(distKm(S, p))} · ${p.mul} · 조류 ${pctTxt(p)}${p.wt == null ? '' : ` · 수온 ${p.wt.toFixed(1)}℃`}</span></button></li>`; }).join(''); })()}</ul>`
+        (points.length ? `<p class="mv-tip">포인트를 꾹 누르면 고치기·지우기, 왼쪽으로 밀어도 지울 수 있어요.</p><div class="mv-trips">${body}</div>`
           : `<p class="mv-empty">아직 저장한 포인트가 없어요. 배 위에서 지도 아래 파란 핀 단추를 누르면 그 자리와 물때·조류·수온이 함께 남아요.</p>`) +
         `<div class="mv-btns"><button data-act="back">닫기</button></div>`;
+      panel.scrollTop = keepTop;
     }
+    function toggleFold(b) {
+      const k = b.dataset.k, on = !folded.has(k);
+      on ? folded.add(k) : folded.delete(k); saveJ(FOLD_KEY, [...folded].slice(-80));
+      b.closest('.mv-tg').classList.toggle('fold', on); b.setAttribute('aria-expanded', String(!on));
+      if (!fitRaf) fitRaf = requestAnimationFrame(refit);   // 판 높이를 내용에 다시 맞춘다
+    }
+    // 지우기: 줄이 접히듯 사라지고, 위에 '되돌리기'가 잠깐 보인다
+    function delPoint(id, row) {
+      const go = () => {
+        const i = points.findIndex(q => q.id === id); if (i < 0) return;
+        const [p] = points.splice(i, 1); savePts(); if (selId === id) selId = null;
+        if (mode === 'list') showList(); draw();
+        snack('포인트를 지웠어요', () => { if (!points.some(q => q.id === p.id)) { points.splice(Math.min(i, points.length), 0, p); savePts(); } if (mode === 'list') showList(); draw(); });
+      };
+      if (!row || RM.matches) return go();
+      row.style.height = row.offsetHeight + 'px'; void row.offsetHeight; row.classList.add('gone'); setTimeout(go, 230);
+    }
+    function snack(t, undo) {
+      const el = $('mv-snack'); clearTimeout(undoT); $('mv-toast').hidden = true;
+      el.querySelector('span').textContent = t; el.hidden = false;
+      el.querySelector('button').onclick = () => { clearTimeout(undoT); el.hidden = true; undo(); toast('되돌렸어요'); };
+      undoT = setTimeout(() => { el.hidden = true; }, 5000);
+    }
+    // 꾹 누르면 나오는 고르기 창
+    function openMenu(row) {
+      closeMenu();
+      const id = row.dataset.id, r = row.getBoundingClientRect(), vr = view.getBoundingClientRect();
+      const back = document.createElement('div'); back.className = 'mv-menu-back';
+      const m = document.createElement('div'); m.className = 'mv-menu'; m.setAttribute('role', 'menu');
+      m.innerHTML = `<button type="button" role="menuitem" data-m="edit">${ICON_EDIT}<span>고치기</span></button><button type="button" role="menuitem" data-m="del" class="del">${ICON_TRASH}<span>지우기</span></button>`;
+      view.append(back, m);
+      const mh = m.offsetHeight, below = r.bottom + 8 + mh < vr.bottom - 10;
+      m.style.top = Math.round((below ? r.bottom + 6 : r.top - mh - 6) - vr.top) + 'px';
+      m.style.right = Math.round(vr.right - r.right + 6) + 'px';
+      m.classList.add(below ? 'down' : 'up');
+      menu = { back, m, row };
+      back.addEventListener('pointerdown', e => { e.preventDefault(); closeMenu(); });
+      m.addEventListener('click', e => {
+        const b = e.target.closest('[data-m]'); if (!b) return; closeMenu();
+        if (b.dataset.m === 'edit') showEdit(id); else delPoint(id, row);
+      });
+      setTimeout(() => { const f = m.querySelector('button'); f && f.focus({ preventScroll: true }); }, 0);
+    }
+    function closeMenu() { if (!menu) return; menu.row.classList.remove('press'); menu.back.remove(); menu.m.remove(); menu = null; }
+    // 줄 밀기 · 꾹 누르기
+    const SW = 76;
+    const rowX = (row, x, anim) => { const it = row.querySelector('.mv-item'); if (!it) return; it.style.transition = anim ? '' : 'none'; it.style.transform = x ? `translate3d(${x}px,0,0)` : ''; row.classList.toggle('swiping', x < 0); };
+    function closeRow() { if (!openRow) return; const r = openRow; openRow = null; r.classList.remove('open'); rowX(r, 0, true); }
+    panel.addEventListener('pointerdown', e => {
+      eatClick = false;
+      if (mode !== 'list' || e.button > 0) return;
+      const row = e.target.closest('.mv-row');
+      if (openRow && row !== openRow) { closeRow(); eatClick = true; return; }   // 열린 줄이 있으면 다른 곳을 누를 때 먼저 닫는다
+      if (!row || e.target.closest('.mv-trash')) return;
+      const base = row === openRow ? -SW : 0;
+      const g = lg = { id: e.pointerId, row, x0: e.clientX, y0: e.clientY, base, dx: base, mode: 'wait', t: performance.now(), lx: e.clientX, v: 0 };
+      g.timer = setTimeout(() => {
+        if (lg !== g || g.mode !== 'wait' || base) return;
+        g.mode = 'menu'; eatClick = true; row.classList.add('press');
+        try { navigator.vibrate && navigator.vibrate(12); } catch (_) {}
+        openMenu(row);
+      }, 480);
+    });
+    panel.addEventListener('pointermove', e => {
+      const g = lg; if (!g || e.pointerId !== g.id) return;
+      const dx = e.clientX - g.x0, dy = e.clientY - g.y0;
+      if (g.mode === 'wait') {
+        if (Math.abs(dy) > 8 && Math.abs(dy) >= Math.abs(dx)) { clearTimeout(g.timer); lg = null; return; }   // 위아래로 넘기는 중
+        if (Math.abs(dx) <= 8) return;
+        clearTimeout(g.timer); g.mode = 'swipe'; eatClick = true; try { g.row.setPointerCapture(e.pointerId); } catch (_) {}
+      }
+      if (g.mode !== 'swipe') return;
+      const now = performance.now(); g.v = 0.6 * g.v + 0.4 * ((e.clientX - g.lx) / Math.max(1, now - g.t)); g.lx = e.clientX; g.t = now;
+      let x = g.base + dx; if (x > 0) x *= 0.25; else if (x < -SW) x = -SW + (x + SW) * 0.35;
+      g.dx = x; rowX(g.row, x, false); e.preventDefault();
+    });
+    const lgEnd = e => {
+      const g = lg; if (!g || e.pointerId !== g.id) return; lg = null; clearTimeout(g.timer);
+      if (g.mode === 'swipe') {
+        const open = g.v < -0.3 || (g.v <= 0.3 && g.dx < -SW / 2);
+        if (open) { if (openRow && openRow !== g.row) closeRow(); openRow = g.row; g.row.classList.add('open'); rowX(g.row, -SW, true); }
+        else { if (openRow === g.row) openRow = null; g.row.classList.remove('open'); rowX(g.row, 0, true); }
+      } else if (g.mode === 'wait' && g.base && e.type === 'pointerup') { closeRow(); eatClick = true; }   // 열린 줄을 톡: 닫기만
+    };
+    panel.addEventListener('pointerup', lgEnd); panel.addEventListener('pointercancel', lgEnd);
+    panel.addEventListener('click', e => { if (eatClick) { eatClick = false; e.stopImmediatePropagation(); e.preventDefault(); } }, true);
+    panel.addEventListener('contextmenu', e => { if (mode === 'list' && e.target.closest('.mv-row')) e.preventDefault(); });
     function showDetail(id, ask) {
       sheetAtLeast('open');
       const p = points.find(q => q.id === id); if (!p) { mode = 'info'; selId = null; paintPanel(true); return; }
@@ -3354,6 +3479,8 @@ const TideHarm = (() => {
     function toast(t) { const el = $('mv-toast'); el.textContent = t; el.hidden = false; clearTimeout(toastT); toastT = setTimeout(() => { el.hidden = true; }, 1800); }
     panel.addEventListener('click', e => {
       const b = e.target.closest('[data-act]'); if (!b) return; const a = b.dataset.act;
+      if (a === 'fold') return toggleFold(b);
+      if (a === 'swdel') return delPoint(b.dataset.id, b.closest('.mv-row'));
       if (a === 'save') showSave();
       else if (a === 'inc' || a === 'dec') { const k = b.dataset.k, el = $('mv-n-' + k); const n = setN(k, getN(k) + (a === 'inc' ? 1 : -1)); if (el) el.value = n; }
       else if (a === 'fish') {   // 자주 잡히는 어종: 빈 줄에 이름을 넣고 한 마리로 (빈 줄이 없으면 줄을 더한다)
@@ -3639,7 +3766,7 @@ const TideHarm = (() => {
       if (useHist) { try { history.pushState({ mapv: 1 }, ''); } catch (_) {} }
     }
     function close(fromPop) {
-      if (!isOpen) return; isOpen = false; view.hidden = true; stopGps(); wakeOff();
+      if (!isOpen) return; isOpen = false; closeMenu(); view.hidden = true; stopGps(); wakeOff();
       if (mode === 'pick') { mode = 'info'; pickCb = null; }
       if (useHist && !fromPop && history.state && history.state.mapv) { skipPop = true; history.back(); }
     }
@@ -3947,7 +4074,7 @@ if ('serviceWorker' in navigator) addEventListener('load', () => {
   const sw = navigator.serviceWorker; let ctl = sw.controller, reloading = false;
   // 새 버전이 올라오면 한 번 새로 열어 바로 반영 (처음 설치할 때는 제외)
   sw.addEventListener('controllerchange', () => { if (ctl && !reloading) { reloading = true; location.reload(); } ctl = sw.controller; });
-  sw.register('sw.js?v=759885cf').then(reg => {
+  sw.register('sw.js?v=439faaea').then(reg => {
     // 앱을 켜 둔 채 다른 화면에 갔다 돌아오면 새 버전이 있는지 확인
     document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') reg.update().catch(() => {}); });
   }).catch(() => {});
