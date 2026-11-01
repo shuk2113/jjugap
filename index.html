@@ -3258,8 +3258,7 @@ const TideHarm = (() => {
         : `<span class="mv-selw"><select class="mv-sel" id="mv-boat-s" aria-label="탄 배">${boats.map(n => `<option value="${esc(n)}"${n === f.boat ? ' selected' : ''}>${esc(n)}</option>`).join('')}`
           + `<option value=""${f.boat ? '' : ' selected'}>배 이름 없이</option><option value="__new">+ 새 배 이름 쓰기</option></select></span>`;
       return `<div class="mv-step mv-trip"><span>출조</span>${boat}`
-        + `<input class="mv-in" id="mv-dep" list="mv-dep-list" maxlength="20" placeholder="출항지 (예: 인천 남항)" value="${esc(f.depName || '')}" aria-label="출항지" autocomplete="off">`
-        + `<datalist id="mv-dep-list">${depSuggest().map(n => `<option value="${esc(n)}"></option>`).join('')}</datalist></div>`
+        + `<input class="mv-in" id="mv-dep" maxlength="20" placeholder="출항지 (예: 인천 남항)" value="${esc(f.depName || '')}" aria-label="출항지" autocomplete="off" autocorrect="off" spellcheck="false"></div>`
         + (f.hint ? `<p class="mv-hint">${f.hint}</p>` : '');
     }
     // 출조로 묶기: 출조 색(처음 나간 날 순서로 정해져 바뀌지 않음) · 출조 안에서 저장한 순서 · 그 출조에서 가장 많이 잡은 곳(5마리 이상)
@@ -4327,7 +4326,7 @@ if ('serviceWorker' in navigator) addEventListener('load', () => {
   const sw = navigator.serviceWorker; let ctl = sw.controller, reloading = false;
   // 새 버전이 올라오면 한 번 새로 열어 바로 반영 (처음 설치할 때는 제외)
   sw.addEventListener('controllerchange', () => { if (ctl && !reloading) { reloading = true; location.reload(); } ctl = sw.controller; });
-  sw.register('sw.js?v=456ca293').then(reg => {
+  sw.register('sw.js?v=db2760cf').then(reg => {
     // 앱을 켜 둔 채 다른 화면에 갔다 돌아오면 새 버전이 있는지 확인
     document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') reg.update().catch(() => {}); });
   }).catch(() => {});
