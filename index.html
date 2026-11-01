@@ -2707,7 +2707,7 @@ const TideHarm = (() => {
   // 지도는 앱에 넣어 둔 OpenStreetMap 육지·갯벌·섬 이름을 직접 그려서 인터넷이 끊겨도 보인다. 포인트는 이 폰에만 저장.
   (() => {
     const btn = $('me-btn'), view = $('mapv'), cv = $('mv-cv'), box = $('mv-map'), panel = $('mv-panel'), gpsEl = $('mv-gps');
-    const ctx = cv.getContext('2d'), KX = Math.cos(36.6 * Math.PI / 180), ME = '#2F7DF6';
+    const ctx = cv.getContext('2d', { alpha: false }), KX = Math.cos(36.6 * Math.PI / 180), ME = '#2F7DF6';
     const PT_KEY = 'jjukgap-points';
     let inFrame = false; try { inFrame = window.top !== window.self; } catch (_) { inFrame = true; }
     const useHist = !inFrame;
@@ -2764,7 +2764,7 @@ const TideHarm = (() => {
           return [...cells.values()];
         };
         basemap = { L: d.L.map(build), F: d.F.map(build), W: (d.W || [[], []]).map(build), lab: d.lab };
-        landState = 'ok'; bkey = ''; draw();
+        landState = 'ok'; bkey = ''; labC = null; draw();
       }).catch(() => { landState = 'error'; bkey = ''; draw(); });
     }
     function resize() {
@@ -2782,39 +2782,64 @@ const TideHarm = (() => {
         return { k, x, y, t, bx, by: y - 10, w, h: 20 };
       }).filter(b => b.x > -80 && b.x < W + 80 && b.y > -30 && b.y < H + 30);
     }
-    // 바탕(바다·갯벌·땅·섬 이름)은 화면이 움직이거나 확대할 때만 새로 그려 두고, 매 장면에는 그 그림을 붙인다
-    // 조류예보 지점의 지금 흐름: 흘러가는 쪽으로 화살표, 셀수록 길게 (30초마다 다시 계산) — 바탕 그림에 함께 그린다
-    function drawArrows(ctx, C, font, M) {
-      if (SP && v.s > 420) {
-        const now = Date.now();
-        if (!arrows || now - arrows.t > 30000) {
-          const m = [];
-          if (SEA) for (const cell of SEA.c) {
-            const q = { lat: cell[0], lon: cell[1] }; if (SP.cur.some(c => distKm(q, c) <= 8)) continue;
-            const r = romsAt(cell, now); if (r) m.push({ c: { lat: cell[0], lon: cell[1], mx: 0 }, k: r, model: true });
-          }
-          arrows = { t: now, a: [...m, ...SP.cur.map(c => ({ c, k: curNow(c, now) }))] };
+    // 바탕(바다·갯벌·땅)은 화면이 움직이거나 확대할 때만 새로 그려 두고, 매 장면에는 그 그림을 붙인다.
+    // 섬·항구 이름과 조류 화살표는 바탕과 따로 매 장면 같은 크기로 그 자리에 붙여서, 확대·축소 중에 커졌다 작아졌다 하지 않게 한다
+    // 글씨는 한 번 그려 둔 조각(작은 그림)을 붙여 빠르게
+    let spr = new Map(), sprKey = '', sprBudget = 0;
+    function sprite(key, w, h, paint) {
+      let sp = spr.get(key); if (sp) return sp;
+      if (sprBudget-- <= 0) return null;   // 한 장면에 새로 만드는 조각 수를 줄여 갑자기 느려지지 않게 (나머지는 다음 장면에)
+      const c = document.createElement('canvas'); c.width = Math.max(1, Math.ceil(w * dpr)); c.height = Math.max(1, Math.ceil(h * dpr));
+      const g = c.getContext('2d'); g.scale(dpr, dpr); paint(g);
+      sp = { c, w, h }; spr.set(key, sp); return sp;
+    }
+    // 조각을 화면 점 하나하나에 그대로 옮겨 찍는다 (늘리거나 줄이지 않아 빠르고 또렷). 부르기 전에 ctx 를 화면 점 단위(setTransform 1)로
+    const putSprite = (sp, x, y) => { if (sp) ctx.drawImage(sp.c, Math.round(x * dpr), Math.round(y * dpr)); };
+    // 조류예보 지점의 지금 흐름: 흘러가는 쪽으로 화살표, 셀수록 길게 (30초마다 다시 계산)
+    function drawArrows(C, font) {
+      if (!SP || v.s < 380) return;
+      const now = Date.now();
+      if (!arrows || now - arrows.t > 30000) {
+        const m = [];
+        if (SEA) for (const cell of SEA.c) {
+          const q = { lat: cell[0], lon: cell[1] }; if (SP.cur.some(c => distKm(q, c) <= 8)) continue;
+          const r = romsAt(cell, now); if (r) m.push({ c: { lat: cell[0], lon: cell[1], mx: 0 }, k: r, model: true });
         }
-        ctx.save(); ctx.strokeStyle = C.cur; ctx.fillStyle = C.cur; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
-        for (const { c, k, model } of arrows.a) {
-          const [x, y] = toS(c.lon, c.lat); if (x < -M - 40 || x > W + M + 40 || y < -M - 40 || y > H + M + 40) continue;
+        arrows = { t: now, a: [...m, ...SP.cur.map(c => ({ c, k: curNow(c, now) }))] };
+      }
+      const fa = Math.min(1, (v.s - 380) / 90);   // 멀리서 처음 나타날 때는 서서히
+      ctx.save(); ctx.strokeStyle = C.cur; ctx.fillStyle = C.cur; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+      for (const model of [true, false]) {
+        const shaft = new Path2D(), head = new Path2D(), calmP = new Path2D(), texts = [];
+        const th = model ? 2400 : 1100, ta = Math.max(0, Math.min(1, (v.s - th * 0.86) / (th * 0.14)));   // 글씨도 배율에 따라 서서히
+        for (const { c, k, model: md } of arrows.a) {
+          if (!!md !== model) continue;
+          const [x, y] = toS(c.lon, c.lat); if (x < -50 || x > W + 50 || y < -50 || y > H + 50) continue;
           const calm = k.sp < Math.max(8, c.mx * 0.08), r = k.dir * Math.PI / 180, ux = Math.sin(r), uy = -Math.cos(r);
           const L = (model ? 10 : 12) + Math.min(1, k.sp / 160) * 22;
-          ctx.globalAlpha = model ? 0.34 : 0.92;
-          if (calm) { ctx.lineWidth = 1.8; ctx.beginPath(); ctx.arc(x, y, 4, 0, 2 * Math.PI); ctx.stroke(); }
+          if (calm) { calmP.moveTo(x + 4, y); calmP.arc(x, y, 4, 0, 2 * Math.PI); }
           else {
             const x1 = x + ux * L / 2, y1 = y + uy * L / 2;
-            ctx.lineWidth = 2.6; ctx.beginPath(); ctx.moveTo(x - ux * L / 2, y - uy * L / 2); ctx.lineTo(x1 - ux * 4, y1 - uy * 4); ctx.stroke();
-            ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x1 - ux * 8 + uy * 5, y1 - uy * 8 - ux * 5); ctx.lineTo(x1 - ux * 8 - uy * 5, y1 - uy * 8 + ux * 5); ctx.closePath(); ctx.fill();
+            shaft.moveTo(x - ux * L / 2, y - uy * L / 2); shaft.lineTo(x1 - ux * 4, y1 - uy * 4);
+            head.moveTo(x1, y1); head.lineTo(x1 - ux * 8 + uy * 5, y1 - uy * 8 - ux * 5); head.lineTo(x1 - ux * 8 - uy * 5, y1 - uy * 8 + ux * 5); head.closePath();
           }
-          if (v.s > (model ? 2400 : 1100)) {
-            const t = calm ? '물돌이' : `${(k.sp / KN).toFixed(1)}노트`, ty = y + (uy > 0.3 ? -L / 2 - 6 : L / 2 + 13);
-            ctx.font = `${model ? 600 : 700} 10.5px ${font}`; ctx.textAlign = 'center'; ctx.globalAlpha = model ? 0.6 : 1;
-            ctx.lineWidth = 3; ctx.strokeStyle = C.sea; ctx.strokeText(t, x, ty); ctx.fillText(t, x, ty); ctx.strokeStyle = C.cur; ctx.textAlign = 'start';
-          }
+          if (ta > 0) texts.push([calm ? '물돌이' : `${(k.sp / KN).toFixed(1)}노트`, x, y + (uy > 0.3 ? -L / 2 - 6 : L / 2 + 13)]);
         }
-        ctx.restore();
+        ctx.globalAlpha = fa * (model ? 0.34 : 0.92);
+        ctx.lineWidth = 2.6; ctx.stroke(shaft); ctx.fill(head); ctx.lineWidth = 1.8; ctx.stroke(calmP);
+        if (texts.length) {
+          ctx.globalAlpha = fa * ta * (model ? 0.6 : 1);
+          const fnt = `${model ? 600 : 700} 10.5px ${font}`;
+          ctx.setTransform(1, 0, 0, 1, 0, 0);
+          for (const [t, x, y] of texts) {
+            const sp = sprite('a|' + model + '|' + t, 52, 18, g => { g.font = fnt; g.textAlign = 'center'; g.textBaseline = 'alphabetic'; g.lineJoin = 'round';
+              g.lineWidth = 3; g.strokeStyle = C.sea; g.strokeText(t, 26, 13); g.fillStyle = C.cur; g.fillText(t, 26, 13); });
+            putSprite(sp, x - 26, y - 13);
+          }
+          ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        }
       }
+      ctx.restore();
     }
     let mapPorts = null, mapPortsP = null;
     function loadMapPorts() {
@@ -2826,101 +2851,172 @@ const TideHarm = (() => {
         mapPorts = d.filter(r => !Object.keys(TideHarm.STATIONS).some(k => { const S = TideHarm.STATIONS[k]; return distKm(S, { lat: r[1], lon: r[2] }) < 0.8; }))
           .map(r => ({ n: r[0], lat: r[1], lon: r[2], minS: minS[r[4] ?? (/항(\(.*\))?$/.test(r[0]) ? 0 : /선착장|터미널|마리나/.test(r[0]) ? 1 : 2)] || 3800, k: r[4] ?? 2 }))
           .sort((a, b) => a.k - b.k || a.n.length - b.n.length);
-        bkey = ''; draw();
+        labC = null; draw();
       }).catch(() => { mapPortsP = null; });
     }
-    let bv = null, BM = 0, interacting = false;   // 바탕을 그린 때의 화면 · 바깥 여유(점) · 손가락으로 움직이는 중
+    let bv = null, BM = 0, interacting = false, bufs = {};   // 바탕을 그린 때의 화면 · 바깥 여유(점) · 손가락으로 움직이는 중
     // 지금 화면에서 본 바탕 그림의 배율·위치
     const baseXf = () => { const k = v.s / bv.s; return { k, tx: W / 2 * (1 - k) + (bv.lon - v.lon) * KX * v.s, ty: H / 2 * (1 - k) - (bv.lat - v.lat) * v.s }; };
     function renderBase(C, font) {
-      const tick = Math.floor(Date.now() / 30000), okey = [W, H, dpr, C.sea, C.land, landState, spState, SEA ? SEA.t0 : 0, mapPorts ? mapPorts.length : 0, tick].join('|');
-      const key = [v.lon, v.lat, v.s, okey].join('|');
+      const okey = [W, H, dpr, C.sea, C.land, C.shallow, landState].join('|');
+      // 손으로 움직이는 중에 새로 그릴 때는 낮은 해상도로 빠르게 (이름표는 따로 또렷하게 그리니 흐려 보이지 않는다). 손을 떼면 또렷하게 다시
+      const R = interacting ? Math.min(dpr, 1.25) : dpr;
+      const key = [v.lon, v.lat, v.s, okey, R].join('|');
       if (key === bkey && bcv) return;
       if (interacting && bcv && bv && bv.okey === okey) {
         const { k, tx, ty } = baseXf();
         // 그려 둔 그림이 화면을 다 덮고 배율 차이가 크지 않으면 그대로 옮겨 쓴다
         if (k > 0.55 && k < 1.9 && tx - k * BM <= 0.5 && ty - k * BM <= 0.5 && tx + k * (W + BM) >= W - 0.5 && ty + k * (H + BM) >= H - 0.5) return;
       }
-      bkey = key; BM = Math.round(Math.max(W, H) * 0.2); bv = { lon: v.lon, lat: v.lat, s: v.s, okey };
-      if (!bcv) bcv = document.createElement('canvas');
-      const bw = Math.round((W + 2 * BM) * dpr), bh = Math.round((H + 2 * BM) * dpr);
+      bkey = key; BM = Math.round(Math.max(W, H) * 0.2); bv = { lon: v.lon, lat: v.lat, s: v.s, okey, r: R };
+      bcv = bufs[R] || (bufs[R] = document.createElement('canvas'));   // 해상도마다 그림판을 따로 두어 크기를 바꾸느라 느려지지 않게
+      const bw = Math.round((W + 2 * BM) * R), bh = Math.round((H + 2 * BM) * R);
       if (bcv.width !== bw || bcv.height !== bh) { bcv.width = bw; bcv.height = bh; }
       const g = bcv.getContext('2d');
-      g.setTransform(dpr, 0, 0, dpr, BM * dpr, BM * dpr); g.fillStyle = C.sea; g.fillRect(-BM, -BM, W + 2 * BM, H + 2 * BM);
+      g.setTransform(R, 0, 0, R, BM * R, BM * R); g.fillStyle = C.sea; g.fillRect(-BM, -BM, W + 2 * BM, H + 2 * BM);
       if (!basemap) {
         g.fillStyle = C.lab; g.font = `600 13px ${font}`; g.textAlign = 'center';
         g.fillText(landState === 'error' ? '지도를 불러오지 못했어요 (인터넷 연결 후 한 번 열어 주세요)' : '지도를 불러오는 중…', W / 2, 40); g.textAlign = 'start';
         return;
       }
-      const lod = v.s < 2600 ? 0 : 1, m = (30 + BM) / v.s;
+      // 멀리 볼 때(0)·가까이 볼 때(1): 바뀌는 배율에 여유를 두어 그 근처에서 확대·축소할 때 해안선 모양이 오락가락하지 않게
+      lodNow = lodNow == null ? (v.s < 2600 ? 0 : 1) : v.s < 1700 ? 0 : v.s > 3300 ? 1 : lodNow;
+      const lod = lodNow, m = (30 + BM) / v.s;
+      // 선 굵기는 실제 거리처럼 배율에 비례(정해 둔 범위 안에서): 확대·축소 중 늘려 쓴 그림과 새로 그린 그림의 굵기가 같아 튀지 않는다
+      const wr = Math.max(0.45, Math.min(1.6, v.s / 2600)), lr = Math.max(0.75, Math.min(1.3, v.s / 2600));
       const vx0 = v.lon * KX - W / 2 / v.s - m, vx1 = v.lon * KX + W / 2 / v.s + m, vy0 = -v.lat - H / 2 / v.s - m, vy1 = -v.lat + H / 2 / v.s + m;
       const vis = cs => cs.filter(c => c.x1 >= vx0 && c.x0 <= vx1 && c.y1 >= vy0 && c.y0 <= vy1);
       const lands = vis(basemap.L[lod]), flats = vis(basemap.F[lod]), waters = vis(basemap.W[lod]);
-      g.save(); g.setTransform(dpr * v.s, 0, 0, dpr * v.s, dpr * (BM + W / 2 - v.lon * KX * v.s), dpr * (BM + H / 2 + v.lat * v.s));
+      g.save(); g.setTransform(R * v.s, 0, 0, R * v.s, R * (BM + W / 2 - v.lon * KX * v.s), R * (BM + H / 2 + v.lat * v.s));
       g.lineJoin = 'round'; g.lineCap = 'round';
       // 해안 가까운 얕은 물: 육지 둘레를 넓게 두 번 그어 바깥으로 갈수록 옅어지게
       g.strokeStyle = C.shallow;
-      for (const w of [10, 4.5]) { g.lineWidth = w / v.s; for (const c of lands) g.stroke(c.p); }
+      g.lineJoin = 'bevel';   // 넓고 옅은 띠라 모서리를 둥글게 하지 않아도 티가 안 나고, 그리기가 가벼워진다
+      for (const w of [10, 4.5]) { g.lineWidth = w * wr / v.s; for (const c of lands) g.stroke(c.p); }
+      g.lineJoin = 'round';
       // 갯벌
       g.fillStyle = C.flat; for (const c of flats) g.fill(c.p, 'evenodd');
       // 땅: 살짝 그림자 → 바탕 → 해안선
-      g.save(); g.translate(0, 1.6 / v.s); g.fillStyle = C.shade; for (const c of lands) g.fill(c.p, 'evenodd'); g.restore();
+      g.save(); g.translate(0, 1.6 * lr / v.s); g.fillStyle = C.shade; for (const c of lands) g.fill(c.p, 'evenodd'); g.restore();
       g.fillStyle = C.land; for (const c of lands) g.fill(c.p, 'evenodd');
-      g.strokeStyle = C.coast; g.lineWidth = 0.9 / v.s; for (const c of lands) g.stroke(c.p);
+      g.strokeStyle = C.coast; g.lineWidth = 0.9 * lr / v.s; for (const c of lands) g.stroke(c.p);
       // 방조제 안 호수·저수지·큰 강은 물빛으로 (가장자리는 해안선처럼 가늘게)
       g.fillStyle = C.sea; for (const c of waters) g.fill(c.p, 'evenodd');
-      g.lineWidth = 0.7 / v.s; for (const c of waters) g.stroke(c.p);
+      g.lineWidth = 0.7 * lr / v.s; for (const c of waters) g.stroke(c.p);
       g.restore();
-      // 이름표: 큰 섬·만부터, 다른 이름표·출항지와 겹치면 뺀다. 작은 섬은 섬 아래쪽 바다에
-      // 확대·축소 단추, 축척, 출처 글씨 자리도 비워 둔다
-      const placed = [[W - 64, 0, W, 165], ...portBoxes(g, font).map(b => [b.bx - 3, b.by - 3, b.bx + b.w + 3, b.by + b.h + 3])];
-      const hit = a => placed.some(b => a[0] < b[2] && a[2] > b[0] && a[1] < b[3] && a[3] > b[1]);
-      // 섬·만 이름표 (big: 넓은 화면에서도 보이는 큰 섬·만, 아니면 나머지)
-      const drawLabs = big0 => {
-      g.textAlign = 'center'; g.textBaseline = 'middle'; g.lineJoin = 'round';
-      for (const [name, lon, lat, minS, kind] of basemap.lab) {
-        if (v.s < minS || (minS <= 700) !== big0) continue;
-        const [x0, y0] = toS(lon, lat); if (x0 < -BM - 40 || x0 > W + BM + 40 || y0 < -BM - 20 || y0 > H + BM + 20) continue;
-        const big = kind === 0 && minS <= 700, fs = kind === 1 ? 12 : big ? 12.5 : 11;
-        g.font = `${big || kind === 1 ? 700 : 600} ${fs}px ${font}`;
-        const tw = g.measureText(name).width, diam = kind === 0 ? 10 * v.s / minS : 0;
-        const onLand = kind === 0 && diam > tw + 6, y = kind === 0 && !onLand ? y0 + Math.min(diam / 2, 30) + fs * 0.8 : y0;
-        const box = [x0 - tw / 2 - 3, y - fs / 2 - 3, x0 + tw / 2 + 3, y + fs / 2 + 3];
-        if (box[0] < -BM + 2 || box[2] > W + BM - 2 || hit(box)) continue;
-        placed.push(box);
-        g.lineWidth = 3.2; g.strokeStyle = onLand ? C.land : C.sea; g.strokeText(name, x0, y);
-        g.fillStyle = kind === 1 ? C.bay : C.isl; g.fillText(name, x0, y);
-      }
-      };
-      // 큰 섬·만 이름 → 항·포구 → 작은 섬 이름 순서로 자리를 잡는다
-      drawLabs(true);
-      if (mapPorts) {
-        g.font = `700 10.5px ${font}`; g.textBaseline = 'middle'; g.textAlign = 'left';
-        for (const pt of mapPorts) {
-          if (v.s < pt.minS) continue;
-          const [x0, y0] = toS(pt.lon, pt.lat); if (x0 < -BM - 60 || x0 > W + BM + 60 || y0 < -BM - 20 || y0 > H + BM + 20) continue;
-          const tw = pt.tw || (pt.tw = g.measureText(pt.n).width), bw = tw + 12;
-          // 화면 안의 점은 이름표가 화면 가장자리에 잘리지 않는 쪽(오른쪽 먼저)에, 바깥 여유 자리의 점은 그 여유 안에
-          const lo = x0 >= 0 && x0 <= W ? 2 : -BM + 2, hi = x0 >= 0 && x0 <= W ? W - 2 : W + BM - 2;
-          let box = [x0 + 6, y0 - 8, x0 + 6 + bw, y0 + 8];
-          if (hit(box) || box[2] > hi) { box = [x0 - 6 - bw, y0 - 8, x0 - 6, y0 + 8]; if (hit(box) || box[0] < lo) continue; }
-          placed.push([box[0] - 2, box[1] - 2, box[2] + 2, box[3] + 2], [x0 - 5, y0 - 5, x0 + 5, y0 + 5]);
-          g.globalAlpha = 0.9; g.fillStyle = C.card; g.beginPath(); g.roundRect ? g.roundRect(box[0], box[1], bw, 16, 8) : g.rect(box[0], box[1], bw, 16); g.fill(); g.globalAlpha = 1;
-          g.fillStyle = C.ink; g.fillText(pt.n, box[0] + 6, y0 + 0.5);
-          g.lineWidth = 1.8; g.strokeStyle = C.card; g.fillStyle = C.port; g.beginPath(); g.arc(x0, y0, 3.3, 0, 2 * Math.PI); g.fill(); g.stroke();
-        }
-      }
-      drawLabs(false);
-      g.textAlign = 'start'; g.textBaseline = 'alphabetic';
-      drawArrows(g, C, font, BM);
     }
+    // ---------- 섬·만·항구 이름표
+    // 자리 잡기는 가끔만(가만히 있을 때는 화면이 바뀔 때, 손으로 움직이는 중에는 0.1초마다) 하고, 이미 보이던 이름표를 먼저 지킨다.
+    // 우선순위: 큰 섬·만 → 항구 → 작은 섬. 다른 이름표·출항지와 겹치면 빼고, 나타나고 사라질 때는 서서히(흐려지기)
+    let labC = null, lodNow = null, layKey = '', layT = 0, labT = 0, ghosts = [];
+    const shownL = new Map();   // id → { c, land(섬: 땅 위에 쓰기) | side(항구: 1 오른쪽 · -1 왼쪽), a(보이는 정도), on }
+    function labCands() {
+      if (labC) return labC;
+      if (!basemap) return null;
+      const big = [], small = [], ports = [];
+      basemap.lab.forEach(([n, lon, lat, minS, kind], i) => {
+        const bigL = minS <= 700, strong = (kind === 0 && bigL) || kind === 1;
+        (bigL ? big : small).push({ id: 'i' + i, t: 'i', n, lon, lat, minS, kind, fs: kind === 1 ? 12 : kind === 0 && bigL ? 12.5 : 11, wt: strong ? 700 : 600 });
+      });
+      if (mapPorts) mapPorts.forEach((pt, i) => ports.push({ id: 'p' + i, t: 'p', n: pt.n, lon: pt.lon, lat: pt.lat, minS: pt.minS }));
+      labC = [big, ports, small];
+      for (const c of shownL.values()) if (!labC.some(L => L.includes(c.c))) shownL.delete(c.c.id);   // 목록이 바뀌었으면 예전 이름표는 버린다
+      return labC;
+    }
+    const twOf = (c, font) => c.tw || (ctx.font = c.t === 'i' ? `${c.wt} ${c.fs}px ${font}` : `700 10.5px ${font}`, c.tw = ctx.measureText(c.n).width);
+    // 섬 이름이 들어갈 자리: 섬이 화면에서 글씨보다 크면 섬 위에, 아니면 섬 아래쪽 바다에
+    const islLand = c => c.kind === 0 && 10 * v.s / c.minS > c.tw + 6;
+    const islY = (c, land, y0) => (c.kind === 0 && !land ? y0 + Math.min(5 * v.s / c.minS, 30) + c.fs * 0.8 : y0);
+    function layoutLabels(font) {
+      layKey = [v.lon, v.lat, v.s, W, H].join('|'); layT = performance.now();
+      const L = labCands(); if (!L) return;
+      const placed = [[W - 64, 0, W, 165], ...portBoxes(ctx, font).map(b => [b.bx - 3, b.by - 3, b.bx + b.w + 3, b.by + b.h + 3])];
+      const hit = a => placed.some(b => a[0] < b[2] && a[2] > b[0] && a[1] < b[3] && a[3] > b[1]);
+      const keep = new Set(), M = 40;
+      const place = c => {
+        const e = shownL.get(c.id), was = !!(e && e.on);
+        if (v.s < c.minS * (was ? 0.8 : 1)) return;   // 보이던 것은 조금 더 멀리까지 지킨다
+        const [x0, y0] = toS(c.lon, c.lat); if (x0 < -M - 120 || x0 > W + M + 120 || y0 < -M - 50 || y0 > H + M + 50) return;
+        const tw = twOf(c, font);
+        let box = null, vr;
+        if (c.t === 'i') {
+          // 움직이는 중에는 쓰는 자리(섬 위·아래)를 바꾸지 않는다
+          vr = was && interacting ? e.land : islLand(c);
+          const y = islY(c, vr, y0); if (x0 < -M || x0 > W + M || y < -M || y > H + M) return;
+          const b = [x0 - tw / 2 - 3, y - c.fs / 2 - 3, x0 + tw / 2 + 3, y + c.fs / 2 + 3]; if (!hit(b)) box = b;
+          if (box) placed.push(box);
+        } else {
+          if (x0 < -M || x0 > W + M || y0 < -M || y0 > H + M) return;
+          const bw = tw + 12, inside = x0 >= 0 && x0 <= W, lo = inside ? 2 : -M - 200, hi = inside ? W - 2 : W + M + 200;
+          for (const sd of was ? [e.side, -e.side] : [1, -1]) {
+            const b = sd > 0 ? [x0 + 6, y0 - 8, x0 + 6 + bw, y0 + 8] : [x0 - 6 - bw, y0 - 8, x0 - 6, y0 + 8];
+            if (b[0] < lo || b[2] > hi || hit(b)) continue;
+            box = b; vr = sd; break;
+          }
+          if (box) placed.push([box[0] - 2, box[1] - 2, box[2] + 2, box[3] + 2], [x0 - 5, y0 - 5, x0 + 5, y0 + 5]);
+        }
+        if (!box) return;
+        keep.add(c.id);
+        const key = c.t === 'i' ? 'land' : 'side';
+        if (!e) shownL.set(c.id, { c, [key]: vr, a: 0, on: true });
+        else if (e[key] !== vr) { ghosts.push({ c, [key]: e[key], a: e.a, on: false }); e[key] = vr; e.a = 0; e.on = true; }   // 자리를 옮기면 옛 자리는 흐려지며 사라지고 새 자리에 나타남
+        else e.on = true;
+      };
+      // 등급마다 이미 보이던 것 먼저, 그다음 새로운 것
+      for (const list of L) {
+        for (const c of list) if (shownL.has(c.id) && shownL.get(c.id).on) place(c);
+        for (const c of list) if (!keep.has(c.id) && !(shownL.has(c.id) && shownL.get(c.id).on)) place(c);
+      }
+      for (const [id, e] of shownL) if (!keep.has(id)) e.on = false;
+    }
+    // 이름표 그리기 (매 장면). 흐려지거나 나타나는 중이면 true
+    function drawLabels(C, font) {
+      const now = performance.now(), step = Math.min(64, Math.max(0, now - (labT || now))) / 170; labT = now;
+      const sk = [dpr, font, C.sea, C.land, C.card, C.ink, C.isl, C.bay, C.port, C.cur].join('|'); if (sk !== sprKey) { spr = new Map(); sprKey = sk; }
+      let busy = false;
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      const one = e => {
+        e.a = e.on ? Math.min(1, e.a + step) : Math.max(0, e.a - step);
+        if (e.on ? e.a < 1 : e.a > 0) busy = true;
+        if (e.a <= 0) return;
+        const c = e.c, [x0, y0] = toS(c.lon, c.lat); if (x0 < -260 || x0 > W + 260 || y0 < -60 || y0 > H + 60) return;
+        const tw = twOf(c, font);
+        ctx.globalAlpha = e.a;
+        if (c.t === 'i') {
+          const w = tw + 8, h = c.fs + 8, land = e.land;
+          const sp = sprite('i|' + c.id + '|' + land, w, h, g => {
+            g.font = `${c.wt} ${c.fs}px ${font}`; g.textAlign = 'center'; g.textBaseline = 'middle'; g.lineJoin = 'round';
+            g.lineWidth = 3.2; g.strokeStyle = land ? C.land : C.sea; g.strokeText(c.n, w / 2, h / 2);
+            g.fillStyle = c.kind === 1 ? C.bay : C.isl; g.fillText(c.n, w / 2, h / 2);
+          });
+          if (!sp) { if (e.on) e.a = 0; return; }
+          putSprite(sp, x0 - w / 2, islY(c, land, y0) - h / 2);
+        } else {
+          const bw = tw + 12, w = bw + 12, sd = e.side, dx = sd > 0 ? 5 : bw + 7;   // 점 자리
+          const sp = sprite('p|' + c.id + '|' + sd, w, 18, g => {
+            const px = sd > 0 ? 11 : 1;
+            g.globalAlpha = 0.9; g.fillStyle = C.card; g.beginPath(); g.roundRect ? g.roundRect(px, 1, bw, 16, 8) : g.rect(px, 1, bw, 16); g.fill(); g.globalAlpha = 1;
+            g.font = `700 10.5px ${font}`; g.textBaseline = 'middle'; g.fillStyle = C.ink; g.fillText(c.n, px + 6, 9.5);
+            g.lineWidth = 1.8; g.strokeStyle = C.card; g.fillStyle = C.port; g.beginPath(); g.arc(dx, 9, 3.3, 0, 2 * Math.PI); g.fill(); g.stroke();
+          });
+          if (!sp) { if (e.on) e.a = 0; return; }
+          putSprite(sp, x0 - dx, y0 - 9);
+        }
+      };
+      for (const e of ghosts) one(e);
+      ghosts = ghosts.filter(e => e.a > 0);
+      for (const [id, e] of shownL) { one(e); if (!e.on && e.a <= 0) shownL.delete(id); }
+      ctx.globalAlpha = 1; ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      return busy || ghosts.length > 0 || sprBudget < 0;
+    }
+    try { document.fonts && document.fonts.addEventListener('loadingdone', () => { spr = new Map(); if (labC) for (const L of labC) for (const c of L) c.tw = 0; if (isOpen) draw(); }); } catch (_) {}
     // 색·글꼴은 테마가 바뀔 때만 다시 읽는다 (매 장면마다 읽으면 느려서)
     let Cc = null, fontC = '';
     const mapColors = () => Cc || (Cc = { port: css('--map-port') || css('--ink'), sea: css('--map-sea'), shallow: css('--map-shallow'), land: css('--map-land'), shade: css('--map-shade'), coast: css('--map-coast'), flat: css('--map-flat'),
       isl: css('--map-isl'), bay: css('--map-bay'), lab: css('--map-lab'), cur: css('--map-cur'), card: css('--card'), ink: css('--ink') });
     try { matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => { Cc = null; if (isOpen) draw(); }); } catch (_) {}
     // 그리기 요청은 한 화면(프레임)에 한 번으로 모은다
-    let drawRaf = 0, needDraw = false, lastLoopDraw = 0;
+    let drawRaf = 0, needDraw = false, lastLoopDraw = 0, inLoop = false;
     function draw() {
       if (!isOpen) return;
       needDraw = true;
@@ -2932,9 +3028,18 @@ const TideHarm = (() => {
       renderBase(C, font);
       const { k, tx, ty } = baseXf();
       ctx.setTransform(1, 0, 0, 1, 0, 0);
-      if (k !== 1 || tx || ty) { ctx.fillStyle = C.sea; ctx.fillRect(0, 0, cv.width, cv.height); }
-      ctx.setTransform(k, 0, 0, k, dpr * (tx - k * BM), dpr * (ty - k * BM)); ctx.drawImage(bcv, 0, 0);
+      const covers = tx - k * BM <= 0 && ty - k * BM <= 0 && tx + k * (W + BM) >= W && ty + k * (H + BM) >= H;
+      if (!covers) { ctx.fillStyle = C.sea; ctx.fillRect(0, 0, cv.width, cv.height); }
+      ctx.imageSmoothingQuality = 'low';
+      const kk = k * dpr / bv.r; ctx.setTransform(kk, 0, 0, kk, dpr * (tx - k * BM), dpr * (ty - k * BM)); ctx.drawImage(bcv, 0, 0);
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      sprBudget = 8;
+      drawArrows(C, font);
+      if (basemap) {
+        // 이름표 자리 잡기: 가만히 있을 때는 화면이 바뀌면 바로, 손으로 움직이는 중에는 0.1초마다
+        if (interacting ? performance.now() - layT > 100 : layKey !== [v.lon, v.lat, v.s, W, H].join('|')) layoutLabels(font);
+        if (drawLabels(C, font)) { if (inLoop) needDraw = true; else draw(); }   // 흐려지는 중이면 다음 장면도 (한 장면에 두 번 그리지 않게)
+      }
       // 가까운 출항지까지 점선
       const nr = me && nearest(me);
       if (nr) {
@@ -3065,8 +3170,8 @@ const TideHarm = (() => {
     function loop(t) {
       raf = 0; if (!isOpen) return;
       const anim = ((me && !me.virtual) || goldOn) && !RM.matches;
-      if (needDraw || interacting || !anim || !(t - lastLoopDraw < 30)) { needDraw = false; lastLoopDraw = t || 0; drawNow(); }
-      if (!raf && anim) raf = requestAnimationFrame(loop);
+      if (needDraw || interacting || !anim || !(t - lastLoopDraw < 30)) { needDraw = false; lastLoopDraw = t || 0; inLoop = true; try { drawNow(); } finally { inLoop = false; } }
+      if (!raf && (anim || needDraw)) raf = requestAnimationFrame(loop);
     }
     const kick = () => { if (!raf) raf = requestAnimationFrame(loop); };
 
@@ -4430,7 +4535,7 @@ if ('serviceWorker' in navigator) addEventListener('load', () => {
   const sw = navigator.serviceWorker; let ctl = sw.controller, reloading = false;
   // 새 버전이 올라오면 한 번 새로 열어 바로 반영 (처음 설치할 때는 제외)
   sw.addEventListener('controllerchange', () => { if (ctl && !reloading) { reloading = true; location.reload(); } ctl = sw.controller; });
-  sw.register('sw.js?v=22cc6618').then(reg => {
+  sw.register('sw.js?v=df6e914c').then(reg => {
     // 앱을 켜 둔 채 다른 화면에 갔다 돌아오면 새 버전이 있는지 확인
     document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') reg.update().catch(() => {}); });
   }).catch(() => {});
