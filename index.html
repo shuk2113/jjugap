@@ -2159,8 +2159,11 @@ const TideHarm = (() => {
       }
       drawHud(surf);
     }
+    const mapvEl = document.getElementById('mapv');
     function frame(now) {
       if (!running) return;
+      // 바다 지도가 화면을 덮고 있으면 뒤의 물때 그림은 쉰다 (지도가 매끄럽게 움직이도록)
+      if (mapvEl && !mapvEl.hidden) { last = now; setTimeout(() => requestAnimationFrame(frame), 400); return; }
       const dt = Math.min(0.05, (now - last) / 1000); last = now;
       sCur += (sTarget - sCur) * Math.min(1, dt * 2.5);
       lev += (levT - lev) * Math.min(1, dt * 9);
@@ -2739,7 +2742,7 @@ const TideHarm = (() => {
     }
     function resize() {
       const r = box.getBoundingClientRect(); dpr = Math.min(2.5, window.devicePixelRatio || 1);
-      W = r.width; H = r.height; cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr); draw();
+      W = r.width; H = r.height; cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr); drawNow();
     }
     const css = k => getComputedStyle(document.documentElement).getPropertyValue(k).trim();
     // ---------- 그리기
@@ -2753,23 +2756,67 @@ const TideHarm = (() => {
       }).filter(b => b.x > -80 && b.x < W + 80 && b.y > -30 && b.y < H + 30);
     }
     // 바탕(바다·갯벌·땅·섬 이름)은 화면이 움직이거나 확대할 때만 새로 그려 두고, 매 장면에는 그 그림을 붙인다
+    // 조류예보 지점의 지금 흐름: 흘러가는 쪽으로 화살표, 셀수록 길게 (30초마다 다시 계산) — 바탕 그림에 함께 그린다
+    function drawArrows(ctx, C, font, M) {
+      if (SP && v.s > 420) {
+        const now = Date.now();
+        if (!arrows || now - arrows.t > 30000) {
+          const m = [];
+          if (SEA) for (const cell of SEA.c) {
+            const q = { lat: cell[0], lon: cell[1] }; if (SP.cur.some(c => distKm(q, c) <= 8)) continue;
+            const r = romsAt(cell, now); if (r) m.push({ c: { lat: cell[0], lon: cell[1], mx: 0 }, k: r, model: true });
+          }
+          arrows = { t: now, a: [...m, ...SP.cur.map(c => ({ c, k: curNow(c, now) }))] };
+        }
+        ctx.save(); ctx.strokeStyle = C.cur; ctx.fillStyle = C.cur; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+        for (const { c, k, model } of arrows.a) {
+          const [x, y] = toS(c.lon, c.lat); if (x < -M - 40 || x > W + M + 40 || y < -M - 40 || y > H + M + 40) continue;
+          const calm = k.sp < Math.max(8, c.mx * 0.08), r = k.dir * Math.PI / 180, ux = Math.sin(r), uy = -Math.cos(r);
+          const L = (model ? 10 : 12) + Math.min(1, k.sp / 160) * 22;
+          ctx.globalAlpha = model ? 0.34 : 0.92;
+          if (calm) { ctx.lineWidth = 1.8; ctx.beginPath(); ctx.arc(x, y, 4, 0, 2 * Math.PI); ctx.stroke(); }
+          else {
+            const x1 = x + ux * L / 2, y1 = y + uy * L / 2;
+            ctx.lineWidth = 2.6; ctx.beginPath(); ctx.moveTo(x - ux * L / 2, y - uy * L / 2); ctx.lineTo(x1 - ux * 4, y1 - uy * 4); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x1 - ux * 8 + uy * 5, y1 - uy * 8 - ux * 5); ctx.lineTo(x1 - ux * 8 - uy * 5, y1 - uy * 8 + ux * 5); ctx.closePath(); ctx.fill();
+          }
+          if (v.s > (model ? 2400 : 1100)) {
+            const t = calm ? '물돌이' : `${(k.sp / KN).toFixed(1)}노트`, ty = y + (uy > 0.3 ? -L / 2 - 6 : L / 2 + 13);
+            ctx.font = `${model ? 600 : 700} 10.5px ${font}`; ctx.textAlign = 'center'; ctx.globalAlpha = model ? 0.6 : 1;
+            ctx.lineWidth = 3; ctx.strokeStyle = C.sea; ctx.strokeText(t, x, ty); ctx.fillText(t, x, ty); ctx.strokeStyle = C.cur; ctx.textAlign = 'start';
+          }
+        }
+        ctx.restore();
+      }
+    }
+    let bv = null, BM = 0, interacting = false;   // 바탕을 그린 때의 화면 · 바깥 여유(점) · 손가락으로 움직이는 중
+    // 지금 화면에서 본 바탕 그림의 배율·위치
+    const baseXf = () => { const k = v.s / bv.s; return { k, tx: W / 2 * (1 - k) + (bv.lon - v.lon) * KX * v.s, ty: H / 2 * (1 - k) - (bv.lat - v.lat) * v.s }; };
     function renderBase(C, font) {
-      const key = [v.lon, v.lat, v.s, W, H, dpr, C.sea, landState].join('|');
-      if (key === bkey && bcv) return; bkey = key;
+      const tick = Math.floor(Date.now() / 30000), okey = [W, H, dpr, C.sea, C.land, landState, spState, SEA ? SEA.t0 : 0, tick].join('|');
+      const key = [v.lon, v.lat, v.s, okey].join('|');
+      if (key === bkey && bcv) return;
+      if (interacting && bcv && bv && bv.okey === okey) {
+        const { k, tx, ty } = baseXf();
+        // 그려 둔 그림이 화면을 다 덮고 배율 차이가 크지 않으면 그대로 옮겨 쓴다
+        if (k > 0.55 && k < 1.9 && tx - k * BM <= 0.5 && ty - k * BM <= 0.5 && tx + k * (W + BM) >= W - 0.5 && ty + k * (H + BM) >= H - 0.5) return;
+      }
+      bkey = key; BM = Math.round(Math.max(W, H) * 0.2); bv = { lon: v.lon, lat: v.lat, s: v.s, okey };
       if (!bcv) bcv = document.createElement('canvas');
-      if (bcv.width !== cv.width || bcv.height !== cv.height) { bcv.width = cv.width; bcv.height = cv.height; }
+      const bw = Math.round((W + 2 * BM) * dpr), bh = Math.round((H + 2 * BM) * dpr);
+      if (bcv.width !== bw || bcv.height !== bh) { bcv.width = bw; bcv.height = bh; }
       const g = bcv.getContext('2d');
-      g.setTransform(dpr, 0, 0, dpr, 0, 0); g.fillStyle = C.sea; g.fillRect(0, 0, W, H);
+      g.setTransform(dpr, 0, 0, dpr, BM * dpr, BM * dpr); g.fillStyle = C.sea; g.fillRect(-BM, -BM, W + 2 * BM, H + 2 * BM);
       if (!basemap) {
         g.fillStyle = C.lab; g.font = `600 13px ${font}`; g.textAlign = 'center';
         g.fillText(landState === 'error' ? '지도를 불러오지 못했어요 (인터넷 연결 후 한 번 열어 주세요)' : '지도를 불러오는 중…', W / 2, 40); g.textAlign = 'start';
         return;
       }
-      const lod = v.s < 2600 ? 0 : 1, m = 30 / v.s;
+      const lod = v.s < 2600 ? 0 : 1, m = (30 + BM) / v.s;
       const vx0 = v.lon * KX - W / 2 / v.s - m, vx1 = v.lon * KX + W / 2 / v.s + m, vy0 = -v.lat - H / 2 / v.s - m, vy1 = -v.lat + H / 2 / v.s + m;
       const vis = cs => cs.filter(c => c.x1 >= vx0 && c.x0 <= vx1 && c.y1 >= vy0 && c.y0 <= vy1);
       const lands = vis(basemap.L[lod]), flats = vis(basemap.F[lod]), waters = vis(basemap.W[lod]);
-      g.save(); g.setTransform(dpr * v.s, 0, 0, dpr * v.s, dpr * (W / 2 - v.lon * KX * v.s), dpr * (H / 2 + v.lat * v.s));
+      g.save(); g.setTransform(dpr * v.s, 0, 0, dpr * v.s, dpr * (BM + W / 2 - v.lon * KX * v.s), dpr * (BM + H / 2 + v.lat * v.s));
       g.lineJoin = 'round'; g.lineCap = 'round';
       // 해안 가까운 얕은 물: 육지 둘레를 넓게 두 번 그어 바깥으로 갈수록 옅어지게
       g.strokeStyle = C.shallow;
@@ -2791,57 +2838,41 @@ const TideHarm = (() => {
       g.textAlign = 'center'; g.textBaseline = 'middle'; g.lineJoin = 'round';
       for (const [name, lon, lat, minS, kind] of basemap.lab) {
         if (v.s < minS) continue;
-        const [x0, y0] = toS(lon, lat); if (x0 < -40 || x0 > W + 40 || y0 < -20 || y0 > H + 20) continue;
+        const [x0, y0] = toS(lon, lat); if (x0 < -BM - 40 || x0 > W + BM + 40 || y0 < -BM - 20 || y0 > H + BM + 20) continue;
         const big = kind === 0 && minS <= 700, fs = kind === 1 ? 12 : big ? 12.5 : 11;
         g.font = `${big || kind === 1 ? 700 : 600} ${fs}px ${font}`;
         const tw = g.measureText(name).width, diam = kind === 0 ? 10 * v.s / minS : 0;
         const onLand = kind === 0 && diam > tw + 6, y = kind === 0 && !onLand ? y0 + Math.min(diam / 2, 30) + fs * 0.8 : y0;
         const box = [x0 - tw / 2 - 3, y - fs / 2 - 3, x0 + tw / 2 + 3, y + fs / 2 + 3];
-        if (box[0] < 2 || box[2] > W - 2 || hit(box)) continue;
+        if (box[0] < -BM + 2 || box[2] > W + BM - 2 || hit(box)) continue;
         placed.push(box);
         g.lineWidth = 3.2; g.strokeStyle = onLand ? C.land : C.sea; g.strokeText(name, x0, y);
         g.fillStyle = kind === 1 ? C.bay : C.isl; g.fillText(name, x0, y);
       }
       g.textAlign = 'start'; g.textBaseline = 'alphabetic';
+      drawArrows(g, C, font, BM);
     }
+    // 색·글꼴은 테마가 바뀔 때만 다시 읽는다 (매 장면마다 읽으면 느려서)
+    let Cc = null, fontC = '';
+    const mapColors = () => Cc || (Cc = { sea: css('--map-sea'), shallow: css('--map-shallow'), land: css('--map-land'), shade: css('--map-shade'), coast: css('--map-coast'), flat: css('--map-flat'),
+      isl: css('--map-isl'), bay: css('--map-bay'), lab: css('--map-lab'), cur: css('--map-cur'), card: css('--card'), ink: css('--ink') });
+    try { matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => { Cc = null; if (isOpen) draw(); }); } catch (_) {}
+    // 그리기 요청은 한 화면(프레임)에 한 번으로 모은다
+    let drawRaf = 0, needDraw = false, lastLoopDraw = 0;
     function draw() {
+      if (!isOpen) return;
+      needDraw = true;
+      if (!raf && !drawRaf) drawRaf = requestAnimationFrame(() => { drawRaf = 0; if (needDraw) { needDraw = false; drawNow(); } });
+    }
+    function drawNow() {
       if (!isOpen || !W) return;
-      const C = { sea: css('--map-sea'), shallow: css('--map-shallow'), land: css('--map-land'), shade: css('--map-shade'), coast: css('--map-coast'), flat: css('--map-flat'),
-                  isl: css('--map-isl'), bay: css('--map-bay'), lab: css('--map-lab'), cur: css('--map-cur'), card: css('--card'), ink: css('--ink') };
-      const font = getComputedStyle(document.body).fontFamily;
+      const C = mapColors(), font = fontC || (fontC = getComputedStyle(document.body).fontFamily);
       renderBase(C, font);
-      ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.drawImage(bcv, 0, 0); ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      // 조류예보 지점의 지금 흐름: 흘러가는 쪽으로 화살표, 셀수록 길게 (30초마다 다시 계산)
-      if (SP && v.s > 420) {
-        const now = Date.now();
-        if (!arrows || now - arrows.t > 30000) {
-          const m = [];
-          if (SEA) for (const cell of SEA.c) {
-            const q = { lat: cell[0], lon: cell[1] }; if (SP.cur.some(c => distKm(q, c) <= 8)) continue;
-            const r = romsAt(cell, now); if (r) m.push({ c: { lat: cell[0], lon: cell[1], mx: 0 }, k: r, model: true });
-          }
-          arrows = { t: now, a: [...m, ...SP.cur.map(c => ({ c, k: curNow(c, now) }))] };
-        }
-        ctx.save(); ctx.strokeStyle = C.cur; ctx.fillStyle = C.cur; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
-        for (const { c, k, model } of arrows.a) {
-          const [x, y] = toS(c.lon, c.lat); if (x < -40 || x > W + 40 || y < -40 || y > H + 40) continue;
-          const calm = k.sp < Math.max(8, c.mx * 0.08), r = k.dir * Math.PI / 180, ux = Math.sin(r), uy = -Math.cos(r);
-          const L = (model ? 10 : 12) + Math.min(1, k.sp / 160) * 22;
-          ctx.globalAlpha = model ? 0.34 : 0.92;
-          if (calm) { ctx.lineWidth = 1.8; ctx.beginPath(); ctx.arc(x, y, 4, 0, 2 * Math.PI); ctx.stroke(); }
-          else {
-            const x1 = x + ux * L / 2, y1 = y + uy * L / 2;
-            ctx.lineWidth = 2.6; ctx.beginPath(); ctx.moveTo(x - ux * L / 2, y - uy * L / 2); ctx.lineTo(x1 - ux * 4, y1 - uy * 4); ctx.stroke();
-            ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x1 - ux * 8 + uy * 5, y1 - uy * 8 - ux * 5); ctx.lineTo(x1 - ux * 8 - uy * 5, y1 - uy * 8 + ux * 5); ctx.closePath(); ctx.fill();
-          }
-          if (v.s > (model ? 2400 : 1100)) {
-            const t = calm ? '물돌이' : `${(k.sp / KN).toFixed(1)}노트`, ty = y + (uy > 0.3 ? -L / 2 - 6 : L / 2 + 13);
-            ctx.font = `${model ? 600 : 700} 10.5px ${font}`; ctx.textAlign = 'center'; ctx.globalAlpha = model ? 0.6 : 1;
-            ctx.lineWidth = 3; ctx.strokeStyle = C.sea; ctx.strokeText(t, x, ty); ctx.fillText(t, x, ty); ctx.strokeStyle = C.cur; ctx.textAlign = 'start';
-          }
-        }
-        ctx.restore();
-      }
+      const { k, tx, ty } = baseXf();
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      if (k !== 1 || tx || ty) { ctx.fillStyle = C.sea; ctx.fillRect(0, 0, cv.width, cv.height); }
+      ctx.setTransform(k, 0, 0, k, dpr * (tx - k * BM), dpr * (ty - k * BM)); ctx.drawImage(bcv, 0, 0);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       // 가까운 출항지까지 점선
       const nr = me && nearest(me);
       if (nr) {
@@ -2911,7 +2942,7 @@ const TideHarm = (() => {
               star(x + Math.cos(an) * d, y + Math.sin(an) * d, (k % 2 ? 3.1 : 4.1) * t, k % 2 ? '#FFFFFF' : '#FFE07A');
             });
           }
-          ctx.save(); ctx.shadowColor = 'rgba(0,0,0,.32)'; ctx.shadowBlur = 6; ctx.shadowOffsetY = 1.5;
+          ctx.save(); ctx.fillStyle = 'rgba(0,0,0,.28)'; ctx.beginPath(); ctx.arc(x, y + 1.6, r + 1.1, 0, 2 * Math.PI); ctx.fill();
           if (info.best) { const g = ctx.createLinearGradient(x, y - r, x, y + r); g.addColorStop(0, '#FFE680'); g.addColorStop(1, '#FF9F1A'); ctx.fillStyle = g; }
           else ctx.fillStyle = c ? tr.color : C.sea;
           ctx.beginPath(); ctx.arc(x, y, r, 0, 2 * Math.PI); ctx.fill(); ctx.restore();
@@ -2967,9 +2998,14 @@ const TideHarm = (() => {
       const len = nice.filter(m => m / mPerPx <= 96).pop() || 50;
       $('mv-scale').firstElementChild.style.width = Math.round(len / mPerPx) + 'px';
       $('mv-scale').lastElementChild.textContent = len >= 1000 ? `${len / 1000}km` : `${len}m`;
-      if (goldOn && !raf && !RM.matches) raf = requestAnimationFrame(loop);
+      if (goldOn && !raf && !RM.matches) { if (drawRaf) { cancelAnimationFrame(drawRaf); drawRaf = 0; } raf = requestAnimationFrame(loop); }
     }
-    function loop() { raf = 0; if (!isOpen) return; draw(); if (!raf && ((me && !me.virtual) || goldOn) && !RM.matches) raf = requestAnimationFrame(loop); }
+    function loop(t) {
+      raf = 0; if (!isOpen) return;
+      const anim = ((me && !me.virtual) || goldOn) && !RM.matches;
+      if (needDraw || interacting || !anim || !(t - lastLoopDraw < 30)) { needDraw = false; lastLoopDraw = t || 0; drawNow(); }
+      if (!raf && anim) raf = requestAnimationFrame(loop);
+    }
     const kick = () => { if (!raf) raf = requestAnimationFrame(loop); };
 
     // ---------- 이 자리 계산 자료
@@ -4068,18 +4104,19 @@ const TideHarm = (() => {
         const pi = pinchInfo(); v.s = clampS(g.pinch.s * pi.d / Math.max(10, g.pinch.d));
         // 손가락 가운데 아래의 지점이 그대로 손가락 가운데에 오도록
         v.lon = g.pinch.c.lon - (pi.x - W / 2) / (KX * v.s); v.lat = g.pinch.c.lat + (pi.y - H / 2) / v.s;
-        follow = false; $('mv-me').classList.remove('on'); draw(); return;
+        follow = false; $('mv-me').classList.remove('on'); interacting = true; draw(); return;
       }
       if (ptrs.size !== 1 || g.pinch) return;
       const p = ptrs.get(e.pointerId), dx = p.x - g.x0, dy = p.y - g.y0;
       if (!g.moved && Math.hypot(dx, dy) < 6) return;
       if (!g.moved) { g.moved = true; clearTimeout(pressT); follow = false; $('mv-me').classList.remove('on'); }
-      v.lon = g.lon - dx / (KX * v.s); v.lat = g.lat + dy / v.s; draw();
+      v.lon = g.lon - dx / (KX * v.s); v.lat = g.lat + dy / v.s; interacting = true; draw();
     });
     const up = e => {
       if (!ptrs.has(e.pointerId)) return; ptrs.delete(e.pointerId); clearTimeout(pressT);
       if (ptrs.size === 1 && g && g.pinch) { const [q] = [...ptrs.values()]; g = { x0: q.x, y0: q.y, lon: v.lon, lat: v.lat, moved: true, pinch: null }; return; }
       if (ptrs.size) return;
+      if (interacting) { interacting = false; draw(); }   // 다 움직였으면 바탕을 또렷하게 새로
       if (g && !g.moved) {
         const now = Date.now();
         // 포인트를 눌렀으면 그 포인트 보기
@@ -4093,7 +4130,7 @@ const TideHarm = (() => {
     };
     cv.addEventListener('pointerup', up); cv.addEventListener('pointercancel', up);
     cv.addEventListener('wheel', e => { e.preventDefault(); const r = cv.getBoundingClientRect(); follow = false; $('mv-me').classList.remove('on'); zoomAt(Math.exp(-e.deltaY * 0.0022), e.clientX - r.left, e.clientY - r.top); }, { passive: false });
-    const recolor = () => { if (isOpen) draw(); };
+    const recolor = () => { Cc = null; if (isOpen) draw(); };
     new MutationObserver(recolor).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme', 'data-app'] });
   })();
   // 날짜를 누르면 그 자리에서 작은 달력이 뜬다 (아래 큰 달력과 같은 칸을 힘을 뺀 모양으로)
@@ -4331,7 +4368,7 @@ if ('serviceWorker' in navigator) addEventListener('load', () => {
   const sw = navigator.serviceWorker; let ctl = sw.controller, reloading = false;
   // 새 버전이 올라오면 한 번 새로 열어 바로 반영 (처음 설치할 때는 제외)
   sw.addEventListener('controllerchange', () => { if (ctl && !reloading) { reloading = true; location.reload(); } ctl = sw.controller; });
-  sw.register('sw.js?v=d6bf2b92').then(reg => {
+  sw.register('sw.js?v=af7102a8').then(reg => {
     // 앱을 켜 둔 채 다른 화면에 갔다 돌아오면 새 버전이 있는지 확인
     document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') reg.update().catch(() => {}); });
   }).catch(() => {});
