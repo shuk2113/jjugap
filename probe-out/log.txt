@@ -1,26 +1,30 @@
-pbf 290 MB
-candidates 852 (harbour-tagged 222)
-남항 ["남항유어선부두", "남항유어선부두", "소남항", "소남항", "인천항(남항)"]
-잠진 []
-영목 ["영목여객선터미널", "영목선착장", "영목항", "영목여객선터미널"]
-대천 ["대천항선착장", "대천연안여객선터미널", "대천항"]
-안흥 ["안흥유람선"]
-신진 []
-홍원 []
-구매 []
-모항 []
-마량 []
-비인 []
-삽시 []
-오이도 []
-을왕 []
-학암 []
-만리포 []
-몽산 []
-야미 []
-진두 ["진두선착장", "진두방파제"]
-영흥 []
-원산 []
-격포 ["격포유람선"]
-궁평 ["궁평항", "궁평항", "궁평항"]
-무의 []
+== 15148635 소규모항 uddi=['uddi:ac2bab00-1b11-4535-9fe1-e26f88f5b4c1']
+   js: fn_fileDataDown('15148635', 'uddi:ac2bab00-1b11-4535-9fe1-e26f88f5b4c1', '','1', '1')
+   js: atchFileId: $('#limitAtchFileId').val()
+   info blicDataDetailPk=uddi%3Aac2bab00-1b11-4535-9fe1-e26f88f5b4c1 -> {"dataSetFileDetailInfo":{"rn":"","searchCondition1":"","searchCondition2":"","searchCondition3":"","searchCondition1Array":null,"searchCondition2Array":null,"searchCondition3Array":null,"searchKeyword1":"","searchKeyword2":"","searchKeyword3":"","searchKeywordFrom1":"","searchKeywordTo1":"","search
+   saved 15148635.csv 72968 bytes cd=attachment; filename="%EC%86%8C%EA%B7%9C%EB%AA%A8%ED%95%AD.csv"
+== 15144585 마을공동어항 uddi=['uddi:7499238e-db40-46b2-bf9f-bdcc964bba8e']
+   js: fn_fileDataDown('15144585', 'uddi:7499238e-db40-46b2-bf9f-bdcc964bba8e', '','1', '1')
+   js: atchFileId: $('#limitAtchFileId').val()
+   info blicDataDetailPk=uddi%3A7499238e-db40-46b2-bf9f-bdcc964bba8e -> {"dataSetFileDetailInfo":{"rn":"","searchCondition1":"","searchCondition2":"","searchCondition3":"","searchCondition1Array":null,"searchCondition2Array":null,"searchCondition3Array":null,"searchKeyword1":"","searchKeyword2":"","searchKeyword3":"","searchKeywordFrom1":"","searchKeywordTo1":"","search
+   saved 15144585.csv 14589 bytes cd=attachment; filename="%EB%A7%88%EC%9D%84%EA%B3%B5%EB%8F%99%EC%96%B4%ED%95%AD.csv"
+== 15147449 지방어항 uddi=['uddi:83ea1184-d87d-435a-95b8-cf05d137c03d']
+   js: fn_fileDataDown('15147449', 'uddi:83ea1184-d87d-435a-95b8-cf05d137c03d', '','1', '1')
+   js: atchFileId: $('#limitAtchFileId').val()
+   info blicDataDetailPk=uddi%3A83ea1184-d87d-435a-95b8-cf05d137c03d -> {"dataSetFileDetailInfo":{"rn":"","searchCondition1":"","searchCondition2":"","searchCondition3":"","searchCondition1Array":null,"searchCondition2Array":null,"searchCondition3Array":null,"searchKeyword1":"","searchKeyword2":"","searchKeyword3":"","searchKeywordFrom1":"","searchKeywordTo1":"","search
+   saved 15147449.csv 35697 bytes cd=attachment; filename="%EC%A7%80%EB%B0%A9%EC%96%B4%ED%95%AD.csv"
+== 15147417 어촌정주어항 uddi=['uddi:2e748b17-e612-4245-a6d7-aaefa327e006']
+   js: fn_fileDataDown('15147417', 'uddi:2e748b17-e612-4245-a6d7-aaefa327e006', '','1', '2')
+   js: atchFileId: $('#limitAtchFileId').val()
+   info blicDataDetailPk=uddi%3A2e748b17-e612-4245-a6d7-aaefa327e006 -> {"dataSetFileDetailInfo":{"rn":"","searchCondition1":"","searchCondition2":"","searchCondition3":"","searchCondition1Array":null,"searchCondition2Array":null,"searchCondition3Array":null,"searchKeyword1":"","searchKeyword2":"","searchKeyword3":"","searchKeywordFrom1":"","searchKeywordTo1":"","search
+   saved 15147417.csv 22917 bytes cd=attachment; filename="%EC%96%B4%EC%B4%8C%EC%A0%95%EC%A3%BC%EC%96%B4%ED%95%AD.csv"
+== 15148613 소형선항만안내 uddi=['uddi:89157777-f690-4eaa-acd8-dec8e8b8281c']
+   js: fn_fileDataDown('15148613', 'uddi:89157777-f690-4eaa-acd8-dec8e8b8281c', '','1', '2')
+   js: atchFileId: $('#limitAtchFileId').val()
+   info blicDataDetailPk=uddi%3A89157777-f690-4eaa-acd8-dec8e8b8281c -> {"dataSetFileDetailInfo":{"rn":"","searchCondition1":"","searchCondition2":"","searchCondition3":"","searchCondition1Array":null,"searchCondition2Array":null,"searchCondition3Array":null,"searchKeyword1":"","searchKeyword2":"","searchKeyword3":"","searchKeywordFrom1":"","searchKeywordTo1":"","search
+   saved 15148613.csv 538343 bytes cd=attachment; filename="%EC%86%8C%ED%98%95%EC%84%A0%ED%95%AD%EB%A7%8C%EC%95%88%EB%82%B4.csv"
+== 15059868 어촌어항현황 uddi=['uddi:30285d60-6836-450c-b93c-ca7d4807d982']
+   js: fn_fileDataDown('15059868', 'uddi:30285d60-6836-450c-b93c-ca7d4807d982', '','1', '4')
+   js: atchFileId: $('#limitAtchFileId').val()
+   info blicDataDetailPk=uddi%3A30285d60-6836-450c-b93c-ca7d4807d982 -> {"dataSetFileDetailInfo":{"rn":"","searchCondition1":"","searchCondition2":"","searchCondition3":"","searchCondition1Array":null,"searchCondition2Array":null,"searchCondition3Array":null,"searchKeyword1":"","searchKeyword2":"","searchKeyword3":"","searchKeywordFrom1":"","searchKeywordTo1":"","search
+   saved 15059868.zip 5203 bytes cd=attachment; filename="%EC%96%B4%EC%B4%8C%EC%96%B4%ED%95%AD%ED%98%84%ED%99%A9.zip"
