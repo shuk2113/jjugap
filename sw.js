@@ -18,6 +18,7 @@ self.addEventListener('notificationclick', e => {
 self.addEventListener('fetch', e => {
   const req = e.request; if (req.method !== 'GET') return;
   const url = new URL(req.url);
+  if (url.origin === location.origin && url.pathname.includes('/app/')) return;   // 안드로이드 앱 파일은 저장해 두지 않는다 (늘 새것을 받게)
   const fixed = url.origin === location.origin && FIXED.find(f => url.pathname.endsWith(f));
   if (fixed) {
     // 해안선·이 자리 계산 자료는 앱을 새로 받을 때만 바뀌니 저장해 둔 것을 먼저 (바다 위에서 인터넷이 없어도 보이게)
