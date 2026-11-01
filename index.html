@@ -2479,6 +2479,20 @@ const TideHarm = (() => {
       customPorts = customPorts.filter(x => x.k !== k); saveCustom(); delete TideHarm.STATIONS[k];
       if (tideSt === k) choose(S.wx || 'incheon', 0); else paintList();
     }
+    // 위치를 바로잡은 항·포구: 예전 자리로 골라 둔 출항지는 새 자리로 물때 계산식을 다시 만든다 (저장한 포인트와 이어진 이름표는 그대로)
+    const MOVED = { '시화방조제 중간선착장': [37.312, 126.6052, 37.32689, 126.65453] };
+    async function fixMoved() {
+      for (const c of customPorts.slice()) {
+        const m = MOVED[c.name]; if (!m || distKm(c.lat, c.lon, m[0], m[1]) > 0.5) continue;
+        try {
+          const n = await spotKit.build(c.name, c.sub || '', m[2], m[3]); if (!n) continue;
+          if (n.defs) { spotDefs = n.defs; try { localStorage.setItem(DEFS_KEY, JSON.stringify(n.defs)); } catch (_) {} delete n.defs; }
+          n.k = c.k; customPorts = customPorts.map(x => (x.k === c.k ? n : x)); registerCustom(n); saveCustom();
+          if (tideSt === c.k) { paintBtn(); renderTide(); renderCal(); }
+        } catch (_) {}   // 인터넷이 없으면 다음에 앱을 열 때 다시
+      }
+    }
+    if (customPorts.some(c => MOVED[c.name])) setTimeout(() => { if (spotKit) fixMoved(); }, 4000);
     // 지도에서 직접 고르기: 판을 닫고 지도를 열어 가운데 + 표시로 위치를 고른다
     $('st-pick').onclick = () => {
       if (!spotKit) return;
@@ -4416,7 +4430,7 @@ if ('serviceWorker' in navigator) addEventListener('load', () => {
   const sw = navigator.serviceWorker; let ctl = sw.controller, reloading = false;
   // 새 버전이 올라오면 한 번 새로 열어 바로 반영 (처음 설치할 때는 제외)
   sw.addEventListener('controllerchange', () => { if (ctl && !reloading) { reloading = true; location.reload(); } ctl = sw.controller; });
-  sw.register('sw.js?v=d2cac699').then(reg => {
+  sw.register('sw.js?v=5008da4b').then(reg => {
     // 앱을 켜 둔 채 다른 화면에 갔다 돌아오면 새 버전이 있는지 확인
     document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') reg.update().catch(() => {}); });
   }).catch(() => {});
