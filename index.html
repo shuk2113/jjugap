@@ -4245,7 +4245,10 @@ const TideHarm = (() => {
     function placeFab(anim) {
       if (!fab) return; const L = fabLimits(); if (!L.bw) return;
       const p = fabLive || fabPos || { x: 1, y: 1 };
-      const cx = Math.max(L.x0, Math.min(L.x1, p.x * L.bw)), cy = Math.max(L.y0, Math.min(L.y1, p.y * L.bh));
+      const cx = Math.max(L.x0, Math.min(L.x1, p.x * L.bw)); let cy = Math.max(L.y0, Math.min(L.y1, p.y * L.bh));
+      // 오른쪽 위 단추들(확대·축소·내 위치·항구 이름)을 가리면 그 바로 아래로 비켜 둔다 (단추가 늘어도)
+      const tb = !fabLive && box.querySelector('.mv-tools');
+      if (tb && cx + FAB_R > tb.offsetLeft - 4 && cy - FAB_R < tb.offsetTop + tb.offsetHeight + 4) cy = Math.min(L.y1, Math.max(cy, tb.offsetTop + tb.offsetHeight + 12 + FAB_R));
       fab.style.transition = anim ? EASE + ', opacity .18s' : 'opacity .18s';
       fab.style.transform = `translate3d(${Math.round(cx - FAB_R)}px,${Math.round(cy - FAB_R)}px,0)`;
     }
@@ -4678,7 +4681,7 @@ if ('serviceWorker' in navigator) addEventListener('load', () => {
   const sw = navigator.serviceWorker; let ctl = sw.controller, reloading = false;
   // 새 버전이 올라오면 한 번 새로 열어 바로 반영 (처음 설치할 때는 제외)
   sw.addEventListener('controllerchange', () => { if (ctl && !reloading) { reloading = true; location.reload(); } ctl = sw.controller; });
-  sw.register('sw.js?v=be589e71').then(reg => {
+  sw.register('sw.js?v=c77101d1').then(reg => {
     // 앱을 켜 둔 채 다른 화면에 갔다 돌아오면 새 버전이 있는지 확인
     document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') reg.update().catch(() => {}); });
   }).catch(() => {});
