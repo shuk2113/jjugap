@@ -267,6 +267,14 @@ h2{margin:0; font-size:16px; font-weight:700; text-wrap:balance}
 .mv-sel{padding-right:28px; text-overflow:ellipsis; white-space:nowrap; overflow:hidden}
 .mv-selw{position:relative; flex:1; min-width:0; display:flex}
 .mv-selw::after{content:''; position:absolute; right:11px; top:50%; width:7px; height:7px; margin-top:-6px; border:solid var(--ink-2); border-width:0 2px 2px 0; transform:rotate(45deg); pointer-events:none}
+.mv-sug{display:flex; flex-direction:column; margin:6px 0 2px; border:1px solid var(--line); border-radius:12px; overflow:hidden; background:var(--card); box-shadow:0 4px 14px rgba(0,0,0,.12)}
+.mv-sug[hidden]{display:none}
+.mv-sug button{display:flex; align-items:center; gap:10px; min-height:44px; padding:8px 12px; border:0; border-top:1px solid var(--line); background:none; font:inherit; text-align:left; color:var(--ink); -webkit-tap-highlight-color:transparent; touch-action:manipulation}
+.mv-sug button:first-child{border-top:0} .mv-sug button:active{background:var(--well)}
+.mv-sug svg{flex:none; width:16px; height:16px; color:var(--ink-2)}
+.mv-sug b{flex:1; min-width:0; font-size:15px; font-weight:800; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.mv-sug b mark{background:none; color:#2F7DF6}
+.mv-sug span{flex:none; font-size:11.5px; font-weight:600; color:var(--ink-2)}
 .mv-hint{margin:6px 0 0; font-size:11.5px; line-height:1.45; color:#2F7DF6; word-break:keep-all}
 .mv-tip{margin:-2px 0 8px; font-size:11px; color:var(--ink-2)}
 .mv-tg + .mv-tg{margin-top:4px}
@@ -2854,7 +2862,7 @@ const TideHarm = (() => {
         mapPorts = d.filter(r => !Object.keys(TideHarm.STATIONS).some(k => { const S = TideHarm.STATIONS[k]; return distKm(S, { lat: r[1], lon: r[2] }) < 0.8; }))
           .map(r => ({ n: r[0], lat: r[1], lon: r[2], minS: minS[r[4] ?? (/항(\(.*\))?$/.test(r[0]) ? 0 : /선착장|터미널|마리나/.test(r[0]) ? 1 : 2)] || 3800, k: r[4] ?? 2 }))
           .sort((a, b) => a.k - b.k || a.n.length - b.n.length);
-        labC = null; draw();
+        labC = null; depCache.clear(); draw();
       }).catch(() => { mapPortsP = null; });
     }
     let bv = null, BM = 0, interacting = false, bufs = {};   // 바탕을 그린 때의 화면 · 바깥 여유(점) · 손가락으로 움직이는 중
@@ -3072,18 +3080,21 @@ const TideHarm = (() => {
       const drawOrder = TG.list.slice().reverse().filter(t => t !== selTr); if (selTr) drawOrder.push(selTr);
       const zk = v.s < 800 ? 0.7 : v.s < 1500 ? 0.85 : 1;   // 멀리 볼 때는 포인트를 조금 작게
       const star = (sx, sy, s, col) => { ctx.fillStyle = col; ctx.beginPath(); ctx.moveTo(sx, sy - s); ctx.quadraticCurveTo(sx, sy, sx + s, sy); ctx.quadraticCurveTo(sx, sy, sx, sy + s); ctx.quadraticCurveTo(sx, sy, sx - s, sy); ctx.quadraticCurveTo(sx, sy, sx, sy - s); ctx.fill(); };
+      const depMarks = new Map();
       for (const tr of drawOrder) {
         const A = selTr && tr !== selTr ? 0.3 : 1;
         const xy = tr.pts.map(p => { const [x, y] = toS(p.lon, p.lat), c = caughtOf(p); return { p, x, y, c, r: ptR(c) * zk + (p.id === selId ? 2 : 0), info: TG.by.get(p.id) }; });
-        const xs = xy.map(o => o.x), ys = xy.map(o => o.y);
+        const p0 = xy[0], D0 = depPosOf(p0.p), dOk = D0 && distKm(D0, p0.p) < 80, [sx, sy] = dOk ? toS(D0.lon, D0.lat) : [p0.x, p0.y];
+        const xs = [...xy.map(o => o.x), sx], ys = [...xy.map(o => o.y), sy];
         if (Math.max(...xs) < -60 || Math.min(...xs) > W + 60 || Math.max(...ys) < -60 || Math.min(...ys) > H + 60) continue;
         ctx.save(); ctx.lineJoin = 'round'; ctx.lineCap = 'round';
-        // 출항지에서 첫 포인트까지 (앱에 있는 출항지 이름일 때만, 옅은 점선)
-        const p0 = xy[0], S0 = p0.p.dep && TideHarm.STATIONS[p0.p.dep];
-        if (S0 && distKm(S0, p0.p) < 80) {
-          const [sx, sy] = toS(S0.lon, S0.lat), L = Math.hypot(p0.x - sx, p0.y - sy);
-          if (L > p0.r + 12) { const k = (L - p0.r - 4) / L; ctx.setLineDash([2, 6]); ctx.strokeStyle = tr.color; ctx.globalAlpha = A * 0.6; ctx.lineWidth = 1.8;
+        // 출항한 항구에서 첫 포인트까지 출조 색 점선 (어느 항에서 나갔는지 한눈에)
+        if (dOk) {
+          const L = Math.hypot(p0.x - sx, p0.y - sy);
+          if (L > p0.r + 12) { const k = (L - p0.r - 4) / L; ctx.setLineDash([3, 5]); ctx.strokeStyle = tr.color; ctx.globalAlpha = A * 0.8; ctx.lineWidth = 2;
             ctx.beginPath(); ctx.moveTo(sx, sy); ctx.lineTo(sx + (p0.x - sx) * k, sy + (p0.y - sy) * k); ctx.stroke(); ctx.setLineDash([]); }
+          const dk = D0.lat.toFixed(4) + ',' + D0.lon.toFixed(4), o = depMarks.get(dk);
+          if (!o) depMarks.set(dk, { x: sx, y: sy, n: p0.p.depName || (p0.p.dep && TideHarm.STATIONS[p0.p.dep] ? short(p0.p.dep) : ''), D0, A, col: tr.color }); else if (A > o.A) { o.A = A; o.col = tr.color; }
         }
         // 뱃길: 바다색 테두리 → 출조 색 선 → 흰 화살 무늬
         if (xy.length > 1) {
@@ -3141,6 +3152,23 @@ const TideHarm = (() => {
           ctx.globalAlpha = 1; ctx.fillStyle = '#FFFFFF'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(t, lx, ly + 0.5); ctx.textAlign = 'start'; ctx.textBaseline = 'alphabetic';
         }
         ctx.restore();
+      }
+      // 출항한 항구 표시: 점선이 시작되는 곳에 점, 이름이 다른 이름표로 안 보이면 이름도 (항구 이름을 숨겨도 출항지는 보이게)
+      for (const m of depMarks.values()) {
+        if (m.x < -80 || m.x > W + 80 || m.y < -30 || m.y > H + 30) continue;
+        ctx.globalAlpha = m.A; ctx.fillStyle = C.ink; ctx.strokeStyle = C.card; ctx.lineWidth = 2.2;
+        ctx.beginPath(); ctx.arc(m.x, m.y, 4.6, 0, 2 * Math.PI); ctx.fill(); ctx.stroke();
+        const atSt = Object.values(TideHarm.STATIONS).some(S => distKm(S, m.D0) < 0.4);
+        const shown = [...shownL.values()].some(e => e.on && e.a > 0.5 && e.c.t === 'p' && normName(e.c.n) === normName(m.n));
+        if (m.n && !atSt && !shown && v.s > 700) {
+          ctx.font = `700 10.5px ${font}`; const tw = ctx.measureText(m.n).width, bw = tw + 14;
+          const blocked = x => x + bw > W - 4 || (x + bw > W - 64 && m.y - 9 < 208);   // 화면 끝·오른쪽 위 단추 자리는 피해서 왼쪽에
+          const rx = blocked(m.x + 8) ? m.x - 8 - bw : m.x + 8;
+          ctx.fillStyle = C.card; ctx.globalAlpha = m.A * 0.94; ctx.beginPath(); ctx.roundRect ? ctx.roundRect(rx, m.y - 9, bw, 18, 9) : ctx.rect(rx, m.y - 9, bw, 18); ctx.fill();
+          ctx.globalAlpha = m.A; ctx.strokeStyle = m.col; ctx.lineWidth = 1.4; ctx.stroke();
+          ctx.fillStyle = C.ink; ctx.textBaseline = 'middle'; ctx.fillText(m.n, rx + 7, m.y + 0.5); ctx.textBaseline = 'alphabetic';
+        }
+        ctx.globalAlpha = 1;
       }
       // 내 위치: 오차 원 · 진행 방향 · 파란 점
       if (me) {
@@ -3441,21 +3469,112 @@ const TideHarm = (() => {
       [...customPorts.map(c => c.k), ...ST_KEYS].forEach(k => TideHarm.STATIONS[k] && add(TideHarm.STATIONS[k].name));
       return out.slice(0, 30);
     }
+    // ---------- 출항지 이름 ↔ 자리: 항·포구 목록, 기본·고른 출항지, 전에 고른 기록에서 찾는다 (출항지에서 첫 포인트까지 점선을 잇는 데 쓴다)
+    const normName = t => String(t || '').replace(/[\s·]/g, '').toLowerCase();
+    // 한글을 자모로 풀어 비교 (쓰는 중인 글자 '대처' 도 '대천항' 에 맞게). 겹모음·겹받침도 풀어 둔다
+    const CHO = 'ㄱㄲㄴㄷㄸㄹㅁㅂㅃㅅㅆㅇㅈㅉㅊㅋㅌㅍㅎ', JUNG = 'ㅏㅐㅑㅒㅓㅔㅕㅖㅗㅘㅙㅚㅛㅜㅝㅞㅟㅠㅡㅢㅣ', JONG = ' ㄱㄲㄳㄴㄵㄶㄷㄹㄺㄻㄼㄽㄾㄿㅀㅁㅂㅄㅅㅆㅇㅈㅊㅋㅌㅍㅎ';
+    const JSPLIT = { 'ㅘ': 'ㅗㅏ', 'ㅙ': 'ㅗㅐ', 'ㅚ': 'ㅗㅣ', 'ㅝ': 'ㅜㅓ', 'ㅞ': 'ㅜㅔ', 'ㅟ': 'ㅜㅣ', 'ㅢ': 'ㅡㅣ', 'ㄳ': 'ㄱㅅ', 'ㄵ': 'ㄴㅈ', 'ㄶ': 'ㄴㅎ', 'ㄺ': 'ㄹㄱ', 'ㄻ': 'ㄹㅁ', 'ㄼ': 'ㄹㅂ', 'ㄽ': 'ㄹㅅ', 'ㄾ': 'ㄹㅌ', 'ㄿ': 'ㄹㅍ', 'ㅀ': 'ㄹㅎ', 'ㅄ': 'ㅂㅅ' };
+    const jamoC = new Map();
+    const jamo = t => {
+      t = normName(t).replace(/[()\-]/g, ''); let o = jamoC.get(t); if (o != null) return o; o = '';
+      for (const ch of t) {
+        const c = ch.charCodeAt(0) - 0xAC00;
+        if (c >= 0 && c < 11172) { o += CHO[c / 588 | 0]; const v = JUNG[(c % 588) / 28 | 0]; o += JSPLIT[v] || v; const f = JONG[c % 28]; if (f !== ' ') o += JSPLIT[f] || f; }
+        else o += JSPLIT[ch] || ch;
+      }
+      jamoC.set(t, o); return o;
+    };
+    const choOf = t => { let o = ''; for (const ch of normName(t)) { const c = ch.charCodeAt(0) - 0xAC00; o += c >= 0 && c < 11172 ? CHO[c / 588 | 0] : ch; } return o; };
+    // 이름에 꼭 맞는 출항지 자리 (같은 이름이 여러 곳이면 near 에서 가까운 곳)
+    function depPos(name, near) {
+      const nn = normName(name); if (!nn) return null;
+      let best = null, bd = 1e9;
+      const cand = (lat, lon) => { const d = near ? distKm(near, { lat, lon }) : 0; if (d < bd) { bd = d; best = { lat, lon }; } };
+      for (const k of Object.keys(TideHarm.STATIONS)) { const S = TideHarm.STATIONS[k]; if (normName(S.name) === nn || normName(short(k)) === nn) cand(S.lat, S.lon); }
+      if (!best) for (const q of points) if (q.depLat != null && normName(q.depName) === nn) cand(q.depLat, q.depLon);
+      if (!best && portsList) for (const r of portsList) if (normName(r[0]) === nn) cand(r[1], r[2]);
+      if (!best && portsList) for (const r of portsList) if (r[5] && (normName(r[5]) === nn || r[5].split(' ').some(w => normName(w) === nn))) cand(r[1], r[2]);
+      return best && bd < 120 ? best : null;
+    }
+    // 포인트의 출항지 자리 (예전 기록은 이름으로 찾아 둔다)
+    const depCache = new Map();
+    function depPosOf(p) {
+      if (p.depLat != null) return { lat: p.depLat, lon: p.depLon };
+      if (!p.depName) return (p.dep && TideHarm.STATIONS[p.dep]) || null;
+      const key = p.depName + '|' + p.lat.toFixed(1) + ',' + p.lon.toFixed(1);
+      if (depCache.has(key)) return depCache.get(key);
+      const r = depPos(p.depName, p); if (portsList) depCache.set(key, r);   // 항·포구 목록을 받기 전이면 다음에 다시
+      return r;
+    }
+    // 자동완성 후보: 전에 쓴 출항지 → 기본·고른 출항지 → 항·포구 목록 (같은 이름·같은 자리는 하나로)
+    function depCands(near) {
+      const out = [], idx = new Map();
+      const add = (n, lat, lon, sub, src, aka) => {
+        n = (n || '').trim(); if (!n) return;
+        const k = normName(n), o = idx.get(k);
+        if (o && (o.lat == null || lat == null || distKm(o, { lat, lon }) < 3)) { if (o.lat == null && lat != null) { o.lat = lat; o.lon = lon; } if (!o.sub && sub) o.sub = sub; if (!o.aka && aka) o.aka = aka; return; }
+        const e = { n, lat, lon, sub, src, aka: aka || '' }; out.push(e); if (!o) idx.set(k, e);
+      };
+      const recent = new Map();
+      for (const q of points) if (q.depName && !recent.has(normName(q.depName))) recent.set(normName(q.depName), q);
+      for (const q of recent.values()) { const pp = depPosOf(q); add(q.depName, pp ? pp.lat : null, pp ? pp.lon : null, '', 0); }
+      for (const b of boatsMem()) { const n = boatDep(b); if (n) add(n, b.depLat != null ? b.depLat : null, b.depLon != null ? b.depLon : null, '', 0); }
+      for (const k of [...customPorts.map(c => c.k), ...ST_KEYS]) { const S = TideHarm.STATIONS[k]; if (S) add(S.name, S.lat, S.lon, S.custom ? '고른 출항지' : '기본 출항지', 1, short(k)); }
+      if (portsList) for (const r of portsList) add(r[0], r[1], r[2], r[3], 2, r[5]);
+      return out;
+    }
+    let sugs = [];
+    function depSug(q) {
+      const box = $('mv-dep-sug'); if (!box) return;
+      const raw = (q || '').trim(), qj = jamo(raw), near = form && form.lat != null ? form : me;
+      if (!qj) { box.hidden = true; sugs = []; return; }
+      const toks = raw.split(/\s+/).map(jamo).filter(Boolean), onlyCho = /^[ㄱ-ㅎ]+$/.test(normName(raw));
+      const res = [];
+      for (const e of depCands(near)) {
+        const nj = jamo(e.n);
+        let sc = nj.startsWith(qj) ? 5 : nj.includes(qj) ? 4 : 0, aka = '';
+        if (!sc && onlyCho && choOf(e.n).includes(normName(raw))) sc = 3.5;
+        if (!sc && e.aka) { const ws = e.aka.split(' '), w = ws.find(x => jamo(x).startsWith(qj)) || ws.find(x => jamo(x).includes(qj)) || (jamo(e.aka).includes(qj) ? ' ' : ''); if (w) { sc = 3; aka = w.trim(); } }
+        if (!sc && toks.length > 1 && toks.every(t => (nj + jamo(e.sub || '') + jamo(e.aka)).includes(t))) sc = 2.5;
+        if (!sc) continue;
+        const d = near && e.lat != null ? distKm(near, e) : null;
+        res.push({ e, aka, d, s: sc + (e.src === 0 ? 1.5 : e.src === 1 ? 0.4 : 0) - (d == null ? 0.6 : Math.min(1.6, d / 30)) });
+      }
+      res.sort((a, b) => b.s - a.s || a.e.n.length - b.e.n.length);
+      sugs = res.slice(0, 5);
+      if (!sugs.length || (sugs.length === 1 && normName(sugs[0].e.n) === normName(raw))) { box.hidden = true; return; }
+      const hl = n => { const i = normName(n).indexOf(normName(raw)); if (i < 0 || n.includes(' ')) return esc(n); return esc(n.slice(0, i)) + '<mark>' + esc(n.slice(i, i + normName(raw).length)) + '</mark>' + esc(n.slice(i + normName(raw).length)); };
+      const pin = '<svg viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="4.9" r="2.1"/><path d="M12 7v13.4M8.6 10.3h6.8M4.9 13.4c.6 4.2 3.6 7 7.1 7s6.5-2.8 7.1-7"/></g></svg>';
+      box.innerHTML = sugs.map((x, i) => {
+        const sub = [x.e.src === 0 ? '전에 쓴 곳' : x.e.sub, x.aka && x.aka !== x.e.n && x.aka.length <= 8 ? x.aka : '', x.d != null ? (x.d < 10 ? x.d.toFixed(1) : Math.round(x.d)) + 'km' : ''].filter(Boolean).join(' · ');
+        return `<button type="button" role="option" data-sug="${i}">${pin}<b>${hl(x.e.n)}</b><span>${esc(sub)}</span></button>`;
+      }).join('');
+      box.hidden = false;
+      setTimeout(() => { try { box.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); } catch (_) {} }, 60);
+    }
+    function pickSug(i) {
+      const x = sugs[i], el = $('mv-dep'); if (!x || !form) return;
+      form.depName = x.e.n; form.depPos = x.e.lat != null ? { n: x.e.n, lat: x.e.lat, lon: x.e.lon } : null;
+      if (el) { el.value = x.e.n; el.blur(); }
+      const box = $('mv-dep-sug'); if (box) box.hidden = true; sugs = [];
+      draw();
+    }
     function tripFor(at) {
       const trip = loadJ(TRIP_KEY, null);
-      if (trip && trip.d === kstDay(at)) return { boat: trip.boat || '', depName: trip.depName || depLabel(trip.dep), hint: '' };
+      if (trip && trip.d === kstDay(at)) { const n = trip.depName || depLabel(trip.dep); return { boat: trip.boat || '', depName: n, depPos: trip.depLat != null ? { n, lat: trip.depLat, lon: trip.depLon } : null, hint: '' }; }
       const depName = depLabel(tideSt), b = boatsMem().find(x => boatDep(x) === depName);
-      return { boat: b ? b.n : '', depName, hint: b ? `오늘 첫 저장이라 지난번 ${esc(short(tideSt))}에서 탄 배를 넣어 두었어요. 다르면 바꿔 주세요.`
+      return { boat: b ? b.n : '', depName, depPos: null, hint: b ? `오늘 첫 저장이라 지난번 ${esc(short(tideSt))}에서 탄 배를 넣어 두었어요. 다르면 바꿔 주세요.`
         : '탄 배와 출항지는 오늘 한 번만 적으면 그 뒤 포인트에는 저절로 붙어요.' };
     }
-    function rememberTrip(at, boat, depName) {
-      const today = kstDay(Date.now());
+    function rememberTrip(at, boat, depName, dp) {
+      const today = kstDay(Date.now()), pos = dp && dp.depLat != null ? { depLat: dp.depLat, depLon: dp.depLon } : {};
       if (kstDay(at) === today) {
-        saveJ(TRIP_KEY, { d: today, boat, depName });
-        let ch = false; for (const q of points) if (q.tripGuess && kstDay(q.t) === today) { Object.assign(q, tripOf({ boat, depName })); delete q.tripGuess; ch = true; }
+        saveJ(TRIP_KEY, { d: today, boat, depName, ...pos });
+        const depPos0 = pos.depLat != null ? { n: depName, lat: pos.depLat, lon: pos.depLon } : null;
+        let ch = false; for (const q of points) if (q.tripGuess && kstDay(q.t) === today) { Object.assign(q, tripOf({ boat, depName, depPos: depPos0 }, q)); delete q.tripGuess; ch = true; }
         if (ch) savePts();
       }
-      if (boat) saveJ(BOAT_KEY, [{ n: boat, depName, t: Date.now() }, ...boatsMem().filter(b => b.n !== boat)].slice(0, 10));
+      if (boat) saveJ(BOAT_KEY, [{ n: boat, depName, ...pos, t: Date.now() }, ...boatsMem().filter(b => b.n !== boat)].slice(0, 10));
     }
     function tripRow(f) {
       const boats = boatsMem().map(b => b.n);
@@ -3466,7 +3585,8 @@ const TideHarm = (() => {
         : `<span class="mv-selw"><select class="mv-sel" id="mv-boat-s" aria-label="탄 배">${boats.map(n => `<option value="${esc(n)}"${n === f.boat ? ' selected' : ''}>${esc(n)}</option>`).join('')}`
           + `<option value=""${f.boat ? '' : ' selected'}>배 이름 없이</option><option value="__new">+ 새 배 이름 쓰기</option></select></span>`;
       return `<div class="mv-step mv-trip"><span>출조</span>${boat}`
-        + `<input class="mv-in" id="mv-dep" maxlength="20" placeholder="출항지 (예: 인천 남항)" value="${esc(f.depName || '')}" aria-label="출항지" autocomplete="off" autocorrect="off" spellcheck="false"></div>`
+        + `<input class="mv-in" id="mv-dep" maxlength="20" placeholder="출항지 (예: 인천 남항)" value="${esc(f.depName || '')}" aria-label="출항지" autocomplete="off" autocorrect="off" spellcheck="false" enterkeyhint="done"></div>`
+        + `<div class="mv-sug" id="mv-dep-sug" role="listbox" aria-label="출항지 추천" hidden></div>`
         + (f.hint ? `<p class="mv-hint">${f.hint}</p>` : '');
     }
     // 출조로 묶기: 출조 색(처음 나간 날 순서로 정해져 바뀌지 않음) · 출조 안에서 저장한 순서 · 그 출조에서 가장 많이 잡은 곳(5마리 이상)
@@ -3522,26 +3642,31 @@ const TideHarm = (() => {
       const p = points.find(q => q.id === id); if (!p) return;
       sheetAtLeast('open');
       const S = TideHarm.STATIONS[p.port] || TideHarm.STATIONS[nearest(p).k];
-      form = { edit: id, boat: p.boat || '', depName: p.depName || depLabel(p.dep), hint: '', jj: p.jj || 0, gap: p.gap || 0, etc: (p.etc && p.etc.length ? p.etc : [{ n: '', c: 0 }]).map(e => ({ n: e.n || '', c: e.c || 0 })), memo: p.memo || '', at: p.t,
+      form = { edit: id, boat: p.boat || '', depName: p.depName || depLabel(p.dep), depPos: p.depLat != null ? { n: p.depName, lat: p.depLat, lon: p.depLon } : null, hint: '', jj: p.jj || 0, gap: p.gap || 0, etc: (p.etc && p.etc.length ? p.etc : [{ n: '', c: 0 }]).map(e => ({ n: e.n || '', c: e.c || 0 })), memo: p.memo || '', at: p.t,
         where: `${short(p.port)}에서 ${dirOf(S, p)}쪽 ${kmTxt(distKm(S, p))}`, cond: `${p.mul} · ${p.stand ? p.stand.replace(' · ', ' ') : (p.rising ? '들물' : '날물')} ${meters(p.h)}` };
       mode = 'save'; selId = id; paintForm(); draw();
     }
     // 저장할 때 함께 남기는 그때의 물때·물 높이·조류·바람·수온
     const condOf = i => ({ port: i.k, mul: i.dd.name, lv: i.dd.lv, h: Math.round(i.h), rising: i.rising, stand: i.stand, pct: i.pct, wind: i.wind, wave: i.wave, wt: i.wt,
       spot: !!i.spot, cur: i.cur ? { kn: +(i.cur.sp / KN).toFixed(1), dir: Math.round(i.cur.dir), calm: i.cur.calm, at: i.cur.name, model: !!i.cur.model } : null, wtAt: i.wtName || null });
-    const tripOf = f => { const boat = (f.boat || '').trim().slice(0, 16), depName = (f.depName || '').trim().slice(0, 20);
-      return { boat, depName, dep: Object.keys(TideHarm.STATIONS).find(k => TideHarm.STATIONS[k].name === depName) || '' }; };
+    // 출조 정보: 출항지를 목록에서 골랐으면 그 자리, 아니면 이름으로 찾은 자리(못 찾으면 이름만)
+    const tripOf = (f, near) => {
+      const boat = (f.boat || '').trim().slice(0, 16), depName = (f.depName || '').trim().slice(0, 20);
+      const pp = !depName ? null : f.depPos && normName(f.depPos.n) === normName(depName) ? f.depPos : depPos(depName, near || (f.lat != null ? f : null));
+      return { boat, depName, dep: Object.keys(TideHarm.STATIONS).find(k => TideHarm.STATIONS[k].name === depName) || '',
+        depLat: pp ? +(+pp.lat).toFixed(5) : undefined, depLon: pp ? +(+pp.lon).toFixed(5) : undefined };
+    };
     function commit() {
       const f = form, memo = (($('mv-memo') || {}).value || '').trim();
       const etc = f.etc.map(e => ({ n: e.n.trim(), c: clampN(e.c) })).filter(e => e.c > 0 || e.n);
       if (f.edit) {
         const p = points.find(q => q.id === f.edit);
-        if (p) { Object.assign(p, tripOf(f)); p.jj = clampN(f.jj); p.gap = clampN(f.gap); p.etc = etc; p.memo = memo; p.edited = Date.now(); savePts(); if (kstDay(p.t) === kstDay(Date.now())) rememberTrip(p.t, p.boat, p.depName); }
+        if (p) { Object.assign(p, tripOf(f, p)); p.jj = clampN(f.jj); p.gap = clampN(f.gap); p.etc = etc; p.memo = memo; p.edited = Date.now(); depCache.clear(); savePts(); if (kstDay(p.t) === kstDay(Date.now())) rememberTrip(p.t, p.boat, p.depName, p); }
         form = null; toast('고친 내용을 저장했어요'); showDetail(f.edit); draw(); return;
       }
       points.unshift({ id: String(f.at), t: f.at, lat: +f.lat.toFixed(6), lon: +f.lon.toFixed(6), acc: Math.round(f.acc), virtual: f.virtual,
         ...tripOf(f), ...condOf(f.i), jj: clampN(f.jj), gap: clampN(f.gap), etc, memo });
-      rememberTrip(f.at, points[0].boat, points[0].depName);
+      rememberTrip(f.at, points[0].boat, points[0].depName, points[0]);
       if (!f.virtual) absorbAuto(points[0]);
       savePts(); form = null; mode = 'info'; sheetDown(); toast('포인트를 저장했어요'); paintPanel(true); draw();
     }
@@ -3557,8 +3682,12 @@ const TideHarm = (() => {
       else if (t.classList.contains('mv-sp')) form.etc[+t.dataset.j].n = t.value;
       else if (t.id === 'mv-memo') form.memo = t.value;
       else if (t.id === 'mv-boat') form.boat = t.value;
-      else if (t.id === 'mv-dep') form.depName = t.value;
+      else if (t.id === 'mv-dep') { form.depName = t.value; depSug(t.value); }
     });
+    // 추천 누르기: 누르는 순간 입력칸이 닫혀 목록이 사라지지 않게 (pointerdown 기본 동작 막기), 손을 떼면 고른다
+    panel.addEventListener('pointerdown', e => { if (e.target.closest && e.target.closest('[data-sug]')) e.preventDefault(); });
+    panel.addEventListener('click', e => { const b = e.target.closest && e.target.closest('[data-sug]'); if (b) { e.stopPropagation(); pickSug(+b.dataset.sug); } }, true);
+    panel.addEventListener('focusout', e => { if (e.target.id === 'mv-dep') setTimeout(() => { const box = $('mv-dep-sug'); if (box && document.activeElement !== $('mv-dep')) box.hidden = true; }, 180); });
     panel.addEventListener('change', e => {
       const t = e.target; if (!form) return;
       if (t.id === 'mv-boat-s') {
@@ -3566,13 +3695,13 @@ const TideHarm = (() => {
         form.boat = t.value;
         // 아는 배를 고르면 그 배가 지난번에 나간 출항지로
         const b = boatsMem().find(x => x.n === t.value);
-        if (b && boatDep(b) && !form.edit) form.depName = boatDep(b);
+        if (b && boatDep(b) && !form.edit) { form.depName = boatDep(b); form.depPos = b.depLat != null ? { n: form.depName, lat: b.depLat, lon: b.depLon } : null; }
         form.hint = ''; paintForm();
       }
     });
     panel.addEventListener('click', e => { const t = e.target; if (t.classList && t.classList.contains('mv-n')) { try { t.select(); } catch (_) {} } });
     panel.addEventListener('focusout', e => { const t = e.target; if (form && t.classList.contains('mv-n')) t.value = getN(t.dataset.k); });
-    panel.addEventListener('keydown', e => { if (e.key === 'Enter' && e.target.classList.contains('mv-n')) e.target.blur(); });
+    panel.addEventListener('keydown', e => { if (e.key === 'Enter' && (e.target.classList.contains('mv-n') || e.target.id === 'mv-dep' || e.target.id === 'mv-boat')) e.target.blur(); });
 
     // ---------- 포인트 목록: 출조마다 묶고(머리를 누르면 접기·펴기), 줄을 꾹 누르면 고치기·지우기, 왼쪽으로 밀면 휴지통
     const FOLD_KEY = 'jjukgap-fold';
@@ -4548,7 +4677,7 @@ if ('serviceWorker' in navigator) addEventListener('load', () => {
   const sw = navigator.serviceWorker; let ctl = sw.controller, reloading = false;
   // 새 버전이 올라오면 한 번 새로 열어 바로 반영 (처음 설치할 때는 제외)
   sw.addEventListener('controllerchange', () => { if (ctl && !reloading) { reloading = true; location.reload(); } ctl = sw.controller; });
-  sw.register('sw.js?v=407c21a8').then(reg => {
+  sw.register('sw.js?v=c1bf7b72').then(reg => {
     // 앱을 켜 둔 채 다른 화면에 갔다 돌아오면 새 버전이 있는지 확인
     document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') reg.update().catch(() => {}); });
   }).catch(() => {});
