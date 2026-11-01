@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">쭈갑 물때</string>
+    <string name="sc_save">포인트 저장</string>
+    <string name="sc_map">바다 지도</string>
+</resources>

@@ -1,0 +1,85 @@
+# 쭈갑 물때 안드로이드 앱 만들기 → 가상 휴대폰에서 시험 → 결과(화면·기록)를 android-out 가지에, 진짜 서명이면 앱 파일을 gh-pages/app/ 에
+name: android
+on:
+  push:
+    branches: [android]
+permissions:
+  contents: write
+concurrency:
+  group: android
+  cancel-in-progress: true
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 50
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with: { distribution: temurin, java-version: '17' }
+      - uses: gradle/actions/setup-gradle@v4
+        with: { gradle-version: '8.7' }
+      - name: 서명 키 (같은 키로 계속 서명해야 업데이트가 된다)
+        id: key
+        env:
+          PASS: ${{ secrets.ANDROID_SIGN_PASS }}
+        run: |
+          set -e; mkdir -p out
+          if [ -n "$PASS" ] && [ -f android/keystore.enc ]; then
+            openssl enc -d -aes-256-cbc -pbkdf2 -iter 200000 -in android/keystore.enc -out "$RUNNER_TEMP/ks.jks" -pass env:PASS
+            echo "real=1" >> "$GITHUB_OUTPUT"
+          elif [ -n "$PASS" ]; then
+            keytool -genkeypair -keystore "$RUNNER_TEMP/ks.jks" -storetype PKCS12 -storepass "$PASS" -keypass "$PASS" -alias jjugap \
+              -keyalg RSA -keysize 3072 -validity 36500 -dname "CN=Jjugap Multtae, O=jjugap" >/dev/null 2>&1
+            openssl enc -aes-256-cbc -pbkdf2 -iter 200000 -salt -in "$RUNNER_TEMP/ks.jks" -out android/keystore.enc -pass env:PASS
+            echo "real=1" >> "$GITHUB_OUTPUT"; echo "new=1" >> "$GITHUB_OUTPUT"
+          else
+            keytool -genkeypair -keystore "$RUNNER_TEMP/ks.jks" -storetype PKCS12 -storepass testtest -keypass testtest -alias jjugap \
+              -keyalg RSA -keysize 2048 -validity 3650 -dname "CN=test" >/dev/null 2>&1
+            echo "real=0" >> "$GITHUB_OUTPUT"
+          fi
+      - name: 새 서명 키(암호화된 것) 보관
+        if: steps.key.outputs.new == '1'
+        run: |
+          git add android/keystore.enc
+          git -c user.name=jjugap-bot -c user.email=jjugap-bot@users.noreply.github.com commit -qm "서명 키 보관 (암호화) [skip ci]"
+          git push -q origin HEAD:android
+      - name: 앱 만들기
+        env:
+          KS_FILE: ${{ runner.temp }}/ks.jks
+          KS_PASS: ${{ secrets.ANDROID_SIGN_PASS || 'testtest' }}
+        run: |
+          gradle -p android assembleRelease --no-daemon --stacktrace > out/build.txt 2>&1 || { tail -60 out/build.txt; echo "build fail" > out/status.txt; exit 1; }
+          cp android/app/build/outputs/apk/release/app-release.apk out/jjugap.apk
+          echo "build ok real=${{ steps.key.outputs.real }} run=${{ github.run_number }}" > out/status.txt
+      - name: 가상 휴대폰 준비
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules && sudo udevadm trigger --name-match=kvm
+      - name: 가상 휴대폰에서 시험
+        continue-on-error: true
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          arch: x86_64
+          target: google_apis
+          emulator-options: -no-snapshot -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim
+          disable-animations: true
+          script: bash android/emu-test.sh
+      - name: 앱 파일 올리기 (진짜 서명일 때만)
+        if: steps.key.outputs.real == '1'
+        run: |
+          git fetch -q origin gh-pages
+          git worktree add -q "$RUNNER_TEMP/gp" origin/gh-pages
+          cd "$RUNNER_TEMP/gp"
+          mkdir -p app && cp "$GITHUB_WORKSPACE/out/jjugap.apk" app/jjugap.apk && echo "${{ github.run_number }}" > app/version.txt
+          git add app
+          git -c user.name=jjugap-bot -c user.email=jjugap-bot@users.noreply.github.com commit -qm "안드로이드 앱 1.${{ github.run_number }}"
+          for i in 1 2 3 4; do git pull -q --rebase origin gh-pages && git push -q origin HEAD:gh-pages && break; sleep 7; done
+      - name: 결과 올리기 (android-out)
+        if: always()
+        run: |
+          cd out 2>/dev/null || exit 0
+          git init -q -b android-out .
+          git add -A
+          git -c user.name=jjugap-bot -c user.email=jjugap-bot@users.noreply.github.com commit -qm "run ${{ github.run_number }}"
+          git push -qf "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}" HEAD:android-out

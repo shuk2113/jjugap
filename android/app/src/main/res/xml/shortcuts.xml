@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
+    <shortcut android:shortcutId="save" android:enabled="true" android:icon="@drawable/sc_save"
+        android:shortcutShortLabel="@string/sc_save" android:shortcutLongLabel="@string/sc_save">
+        <intent android:action="android.intent.action.VIEW"
+            android:targetPackage="io.github.shuk2113.jjugap"
+            android:targetClass="io.github.shuk2113.jjugap.MainActivity">
+            <extra android:name="act" android:value="save" />
+        </intent>
+    </shortcut>
+    <shortcut android:shortcutId="map" android:enabled="true" android:icon="@drawable/sc_map"
+        android:shortcutShortLabel="@string/sc_map" android:shortcutLongLabel="@string/sc_map">
+        <intent android:action="android.intent.action.VIEW"
+            android:targetPackage="io.github.shuk2113.jjugap"
+            android:targetClass="io.github.shuk2113.jjugap.MainActivity">
+            <extra android:name="act" android:value="map" />
+        </intent>
+    </shortcut>
+</shortcuts>
