@@ -1,50 +1,28 @@
-"""해양수산부 어항·항포구 목록(공공데이터포털 파일데이터, 로그인 없이 받는 공개 자료) 받기
-소규모항 · 마을공동어항 · 지방어항 · 어촌정주어항 · 소형선항만안내 · 어촌어항현황"""
-import json, os, re, traceback, urllib.request, urllib.parse, http.cookiejar
+"""몇 곳 위치 찾기 (OSM): 이름에 잠진·오이도·야미·구매·마량·선재·거잠·대천항·남항 이 들어간 모든 것"""
+import json, os, subprocess, sys, importlib, site, traceback, re
 log = []
-os.makedirs('probe-out/ports', exist_ok=True)
-IDS = {'15148635': '소규모항', '15144585': '마을공동어항', '15147449': '지방어항', '15147417': '어촌정주어항', '15148613': '소형선항만안내', '15059868': '어촌어항현황'}
-cj = http.cookiejar.CookieJar()
-op = urllib.request.build_opener(urllib.request.HTTPCookieProcessor(cj))
-op.addheaders = [('User-Agent', 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/120 Safari/537.36'), ('Accept-Language', 'ko-KR,ko;q=0.9')]
-def get(url, ref=None):
-    req = urllib.request.Request(url)
-    if ref: req.add_header('Referer', ref)
-    with op.open(req, timeout=90) as r: return r.read(), r.headers
-for pid, nm in IDS.items():
-    try:
-        page = f'https://www.data.go.kr/data/{pid}/fileData.do'
-        html = get(page)[0].decode('utf-8', 'ignore')
-        uddis = sorted(set(re.findall(r'uddi:[0-9a-zA-Z\-_]+', html)))
-        log.append(f'== {pid} {nm} uddi={uddis[:4]}')
-        for m in re.finditer(r'(fn_\w*[Dd]own\w*\([^)]*\)|selectFileDataDownload[^"\']*|fileDownload\.do[^"\']*|atchFileId[^,;]{0,80})', html):
-            log.append('   js: ' + m.group(0)[:200])
-        got = False
-        for u in uddis:
-            for url in (f'https://www.data.go.kr/tcs/dss/selectFileDataDownload.do?recommendDataYn=Y&publicDataPk={pid}&publicDataDetailPk={urllib.parse.quote(u)}',
-                        f'https://www.data.go.kr/tcs/dss/selectFileDataDownload.do?publicDataPk={pid}&publicDataDetailPk={urllib.parse.quote(u)}'):
-                try:
-                    body, hd = get(url, page)
-                    txt = body.decode('utf-8', 'ignore')
-                    log.append(f'   info {url[-60:]} -> {txt[:300]}')
-                    j = json.loads(txt)
-                    atch = j.get('atchFileId') or (j.get('fileDataRegistVO') or {}).get('atchFileId')
-                    sn = j.get('fileDetailSn') or (j.get('fileDataRegistVO') or {}).get('fileDetailSn') or 1
-                    if not atch: continue
-                    data, hd2 = get(f'https://www.data.go.kr/cmm/cmm/fileDownload.do?atchFileId={atch}&fileDetailSn={sn}', page)
-                    ext = 'csv'
-                    cd = hd2.get('Content-Disposition', '')
-                    if '.xls' in cd: ext = 'xlsx' if '.xlsx' in cd else 'xls'
-                    if '.zip' in cd: ext = 'zip'
-                    open(f'probe-out/ports/{pid}.{ext}', 'wb').write(data)
-                    log.append(f'   saved {pid}.{ext} {len(data)} bytes cd={cd[:120]}')
-                    got = True; break
-                except Exception as e:
-                    log.append(f'   fail {url[-50:]}: {e}')
-            if got: break
-        if not got:
-            i = html.find('다운로드')
-            log.append('   page snippet: ' + re.sub(r'\s+', ' ', html[max(0, i - 1500): i + 800])[:2300])
-    except Exception:
-        log.append(traceback.format_exc())
+try:
+    subprocess.run(f'{sys.executable} -m pip install -q --user --break-system-packages osmium', shell=True)
+    importlib.invalidate_caches(); site.addsitedir(site.getusersitepackages())
+    import osmium
+    subprocess.run('wget -q https://download.geofabrik.de/asia/south-korea-latest.osm.pbf -O kr.pbf; sudo apt-get -qq install -y osmium-tool > /dev/null; osmium extract -b 125.3,35.1,127.4,38.1 kr.pbf -o box.pbf --overwrite --strategy=smart', shell=True)
+    PAT = re.compile(r'(잠진|오이도|야미|구매|마량|거잠|무의대교|대천항|남항|홍원|어은돌)')
+    out = []
+    def tg(tags): return {k: tags[k] for k in ('place', 'highway', 'amenity', 'harbour', 'man_made', 'leisure', 'public_transport', 'tourism', 'natural', 'building', 'shop', 'seamark:type', 'ferry') if k in tags}
+    class H(osmium.SimpleHandler):
+        def node(self, n):
+            nm = n.tags.get('name:ko') or n.tags.get('name') or ''
+            if PAT.search(nm): out.append([nm, round(n.location.lat, 6), round(n.location.lon, 6), tg(n.tags), 'n'])
+        def way(self, w):
+            nm = w.tags.get('name:ko') or w.tags.get('name') or ''
+            if not PAT.search(nm): return
+            try:
+                pts = [(x.lat, x.lon) for x in w.nodes if x.location.valid()]
+            except Exception: return
+            if pts: out.append([nm, round(sum(p[0] for p in pts) / len(pts), 6), round(sum(p[1] for p in pts) / len(pts), 6), tg(w.tags), 'w', [round(pts[0][0], 6), round(pts[0][1], 6)], [round(pts[-1][0], 6), round(pts[-1][1], 6)]])
+    H().apply_file('box.pbf', locations=True, idx='flex_mem')
+    json.dump(out, open('probe-out/osm/names_find.json', 'w'), ensure_ascii=False)
+    log += [json.dumps(o, ensure_ascii=False) for o in out[:400]]
+except Exception:
+    log.append(traceback.format_exc())
 open('probe-out/log.txt', 'w').write('\n'.join(log))
