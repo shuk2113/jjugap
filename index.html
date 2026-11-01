@@ -304,6 +304,10 @@ a.mv-row-btn{text-decoration:none; gap:10px} .mv-row-btn span{font-size:20px; li
 .mv-paste{display:block; min-height:86px; resize:none; line-height:1.4}
 .mv-set .mv-tip{margin:0; padding:9px 2px 11px; border-top:1px solid var(--line)}
 .mv-list b .mv-autot{display:inline-block; margin-left:6px; padding:1px 7px; border-radius:999px; border:1px solid var(--line); color:var(--ink-2); font-style:normal; font-size:10.5px; font-weight:700; vertical-align:1px}
+.upd-bar{position:fixed; left:12px; right:12px; bottom:calc(14px + env(safe-area-inset-bottom, 0px)); z-index:95; max-width:496px; margin:0 auto; display:flex; align-items:center; gap:8px; padding:7px 6px 7px 16px; border-radius:16px; background:rgba(8,20,24,.95); color:#fff; font-size:13.5px; font-weight:700; box-shadow:0 6px 20px rgba(0,0,0,.3); animation:sheetUp .3s cubic-bezier(.2,.8,.2,1)}
+.upd-bar span{flex:1; min-width:0}
+.upd-bar .go{flex:none; height:36px; padding:0 15px; border:0; border-radius:999px; background:#2F7DF6; font:inherit; font-size:13.5px; font-weight:800; color:#fff; -webkit-tap-highlight-color:transparent}
+.upd-bar .x{flex:none; width:34px; height:34px; padding:0; border:0; background:none; font:inherit; font-size:20px; color:rgba(255,255,255,.75); -webkit-tap-highlight-color:transparent}
 .mv-snack{position:absolute; left:10px; top:48px; z-index:3; max-width:calc(100% - 74px); display:flex; align-items:center; gap:10px; padding:6px 6px 6px 14px; border-radius:16px; background:rgba(8,20,24,.9); color:#fff; font-size:13px; font-weight:600; line-height:1.35; box-shadow:0 4px 14px rgba(0,0,0,.25)}
 .mv-snack span{min-width:0} .mv-snack button{flex:none; height:32px; padding:0 13px; border:0; border-radius:999px; background:rgba(255,255,255,.14); font:inherit; font-size:13px; font-weight:800; color:#8EC5FF; -webkit-tap-highlight-color:transparent}
 .mv-list b .mv-no{display:inline-grid; place-items:center; width:19px; height:19px; margin-right:6px; border:1.6px solid; border-radius:50%; background:#fff; font-style:normal; font-size:10.5px; font-weight:800; vertical-align:1px}
@@ -3399,6 +3403,7 @@ const TideHarm = (() => {
         + `<button type="button" class="mv-sw${autoOn ? ' on' : ''}" data-act="auto-tog" role="switch" aria-checked="${autoOn}"><span><b>5분 머문 곳 자동 기록</b><small>${NAT ? '지도를 켜 두면 홈 화면에 나가 있거나 화면이 꺼져도, 배가 한자리에 5분 넘게 머문 곳을 포인트로 남겨요.' : '지도 화면이 켜져 있을 때 배가 한자리에 5분 넘게 머물면 포인트로 남겨요.'} 마릿수는 나중에 넣어요.</small></span><i></i></button>`
         + (NAT ? `<button type="button" class="mv-sw${natBubble() ? ' on' : ''}" data-act="bubble-tog" role="switch" aria-checked="${natBubble()}"><span><b>홈 화면에 '포인트 저장' 단추 띄우기</b><small>지도를 켠 채 홈 화면으로 나가면 떠 있는 단추가 생겨요. 끌어서 옮기고, 누르면 바로 저장 화면이 열려요. 아래 ×로 끌어 놓으면 숨겨요.</small></span><i></i></button>`
           : `<button type="button" class="mv-sw${notiOn ? ' on' : ''}" data-act="noti-tog" role="switch" aria-checked="${notiOn}"><span><b>앱을 나가면 알림줄에 바로가기</b><small>지도를 켠 채 나가면 알림이 생겨요. 누르면 지도로, '포인트 저장'을 누르면 바로 저장 화면이 열려요.</small></span><i></i></button>`)
+        + (NAT && natUpd ? `<button type="button" class="mv-row-btn" data-act="app-upd">앱 업데이트 (새 버전 1.${natUpd})<span>›</span></button>` : '')
         + `<button type="button" class="mv-row-btn" data-act="move">다른 폰·앱으로 포인트 옮기기<span>›</span></button>`
         + (!NAT && appVer ? `<a class="mv-row-btn" href="app/jjugap.apk" download="jjugap.apk">안드로이드 앱 받기 (홈 화면에 떠 있는 저장 단추·화면이 꺼져도 자동 기록)<span>›</span></a>` : '')
         + `<p class="mv-tip">홈 화면에 저장 단추 놓기: 쭈갑 물때 아이콘을 꾹 누르면 나오는 '포인트 저장'을 다시 꾹 눌러 원하는 곳에 끌어다 놓으세요.</p></div>`
@@ -3557,6 +3562,7 @@ const TideHarm = (() => {
       if (a === 'noti-tog') return setNoti(!notiOn);
       if (a === 'bubble-tog') { try { NAT.setBubble(!natBubble()); } catch (_) {} return setTimeout(() => { if (mode === 'list') showList(); }, 300); }
       if (a === 'move') return showMove();
+      if (a === 'app-upd') { try { NAT.update(); } catch (_) {} return; }
       if (a === 'move-copy') return moveCopy();
       if (a === 'move-in') return moveIn();
       if (a === 'swdel') return delPoint(b.dataset.id, b.closest('.mv-row'));
@@ -3752,6 +3758,23 @@ const TideHarm = (() => {
       setInterval(natFixes, 15000);
       document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') { natFixes(); if (isOpen) NAT.setMapOpen(true); if (mode === 'list') showList(); } });
     }
+    // 안드로이드 앱 업데이트: 새 앱 파일이 올라와 있으면 아래에 '업데이트' 알림 (누르면 앱이 받아서 휴대폰의 업데이트 화면을 연다, 기록은 그대로)
+    let natUpd = 0, updShut = false;
+    function natUpdateCheck() {
+      if (!NAT || typeof NAT.versionCode !== 'function') return;
+      fetch('app/version.txt', { cache: 'no-store' }).then(r => (r.ok ? r.text() : '')).then(t => {
+        const remote = parseInt(t, 10), local = Number(NAT.versionCode());
+        if (!(remote > local)) return;
+        if (natUpd !== remote) { natUpd = remote; if (mode === 'list') showList(); }
+        if (updShut || document.getElementById('upd-bar')) return;
+        const bar = document.createElement('div'); bar.id = 'upd-bar'; bar.className = 'upd-bar'; bar.setAttribute('role', 'status');
+        bar.innerHTML = '<span>쭈갑 물때 앱 새 버전이 있어요</span><button type="button" class="go">업데이트</button><button type="button" class="x" aria-label="닫기">×</button>';
+        bar.querySelector('.go').onclick = () => { bar.remove(); try { NAT.update(); } catch (_) {} };
+        bar.querySelector('.x').onclick = () => { updShut = true; bar.remove(); };
+        document.body.appendChild(bar);
+      }).catch(() => {});
+    }
+    if (NAT) { setTimeout(natUpdateCheck, 2500); document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') natUpdateCheck(); }); }
     const natBubble = () => { try { return !!(NAT && NAT.bubbleOn()); } catch (_) { return false; } };
     // ---------- 바로가기로 열기: 홈 화면 '포인트 저장'(?act=save) · '바다 지도'(?act=map), 알림줄 단추
     function quickAct(a) {
@@ -4304,7 +4327,7 @@ if ('serviceWorker' in navigator) addEventListener('load', () => {
   const sw = navigator.serviceWorker; let ctl = sw.controller, reloading = false;
   // 새 버전이 올라오면 한 번 새로 열어 바로 반영 (처음 설치할 때는 제외)
   sw.addEventListener('controllerchange', () => { if (ctl && !reloading) { reloading = true; location.reload(); } ctl = sw.controller; });
-  sw.register('sw.js?v=108b6c6c').then(reg => {
+  sw.register('sw.js?v=456ca293').then(reg => {
     // 앱을 켜 둔 채 다른 화면에 갔다 돌아오면 새 버전이 있는지 확인
     document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') reg.update().catch(() => {}); });
   }).catch(() => {});
