@@ -2798,9 +2798,9 @@ const TideHarm = (() => {
       g.font = `700 11.5px ${font}`;
       return Object.keys(TideHarm.STATIONS).map(k => {
         const S = TideHarm.STATIONS[k], [x, y] = toS(S.lon, S.lat), t = short(k), w = g.measureText(t).width + 16;
-        const bx = x + 9 + w > W - 58 ? x - 9 - w : x + 9;   // 오른쪽 끝이면 왼쪽에 이름
+        const bx = x + 9;   // 이름은 늘 점 오른쪽 (자리가 바뀌지 않게)
         return { k, x, y, t, bx, by: y - 10, w, h: 20 };
-      }).filter(b => b.x > -80 && b.x < W + 80 && b.y > -30 && b.y < H + 30);
+      }).filter(b => b.bx + b.w > -4 && b.x < W + 10 && b.y > -30 && b.y < H + 30);
     }
     // 바탕(바다·갯벌·땅)은 화면이 움직이거나 확대할 때만 새로 그려 두고, 매 장면에는 그 그림을 붙인다.
     // 섬·항구 이름과 조류 화살표는 바탕과 따로 매 장면 같은 크기로 그 자리에 붙여서, 확대·축소 중에 커졌다 작아졌다 하지 않게 한다
@@ -2925,113 +2925,109 @@ const TideHarm = (() => {
       g.lineWidth = 0.7 * lr / v.s; for (const c of waters) g.stroke(c.p);
       g.restore();
     }
-    // ---------- 섬·만·항구 이름표
-    // 자리 잡기는 가끔만(가만히 있을 때는 화면이 바뀔 때, 손으로 움직이는 중에는 0.1초마다) 하고, 이미 보이던 이름표를 먼저 지킨다.
-    // 우선순위: 큰 섬·만 → 항구 → 작은 섬. 다른 이름표·출항지와 겹치면 빼고, 나타나고 사라질 때는 서서히(흐려지기)
-    let labC = null, lodNow = null, layKey = '', layT = 0, labT = 0, ghosts = [];
+    // ---------- 섬·만·항구 이름표: 늘 같은 자리에 박혀 있게
+    // 섬 이름은 섬 가운데, 항구 이름은 항구 점 오른쪽에 붙어서 지도와 함께만 움직인다 (위치·방향을 바꾸지 않는다).
+    // 겹치는 이름표 정리는 화면이 아니라 지도 전체를 두고 배율 단계(1.25배)마다 한 번만 계산해 둔다:
+    // 화면을 옮겨도 보이는 이름표가 바뀌지 않고, 확대·축소로 단계가 바뀔 때만 서서히 나타나거나 사라진다
+    let labC = null, lodNow = null, labT = 0, levelKey = '', curL = null, lastSet = null, byId = new Map(), preIdle = 0;
     let portsOff = false; try { portsOff = localStorage.getItem('jjukgap-map-ports') === 'off'; } catch (_) {}   // 항구 이름 숨기기 (이 폰에 기억)
-    const shownL = new Map();   // id → { c, land(섬: 땅 위에 쓰기) | side(항구: 1 오른쪽 · -1 왼쪽), a(보이는 정도), on }
+    const shownL = new Map();   // id → { c, a(보이는 정도), on }
+    const levelSets = new Map(), LV_F = 1.25;
     function labCands() {
       if (labC) return labC;
       if (!basemap) return null;
       const big = [], small = [], ports = [];
       basemap.lab.forEach(([n, lon, lat, minS, kind], i) => {
         const bigL = minS <= 700, strong = (kind === 0 && bigL) || kind === 1;
-        (bigL ? big : small).push({ id: 'i' + i, t: 'i', n, lon, lat, minS, kind, fs: kind === 1 ? 12 : kind === 0 && bigL ? 12.5 : 11, wt: strong ? 700 : 600 });
+        (bigL ? big : small).push({ id: 'i' + i, t: 'i', n, lon, lat, minS, kind, big: kind === 0 && bigL, fs: kind === 1 ? 12 : kind === 0 && bigL ? 12.5 : 11, wt: strong ? 700 : 600 });
       });
       if (mapPorts) mapPorts.forEach((pt, i) => ports.push({ id: 'p' + i, t: 'p', n: pt.n, lon: pt.lon, lat: pt.lat, minS: pt.minS }));
       labC = [big, ports, small];
-      for (const c of shownL.values()) if (!labC.some(L => L.includes(c.c))) shownL.delete(c.c.id);   // 목록이 바뀌었으면 예전 이름표는 버린다
+      byId = new Map(); for (const L of labC) for (const c of L) byId.set(c.id, c);
+      for (const [id, e] of shownL) if (byId.get(id) !== e.c) shownL.delete(id);   // 목록이 바뀌었으면 예전 이름표는 버린다
+      levelSets.clear(); lastSet = null;
       return labC;
     }
     const twOf = (c, font) => c.tw || (ctx.font = c.t === 'i' ? `${c.wt} ${c.fs}px ${font}` : `700 10.5px ${font}`, c.tw = ctx.measureText(c.n).width);
-    // 섬 이름이 들어갈 자리: 섬이 화면에서 글씨보다 크면 섬 위에, 아니면 섬 아래쪽 바다에
-    const islLand = c => c.kind === 0 && 10 * v.s / c.minS > c.tw + 6;
-    const islY = (c, land, y0) => (c.kind === 0 && !land ? y0 + Math.min(5 * v.s / c.minS, 30) + c.fs * 0.8 : y0);
-    function layoutLabels(font) {
-      layKey = [v.lon, v.lat, v.s, W, H].join('|'); layT = performance.now();
-      const L = labCands(); if (!L) return;
-      const placed = [[W - 64, 0, W, 208], ...portBoxes(ctx, font).map(b => [b.bx - 3, b.by - 3, b.bx + b.w + 3, b.by + b.h + 3])];
-      const hit = a => placed.some(b => a[0] < b[2] && a[2] > b[0] && a[1] < b[3] && a[3] > b[1]);
-      const keep = new Set(), M = 40;
-      const place = c => {
-        const e = shownL.get(c.id), was = !!(e && e.on);
-        if (v.s < c.minS * (was ? 0.8 : 1)) return;   // 보이던 것은 조금 더 멀리까지 지킨다
-        const [x0, y0] = toS(c.lon, c.lat); if (x0 < -M - 120 || x0 > W + M + 120 || y0 < -M - 50 || y0 > H + M + 50) return;
-        const tw = twOf(c, font);
-        let box = null, vr;
-        if (c.t === 'i') {
-          // 움직이는 중에는 쓰는 자리(섬 위·아래)를 바꾸지 않는다
-          vr = was && interacting ? e.land : islLand(c);
-          const y = islY(c, vr, y0); if (x0 < -M || x0 > W + M || y < -M || y > H + M) return;
-          const b = [x0 - tw / 2 - 3, y - c.fs / 2 - 3, x0 + tw / 2 + 3, y + c.fs / 2 + 3]; if (!hit(b)) box = b;
-          if (box) placed.push(box);
-        } else {
-          if (x0 < -M || x0 > W + M || y0 < -M || y0 > H + M) return;
-          const bw = tw + 12, inside = x0 >= 0 && x0 <= W, lo = inside ? 2 : -M - 200, hi = inside ? W - 2 : W + M + 200;
-          for (const sd of was ? [e.side, -e.side] : [1, -1]) {
-            const b = sd > 0 ? [x0 + 6, y0 - 8, x0 + 6 + bw, y0 + 8] : [x0 - 6 - bw, y0 - 8, x0 - 6, y0 + 8];
-            if (b[0] < lo || b[2] > hi || hit(b)) continue;
-            box = b; vr = sd; break;
-          }
-          if (box) placed.push([box[0] - 2, box[1] - 2, box[2] + 2, box[3] + 2], [x0 - 5, y0 - 5, x0 + 5, y0 + 5]);
-        }
-        if (!box) return;
-        keep.add(c.id);
-        const key = c.t === 'i' ? 'land' : 'side';
-        if (!e) shownL.set(c.id, { c, [key]: vr, a: 0, on: true });
-        else if (e[key] !== vr) { ghosts.push({ c, [key]: e[key], a: e.a, on: false }); e[key] = vr; e.a = 0; e.on = true; }   // 자리를 옮기면 옛 자리는 흐려지며 사라지고 새 자리에 나타남
-        else e.on = true;
-      };
-      // 등급마다 이미 보이던 것 먼저, 그다음 새로운 것
-      for (const list of L) {
-        if (portsOff && list === L[1]) continue;   // 항구 이름을 숨겼으면 건너뛴다 (보이던 것은 서서히 사라짐)
-        for (const c of list) if (shownL.has(c.id) && shownL.get(c.id).on) place(c);
-        for (const c of list) if (!keep.has(c.id) && !(shownL.has(c.id) && shownL.get(c.id).on)) place(c);
+    // 이 배율 단계에서 보일 이름표 (우선순위: 기본 출항지 → 큰 섬·만 → 항구 → 작은 섬, 앞의 것과 겹치면 뺀다)
+    function levelSet(L, font) {
+      const key = [Object.keys(TideHarm.STATIONS).join(','), portsOff, font].join('|');
+      if (key !== levelKey) { levelSets.clear(); levelKey = key; }
+      let set = levelSets.get(L); if (set) return set;
+      const Lc = labCands(); set = new Set(); if (!Lc) return set;
+      const s = Math.pow(LV_F, L - 0.75);   // 이 단계에서 가장 멀리 볼 때(이름표 사이가 가장 좁을 때)도 겹치지 않게
+      const G = 96, grid = new Map();
+      const cells = b => { const o = []; for (let gx = Math.floor(b[0] / G); gx <= Math.floor(b[2] / G); gx++) for (let gy = Math.floor(b[1] / G); gy <= Math.floor(b[3] / G); gy++) o.push(gx + ',' + gy); return o; };
+      const hit = b => cells(b).some(k => (grid.get(k) || []).some(a => b[0] < a[2] && b[2] > a[0] && b[1] < a[3] && b[3] > a[1]));
+      const put = b => { for (const k of cells(b)) { let l = grid.get(k); if (!l) grid.set(k, l = []); l.push(b); } };
+      ctx.font = `700 11.5px ${font}`;
+      for (const k of Object.keys(TideHarm.STATIONS)) {
+        const S = TideHarm.STATIONS[k], x = S.lon * KX * s, y = -S.lat * s, w = ctx.measureText(short(k)).width + 16;
+        put([x - 7, y - 13, x + 9 + w + 3, y + 13]);
       }
-      for (const [id, e] of shownL) if (!keep.has(id)) e.on = false;
+      for (const list of Lc) {
+        if (portsOff && list === Lc[1]) continue;
+        for (const c of list) {
+          if (s < c.minS) continue;
+          const x = c.lon * KX * s, y = -c.lat * s, tw = twOf(c, font);
+          const b = c.t === 'i' ? [x - tw / 2 - 3, y - c.fs / 2 - 3, x + tw / 2 + 3, y + c.fs / 2 + 3] : [x - 6, y - 10, x + 6 + tw + 12 + 3, y + 10];
+          if (hit(b)) continue;
+          put(b); set.add(c.id);
+        }
+      }
+      levelSets.set(L, set); return set;
     }
-    // 이름표 그리기 (매 장면). 흐려지거나 나타나는 중이면 true
+    // 이름표 그리기 (매 장면). 나타나거나 사라지는 중이면 true
     function drawLabels(C, font) {
       const now = performance.now(), step = Math.min(64, Math.max(0, now - (labT || now))) / 170; labT = now;
       const sk = [dpr, font, C.sea, C.land, C.card, C.ink, C.isl, C.bay, C.port, C.cur].join('|'); if (sk !== sprKey) { spr = new Map(); sprKey = sk; }
+      if (!labCands()) return false;
+      // 배율 단계: 경계 근처에서 손가락이 조금 떨려도 오락가락하지 않게 여유를 둔다
+      const raw = Math.log(v.s) / Math.log(LV_F);
+      if (curL == null || Math.abs(raw - curL) > 0.72) curL = Math.round(raw);
+      const set = levelSet(curL, font);
+      // 이웃 단계도 한가할 때 미리 계산해 두어 확대·축소 순간에 멈칫하지 않게
+      if (!preIdle && window.requestIdleCallback) preIdle = requestIdleCallback(() => { preIdle = 0; for (const d of [1, -1, 2, -2]) if (!levelSets.has(curL + d)) { levelSet(curL + d, font); break; } });
+      if (set !== lastSet) {
+        const first = !shownL.size;
+        for (const id of set) { const e = shownL.get(id); if (e) e.on = true; else shownL.set(id, { c: byId.get(id), a: first ? 1 : 0, on: true }); }
+        for (const [id, e] of shownL) if (!set.has(id)) e.on = false;
+        lastSet = set;
+      }
       let busy = false;
       ctx.setTransform(1, 0, 0, 1, 0, 0);
-      const one = e => {
+      for (const [id, e] of shownL) {
         e.a = e.on ? Math.min(1, e.a + step) : Math.max(0, e.a - step);
         if (e.on ? e.a < 1 : e.a > 0) busy = true;
-        if (e.a <= 0) return;
-        const c = e.c, [x0, y0] = toS(c.lon, c.lat); if (x0 < -260 || x0 > W + 260 || y0 < -60 || y0 > H + 60) return;
+        if (e.a <= 0) { if (!e.on) shownL.delete(id); continue; }
+        const c = e.c, [x0, y0] = toS(c.lon, c.lat); if (x0 < -260 || x0 > W + 60 || y0 < -30 || y0 > H + 30) continue;
         const tw = twOf(c, font);
-        ctx.globalAlpha = e.a;
         if (c.t === 'i') {
-          const w = tw + 8, h = c.fs + 8, land = e.land;
-          const sp = sprite('i|' + c.id + '|' + land, w, h, g => {
+          // 섬 이름: 섬 가운데에 (큰 섬은 땅빛 테두리, 작은 섬·만은 바다빛 테두리)
+          const w = tw + 8, h = c.fs + 8;
+          const sp = sprite('i|' + c.id, w, h, g => {
             g.font = `${c.wt} ${c.fs}px ${font}`; g.textAlign = 'center'; g.textBaseline = 'middle'; g.lineJoin = 'round';
-            g.lineWidth = 3.2; g.strokeStyle = land ? C.land : C.sea; g.strokeText(c.n, w / 2, h / 2);
+            g.lineWidth = 3.2; g.strokeStyle = c.big ? C.land : C.sea; g.strokeText(c.n, w / 2, h / 2);
             g.fillStyle = c.kind === 1 ? C.bay : C.isl; g.fillText(c.n, w / 2, h / 2);
           });
-          if (!sp) { if (e.on) e.a = 0; return; }
-          putSprite(sp, x0 - w / 2, islY(c, land, y0) - h / 2);
+          if (!sp) { busy = true; continue; }
+          ctx.globalAlpha = e.a; putSprite(sp, x0 - w / 2, y0 - h / 2);
         } else {
-          const bw = tw + 12, w = bw + 12, sd = e.side, dx = sd > 0 ? 5 : bw + 7;   // 점 자리
-          const sp = sprite('p|' + c.id + '|' + sd, w, 18, g => {
-            const px = sd > 0 ? 11 : 1;
-            g.globalAlpha = 0.9; g.fillStyle = C.card; g.beginPath(); g.roundRect ? g.roundRect(px, 1, bw, 16, 8) : g.rect(px, 1, bw, 16); g.fill(); g.globalAlpha = 1;
-            g.font = `700 10.5px ${font}`; g.textBaseline = 'middle'; g.fillStyle = C.ink; g.fillText(c.n, px + 6, 9.5);
-            g.lineWidth = 1.8; g.strokeStyle = C.card; g.fillStyle = C.port; g.beginPath(); g.arc(dx, 9, 3.3, 0, 2 * Math.PI); g.fill(); g.stroke();
+          // 항구 이름: 항구 점 오른쪽에
+          const bw = tw + 12, w = bw + 12;
+          const sp = sprite('p|' + c.id, w, 18, g => {
+            g.globalAlpha = 0.9; g.fillStyle = C.card; g.beginPath(); g.roundRect ? g.roundRect(11, 1, bw, 16, 8) : g.rect(11, 1, bw, 16); g.fill(); g.globalAlpha = 1;
+            g.font = `700 10.5px ${font}`; g.textBaseline = 'middle'; g.fillStyle = C.ink; g.fillText(c.n, 17, 9.5);
+            g.lineWidth = 1.8; g.strokeStyle = C.card; g.fillStyle = C.port; g.beginPath(); g.arc(5, 9, 3.3, 0, 2 * Math.PI); g.fill(); g.stroke();
           });
-          if (!sp) { if (e.on) e.a = 0; return; }
-          putSprite(sp, x0 - dx, y0 - 9);
+          if (!sp) { busy = true; continue; }
+          ctx.globalAlpha = e.a; putSprite(sp, x0 - 5, y0 - 9);
         }
-      };
-      for (const e of ghosts) one(e);
-      ghosts = ghosts.filter(e => e.a > 0);
-      for (const [id, e] of shownL) { one(e); if (!e.on && e.a <= 0) shownL.delete(id); }
+      }
       ctx.globalAlpha = 1; ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      return busy || ghosts.length > 0 || sprBudget < 0;
+      return busy;
     }
-    try { document.fonts && document.fonts.addEventListener('loadingdone', () => { spr = new Map(); if (labC) for (const L of labC) for (const c of L) c.tw = 0; if (isOpen) draw(); }); } catch (_) {}
+    try { document.fonts && document.fonts.addEventListener('loadingdone', () => { spr = new Map(); if (labC) for (const L of labC) for (const c of L) c.tw = 0; levelSets.clear(); lastSet = null; if (isOpen) draw(); }); } catch (_) {}
     // 색·글꼴은 테마가 바뀔 때만 다시 읽는다 (매 장면마다 읽으면 느려서)
     let Cc = null, fontC = '';
     const mapColors = () => Cc || (Cc = { port: css('--map-port') || css('--ink'), sea: css('--map-sea'), shallow: css('--map-shallow'), land: css('--map-land'), shade: css('--map-shade'), coast: css('--map-coast'), flat: css('--map-flat'),
@@ -3059,7 +3055,6 @@ const TideHarm = (() => {
       drawArrows(C, font);
       if (basemap) {
         // 이름표 자리 잡기: 가만히 있을 때는 화면이 바뀌면 바로, 손으로 움직이는 중에는 0.1초마다
-        if (interacting ? performance.now() - layT > 100 : layKey !== [v.lon, v.lat, v.s, W, H].join('|')) layoutLabels(font);
         if (drawLabels(C, font)) { if (inLoop) needDraw = true; else draw(); }   // 흐려지는 중이면 다음 장면도 (한 장면에 두 번 그리지 않게)
       }
       // 가까운 출항지까지 점선
@@ -3170,9 +3165,7 @@ const TideHarm = (() => {
         const atSt = Object.values(TideHarm.STATIONS).some(S => distKm(S, m.D0) < 0.4);
         const shown = [...shownL.values()].some(e => e.on && e.a > 0.5 && e.c.t === 'p' && normName(e.c.n) === normName(m.n));
         if (m.n && !atSt && !shown && v.s > 700) {
-          ctx.font = `700 10.5px ${font}`; const tw = ctx.measureText(m.n).width, bw = tw + 14;
-          const blocked = x => x + bw > W - 4 || (x + bw > W - 64 && m.y - 9 < 208);   // 화면 끝·오른쪽 위 단추 자리는 피해서 왼쪽에
-          const rx = blocked(m.x + 8) ? m.x - 8 - bw : m.x + 8;
+          ctx.font = `700 10.5px ${font}`; const tw = ctx.measureText(m.n).width, bw = tw + 14, rx = m.x + 8;   // 늘 점 오른쪽
           ctx.fillStyle = C.card; ctx.globalAlpha = m.A * 0.94; ctx.beginPath(); ctx.roundRect ? ctx.roundRect(rx, m.y - 9, bw, 18, 9) : ctx.rect(rx, m.y - 9, bw, 18); ctx.fill();
           ctx.globalAlpha = m.A; ctx.strokeStyle = m.col; ctx.lineWidth = 1.4; ctx.stroke();
           ctx.fillStyle = C.ink; ctx.textBaseline = 'middle'; ctx.fillText(m.n, rx + 7, m.y + 0.5); ctx.textBaseline = 'alphabetic';
@@ -4394,7 +4387,7 @@ const TideHarm = (() => {
     paintPnm();
     pnmBtn.onclick = () => {
       portsOff = !portsOff; try { localStorage.setItem('jjukgap-map-ports', portsOff ? 'off' : 'on'); } catch (_) {}
-      paintPnm(); layKey = ''; draw(); toast(portsOff ? '항구 이름을 숨겼어요' : '항구 이름을 다시 보여 줘요');
+      paintPnm(); draw(); toast(portsOff ? '항구 이름을 숨겼어요' : '항구 이름을 다시 보여 줘요');
     };
     $('mv-zout').onclick = () => zoomAt(1 / 1.8);
     $('mv-me').onclick = () => {
@@ -4690,7 +4683,7 @@ if ('serviceWorker' in navigator) addEventListener('load', () => {
   const sw = navigator.serviceWorker; let ctl = sw.controller, reloading = false;
   // 새 버전이 올라오면 한 번 새로 열어 바로 반영 (처음 설치할 때는 제외)
   sw.addEventListener('controllerchange', () => { if (ctl && !reloading) { reloading = true; location.reload(); } ctl = sw.controller; });
-  sw.register('sw.js?v=2df44980').then(reg => {
+  sw.register('sw.js?v=29e1b622').then(reg => {
     // 앱을 켜 둔 채 다른 화면에 갔다 돌아오면 새 버전이 있는지 확인
     document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') reg.update().catch(() => {}); });
   }).catch(() => {});
