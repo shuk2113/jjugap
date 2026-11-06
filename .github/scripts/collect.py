@@ -39,6 +39,7 @@ OBS_POS = {'DT_0001': (37.451, 126.592), 'DT_0008': (37.192, 126.647), 'DT_0043'
 SEA_CELLS = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'sea_cells.json')   # [격자x, 격자y, 위도, 경도]
 SEA_HOURS = 60     # 앞바다 격자 예보를 몇 시간치 담을지 (지난 6시간 포함)
 OBS_FRESH_H = 12   # 이보다 오래된 수온은 '지금 수온'으로 쓰지 않는다
+OBS_STALE_H = 3    # 평소 관측소가 이보다 오래 멈춰 있으면, 다음 관측소에 이보다 새 값이 있을 때 그 값을 쓴다
 OBS_FAR_C = 6      # 다른 관측소들의 가운데값과 이만큼 넘게 다르면 센서 이상으로 본다
 
 
@@ -351,18 +352,35 @@ def main():
         else:
             st['fc'] = pst.get('fc') or {}
             note(f'{key}: 예보 못 받음 (이전 자료 유지)', 'warning')
-        # 수온: 가까운 관측소부터, 12시간 안의 값이 있는 첫 곳
+        # 수온: 가까운 관측소부터, 12시간 안의 값이 있는 첫 곳.
+        # 다만 평소 쓰던 관측소(목록에서 수온 기록이 있는 첫 곳)가 3시간 넘게 멈춰 있고 다음 관측소에 3시간 안의 값이 있으면 그 값을 쓰고,
+        # 앱이 이유를 보여줄 수 있게 멈춘 관측소의 이름·마지막 시각·값을 'stale'로 함께 남긴다
+        def age_of(o):
+            return now - datetime.strptime(o['t'], '%Y-%m-%d %H:%M').replace(tzinfo=KST)
+        cands = []   # (목록 순서, 관측소, 기록, 나이)
+        usual = None
         for k, code in enumerate(cfg['obs']):
             o = codes.get(code) or {}
             if o.get('wtem') is None or not o.get('t') or o.get('bad'):
                 continue
-            age = now - datetime.strptime(o['t'], '%Y-%m-%d %H:%M').replace(tzinfo=KST)
-            if age > timedelta(hours=OBS_FRESH_H):
-                continue
+            if usual is None:
+                usual = (k, code, o)
+            a = age_of(o)
+            if a <= timedelta(hours=OBS_FRESH_H):
+                cands.append((k, code, o, a))
+        pick = cands[0] if cands else None
+        if pick and pick[3] > timedelta(hours=OBS_STALE_H):
+            fresher = next((c for c in cands[1:] if c[3] <= timedelta(hours=OBS_STALE_H)), None)
+            if fresher:
+                pick = fresher
+        if pick:
+            k, code, o, a = pick
             st['obs'] = {'code': code, 'name': o.get('name'), 'near': k > 0, 't': o['t'], 'wtem': o['wtem'], 'wtem24': o.get('wtem24')}
+            if usual and usual[1] != code and age_of(usual[2]) > timedelta(hours=OBS_STALE_H):
+                st['obs']['stale'] = {'code': usual[1], 'name': usual[2].get('name'), 't': usual[2]['t'], 'wtem': usual[2]['wtem']}
             ok_o += 1
-            wt.append(f'{key} {o["wtem"]}℃({o.get("name")}{"·대체" if k else ""} {o["t"][11:]})')
-            break
+            sv = st['obs'].get('stale')
+            wt.append(f'{key} {o["wtem"]}℃({o.get("name")}{"·대체" if k else ""} {o["t"][11:]}{" · " + sv["name"] + " 멈춤 " + sv["t"][5:] if sv else ""})')
         else:
             wt.append(f'{key} 없음')
         st['mid'] = cfg['mid']
