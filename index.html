@@ -195,11 +195,11 @@ h2{margin:0; font-size:calc(16px * var(--k)); font-weight:700; text-wrap:balance
 .st-btn #st-name{font-weight:700}
 .st-btn .chev{width:6px; height:6px; margin-left:2px; border-right:2px solid var(--ink-2); border-bottom:2px solid var(--ink-2); transform:translateY(-2px) rotate(45deg)}
 .sheet-back{position:fixed; inset:0; z-index:40; background:rgba(0,0,0,.4); animation:fadeIn .22s ease}
-/* 출항지 줄: 출항지 버튼 + 내 위치 버튼 */
+/* 출항지 줄: 출항지 버튼 + 선상 모드 버튼 */
 .loc-row{display:flex; align-items:center; justify-content:space-between; gap:8px}
 .me-btn{flex:none; display:inline-flex; align-items:center; gap:6px; height:36px; padding:0 14px 0 11px; border:1px solid var(--line); border-radius:999px; background:var(--card); font:inherit; font-size:calc(13.5px * var(--k)); font-weight:700; color:var(--ink); -webkit-tap-highlight-color:transparent; transition:transform .12s}
 .me-btn:active{transform:scale(.97)} .me-btn svg{width:17px; height:17px; color:#2F7DF6}
-/* 내 위치 지도 화면 */
+/* 선상 모드 (바다 지도) 화면 */
 .mapv{position:fixed; inset:0; z-index:60; display:flex; flex-direction:column; overflow:hidden; background:var(--paper); animation:mvIn .22s cubic-bezier(.2,.8,.2,1)}
 @keyframes mvIn{from{opacity:0; transform:translateY(16px)}}
 .mv-top{flex:none; display:flex; align-items:center; gap:10px; padding:calc(8px + env(safe-area-inset-top, 0px)) 12px 8px; background:var(--paper); border-bottom:1px solid var(--line)}
@@ -637,7 +637,7 @@ a.mv-row-btn{text-decoration:none; gap:10px} .mv-row-btn span{font-size:calc(20p
 
   <div class="loc-row">
   <button class="st-btn" id="st-btn" aria-haspopup="dialog"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-6.5-6.1-6.5-11A6.5 6.5 0 0 1 18.5 10c0 4.9-6.5 11-6.5 11z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"></path><circle cx="12" cy="10" r="2.4" fill="currentColor"></circle></svg><span class="st-lab">출항지</span><span id="st-name">인천 연안부두</span><i class="chev" aria-hidden="true"></i></button>
-  <button class="me-btn" id="me-btn" aria-haspopup="dialog"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="6.2" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="2.4" fill="currentColor"/><path d="M12 2.5v3.3M12 18.2v3.3M2.5 12h3.3M18.2 12h3.3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span>내 위치</span></button>
+  <button class="me-btn" id="me-btn" aria-haspopup="dialog" aria-label="선상 모드: 바다에서 내 위치·조류 보기와 포인트 기록"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12.6h18l-2.4 4.4a1.6 1.6 0 0 1-1.4.9H6.8a1.6 1.6 0 0 1-1.4-.9z" fill="currentColor"/><path d="M8 12.2V8.4h6.4l2.5 3.8" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M2.5 21.2c1.6 0 1.6-1 3.2-1s1.6 1 3.2 1 1.6-1 3.2-1 1.6 1 3.2 1 1.6-1 3.2-1 1.6 1 3.2 1" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><span>선상 모드</span></button>
   </div>
 
   <nav class="datebar" aria-label="날짜 이동">
@@ -785,10 +785,10 @@ a.mv-row-btn{text-decoration:none; gap:10px} .mv-row-btn span{font-size:calc(20p
   <p class="foot">물때·만조·간조·물 높이는 국립해양조사원 예보에 맞춘 계산이고, 바람·파도·하늘·수온은 기상청 단기예보와 국립해양조사원 관측을 하루 8번 받아 보여주는 참고 정보예요. 출항 여부는 꼭 선장님 공지를 따르세요.</p>
 </div>
 
-<div class="mapv" id="mapv" role="dialog" aria-modal="true" aria-label="내 위치 지도" hidden>
+<div class="mapv" id="mapv" role="dialog" aria-modal="true" aria-label="선상 모드 지도" hidden>
   <div class="mv-top">
     <button class="mv-x" id="mv-x" aria-label="닫기"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 3.5l9 9M12.5 3.5l-9 9" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
-    <div class="mv-title"><b>내 위치</b><span id="mv-gps">위치 찾는 중…</span></div>
+    <div class="mv-title"><b>선상 모드</b><span id="mv-gps">위치 찾는 중…</span></div>
     <button class="mv-pts" id="mv-pts">포인트 <b id="mv-pts-n">0</b></button>
   </div>
   <div class="mv-map" id="mv-map">
@@ -4683,7 +4683,7 @@ if ('serviceWorker' in navigator) addEventListener('load', () => {
   const sw = navigator.serviceWorker; let ctl = sw.controller, reloading = false;
   // 새 버전이 올라오면 한 번 새로 열어 바로 반영 (처음 설치할 때는 제외)
   sw.addEventListener('controllerchange', () => { if (ctl && !reloading) { reloading = true; location.reload(); } ctl = sw.controller; });
-  sw.register('sw.js?v=29e1b622').then(reg => {
+  sw.register('sw.js?v=c4ccea38').then(reg => {
     // 앱을 켜 둔 채 다른 화면에 갔다 돌아오면 새 버전이 있는지 확인
     document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') reg.update().catch(() => {}); });
   }).catch(() => {});
