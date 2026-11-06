@@ -22,6 +22,7 @@
 /* 레이아웃: 폰 폭 단일 컬럼 앱. 오늘의 바다 장면(물살을 그림으로) → 다음 조금·사리 → 보름 물때 띠 → 한 달 달력 → 색 읽는 법 */
 :root{
   --paper:#EAF0EC; --card:#F8FBF8; --ink:#12282A; --ink-2:#51635F; --line:#D0DBD5; --well:#DDE6E1;
+  --logo-sea:#14917B; --logo-bub:#3AAE9A; --logo-glass:#CDEBF1; --logo-glasshi:#FFFFFF; --logo-bolt:#6E807C;
   --sea:#2C6C68; --sea-deep:#143838; --sky-top:#CFDFE3; --sky-bot:#EDF2EA;
   --mud:#8C7B5D; --mud-deep:#665A44; --hull:#FBFAF5; --hull-line:#12282A;
   --streak:rgba(236,246,242,.75); --moon-lit:#FFF3CF; --moon-dark:#AFC0C3;
@@ -37,6 +38,7 @@
 @media (prefers-color-scheme: dark){
   :root:not([data-theme="light"]){
     --paper:#0D1819; --card:#132223; --ink:#E2ECE8; --ink-2:#99AEA9; --line:#25393A; --well:#1D3031;
+  --logo-sea:#3CCDB0; --logo-bub:#9EE7DA; --logo-glass:#1A4A57; --logo-glasshi:#8FDCE8; --logo-bolt:#9FB3AE;
     --sea:#2A6662; --sea-deep:#0A2223; --sky-top:#08121A; --sky-bot:#1A3236;
     --mud:#5E513D; --mud-deep:#3E3528; --hull:#E9EDE6; --hull-line:#0D1819;
     --streak:rgba(200,232,224,.55); --moon-lit:#FFF0C2; --moon-dark:#2E4448;
@@ -50,6 +52,7 @@
 }
 :root[data-theme="dark"]{
   --paper:#0D1819; --card:#132223; --ink:#E2ECE8; --ink-2:#99AEA9; --line:#25393A; --well:#1D3031;
+  --logo-sea:#3CCDB0; --logo-bub:#9EE7DA; --logo-glass:#1A4A57; --logo-glasshi:#8FDCE8; --logo-bolt:#9FB3AE;
   --sea:#2A6662; --sea-deep:#0A2223; --sky-top:#08121A; --sky-bot:#1A3236;
   --mud:#5E513D; --mud-deep:#3E3528; --hull:#E9EDE6; --hull-line:#0D1819;
   --streak:rgba(200,232,224,.55); --moon-lit:#FFF0C2; --moon-dark:#2E4448;
@@ -63,6 +66,7 @@
 /* 앱 안의 모드 전환 버튼으로 고른 모드가 기기·뷰어 설정보다 우선한다 (기본은 다크) */
 html:root[data-app="dark"]{
   --paper:#0D1819; --card:#132223; --ink:#E2ECE8; --ink-2:#99AEA9; --line:#25393A; --well:#1D3031;
+  --logo-sea:#3CCDB0; --logo-bub:#9EE7DA; --logo-glass:#1A4A57; --logo-glasshi:#8FDCE8; --logo-bolt:#9FB3AE;
   --sea:#2A6662; --sea-deep:#0A2223; --sky-top:#08121A; --sky-bot:#1A3236;
   --mud:#5E513D; --mud-deep:#3E3528; --hull:#E9EDE6; --hull-line:#0D1819;
   --streak:rgba(200,232,224,.55); --moon-lit:#FFF0C2; --moon-dark:#2E4448;
@@ -75,6 +79,7 @@ html:root[data-app="dark"]{
 }
 html:root[data-app="light"]{
   --paper:#EAF0EC; --card:#F8FBF8; --ink:#12282A; --ink-2:#51635F; --line:#D0DBD5; --well:#DDE6E1;
+  --logo-sea:#14917B; --logo-bub:#3AAE9A; --logo-glass:#CDEBF1; --logo-glasshi:#FFFFFF; --logo-bolt:#6E807C;
   --sea:#2C6C68; --sea-deep:#143838; --sky-top:#CFDFE3; --sky-bot:#EDF2EA;
   --mud:#8C7B5D; --mud-deep:#665A44; --hull:#FBFAF5; --hull-line:#12282A;
   --streak:rgba(236,246,242,.75); --moon-lit:#FFF3CF; --moon-dark:#AFC0C3;
@@ -110,7 +115,11 @@ button{font:inherit; color:inherit; cursor:pointer}
 /* 상단 */
 .top{position:relative; z-index:30; display:flex; align-items:center; justify-content:space-between; gap:12px}
 .brand{position:relative; display:flex; flex-direction:column; align-items:flex-start; white-space:nowrap; flex:none}
-.brand-t{margin:0; font-weight:400; font-family:var(--font-display); font-size:calc(33px * var(--k)); line-height:1.08; letter-spacing:.01em}
+.brand-t{position:relative; margin:0; font-weight:400; font-family:var(--font-display); font-size:calc(33px * var(--k)); line-height:1; letter-spacing:.01em}
+/* 제목 글자 그림 '쭈갑이 물때' (이 = 동그란 배 창문 속 쭈갑이 · 물때 = 밀물) */
+.brand-t .logo{display:block; height:1.48em; width:auto; margin:-.14em 0 -.06em -.04em; overflow:visible}
+.brand-t .vh{position:absolute; width:1px; height:1px; overflow:hidden; clip-path:inset(50%); white-space:nowrap}
+@media (max-width:340px){ .brand-t .logo{height:1.34em} }
 /* 제목 아래 바다 고르기 (누르면 서해·남해 목록, 바다가 늘면 목록만 늘어남) */
 .sea-btn{display:inline-flex; align-items:center; gap:7px; margin-top:7px; min-height:30px; padding:4px 11px 4px 12px; border:0; border-radius:999px; background:var(--well); font:inherit; font-size:calc(12.5px * var(--k)); font-weight:700; color:var(--ink); letter-spacing:.02em; -webkit-tap-highlight-color:transparent; transition:transform .15s}
 .sea-btn:active{transform:scale(.96)}
@@ -661,7 +670,14 @@ a.mv-row-btn{text-decoration:none; gap:10px} .mv-row-btn span{font-size:calc(20p
 
 <div class="app">
   <header class="top">
-    <div class="brand"><h1 class="brand-t">쭈갑이 물때</h1>
+    <div class="brand"><h1 class="brand-t"><span class="vh">쭈갑이 물때</span><svg class="logo" aria-hidden="true" focusable="false" viewBox="-40 -900 4731 1120"><g transform="translate(0 0)"><path d="M60 -485Q102 -485 132 -514.5Q162 -544 168 -600L80 -600L80 -750L760 -750L760 -600L672 -600Q678 -544 708 -514.5Q738 -485 780 -485L750 -345Q655 -345 588 -409Q558 -378 519.5 -361.5Q481 -345 437 -345L420 -413L403 -345Q359 -345 320.5 -361.5Q282 -378 252 -409Q185 -345 90 -345ZM420 -487Q453 -492 474.5 -520.5Q496 -549 501 -600L339 -600Q344 -549 365.5 -520.5Q387 -492 420 -487ZM60 -150L60 -300L780 -300L780 -150L514 -150L514 0L326 0L326 -150Z" style="fill:var(--ink)" fill-rule="evenodd"/></g><g transform="translate(840 0)"><path d="M770 -760L582 -760L582 -350L770 -350L770 -486L845 -486L845 -637L770 -637ZM70 -350Q215 -350 305 -378.5Q395 -407 446 -494Q497 -581 497 -750L70 -750L70 -602L292 -602Q292 -500 50 -500ZM770 0L770 -315L583 -315L583 -278L278 -278L278 -315L90 -315L90 0ZM583 -158L583 -120L278 -120L278 -158Z" style="fill:var(--ink)" fill-rule="evenodd"/></g><g transform="translate(1685 0)"><rect x="694" y="-760" width="188" height="760" style="fill:var(--ink)"/><circle cx="330" cy="-384" r="221" style="fill:var(--logo-glass)"/><path d="M180 -454 A 179 179 0 0 1 290 -559" fill="none" style="stroke:var(--logo-glasshi)" stroke-opacity=".5" stroke-width="22" stroke-linecap="round"/><circle cx="330" cy="-384" r="272" fill="none" style="stroke:var(--ink)" stroke-width="106"/><g style="fill:var(--logo-bolt)"><circle cx="581.3" cy="-279.9" r="15"/><circle cx="434.1" cy="-132.7" r="15"/><circle cx="225.9" cy="-132.7" r="15"/><circle cx="78.7" cy="-279.9" r="15"/><circle cx="78.7" cy="-488.1" r="15"/><circle cx="225.9" cy="-635.3" r="15"/><circle cx="434.1" cy="-635.3" r="15"/><circle cx="581.3" cy="-488.1" r="15"/></g><g transform="translate(330 -300) rotate(0) scale(0.86)"><g><defs><linearGradient id="tlogo-jj0" gradientUnits="userSpaceOnUse" x1="0" y1="-230" x2="0" y2="260"><stop offset="0" stop-color="#FFA15E"/><stop offset=".55" stop-color="#FF7A4A"/><stop offset="1" stop-color="#EE4E3E"/></linearGradient></defs>
+    <g fill="#3A1C12" stroke="#3A1C12" stroke-width="34" stroke-linejoin="round"><ellipse cx="-150" cy="118" rx="56" ry="70" transform="rotate(20 -150 118)"/><ellipse cx="-74" cy="132" rx="54" ry="74" transform="rotate(7 -74 132)"/><ellipse cx="0" cy="136" rx="54" ry="76" transform="rotate(0 0 136)"/><ellipse cx="74" cy="132" rx="54" ry="74" transform="rotate(-7 74 132)"/><ellipse cx="150" cy="118" rx="56" ry="70" transform="rotate(-20 150 118)"/><path d="M-214 40 C -230 -130, -118 -222, 0 -222 C 118 -222, 230 -130, 214 40 C 206 110, -206 110, -214 40 Z"/></g>
+    
+    <g fill="url(#tlogo-jj0)"><ellipse cx="-150" cy="118" rx="56" ry="70" transform="rotate(20 -150 118)"/><ellipse cx="-74" cy="132" rx="54" ry="74" transform="rotate(7 -74 132)"/><ellipse cx="0" cy="136" rx="54" ry="76" transform="rotate(0 0 136)"/><ellipse cx="74" cy="132" rx="54" ry="74" transform="rotate(-7 74 132)"/><ellipse cx="150" cy="118" rx="56" ry="70" transform="rotate(-20 150 118)"/><path d="M-214 40 C -230 -130, -118 -222, 0 -222 C 118 -222, 230 -130, 214 40 C 206 110, -206 110, -214 40 Z"/></g>
+    
+    <path d="M-128 96 q -8 40 -2 70 M-42 104 q -4 40 0 74 M42 104 q 4 40 0 74 M128 96 q 8 40 2 70" fill="none" stroke="#3A1C12" stroke-width="14" stroke-linecap="round" opacity=".55"/>
+    <ellipse cx="-118" cy="-128" rx="40" ry="28" fill="#fff" transform="rotate(-32 -118 -128)"/><circle cx="-64" cy="-170" r="11" fill="#fff" opacity=".9"/>
+    <ellipse cx="-72" cy="-14" rx="27" ry="30" fill="#3A1C12"/><ellipse cx="72" cy="-14" rx="27" ry="30" fill="#3A1C12"/><circle cx="-63" cy="-25" r="9" fill="#fff"/><circle cx="81" cy="-25" r="9" fill="#fff"/><ellipse cx="-138" cy="34" rx="40" ry="30" fill="#FF5A3C" opacity=".55"/><ellipse cx="138" cy="34" rx="40" ry="30" fill="#FF5A3C" opacity=".55"/><circle cx="0" cy="44" r="30" fill="#E8303A" stroke="#3A1C12" stroke-width="7"/><circle cx="0" cy="49" r="13" fill="#8E1020"/></g></g></g><defs><clipPath id="tlogo-sea"><path d="M2889 -330 Q 2974.6 -356 3060.2 -330 Q 3145.8 -304 3231.4 -330 Q 3317 -356 3402.6 -330 Q 3488.2 -304 3573.8 -330 Q 3659.4 -356 3745 -330 Q 3830.60 -304 3916.20 -330 Q 4001.79 -356 4087.39 -330 Q 4173 -304 4258.59 -330 Q 4344.20 -356 4429.8 -330 Q 4515.40 -304 4601 -330 L 4601 200 L 2889 200 Z"/></clipPath></defs><g transform="translate(2929 0)"><path d="M762 -752L762 -522L80 -522L80 -752ZM574 -620L574 -653L268 -653L268 -620ZM782 -382L515 -382L515 -353L762 -353L762 -127L268 -127L268 -99L772 -99L772 0L80 0L80 -226L574 -226L574 -255L80 -255L80 -353L327 -353L327 -382L60 -382L60 -491L782 -491Z" style="fill:var(--ink)" fill-rule="evenodd"/></g><g transform="translate(3771 0)"><path d="M800 -762L640 -762L640 -451L610 -451L610 -762L450 -762L450 -10L610 -10L610 -301L640 -301L640 0L800 0ZM412 -752L60 -752L60 -30L420 -30L420 -180L361 -180L361 -602L412 -602ZM196 -602L241 -602L241 -180L196 -180Z" style="fill:var(--ink)" fill-rule="evenodd"/></g><g clip-path="url(#tlogo-sea)"><g transform="translate(2929 0)"><path d="M762 -752L762 -522L80 -522L80 -752ZM574 -620L574 -653L268 -653L268 -620ZM782 -382L515 -382L515 -353L762 -353L762 -127L268 -127L268 -99L772 -99L772 0L80 0L80 -226L574 -226L574 -255L80 -255L80 -353L327 -353L327 -382L60 -382L60 -491L782 -491Z" style="fill:var(--logo-sea)" fill-rule="evenodd"/></g><g transform="translate(3771 0)"><path d="M800 -762L640 -762L640 -451L610 -451L610 -762L450 -762L450 -10L610 -10L610 -301L640 -301L640 0L800 0ZM412 -752L60 -752L60 -30L420 -30L420 -180L361 -180L361 -602L412 -602ZM196 -602L241 -602L241 -180L196 -180Z" style="fill:var(--logo-sea)" fill-rule="evenodd"/></g></g><path d="M2889 -330 Q 2974.6 -356 3060.2 -330 Q 3145.8 -304 3231.4 -330 Q 3317 -356 3402.6 -330 Q 3488.2 -304 3573.8 -330 Q 3659.4 -356 3745 -330 Q 3830.60 -304 3916.20 -330 Q 4001.79 -356 4087.39 -330 Q 4173 -304 4258.59 -330 Q 4344.20 -356 4429.8 -330 Q 4515.40 -304 4601 -330" fill="none" style="stroke:var(--logo-bub)" stroke-width="14" opacity=".9"/><g fill="none" style="stroke:var(--logo-bub)" stroke-width="10" opacity=".85"><circle cx="3129" cy="-150" r="24"/><circle cx="3489" cy="-230" r="16"/><circle cx="4311" cy="-120" r="22"/><circle cx="4291" cy="-210" r="13"/></g></svg></h1>
       <button class="sea-btn" id="sea-btn" type="button" aria-haspopup="menu" aria-expanded="false" aria-controls="sea-menu"><b id="sea-name">서해</b><em id="sea-rule">7물때 기준</em><i class="chev" aria-hidden="true"></i></button>
       <div class="sea-menu" id="sea-menu" role="menu" aria-label="바다 고르기" hidden>
         <button type="button" role="menuitemradio" data-reg="west" aria-checked="true">서해<small>7물때 기준</small><i aria-hidden="true">✓</i></button>
@@ -4934,7 +4950,7 @@ if ('serviceWorker' in navigator) addEventListener('load', () => {
   const sw = navigator.serviceWorker; let ctl = sw.controller, reloading = false;
   // 새 버전이 올라오면 한 번 새로 열어 바로 반영 (처음 설치할 때는 제외)
   sw.addEventListener('controllerchange', () => { if (ctl && !reloading) { reloading = true; location.reload(); } ctl = sw.controller; });
-  sw.register('sw.js?v=e046e2c6').then(reg => {
+  sw.register('sw.js?v=0739f4f6').then(reg => {
     // 앱을 켜 둔 채 다른 화면에 갔다 돌아오면 새 버전이 있는지 확인
     document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') reg.update().catch(() => {}); });
   }).catch(() => {});
