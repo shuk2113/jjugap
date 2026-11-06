@@ -523,6 +523,8 @@ a.mv-row-btn{text-decoration:none; gap:10px} .mv-row-btn span{font-size:calc(20p
 .cal-stage{overflow:hidden; touch-action:pan-y; -webkit-tap-highlight-color:transparent}
 .cal-track{display:flex; align-items:flex-start; will-change:transform}
 .cal-track > .cal{flex:0 0 100%; min-width:0}
+.cal-note{display:flex; align-items:center; justify-content:center; gap:7px; margin:12px 0 0; text-align:center; font-size:calc(12px * var(--k)); color:var(--ink-2); line-height:1.4}
+.cal-note .c-rec-k{flex:none; width:7px; height:7px; border-radius:50%; background:#2F7DF6}
 .cal-week{font-size:calc(12px * var(--k)); color:var(--ink-2); text-align:center}
 .cal-week span:first-child{color:var(--sun)} .cal-week span:last-child{color:var(--sat)}
 .cell{position:relative; min-width:0; max-width:100%; aspect-ratio:1/1.12; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1px; padding:2px 0; border-radius:10px; border:1.5px solid transparent; background:transparent}
@@ -786,6 +788,7 @@ a.mv-row-btn{text-decoration:none; gap:10px} .mv-row-btn span{font-size:calc(20p
     </div>
     <div class="cal-week" aria-hidden="true"><span>일</span><span>월</span><span>화</span><span>수</span><span>목</span><span>금</span><span>토</span></div>
     <div class="cal-stage" id="cal-stage"><div class="cal-track" id="cal-track"><div class="cal" id="cal-prev" aria-hidden="true" inert></div><div class="cal" id="cal"></div><div class="cal" id="cal-next" aria-hidden="true" inert></div></div></div>
+    <p class="cal-note"><i class="c-rec-k" aria-hidden="true"></i><span>파란 점은 내 기록이 있는 날 · 누르면 지도로 봐요</span></p>
     <div class="mpanel" id="mpanel" hidden>
       <div class="mp-year">
         <button class="mp-arrow" id="mp-prev" aria-label="이전 해"><i class="ch l"></i></button>
@@ -1656,7 +1659,7 @@ const TideHarm = (() => {
     for (let i = 0; i < WIN; i++) {
       const v = ymd(first + i), x = f1(pts[i].x);
       if (i === ti) g += `<g class="tp"><rect x="${f1(pts[i].x - 12)}" y="156" width="24" height="14" rx="7"></rect><text x="${x}" y="163">오늘</text></g>`;
-      else if ((v.d === 1 || v.d % 5 === 0) && !(ti >= 0 && ti < WIN && Math.abs(i - ti) <= 2)) g += `<text class="dn${v.d === 1 ? ' mo' : ''}" x="${x}" y="163">${v.d === 1 ? v.m + '월' : v.d}</text>`;
+      else if ((v.d === 1 || (v.d % 5 === 0 && v.d !== 30)) && !(ti >= 0 && ti < WIN && Math.abs(i - ti) <= 2)) g += `<text class="dn${v.d === 1 ? ' mo' : ''}" x="${x}" y="163">${v.d === 1 ? v.m + '월' : v.d}</text>`;
       // 달이 바뀌는 날이 오늘과 붙어 있으면 '오늘' 옆으로 비켜서 표시
       if (v.d === 1 && ti >= 0 && ti < WIN && Math.abs(i - ti) <= 2) {
         const right = i >= ti;
@@ -2315,7 +2318,7 @@ const TideHarm = (() => {
         // 거의 안 움직이고 뗐으면 브라우저의 click을 기다리지 않고 바로 그 날짜를 고른다
         // (밀어서 달을 넘긴 직후에는 폰 브라우저가 다음 한 번의 click을 삼키는 경우가 있다)
         const el = document.elementFromPoint(e.clientX, e.clientY), cell = el && el.closest('[data-dn]');
-        if (cell && cell.parentElement === $('cal')) { calTapAt = Date.now(); select(+cell.dataset.dn); window.scrollTo({ top: 0, behavior: motion() }); }
+        if (cell && cell.parentElement === $('cal')) { calTapAt = Date.now(); calDayTap(+cell.dataset.dn); }
         return;
       }
       const flick = Math.abs(vx) > 0.35 && Math.abs(dx) > 16;
@@ -4822,6 +4825,12 @@ const TideHarm = (() => {
   })();
   // 내 기록: 맨 윗줄 지도 단추(전체) · 날짜 아래 '이날 내 기록'(그날만)
   const recTipDone = () => { try { localStorage.setItem('jjukgap-rec-tip', '1'); } catch (e) {} };
+  // 아래 달력은 내 기록 보기용: 기록한 날을 누르면 그날 '내 기록' 지도
+  function calDayTap(n) {
+    const c = recDays().get(n) || 0;
+    if (c) { recTipDone(); if (recKit) recKit.open(n); return; }
+    const v = ymd(n); if (recKit) recKit.toast(`${v.m}월 ${v.d}일은 내 기록이 없어요`);
+  }
   $('rec-btn').onclick = () => { recTipDone(); if (recKit) recKit.open(null); };
   $('rec-chip').onclick = () => { recTipDone(); if (recKit) recKit.open(sel); };
   addEventListener('jjugap-points', () => { recDaysC = null; renderCal(); paintRec(); });
@@ -4833,7 +4842,7 @@ const TideHarm = (() => {
   $('cal').addEventListener('click', e => {
     if (Date.now() - calTapAt < 700) return;   // 손가락으로 이미 고른 경우
     const b = e.target.closest('[data-dn]');
-    if (b) { select(+b.dataset.dn); window.scrollTo({ top: 0, behavior: motion() }); }
+    if (b) calDayTap(+b.dataset.dn);
   });
   function setRegion(r) {
     region = r;
@@ -4906,7 +4915,7 @@ if ('serviceWorker' in navigator) addEventListener('load', () => {
   const sw = navigator.serviceWorker; let ctl = sw.controller, reloading = false;
   // 새 버전이 올라오면 한 번 새로 열어 바로 반영 (처음 설치할 때는 제외)
   sw.addEventListener('controllerchange', () => { if (ctl && !reloading) { reloading = true; location.reload(); } ctl = sw.controller; });
-  sw.register('sw.js?v=60deffaa').then(reg => {
+  sw.register('sw.js?v=a6ed868c').then(reg => {
     // 앱을 켜 둔 채 다른 화면에 갔다 돌아오면 새 버전이 있는지 확인
     document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') reg.update().catch(() => {}); });
   }).catch(() => {});
