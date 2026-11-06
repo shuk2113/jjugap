@@ -240,7 +240,7 @@ h2{margin:0; font-size:calc(16px * var(--k)); font-weight:700; text-wrap:balance
 @keyframes livePulse{0%,100%{opacity:1; transform:scale(1)} 50%{opacity:.35; transform:scale(.7)}}
 @media (prefers-reduced-motion:reduce){ .me-btn .live{animation:none} }
 /* 메인 화면 짧은 알림 */
-.main-toast{position:fixed; left:50%; bottom:calc(22px + env(safe-area-inset-bottom, 0px)); z-index:60; transform:translateX(-50%); max-width:calc(100% - 32px); padding:10px 16px; border-radius:16px; background:rgba(8,20,24,.9); color:#fff; font-size:calc(13px * var(--k)); font-weight:600; line-height:1.45; text-align:center; box-shadow:0 6px 20px rgba(0,0,0,.25); pointer-events:none; transition:opacity .25s}
+.main-toast{position:fixed; left:50%; bottom:calc(22px + env(safe-area-inset-bottom, 0px)); z-index:60; transform:translateX(-50%); width:max-content; max-width:calc(100% - 32px); box-sizing:border-box; word-break:keep-all; text-wrap:balance; padding:10px 16px; border-radius:16px; background:rgba(8,20,24,.9); color:#fff; font-size:calc(13px * var(--k)); font-weight:600; line-height:1.45; text-align:center; box-shadow:0 6px 20px rgba(0,0,0,.25); pointer-events:none; transition:opacity .25s}
 .main-toast[hidden]{display:block; opacity:0}
 /* 선상 모드 (바다 지도) 화면 */
 .mapv{position:fixed; inset:0; z-index:60; display:flex; flex-direction:column; overflow:hidden; background:var(--paper); animation:mvIn .22s cubic-bezier(.2,.8,.2,1)}
@@ -508,7 +508,7 @@ a.mv-row-btn{text-decoration:none; gap:10px} .mv-row-btn span{font-size:calc(20p
 .gridl{stroke:var(--line); stroke-width:1}
 .area{fill:url(#lvg); opacity:.3}
 .curve{fill:none; stroke:url(#lvg); stroke-width:2.8; stroke-linejoin:round; stroke-linecap:round}
-.lbl{font-family:var(--font-body); font-size:calc(10px * var(--k)); font-weight:700; text-anchor:end; dominant-baseline:central}
+.lbl{font-family:var(--font-body); font-size:calc(10px * var(--k)); font-weight:700; text-anchor:middle; dominant-baseline:central}
 .lbl.calm{fill:var(--calm)} .lbl.mid{fill:var(--mid)} .lbl.strong{fill:var(--strong)}
 .dn{font-family:var(--font-body); font-size:calc(10px * var(--k)); fill:var(--ink-2); text-anchor:middle; dominant-baseline:central}
 .tp rect{fill:var(--ink)} .tp text{fill:var(--card); font-family:var(--font-body); font-size:calc(9.5px * var(--k)); font-weight:700; text-anchor:middle; dominant-baseline:central}
@@ -526,7 +526,7 @@ a.mv-row-btn{text-decoration:none; gap:10px} .mv-row-btn span{font-size:calc(20p
 .b-halo{fill:var(--ink); opacity:.08; transition:opacity .15s}
 .b-hull{fill:var(--ink)} .b-cab{fill:var(--card); stroke:var(--ink); stroke-width:1.3} .b-rod{fill:none; stroke:var(--ink); stroke-width:1.4; stroke-linecap:round}
 #b-guide{stroke:var(--ink-2); stroke-width:1; stroke-dasharray:2 3}
-.c-hint{margin:0; text-align:center; font-size:calc(12px * var(--k)); color:var(--ink-2)}
+.c-hint{margin:0; text-align:center; font-size:calc(12px * var(--k)); color:var(--ink-2); word-break:keep-all; text-wrap:balance}
 
 /* 달력 */
 .cal-head{align-items:center}
@@ -1674,9 +1674,9 @@ const TideHarm = (() => {
     g += `<rect class="band-strong" x="${X0}" y="${YT}" width="${X1 - X0}" height="${f1(yOf(.76) - YT)}"></rect>`;
     g += `<rect class="band-mid" x="${X0}" y="${f1(yOf(.76))}" width="${X1 - X0}" height="${f1(yOf(.3) - yOf(.76))}"></rect>`;
     g += `<rect class="band-calm" x="${X0}" y="${f1(yOf(.3))}" width="${X1 - X0}" height="${f1(YB - yOf(.3))}"></rect>`;
-    g += `<text class="lbl strong" x="376" y="${f1((YT + yOf(.76)) / 2)}">물 셈</text>`;
-    g += `<text class="lbl mid" x="376" y="${f1((yOf(.76) + yOf(.3)) / 2)}">보통</text>`;
-    g += `<text class="lbl calm" x="376" y="${f1((yOf(.3) + YB) / 2)}">물 약함</text>`;
+    g += `<text class="lbl strong" x="${f1((X1 + 380) / 2)}" y="${f1((YT + yOf(.76)) / 2)}">물 셈</text>`;
+    g += `<text class="lbl mid" x="${f1((X1 + 380) / 2)}" y="${f1((yOf(.76) + yOf(.3)) / 2)}">보통</text>`;
+    g += `<text class="lbl calm" x="${f1((X1 + 380) / 2)}" y="${f1((yOf(.3) + YB) / 2)}">물 약함</text>`;
     // 한 주(일~토)씩 번갈아 옅은 띠: 이번 주가 칠해지고, 주가 하나씩 넘어가는 흐름이 보이게
     const wkOf = n => Math.floor((n - 3) / 7); // 1970-01-04(일) 기준 주 번호
     const thisWk = wkOf(today) % 2;
@@ -4982,7 +4982,7 @@ if ('serviceWorker' in navigator) addEventListener('load', () => {
   const sw = navigator.serviceWorker; let ctl = sw.controller, reloading = false;
   // 새 버전이 올라오면 한 번 새로 열어 바로 반영 (처음 설치할 때는 제외)
   sw.addEventListener('controllerchange', () => { if (ctl && !reloading) { reloading = true; location.reload(); } ctl = sw.controller; });
-  sw.register('sw.js?v=f00bea04').then(reg => {
+  sw.register('sw.js?v=6ef79732').then(reg => {
     // 앱을 켜 둔 채 다른 화면에 갔다 돌아오면 새 버전이 있는지 확인
     document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') reg.update().catch(() => {}); });
   }).catch(() => {});
