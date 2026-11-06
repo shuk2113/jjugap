@@ -109,12 +109,23 @@ button{font:inherit; color:inherit; cursor:pointer}
 
 /* 상단 */
 .top{display:flex; align-items:center; justify-content:space-between; gap:12px}
-.brand{font-family:var(--font-display); font-size:calc(25px * var(--k)); line-height:1.1; letter-spacing:.01em}
+.brand{font-family:var(--font-display); font-size:calc(25px * var(--k)); line-height:1.1; letter-spacing:.01em; white-space:nowrap; flex:none}
 .brand small{display:block; font-family:var(--font-body); font-size:calc(12px * var(--k)); font-weight:500; color:var(--ink-2); letter-spacing:.04em; margin-top:3px}
 .seg{display:flex; gap:2px; padding:3px; border-radius:999px; background:var(--well)}
 .top-right{display:flex; align-items:center; gap:8px; flex:none}
 .theme-btn{flex:none; width:38px; height:38px; display:grid; place-items:center; border:0; border-radius:50%; background:var(--well); color:var(--ink); -webkit-tap-highlight-color:transparent; transition:transform .15s}
 .theme-btn:active{transform:scale(.9)}
+/* 맨 윗줄 '내 기록' 단추 (지도 모양 + 포인트 수) */
+.rec-btn{position:relative; color:#2F7DF6}
+.rec-btn svg{width:20px; height:20px}
+.rec-btn b{position:absolute; top:-4px; right:-6px; min-width:18px; height:18px; padding:0 5px; border-radius:9px; background:#2F7DF6; color:#fff; font-size:11px; font-weight:800; line-height:18px; text-align:center; font-variant-numeric:tabular-nums; box-shadow:0 0 0 2px var(--paper)}
+.rec-btn b[hidden]{display:none}
+/* 날짜 아래 '이날 내 기록 보기' */
+.rec-chip{display:flex; align-items:center; gap:7px; width:100%; margin:8px 0 0; padding:9px 14px; border:1px solid var(--line); border-radius:14px; background:var(--card); font:inherit; font-size:calc(13.5px * var(--k)); font-weight:700; color:var(--ink); text-align:left; -webkit-tap-highlight-color:transparent}
+.rec-chip[hidden]{display:none} .rec-chip:active{transform:scale(.99)}
+.rec-chip svg{flex:none; width:17px; height:17px; color:#2F7DF6}
+.rec-chip span{flex:1; min-width:0} .rec-chip small{color:var(--ink-2); font-weight:600; font-size:calc(12px * var(--k))}
+.rec-chip i{flex:none; color:var(--ink-2); font-style:normal; font-size:calc(17px * var(--k))}
 .theme-btn svg{width:18px; height:18px}
 .theme-btn .i-sun{display:none}
 :root[data-app="dark"] .theme-btn .i-sun{display:block}
@@ -123,6 +134,8 @@ button{font:inherit; color:inherit; cursor:pointer}
 @keyframes themeSpin{from{transform:rotate(-90deg) scale(.6); opacity:0}}
 @media (prefers-reduced-motion: reduce){ .theme-btn.spin svg{animation:none} }
 .seg-btn{border:0; background:transparent; padding:7px 15px; border-radius:999px; font-size:calc(13px * var(--k)); font-weight:500; color:var(--ink-2)}
+/* 좁은 폰: 맨 윗줄 단추 사이를 조금 좁혀 앱 이름이 두 줄로 꺾이지 않게 */
+@media (max-width:380px){ .top{gap:8px} .top-right{gap:6px} .seg-btn{padding:7px 12px} }
 .seg-btn[aria-pressed="true"]{background:var(--card); color:var(--ink); box-shadow:0 1px 3px rgba(0,0,0,.14)}
 
 .datebar{display:flex; align-items:center; gap:8px}
@@ -251,6 +264,7 @@ h2{margin:0; font-size:calc(16px * var(--k)); font-weight:700; text-wrap:balance
 .mv-panel.sized{max-height:none} .mv-drag .mv-scale, .mv-drag .mv-attr{transition:none}
 .mv-panel .mv-where, .mv-panel .mv-h{touch-action:none}
 .mv-where{display:flex; align-items:baseline; justify-content:space-between; gap:8px; flex-wrap:wrap}
+.mv-auto[hidden]{display:none}
 .mv-where b{font-size:calc(15.5px * var(--k))} .mv-where span{font-size:calc(11.5px * var(--k)); color:var(--ink-2); font-variant-numeric:tabular-nums}
 .mv-grid{display:grid; grid-template-columns:1fr 1fr; gap:6px; margin:10px 0 8px}
 .mv-c{padding:7px 10px; border-radius:12px; background:var(--well); min-width:0}
@@ -519,6 +533,8 @@ a.mv-row-btn{text-decoration:none; gap:10px} .mv-row-btn span{font-size:calc(20p
 .cell.sat .c-n{color:var(--sat)} .cell.sun .c-n{color:var(--sun)}
 .cell.is-today .c-n{text-decoration:underline 2px; text-underline-offset:3px}
 .cell.is-sel{border-color:var(--ink)}
+/* 내 기록이 있는 날: 오른쪽 위 파란 점 */
+.cell .c-rec{position:absolute; top:4px; right:4px; width:7px; height:7px; border-radius:50%; background:#2F7DF6; box-shadow:0 0 0 1.5px var(--card)}
 .cell.blank{visibility:hidden}
 /* 날짜를 누르면 뜨는 작은 달력: 아래 큰 달력과 같은 정보, 힘을 뺀 모양 */
 .pc-back{position:fixed; inset:0; z-index:44; background:rgba(0,0,0,.22); touch-action:none; animation:fadeIn .18s ease}
@@ -642,6 +658,7 @@ a.mv-row-btn{text-decoration:none; gap:10px} .mv-row-btn span{font-size:calc(20p
         <button id="reg-west" class="seg-btn" aria-pressed="true">서해</button>
         <button id="reg-south" class="seg-btn" aria-pressed="false">남해</button>
       </div>
+      <button class="theme-btn rec-btn" id="rec-btn" type="button" aria-label="내 기록 지도"><svg viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M3 6.5l5.5-2.5 7 2.5 5.5-2.5v13.5l-5.5 2.5-7-2.5L3 20z"/><path d="M8.5 4v13.5M15.5 6.5V20"/></g></svg><b hidden>0</b></button>
       <button class="theme-btn" id="theme-btn" aria-label="라이트 모드로 바꾸기">
         <svg class="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4.2"></circle><path d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5.3 5.3l1.6 1.6M17.1 17.1l1.6 1.6M5.3 18.7l1.6-1.6M17.1 6.9l1.6-1.6"></path></svg>
         <svg class="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"></path></svg>
@@ -663,6 +680,7 @@ a.mv-row-btn{text-decoration:none; gap:10px} .mv-row-btn span{font-size:calc(20p
     <button id="next-day" class="icon-btn" aria-label="다음날">›</button>
     <button id="go-today" class="today-btn">오늘</button>
   </nav>
+  <button class="rec-chip" id="rec-chip" type="button" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M3 6.5l5.5-2.5 7 2.5 5.5-2.5v13.5l-5.5 2.5-7-2.5L3 20z"/><path d="M8.5 4v13.5M15.5 6.5V20"/></g></svg><span id="rec-chip-t">이날 내 기록</span><i aria-hidden="true">›</i></button>
 
   <section class="hero" aria-live="polite">
     <div class="hero-head">
@@ -1038,6 +1056,20 @@ const TideHarm = (() => {
   let pcRepaint = null;   // 날짜 팝업 달력이 열려 있으면 같이 다시 그린다
   let setStation = null;  // 출항지 바꾸기 (출항지 판에서 채운다)
   let spotKit = null;     // 이 자리 계산 자료로 새 출항지 만들기 · 지도에서 고르기 (내 위치 지도에서 채운다)
+  let recKit = null;      // '내 기록' 지도 열기 (선상 모드 지도에서 채운다)
+  // 내 기록(저장한 포인트, 이 폰에만)이 있는 날: 날짜 → 포인트 수. 포인트가 바뀌면 'jjugap-points' 소식으로 다시
+  let recDaysC = null, recTotal = 0;
+  function recDays() {
+    if (recDaysC) return recDaysC;
+    const m = new Map(); recTotal = 0;
+    try { for (const q of JSON.parse(localStorage.getItem('jjukgap-points') || '[]')) { const n = Math.floor((q.t + 9 * 3600000) / DAY); m.set(n, (m.get(n) || 0) + 1); recTotal++; } } catch (e) {}
+    return (recDaysC = m);
+  }
+  function paintRec() {
+    const c = recDays().get(sel) || 0, chip = $('rec-chip'), v = ymd(sel);
+    if (chip) { chip.hidden = !c; if (c) $('rec-chip-t').innerHTML = `${sel === today ? '오늘' : `${v.m}월 ${v.d}일`} 내 기록 ${c}곳 <small>· 지도에서 보기</small>`; }
+    const rb = $('rec-btn'); if (rb) { const b = rb.querySelector('b'); b.textContent = recTotal; b.hidden = !recTotal; rb.setAttribute('aria-label', `내 기록 지도 (포인트 ${recTotal}곳)`); }
+  }
 
   function dayData(n) {
     const i = Tide.info(n);
@@ -1071,6 +1103,7 @@ const TideHarm = (() => {
     const dd = dayData(sel), v = ymd(sel);
     // 날짜
     $('date-main').textContent = `${v.m}월 ${v.d}일 ${WD[v.w]}요일`;
+    paintRec();
     $('date-sub').textContent = `음력 ${dd.lunarDay}일 · ${moonName(dd.age)}`;
     $('go-today').disabled = sel === today;
     // 오늘의 물때
@@ -1713,11 +1746,12 @@ const TideHarm = (() => {
       const cls = ['cell', 'lv-' + dd.lv];
       if (v.w === 6) cls.push('sat'); if (v.w === 0) cls.push('sun');
       if (n === today) cls.push('is-today'); if (n === sel) cls.push('is-sel');
+      const rc = recDays().get(n) || 0;
       const wd = n >= today ? dayWx(n) : null, w = wd && wd.lv >= 0 ? wd : null;
       if (w && w.lv === 2) cls.push('wx-bad');
       const wtxt = w ? (w.wave != null ? `${w.wave.toFixed(1)}m` : CW_NAME[w.icon]) : '';
-      html += `<button class="${cls.join(' ')}" data-dn="${n}" aria-label="${v.m}월 ${v.d}일 ${dd.name}, ${LV[dd.lv].chip}${w ? `, ${CW_NAME[w.icon]}${w.wind != null ? `, 바람 초속 ${w.wind}미터` : ''}${w.wave != null ? `, 파도 ${w.wave.toFixed(1)}미터` : ''}` : ''}">`
-        + `<span class="c-n">${v.d}</span><span class="c-m">${dd.name}</span>`
+      html += `<button class="${cls.join(' ')}" data-dn="${n}" aria-label="${v.m}월 ${v.d}일 ${dd.name}, ${LV[dd.lv].chip}${w ? `, ${CW_NAME[w.icon]}${w.wind != null ? `, 바람 초속 ${w.wind}미터` : ''}${w.wave != null ? `, 파도 ${w.wave.toFixed(1)}미터` : ''}` : ''}${rc ? `, 내 기록 ${rc}곳` : ''}">`
+        + (rc ? '<i class="c-rec" aria-hidden="true"></i>' : '') + `<span class="c-n">${v.d}</span><span class="c-m">${dd.name}</span>`
         + `<span class="c-v${w && w.lv > 0 ? ' w' + w.lv : ''}">${w ? `<i class="c-w ${w.icon}" aria-hidden="true">${CW_ICO[w.icon]}</i>` : ''}${wtxt}</span></button>`;
     }
     return html;
@@ -2748,13 +2782,16 @@ const TideHarm = (() => {
     const useHist = !inFrame;
     let isOpen = false, skipPop = false, W = 0, H = 0, dpr = 1;
     let onBoard = false, board = null, natStartT = 0, seaFrom = 0;   // 선상 모드 (지도 화면이 닫혀 있어도 켜져 있을 수 있다)
+    let viewMode = false, dayFilter = null;   // '내 기록' 보기(선상 모드를 켜지 않고 지도만) · 그날 기록만 보기
+    const recVis = p => dayFilter == null || kstDayOf(p.t) === dayFilter;
+    const kstDayOf = t => Math.floor((t + 9 * 3600000) / 86400000);
     let v = { lon: 126.4, lat: 36.45, s: 900 };          // 지도 가운데와 배율(1도당 화면 점 수)
     let me = null, gps = null, follow = true, watchId = null, wake = null, mode = 'info', selId = null, form = null, raf = 0, lastPanel = 0;
     let landState = 'idle';
     let points = [], tripCache = null, goldOn = false;
     const RM = matchMedia('(prefers-reduced-motion: reduce)');
     try { points = JSON.parse(localStorage.getItem(PT_KEY) || '[]') || []; } catch (_) { points = []; }
-    const savePts = () => { tripCache = null; try { localStorage.setItem(PT_KEY, JSON.stringify(points)); } catch (_) {} $('mv-pts-n').textContent = points.length; paintBoardBtn(); };
+    const savePts = () => { tripCache = null; try { localStorage.setItem(PT_KEY, JSON.stringify(points)); } catch (_) {} $('mv-pts-n').textContent = points.length; paintBoardBtn(); dispatchEvent(new Event('jjugap-points')); };
     $('mv-pts-n').textContent = points.length;
     const esc = t => String(t).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
     const short = k => (TideHarm.STATIONS[k].custom ? TideHarm.STATIONS[k].name : TideHarm.STATIONS[k].name.split(' ').pop());
@@ -3102,6 +3139,7 @@ const TideHarm = (() => {
       const star = (sx, sy, s, col) => { ctx.fillStyle = col; ctx.beginPath(); ctx.moveTo(sx, sy - s); ctx.quadraticCurveTo(sx, sy, sx + s, sy); ctx.quadraticCurveTo(sx, sy, sx, sy + s); ctx.quadraticCurveTo(sx, sy, sx - s, sy); ctx.quadraticCurveTo(sx, sy, sx, sy - s); ctx.fill(); };
       const depMarks = new Map();
       for (const tr of drawOrder) {
+        if (dayFilter != null && kstDayOf(tr.pts[0].t) !== dayFilter) continue;   // '이날 내 기록'이면 그날 것만
         const A = selTr && tr !== selTr ? 0.3 : 1;
         const xy = tr.pts.map(p => { const [x, y] = toS(p.lon, p.lat), c = caughtOf(p); return { p, x, y, c, r: ptR(c) * zk + (p.id === selId ? 2 : 0), info: TG.by.get(p.id) }; });
         const p0 = xy[0], D0 = depPosOf(p0.p), dOk = D0 && distKm(D0, p0.p) < 80, [sx, sy] = dOk ? toS(D0.lon, D0.lat) : [p0.x, p0.y];
@@ -3434,6 +3472,10 @@ const TideHarm = (() => {
       if (!isOpen) return;
       const nowMs = Date.now(); if (!force && nowMs - lastPanel < 900) return; lastPanel = nowMs;
       if (mode === 'save' || mode === 'list' || mode === 'detail' || mode === 'pick' || mode === 'move') return;
+      if (viewMode && !me) {
+        panel.innerHTML = recSummary() + `<p class="mv-tip">선상 모드를 켜지 않고 기록만 보는 중이에요. ‘내 위치로’를 누르면 지금 자리를 한 번만 찍어 보여 주고, 지도를 길게 누르면 그 자리의 물때·조류를 볼 수 있어요.</p>`;
+        return;
+      }
       if (!me) {
         panel.innerHTML = `<p class="mv-empty">${gpsMsg || '위치를 찾는 중이에요…'}<br>지도를 <b>길게 누르면</b> 그 자리를 내 위치로 가정해서 정보를 볼 수 있어요.</p><p class="mv-safe">낚시 정보 확인용이에요. 항해·안전에는 쓰지 마세요.</p>`;
         return;
@@ -3446,7 +3488,7 @@ const TideHarm = (() => {
         : ` 조류: 가장 가까운 조류예보 지점 값${c.d > 8 ? ` (${kmTxt(c.d)} 떨어져 다를 수 있어요)` : ''}.`) : '')
         + (i.wtModel ? ' 수온: 모델 예측이라 관측과 1℃쯤 다를 수 있어요.' : '') + (SP ? ' 화살표: 진한 것 조류예보 지점, 옅은 것 모델.' : '')
         + ' 낚시 정보 확인용이며 항해·안전에는 쓰지 마세요.';
-      panel.innerHTML = `
+      panel.innerHTML = (viewMode ? recSummary() : '') + `
         <div class="mv-where"><b>${esc(short(i.k))}에서 ${i.dir}쪽 ${kmTxt(i.d)}</b><span>${dm(me.lat, 'N', 'S')} ${dm(me.lon, 'E', 'W')}</span></div>
         <div class="mv-grid">
           <div class="mv-c"><small>물때</small><b class="t-${i.dd.lv}">${i.dd.name} · ${LV[i.dd.lv].chip}</b></div>
@@ -3737,8 +3779,8 @@ const TideHarm = (() => {
       checkApp();
       sheetAtLeast('open'); closeMenu(); openRow = null; lg = null;
       mode = 'list';
-      const TG = tripGroups(), keepTop = panel.scrollTop;
-      const body = TG.list.map(tr => {
+      const TG = tripGroups(), keepTop = panel.scrollTop, TL = dayFilter != null ? TG.list.filter(tr => kstDayOf(tr.pts[0].t) === dayFilter) : TG.list;
+      const body = TL.map(tr => {
         const first = tr.pts[0], fold = folded.has(tr.key), tot = tr.pts.reduce((a, q) => a + caughtOf(q), 0);
         const items = tr.pts.slice().reverse().map(p => {
           const S = TideHarm.STATIONS[p.port] || TideHarm.STATIONS[nearest(p).k], ti = TG.by.get(p.id);
@@ -3750,7 +3792,8 @@ const TideHarm = (() => {
           + `<i style="background:${tr.color}"></i><span class="t">${md(kstDay(first.t))} · ${tripTxt(first) || '배·출항지 기록 없음'}</span><span class="n">${tr.pts.length}곳 · ${tot}마리</span>${ICON_CHEV}</button>`
           + `<ul class="mv-list">${items}</ul></section>`;
       }).join('');
-      panel.innerHTML = `<div class="mv-h"><b>저장한 포인트 ${points.length}곳</b><span>이 폰에만 저장돼요</span></div>` +
+      panel.innerHTML = (dayFilter != null ? `<div class="mv-h"><b>${mdK(dayFilter)} 기록 ${TL.reduce((a, tr) => a + tr.pts.length, 0)}곳</b><span>전체 ${points.length}곳</span></div><div class="mv-btns"><button data-act="rec-all">전체 기록 보기</button></div>`
+        : `<div class="mv-h"><b>저장한 포인트 ${points.length}곳</b><span>이 폰에만 저장돼요</span></div>`) +
         (points.length ? `<p class="mv-tip">포인트를 꾹 누르면 고치기·지우기, 왼쪽으로 밀어도 지울 수 있어요.</p><div class="mv-trips">${body}</div>`
           : `<p class="mv-empty">아직 저장한 포인트가 없어요. 배 위에서 지도 아래 파란 핀 단추를 누르면 그 자리와 물때·조류·수온이 함께 남아요.</p>`) +
         `<div class="mv-set">`
@@ -3915,6 +3958,7 @@ const TideHarm = (() => {
       const b = e.target.closest('[data-act]'); if (!b) return; const a = b.dataset.act;
       if (a === 'fold') return toggleFold(b);
       if (a === 'auto-tog') return setAuto(!autoOn);
+      if (a === 'rec-all') { dayFilter = null; const all = points.slice(); if (all.length) fitPts(all); if (mode === 'list') showList(); else paintPanel(true); return draw(); }
       if (a === 'noti-tog') return setNoti(!notiOn);
       if (a === 'bubble-tog') { try { NAT.setBubble(!natBubble()); } catch (_) {} return setTimeout(() => { if (mode === 'list') showList(); }, 300); }
       if (a === 'move') return showMove();
@@ -4076,6 +4120,46 @@ const TideHarm = (() => {
       if (Date.now() - lastFixT > 25000) navigator.geolocation.getCurrentPosition(onPos, () => {}, { enableHighAccuracy: true, maximumAge: 10000, timeout: 20000 });
       autoPill();
     }, 20000);
+    // ---------- '내 기록' 보기: 선상 모드를 켜지 않고 저장한 포인트를 지도에서 본다 (맨 윗줄 지도 단추 · 날짜 아래 '이날 내 기록')
+    const mdK = d => { const x = new Date(d * DAY); return `${x.getUTCMonth() + 1}월 ${x.getUTCDate()}일`; };
+    function recSummary() {
+      const TG = tripGroups(), L = dayFilter != null ? TG.list.filter(tr => kstDayOf(tr.pts[0].t) === dayFilter) : TG.list;
+      const n = L.reduce((a, tr) => a + tr.pts.length, 0), tot = L.reduce((a, tr) => a + tr.pts.reduce((s2, q) => s2 + caughtOf(q), 0), 0);
+      const head = dayFilter != null ? `${mdK(dayFilter)} 내 기록` : '내 기록';
+      const sub = !n ? '아직 저장한 포인트가 없어요' : dayFilter != null ? `${esc(L[0].pts[0].mul || '')}${L[0].pts[0].boat ? ' · ' + esc(L[0].pts[0].boat) : ''}` : `출조 ${L.length}번`;
+      return `<div class="mv-where mv-rec"><b>${head} ${n}곳${tot ? ` · ${tot}마리` : ''}</b><span>${sub}</span></div>`
+        + `<div class="mv-btns">${dayFilter != null ? '<button data-act="rec-all">전체 기록 보기</button>' : ''}${n ? '<button data-act="list">목록 보기</button>' : ''}</div>`;
+    }
+    // 포인트들이 판 위쪽 지도에 다 들어오게
+    function fitPts(list) {
+      if (!list.length || !W) return;
+      let a = 90, b = -90, c = 180, d = -180;
+      for (const q of list) { a = Math.min(a, q.lat); b = Math.max(b, q.lat); c = Math.min(c, q.lon); d = Math.max(d, q.lon); }
+      const top = 64, hh = Math.max(140, H - top - Math.min(coverH(), H - 200) - 40), ww = Math.max(140, W - 130);
+      v.s = clampS(Math.min(ww / Math.max((d - c) * KX, 1e-4), hh / Math.max(b - a, 1e-4), 12000));
+      v.lon = (c + d) / 2; placeAt((c + d) / 2, (a + b) / 2, top + hh / 2);
+      follow = false; $('mv-me').classList.remove('on');
+    }
+    // 지도 윗줄 제목 · 자동 기록 표시 · 아래 단추를 지금 상태에 맞게 ('내 기록'이면 저장 단추 대신 '선상 모드 켜기')
+    let fabHTML = null;
+    function paintView() {
+      const t = view.querySelector('.mv-title b'); if (t) t.textContent = viewMode ? '내 기록' : '선상 모드';
+      view.setAttribute('aria-label', viewMode ? '내 기록 지도' : '선상 모드 지도');
+      pill.hidden = viewMode;
+      if (viewMode && !me) setGps('선상 모드 꺼짐 · 기록만 보기', '');
+      if (fabHTML == null) fabHTML = fab.innerHTML;
+      fab.classList.toggle('to-board', viewMode);
+      fab.innerHTML = viewMode ? '<span><b><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12.6h18l-2.4 4.4a1.6 1.6 0 0 1-1.4.9H6.8a1.6 1.6 0 0 1-1.4-.9z" fill="currentColor"/><path d="M8 12.2V8.4h6.4l2.5 3.8" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M2.5 21.2c1.6 0 1.6-1 3.2-1s1.6 1 3.2 1 1.6-1 3.2-1 1.6 1 3.2 1 1.6-1 3.2-1 1.6 1 3.2 1" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></b><em>선상 모드 켜기</em></span>' : fabHTML;
+      fab.setAttribute('aria-label', viewMode ? '선상 모드 켜기' : '포인트 저장 (꾹 누르면 자리를 옮길 수 있어요)');
+    }
+    // '내 기록'을 보다가 바로 출조 시작
+    function goLive() {
+      viewMode = false; dayFilter = null;
+      boardOn(); startGps(); wakeOn(); paintView(); autoPill();
+      mode = 'info'; selId = null; sheetDown(); paintPanel(true);
+      if (me && !me.virtual) { follow = true; $('mv-me').classList.add('on'); fitMeAndPort(); }
+      draw(); toast('선상 모드를 켰어요');
+    }
     // ---------- 선상 모드: 한 번 켜면 물때 화면으로 돌아가도 계속 켜져 있다 (GPS · 5분 자동 기록 · 홈 화면 단추 · 알림줄)
     // 끄기: 지도 윗줄 ⏻(한 번 더 눌러 확인) · 알림줄 '기록 끄기' · 저절로(바다에 나갔다가 항구·육지에 30분 넘게 머물면, 또는 바다에 안 나간 채 3시간)
     const BOARD_KEY = 'jjukgap-onboard', PORT_MS = 30 * 60000, NOSEA_MS = 3 * 3600000;
@@ -4241,7 +4325,7 @@ const TideHarm = (() => {
     // 화면 꺼짐 막기 (지원하는 폰에서만)
     async function wakeOn() { try { if ('wakeLock' in navigator && !wake) { wake = await navigator.wakeLock.request('screen'); wake.addEventListener('release', () => { wake = null; }); } } catch (_) { wake = null; } }
     function wakeOff() { try { wake && wake.release(); } catch (_) {} wake = null; }
-    document.addEventListener('visibilitychange', () => { if (isOpen && document.visibilityState === 'visible') { wakeOn(); paintPanel(true); } });
+    document.addEventListener('visibilitychange', () => { if (isOpen && document.visibilityState === 'visible') { if (!viewMode) wakeOn(); paintPanel(true); } });
 
     // ---------- 아래 정보 판: 접기(맨 윗줄만) · 펼치기(내용에 딱 맞는 높이) 두 가지
     // 손잡이를 톡 누르거나 위·아래로 쓸면 한 번에 그 높이로 간다 (중간에 멈추지 않는다)
@@ -4397,6 +4481,7 @@ const TideHarm = (() => {
     fab.addEventListener('pointerup', fabUp); fab.addEventListener('pointercancel', fabUp);
     fab.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); saveHere(); } });
     function saveHere() {
+      if (viewMode) return goLive();
       if (!me) { toast('위치를 찾는 중이에요. 잠시 뒤에 눌러 주세요'); return; }
       showSave();
     }
@@ -4457,25 +4542,31 @@ const TideHarm = (() => {
       mode = 'info'; pickCb = null; close();
       if (cb) cb({ name, sub, lat: g.lat, lon: g.lon });
     }, true);
+    recKit = { open: day => { if (isOpen) return; dayFilter = day == null ? null : day; open({ view: true }); }, toast: t => mainToast(t) };
     spotKit = {
       build: async (name, sub, lat, lon) => { await loadSpots(); if (!SP) throw new Error('no spots'); return buildPort(name, sub, lat, lon); },
       pick: openPick,
     };
     // ---------- 열기 · 닫기
-    // o.pick: 출항지 고르기로 잠깐 여는 것 (선상 모드를 켜지 않는다)
+    // o.pick: 출항지 고르기로 잠깐 여는 것 · o.view: '내 기록' 보기 (둘 다 선상 모드를 켜지 않는다. 선상 모드가 이미 켜져 있으면 '내 기록'은 그 지도에서 목록으로)
     function open(o) {
       if (isOpen) return; isOpen = true; view.hidden = false; mode = 'info'; selId = null; form = null;
+      const rec = !!(o && o.view); viewMode = rec && !onBoard; if (!rec) dayFilter = null;
       if (!me) { const S = TideHarm.STATIONS[tideSt]; v = { lon: S.lon - 0.05, lat: S.lat - 0.02, s: 1400 }; }
       else if (follow) placeAt(me.lon, me.lat, focusY());
       sheetMode = 'peek';   // 지도에 처음 들어올 때는 늘 판을 접어 지도가 넓게 보이게 (저장·목록·출항지 고르기는 그 뒤에 알아서 펼친다)
-      if (!(o && o.pick)) boardOn();
-      loadLand(); loadMapPorts(); loadSpots(); startGps(); wakeOn(); natFixes(); paintPanel(true); applySheet(false); resize(); kick(); autoPill(); autoPill.last = '';
+      if (!(o && (o.pick || o.view))) boardOn();
+      if (!viewMode) { startGps(); wakeOn(); }
+      loadLand(); loadMapPorts(); loadSpots(); natFixes(); paintView(); paintPanel(true); applySheet(false); resize(); kick(); autoPill(); autoPill.last = '';
+      if (rec) { const L = points.filter(recVis); if (L.length) fitPts(L); if (onBoard) showList(); draw(); }
       if (useHist) { try { history.pushState({ mapv: 1 }, ''); } catch (_) {} }
     }
     // 지도만 닫는다: 선상 모드는 켜 둔 채 물때 화면으로 (GPS·자동 기록·홈 화면 단추·알림줄은 그대로)
     function close(fromPop) {
       if (!isOpen) return; natFixes(); isOpen = false; closeMenu(); view.hidden = true; wakeOff(); pendingSave = false;
       if (!onBoard) { stopGps(); endStay(); track = []; }
+      if (viewMode && me && !me.virtual && !onBoard) me = null;   // '내 기록'에서 한 번 찍어 본 위치는 남기지 않는다
+      viewMode = false; dayFilter = null;
       if (mode === 'pick') { mode = 'info'; pickCb = null; }
       if (useHist && !fromPop && history.state && history.state.mapv) { skipPop = true; history.back(); }
       paintBoardBtn();
@@ -4502,6 +4593,17 @@ const TideHarm = (() => {
     };
     $('mv-zout').onclick = () => zoomAt(1 / 1.8);
     $('mv-me').onclick = () => {
+      if (viewMode) {
+        if (!navigator.geolocation) return toast('이 기기에서는 GPS를 쓸 수 없어요');
+        toast('지금 위치를 한 번 찾아요 (선상 모드는 켜지 않아요)');
+        navigator.geolocation.getCurrentPosition(pos => {
+          if (!isOpen || !viewMode) return;
+          const c = pos.coords; gps = { lat: c.latitude, lon: c.longitude, acc: c.accuracy, heading: null, t: pos.timestamp }; me = { ...gps };
+          setGps(`지금 위치 한 번 · ±${Math.round(c.accuracy)}m · ${ampm(kstMin(pos.timestamp))}`, 'ok');
+          follow = false; fitMeAndPort(); mode = 'info'; selId = null; paintPanel(true); kick(); draw();
+        }, onErr, { enableHighAccuracy: true, maximumAge: 15000, timeout: 20000 });
+        return;
+      }
       if (me && me.virtual) { me = gps ? { ...gps } : null; setGps(gps ? `GPS ±${Math.round(gps.acc)}m` : 'GPS 찾는 중…', gps ? 'ok' : 'warn'); toast('실제 GPS 위치로 돌아왔어요'); }
       follow = true; $('mv-me').classList.add('on');
       if (me) fitMeAndPort();
@@ -4547,7 +4649,7 @@ const TideHarm = (() => {
         const now = Date.now();
         // 포인트를 눌렀으면 그 포인트 보기
         let hit = null, hd = 1e9;
-        for (const p of points) { const [x, y] = toS(p.lon, p.lat), d = Math.hypot(x - g.x0, y - g.y0); if (d < Math.max(18, ptR(caughtOf(p)) + 6) && d < hd) { hd = d; hit = p; } }
+        for (const p of points) { if (!recVis(p)) continue; const [x, y] = toS(p.lon, p.lat), d = Math.hypot(x - g.x0, y - g.y0); if (d < Math.max(18, ptR(caughtOf(p)) + 6) && d < hd) { hd = d; hit = p; } }
         if (hit) showDetail(hit.id);
         else if (now - lastTap < 320) { zoomAt(2, g.x0, g.y0); lastTap = 0; }
         else lastTap = now;
@@ -4718,6 +4820,16 @@ const TideHarm = (() => {
     addEventListener('resize', () => { if (!isOpen) return; days.setX(0, 0); years.setX(0, 0); if (!mpOn()) dstage.style.height = days.panes[1].offsetHeight + 'px'; place(); });
     pcRepaint = () => { if (isOpen && !days.anim && !g && !mpOn()) days.paint(); };
   })();
+  // 내 기록: 맨 윗줄 지도 단추(전체) · 날짜 아래 '이날 내 기록'(그날만)
+  const recTipDone = () => { try { localStorage.setItem('jjukgap-rec-tip', '1'); } catch (e) {} };
+  $('rec-btn').onclick = () => { recTipDone(); if (recKit) recKit.open(null); };
+  $('rec-chip').onclick = () => { recTipDone(); if (recKit) recKit.open(sel); };
+  addEventListener('jjugap-points', () => { recDaysC = null; renderCal(); paintRec(); });
+  setTimeout(() => {   // 처음 한 번: 단추 알려 주기
+    recDays(); if (!recTotal || !recKit || !$('mapv').hidden) return;   // 지도를 보고 있으면 알려 주지 않는다
+    let shown = false; try { shown = localStorage.getItem('jjukgap-rec-tip') === '1'; localStorage.setItem('jjukgap-rec-tip', '1'); } catch (e) { shown = true; }
+    if (!shown) recKit.toast('맨 위 지도 단추로 내 기록을 지도에서 볼 수 있어요. 기록한 날은 달력에 파란 점이 찍혀요');
+  }, 2500);
   $('cal').addEventListener('click', e => {
     if (Date.now() - calTapAt < 700) return;   // 손가락으로 이미 고른 경우
     const b = e.target.closest('[data-dn]');
@@ -4794,7 +4906,7 @@ if ('serviceWorker' in navigator) addEventListener('load', () => {
   const sw = navigator.serviceWorker; let ctl = sw.controller, reloading = false;
   // 새 버전이 올라오면 한 번 새로 열어 바로 반영 (처음 설치할 때는 제외)
   sw.addEventListener('controllerchange', () => { if (ctl && !reloading) { reloading = true; location.reload(); } ctl = sw.controller; });
-  sw.register('sw.js?v=01944d26').then(reg => {
+  sw.register('sw.js?v=60deffaa').then(reg => {
     // 앱을 켜 둔 채 다른 화면에 갔다 돌아오면 새 버전이 있는지 확인
     document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') reg.update().catch(() => {}); });
   }).catch(() => {});
