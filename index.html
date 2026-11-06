@@ -7,13 +7,13 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="쭈갑 물때">
+<meta name="apple-mobile-web-app-title" content="쭈갑이 물때">
 <meta name="description" content="쭈꾸미·갑오징어 선상낚시 물때, 만조·간조, 물 높이와 조류를 한눈에">
 <meta name="robots" content="noindex, nofollow">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" type="image/png" href="icon-192.png">
 <link rel="apple-touch-icon" href="icon-180.png">
-<title>쭈갑 물때</title>
+<title>쭈갑이 물때</title>
 <meta name="color-scheme" content="dark light">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -108,10 +108,25 @@ button{font:inherit; color:inherit; cursor:pointer}
 .app{max-width:calc(480px * var(--k)); margin:0 auto; display:flex; flex-direction:column; gap:18px}
 
 /* 상단 */
-.top{display:flex; align-items:center; justify-content:space-between; gap:12px}
-.brand{font-family:var(--font-display); font-size:calc(25px * var(--k)); line-height:1.1; letter-spacing:.01em; white-space:nowrap; flex:none}
-.brand small{display:block; font-family:var(--font-body); font-size:calc(12px * var(--k)); font-weight:500; color:var(--ink-2); letter-spacing:.04em; margin-top:3px}
-.seg{display:flex; gap:2px; padding:3px; border-radius:999px; background:var(--well)}
+.top{position:relative; z-index:30; display:flex; align-items:center; justify-content:space-between; gap:12px}
+.brand{position:relative; display:flex; flex-direction:column; align-items:flex-start; white-space:nowrap; flex:none}
+.brand-t{margin:0; font-weight:400; font-family:var(--font-display); font-size:calc(33px * var(--k)); line-height:1.08; letter-spacing:.01em}
+/* 제목 아래 바다 고르기 (누르면 서해·남해 목록, 바다가 늘면 목록만 늘어남) */
+.sea-btn{display:inline-flex; align-items:center; gap:7px; margin-top:7px; min-height:30px; padding:4px 11px 4px 12px; border:0; border-radius:999px; background:var(--well); font:inherit; font-size:calc(12.5px * var(--k)); font-weight:700; color:var(--ink); letter-spacing:.02em; -webkit-tap-highlight-color:transparent; transition:transform .15s}
+.sea-btn:active{transform:scale(.96)}
+.sea-btn b{color:#2F7DF6} :root[data-app="dark"] .sea-btn b{color:#5FA8FF}
+.sea-btn em{font-style:normal; font-weight:500; color:var(--ink-2)}
+.sea-btn .chev{width:6px; height:6px; margin-left:2px; border-right:2px solid var(--ink-2); border-bottom:2px solid var(--ink-2); transform:translateY(-2px) rotate(45deg); transition:transform .25s cubic-bezier(.3,.7,.2,1)}
+.sea-btn[aria-expanded="true"] .chev{transform:translateY(1px) rotate(225deg)}
+.sea-menu{position:absolute; left:0; top:calc(100% + 8px); z-index:60; min-width:224px; padding:6px; border:1px solid var(--line); border-radius:16px; background:var(--card); box-shadow:0 14px 34px rgba(0,0,0,.28); animation:seaIn .16s ease-out}
+:root[data-app="dark"] .sea-menu{box-shadow:0 14px 34px rgba(0,0,0,.55)}
+.sea-menu[hidden]{display:none}
+@keyframes seaIn{from{opacity:0; transform:translateY(-4px)}}
+.sea-menu button{display:flex; align-items:center; gap:14px; width:100%; padding:12px 14px; border:0; border-radius:11px; background:transparent; font:inherit; font-size:calc(15px * var(--k)); font-weight:700; color:var(--ink); text-align:left; -webkit-tap-highlight-color:transparent}
+.sea-menu button small{flex:1; font-size:calc(12.5px * var(--k)); font-weight:500; color:var(--ink-2)}
+.sea-menu button i{width:16px; font-style:normal; color:#2F7DF6; visibility:hidden} :root[data-app="dark"] .sea-menu button i{color:#5FA8FF}
+.sea-menu button[aria-checked="true"]{background:var(--well)} .sea-menu button[aria-checked="true"] i{visibility:visible}
+@media (prefers-reduced-motion: reduce){ .sea-menu{animation:none} .sea-btn .chev{transition:none} }
 .top-right{display:flex; align-items:center; gap:8px; flex:none}
 .theme-btn{flex:none; width:38px; height:38px; display:grid; place-items:center; border:0; border-radius:50%; background:var(--well); color:var(--ink); -webkit-tap-highlight-color:transparent; transition:transform .15s}
 .theme-btn:active{transform:scale(.9)}
@@ -120,12 +135,6 @@ button{font:inherit; color:inherit; cursor:pointer}
 .rec-btn svg{width:20px; height:20px}
 .rec-btn b{position:absolute; top:-4px; right:-6px; min-width:18px; height:18px; padding:0 5px; border-radius:9px; background:#2F7DF6; color:#fff; font-size:11px; font-weight:800; line-height:18px; text-align:center; font-variant-numeric:tabular-nums; box-shadow:0 0 0 2px var(--paper)}
 .rec-btn b[hidden]{display:none}
-/* 날짜 아래 '이날 내 기록 보기' */
-.rec-chip{display:flex; align-items:center; gap:7px; width:100%; margin:8px 0 0; padding:9px 14px; border:1px solid var(--line); border-radius:14px; background:var(--card); font:inherit; font-size:calc(13.5px * var(--k)); font-weight:700; color:var(--ink); text-align:left; -webkit-tap-highlight-color:transparent}
-.rec-chip[hidden]{display:none} .rec-chip:active{transform:scale(.99)}
-.rec-chip svg{flex:none; width:17px; height:17px; color:#2F7DF6}
-.rec-chip span{flex:1; min-width:0} .rec-chip small{color:var(--ink-2); font-weight:600; font-size:calc(12px * var(--k))}
-.rec-chip i{flex:none; color:var(--ink-2); font-style:normal; font-size:calc(17px * var(--k))}
 .theme-btn svg{width:18px; height:18px}
 .theme-btn .i-sun{display:none}
 :root[data-app="dark"] .theme-btn .i-sun{display:block}
@@ -133,10 +142,8 @@ button{font:inherit; color:inherit; cursor:pointer}
 .theme-btn.spin svg{animation:themeSpin .45s cubic-bezier(.2,.7,.2,1)}
 @keyframes themeSpin{from{transform:rotate(-90deg) scale(.6); opacity:0}}
 @media (prefers-reduced-motion: reduce){ .theme-btn.spin svg{animation:none} }
-.seg-btn{border:0; background:transparent; padding:7px 15px; border-radius:999px; font-size:calc(13px * var(--k)); font-weight:500; color:var(--ink-2)}
 /* 좁은 폰: 맨 윗줄 단추 사이를 조금 좁혀 앱 이름이 두 줄로 꺾이지 않게 */
-@media (max-width:380px){ .top{gap:8px} .top-right{gap:6px} .seg-btn{padding:7px 12px} }
-.seg-btn[aria-pressed="true"]{background:var(--card); color:var(--ink); box-shadow:0 1px 3px rgba(0,0,0,.14)}
+@media (max-width:380px){ .top{gap:8px} .top-right{gap:6px} }
 
 .datebar{display:flex; align-items:center; gap:8px}
 .icon-btn{flex:none; width:40px; height:40px; display:grid; place-items:center; border-radius:50%; border:1px solid var(--line); background:var(--card); font-size:calc(20px * var(--k)); line-height:1}
@@ -654,12 +661,14 @@ a.mv-row-btn{text-decoration:none; gap:10px} .mv-row-btn span{font-size:calc(20p
 
 <div class="app">
   <header class="top">
-    <div class="brand">쭈갑 물때<small id="brand-sub">서해 7물때 기준</small></div>
-    <div class="top-right">
-      <div class="seg" role="group" aria-label="물때 계산 방식">
-        <button id="reg-west" class="seg-btn" aria-pressed="true">서해</button>
-        <button id="reg-south" class="seg-btn" aria-pressed="false">남해</button>
+    <div class="brand"><h1 class="brand-t">쭈갑이 물때</h1>
+      <button class="sea-btn" id="sea-btn" type="button" aria-haspopup="menu" aria-expanded="false" aria-controls="sea-menu"><b id="sea-name">서해</b><em id="sea-rule">7물때 기준</em><i class="chev" aria-hidden="true"></i></button>
+      <div class="sea-menu" id="sea-menu" role="menu" aria-label="바다 고르기" hidden>
+        <button type="button" role="menuitemradio" data-reg="west" aria-checked="true">서해<small>7물때 기준</small><i aria-hidden="true">✓</i></button>
+        <button type="button" role="menuitemradio" data-reg="south" aria-checked="false">남해<small>8물때 기준</small><i aria-hidden="true">✓</i></button>
       </div>
+    </div>
+    <div class="top-right">
       <button class="theme-btn rec-btn" id="rec-btn" type="button" aria-label="내 기록 지도"><svg viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M3 6.5l5.5-2.5 7 2.5 5.5-2.5v13.5l-5.5 2.5-7-2.5L3 20z"/><path d="M8.5 4v13.5M15.5 6.5V20"/></g></svg><b hidden>0</b></button>
       <button class="theme-btn" id="theme-btn" aria-label="라이트 모드로 바꾸기">
         <svg class="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4.2"></circle><path d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5.3 5.3l1.6 1.6M17.1 17.1l1.6 1.6M5.3 18.7l1.6-1.6M17.1 6.9l1.6-1.6"></path></svg>
@@ -682,7 +691,6 @@ a.mv-row-btn{text-decoration:none; gap:10px} .mv-row-btn span{font-size:calc(20p
     <button id="next-day" class="icon-btn" aria-label="다음날">›</button>
     <button id="go-today" class="today-btn">오늘</button>
   </nav>
-  <button class="rec-chip" id="rec-chip" type="button" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M3 6.5l5.5-2.5 7 2.5 5.5-2.5v13.5l-5.5 2.5-7-2.5L3 20z"/><path d="M8.5 4v13.5M15.5 6.5V20"/></g></svg><span id="rec-chip-t">이날 내 기록</span><i aria-hidden="true">›</i></button>
 
   <section class="hero" aria-live="polite">
     <div class="hero-head">
@@ -1069,9 +1077,7 @@ const TideHarm = (() => {
     return (recDaysC = m);
   }
   function paintRec() {
-    const c = recDays().get(sel) || 0, chip = $('rec-chip'), v = ymd(sel);
-    if (chip) { chip.hidden = !c; if (c) $('rec-chip-t').innerHTML = `${sel === today ? '오늘' : `${v.m}월 ${v.d}일`} 내 기록 ${c}곳 <small>· 지도에서 보기</small>`; }
-    const rb = $('rec-btn'); if (rb) { const b = rb.querySelector('b'); b.textContent = recTotal; b.hidden = !recTotal; rb.setAttribute('aria-label', `내 기록 지도 (포인트 ${recTotal}곳)`); }
+    recDays(); const rb = $('rec-btn'); if (rb) { const b = rb.querySelector('b'); b.textContent = recTotal; b.hidden = !recTotal; rb.setAttribute('aria-label', `내 기록 지도 (포인트 ${recTotal}곳)`); }
   }
 
   function dayData(n) {
@@ -3808,7 +3814,7 @@ const TideHarm = (() => {
         + (!NAT && appVer ? `<a class="mv-row-btn" href="app/jjugap.apk" download="jjugap.apk">안드로이드 앱 받기 (홈 화면에 떠 있는 저장 단추·화면이 꺼져도 자동 기록)<span>›</span></a>` : '')
         + (NAT && natBatteryNeed() ? `<button type="button" class="mv-row-btn" data-act="battery">화면이 잠겨도 끊기지 않게: 배터리 제한 풀기<span>›</span></button>` : '')
         + (NAT ? `<p class="mv-tip">앱 아이콘을 꾹 누르면 '포인트 저장'·'선상 모드' 바로가기가 나와요. 그것을 다시 꾹 눌러 홈 화면에 따로 놓을 수도 있어요.</p></div>`
-          : `<p class="mv-tip">홈 화면에 저장 단추 놓기: 쭈갑 물때 아이콘을 꾹 누르면 나오는 '포인트 저장'을 다시 꾹 눌러 원하는 곳에 끌어다 놓으세요.</p></div>`)
+          : `<p class="mv-tip">홈 화면에 저장 단추 놓기: 쭈갑이 물때 아이콘을 꾹 누르면 나오는 '포인트 저장'을 다시 꾹 눌러 원하는 곳에 끌어다 놓으세요.</p></div>`)
         + `<div class="mv-btns"><button data-act="back">닫기</button></div>`;
       panel.scrollTop = keepTop;
     }
@@ -3817,7 +3823,7 @@ const TideHarm = (() => {
     function showMove() {
       mode = 'move'; closeMenu(); sheetAtLeast('open');
       panel.innerHTML = `<div class="mv-h"><b>포인트 옮기기</b><span>지금 ${points.length}곳</span></div>
-        <p class="mv-note">${NAT ? '폰을 바꾸거나, 크롬에 설치했던 쭈갑 물때의 기록을 이 앱으로 가져올 때 써요.' : '크롬에 설치한 앱과 안드로이드 앱은 기록을 따로 저장해요.'} 원래 쓰던 쪽에서 <b>지금 기록 복사하기</b>를 누르고, 새로 쓸 쪽 이 화면의 아래 칸을 길게 눌러 <b>붙여넣기</b>한 뒤 <b>가져오기</b>를 누르세요. 이미 있는 포인트는 겹치지 않아요.</p>
+        <p class="mv-note">${NAT ? '폰을 바꾸거나, 크롬에 설치했던 쭈갑이 물때의 기록을 이 앱으로 가져올 때 써요.' : '크롬에 설치한 앱과 안드로이드 앱은 기록을 따로 저장해요.'} 원래 쓰던 쪽에서 <b>지금 기록 복사하기</b>를 누르고, 새로 쓸 쪽 이 화면의 아래 칸을 길게 눌러 <b>붙여넣기</b>한 뒤 <b>가져오기</b>를 누르세요. 이미 있는 포인트는 겹치지 않아요.</p>
         <div class="mv-btns"><button class="pri" data-act="move-copy">지금 기록 복사하기</button></div>
         <textarea class="mv-memo mv-paste" id="mv-paste" rows="3" placeholder="여기를 길게 눌러 붙여넣기" autocomplete="off"></textarea>
         <div class="mv-btns"><button class="pri" data-act="move-in">가져오기</button><button data-act="list">목록으로</button></div>`;
@@ -4009,7 +4015,7 @@ const TideHarm = (() => {
       if (pendingSave && mode !== 'pick') { pendingSave = false; showSave(); }
     }
     function onErr(err) {
-      gpsMsg = err.code === 1 ? (window.JjugapNative ? '위치 권한이 꺼져 있어요. 휴대폰 설정 → 애플리케이션 → 쭈갑 물때 → 권한 → 위치에서 허용해 주세요.' : inFrame ? '이 화면에서는 위치를 받을 수 없어요. 폰에 설치한 앱(웹 주소)에서 써 주세요.' : '위치 권한이 꺼져 있어요. 휴대폰 설정에서 이 앱(브라우저)의 위치 권한을 켜 주세요.')
+      gpsMsg = err.code === 1 ? (window.JjugapNative ? '위치 권한이 꺼져 있어요. 휴대폰 설정 → 애플리케이션 → 쭈갑이 물때 → 권한 → 위치에서 허용해 주세요.' : inFrame ? '이 화면에서는 위치를 받을 수 없어요. 폰에 설치한 앱(웹 주소)에서 써 주세요.' : '위치 권한이 꺼져 있어요. 휴대폰 설정에서 이 앱(브라우저)의 위치 권한을 켜 주세요.')
         : 'GPS 신호를 찾는 중이에요. 하늘이 트인 곳에서 잠시 기다려 주세요.';
       if (!me || !me.virtual) setGps(err.code === 1 ? '위치 권한 없음' : 'GPS 찾는 중…', 'warn');
       if (!me) paintPanel(true);
@@ -4164,7 +4170,7 @@ const TideHarm = (() => {
       draw(); toast('선상 모드를 켰어요');
     }
     // ---------- 선상 모드: 한 번 켜면 물때 화면으로 돌아가도 계속 켜져 있다 (GPS · 5분 자동 기록 · 홈 화면 단추 · 알림줄)
-    // 끄기: 지도 윗줄 ⏻(한 번 더 눌러 확인) · 알림줄 '기록 끄기' · 저절로(바다에 나갔다가 항구·육지에 30분 넘게 머물면, 또는 바다에 안 나간 채 3시간)
+    // 끄기: 지도 윗줄 ⏻(한 번 더 눌러 확인) · 알림줄 '선상 모드 끄기' · 저절로(바다에 나갔다가 항구·육지에 30분 넘게 머물면, 또는 바다에 안 나간 채 3시간)
     const BOARD_KEY = 'jjukgap-onboard', PORT_MS = 30 * 60000, NOSEA_MS = 3 * 3600000;
     const saveBoard = () => { try { if (onBoard && board) localStorage.setItem(BOARD_KEY, JSON.stringify(board)); else localStorage.removeItem(BOARD_KEY); } catch (_) {} };
     function boardOn() {
@@ -4182,7 +4188,7 @@ const TideHarm = (() => {
       if (msg) mainToast(msg);
     }
     function natBoard(on) { if (!NAT) return; try { NAT.setMapOpen(on); natStartT = on ? Date.now() : 0; } catch (_) {} }
-    // 알림줄 '기록 끄기'로 위치 기록이 꺼졌으면 선상 모드도 끈다 (껐으면 true)
+    // 알림줄 '선상 모드 끄기'로 위치 기록이 꺼졌으면 선상 모드도 끈다 (껐으면 true)
     function natStopCheck() {
       if (!NAT || !onBoard || !natStartT || Date.now() - natStartT < 8000) return false;
       let run = true; try { run = NAT.isTracking(); } catch (_) {}
@@ -4265,7 +4271,7 @@ const TideHarm = (() => {
     function notiSync(show) {
       if (!canNoti()) return;
       navigator.serviceWorker.ready.then(reg => {
-        if (show) return reg.showNotification('쭈갑 물때 · 선상 모드', { tag: NOTI_TAG, body: '눌러서 선상 모드로 돌아가기 · 자동 기록은 앱 화면이 켜져 있을 때만 돼요',
+        if (show) return reg.showNotification('쭈갑이 물때 · 선상 모드', { tag: NOTI_TAG, body: '눌러서 선상 모드로 돌아가기 · 자동 기록은 앱 화면이 켜져 있을 때만 돼요',
           icon: 'icon-192.png', badge: 'badge-96.png', silent: true, data: { act: 'map' }, actions: [{ action: 'save', title: '포인트 저장' }, { action: 'map', title: '선상 모드' }] });
         return reg.getNotifications({ tag: NOTI_TAG }).then(ns => ns.forEach(n => n.close()));
       }).catch(() => {});
@@ -4302,7 +4308,7 @@ const TideHarm = (() => {
         if (natUpd !== remote) { natUpd = remote; if (mode === 'list') showList(); }
         if (updShut || document.getElementById('upd-bar')) return;
         const bar = document.createElement('div'); bar.id = 'upd-bar'; bar.className = 'upd-bar'; bar.setAttribute('role', 'status');
-        bar.innerHTML = '<span>쭈갑 물때 앱 새 버전이 있어요</span><button type="button" class="go">업데이트</button><button type="button" class="x" aria-label="닫기">×</button>';
+        bar.innerHTML = '<span>쭈갑이 물때 앱 새 버전이 있어요</span><button type="button" class="go">업데이트</button><button type="button" class="x" aria-label="닫기">×</button>';
         bar.querySelector('.go').onclick = () => { bar.remove(); try { NAT.update(); } catch (_) {} };
         bar.querySelector('.x').onclick = () => { updShut = true; bar.remove(); };
         document.body.appendChild(bar);
@@ -4832,7 +4838,6 @@ const TideHarm = (() => {
     const v = ymd(n); if (recKit) recKit.toast(`${v.m}월 ${v.d}일은 내 기록이 없어요`);
   }
   $('rec-btn').onclick = () => { recTipDone(); if (recKit) recKit.open(null); };
-  $('rec-chip').onclick = () => { recTipDone(); if (recKit) recKit.open(sel); };
   addEventListener('jjugap-points', () => { recDaysC = null; renderCal(); paintRec(); });
   setTimeout(() => {   // 처음 한 번: 단추 알려 주기
     recDays(); if (!recTotal || !recKit || !$('mapv').hidden) return;   // 지도를 보고 있으면 알려 주지 않는다
@@ -4847,13 +4852,27 @@ const TideHarm = (() => {
   function setRegion(r) {
     region = r;
     try { localStorage.setItem('jjukgap-region', r); } catch (e) {}
-    $('reg-west').setAttribute('aria-pressed', r === 'west');
-    $('reg-south').setAttribute('aria-pressed', r === 'south');
-    $('brand-sub').textContent = r === 'west' ? '서해 7물때 기준' : '남해 8물때 기준';
+    const S = SEAS[r];
+    $('sea-name').textContent = S.name; $('sea-rule').textContent = S.rule;
+    $('sea-btn').setAttribute('aria-label', `바다 고르기: 지금 ${S.name} ${S.rule}`);
+    for (const b of $('sea-menu').querySelectorAll('[data-reg]')) b.setAttribute('aria-checked', b.dataset.reg === r);
     render();
   }
-  $('reg-west').onclick = () => setRegion('west');
-  $('reg-south').onclick = () => setRegion('south');
+  // 제목 아래 바다 단추: 누르면 목록, 고르거나 바깥을 누르면 닫힘
+  const SEAS = { west: { name: '서해', rule: '7물때 기준' }, south: { name: '남해', rule: '8물때 기준' } };
+  const seaBtn = $('sea-btn'), seaMenu = $('sea-menu');
+  const seaOpen = on => {
+    seaMenu.hidden = !on; seaBtn.setAttribute('aria-expanded', on);
+    if (on) (seaMenu.querySelector('[aria-checked="true"]') || seaMenu.querySelector('button')).focus({ preventScroll: true });
+  };
+  seaBtn.onclick = () => seaOpen(seaMenu.hidden);
+  seaMenu.onclick = e => { const b = e.target.closest('[data-reg]'); if (!b) return; seaOpen(false); if (b.dataset.reg !== region) setRegion(b.dataset.reg); seaBtn.focus({ preventScroll: true }); };
+  document.addEventListener('pointerdown', e => { if (!seaMenu.hidden && !e.target.closest('#sea-menu, #sea-btn')) seaOpen(false); }, true);
+  document.addEventListener('keydown', e => {
+    if (seaMenu.hidden) return;
+    if (e.key === 'Escape') { seaOpen(false); seaBtn.focus({ preventScroll: true }); }
+    else if (e.key === 'ArrowDown' || e.key === 'ArrowUp') { const bs = [...seaMenu.querySelectorAll('button')], i = bs.indexOf(document.activeElement); bs[(i + (e.key === 'ArrowDown' ? 1 : bs.length - 1)) % bs.length].focus(); e.preventDefault(); }
+  });
 
   // 다크 / 라이트 모드 전환 (기본은 다크, 고른 모드는 이 폰에 기억)
   const themeBtn = $('theme-btn'), root = document.documentElement;
@@ -4915,7 +4934,7 @@ if ('serviceWorker' in navigator) addEventListener('load', () => {
   const sw = navigator.serviceWorker; let ctl = sw.controller, reloading = false;
   // 새 버전이 올라오면 한 번 새로 열어 바로 반영 (처음 설치할 때는 제외)
   sw.addEventListener('controllerchange', () => { if (ctl && !reloading) { reloading = true; location.reload(); } ctl = sw.controller; });
-  sw.register('sw.js?v=a6ed868c').then(reg => {
+  sw.register('sw.js?v=e046e2c6').then(reg => {
     // 앱을 켜 둔 채 다른 화면에 갔다 돌아오면 새 버전이 있는지 확인
     document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') reg.update().catch(() => {}); });
   }).catch(() => {});
