@@ -4175,7 +4175,9 @@ const TideHarm = (() => {
       let a = 90, b = -90, c = 180, d = -180;
       for (const q of list) { a = Math.min(a, q.lat); b = Math.max(b, q.lat); c = Math.min(c, q.lon); d = Math.max(d, q.lon); }
       const top = 64, hh = Math.max(140, H - top - Math.min(coverH(), H - 200) - 40), ww = Math.max(140, W - 130);
-      v.s = clampS(Math.min(ww / Math.max((d - c) * KX, 1e-4), hh / Math.max(b - a, 1e-4), 12000));
+      // 처음 보이는 축척: 1.5km 정도 (축척 막대 '1km'). 기록이 그보다 넓게 흩어져 있으면 모두 보이도록 더 넓게
+      const REC_S = 111320 / (1500 / 96);
+      v.s = clampS(Math.min(ww / Math.max((d - c) * KX, 1e-4), hh / Math.max(b - a, 1e-4), REC_S));
       v.lon = (c + d) / 2; placeAt((c + d) / 2, (a + b) / 2, top + hh / 2);
       follow = false; $('mv-me').classList.remove('on');
     }
@@ -4965,7 +4967,7 @@ if ('serviceWorker' in navigator) addEventListener('load', () => {
   const sw = navigator.serviceWorker; let ctl = sw.controller, reloading = false;
   // 새 버전이 올라오면 한 번 새로 열어 바로 반영 (처음 설치할 때는 제외)
   sw.addEventListener('controllerchange', () => { if (ctl && !reloading) { reloading = true; location.reload(); } ctl = sw.controller; });
-  sw.register('sw.js?v=b5d82aab').then(reg => {
+  sw.register('sw.js?v=14193b5c').then(reg => {
     // 앱을 켜 둔 채 다른 화면에 갔다 돌아오면 새 버전이 있는지 확인
     document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') reg.update().catch(() => {}); });
   }).catch(() => {});
