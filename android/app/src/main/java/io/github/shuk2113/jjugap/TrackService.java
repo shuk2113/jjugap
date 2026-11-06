@@ -32,7 +32,7 @@ import java.util.ArrayList;
 import java.util.Locale;
 
 /**
- * 지도를 켜 둔 동안 도는 위치 기록 서비스 (알림줄에 '지도 켜짐' 표시).
+ * 지도를 켜 둔 동안 도는 위치 기록 서비스 (알림줄에 '선상 모드 켜짐' 표시).
  * - 앱 화면이 안 보일 때(홈 화면·다른 앱·화면 꺼짐) GPS를 모아 두면, 웹 앱이 받아 가서 5분 머문 곳을 자동 기록한다
  * - 앱 화면이 안 보일 때 홈 화면 위에 '포인트 저장' 단추를 띄운다 (끌어서 옮기기, 누르면 바로 저장 화면, 아래 ×에 놓으면 숨기기)
  */
@@ -101,7 +101,7 @@ public class TrackService extends Service implements LocationListener {
         self = this;
         h = new Handler(Looper.getMainLooper());
         NotificationManager nm = getSystemService(NotificationManager.class);
-        nm.createNotificationChannel(new NotificationChannel(CH, "지도 켜짐 · 자동 기록", NotificationManager.IMPORTANCE_LOW));
+        nm.createNotificationChannel(new NotificationChannel(CH, "선상 모드 · 자동 기록", NotificationManager.IMPORTANCE_LOW));
         NotificationChannel c2 = new NotificationChannel(CH2, "자동 기록 알림", NotificationManager.IMPORTANCE_DEFAULT);
         c2.setSound(null, null);
         c2.enableVibration(true);
@@ -192,7 +192,7 @@ public class TrackService extends Service implements LocationListener {
         return new Notification.Builder(this, CH)
             .setSmallIcon(R.drawable.ic_stat)
             .setColor(0xFF2F7DF6)
-            .setContentTitle("쭈갑 물때 · 지도 켜짐")
+            .setContentTitle("쭈갑 물때 · 선상 모드 켜짐")
             .setContentText(status)
             .setOngoing(true)
             .setOnlyAlertOnce(true)
