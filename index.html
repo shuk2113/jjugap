@@ -215,6 +215,9 @@ h2{margin:0; font-size:calc(16px * var(--k)); font-weight:700; text-wrap:balance
 .wt-grid{stroke:var(--line); stroke-width:1} .wt-cap{font-family:var(--font-body); font-size:calc(9.5px * var(--k)); fill:var(--ink-2); dominant-baseline:central; font-variant-numeric:tabular-nums}
 .wt-dot{fill:var(--hi); stroke:var(--card); stroke-width:1.5} .wt-ydot{fill:var(--card); stroke:var(--ink-2); stroke-width:1.3}
 .wt-msg{margin:2px 0 0; min-height:3.1em; font-size:calc(13.5px * var(--k)); line-height:1.55; word-break:keep-all}
+.wt-stale{margin:-4px 0 10px; padding:9px 12px; border-radius:12px; background:var(--mid-soft); font-size:calc(12.5px * var(--k)); line-height:1.55; word-break:keep-all}
+.wt-stale b{color:var(--mid)}
+.wt-stale[hidden]{display:none}
 .wt-note{margin:0; font-size:calc(11px * var(--k)); line-height:1.5; color:var(--ink-2); word-break:keep-all}
 /* 출항지 버튼과 고르기 판 */
 .st-btn{align-self:flex-start; display:inline-flex; align-items:center; gap:7px; height:36px; padding:0 14px 0 11px; border:1px solid var(--line); border-radius:999px; background:var(--card); font:inherit; font-size:calc(14px * var(--k)); color:var(--ink); -webkit-tap-highlight-color:transparent; transition:transform .12s}
@@ -760,6 +763,7 @@ a.mv-row-btn{text-decoration:none; gap:10px} .mv-row-btn span{font-size:calc(20p
 
   <section class="block" id="wt-section">
     <div class="block-head"><h2>지금 바다 수온</h2><span class="hint" id="wt-src"></span></div>
+    <p class="wt-stale" id="wt-stale" hidden></p>
     <div class="wt-card">
       <div class="wt-now"><b id="wt-val">–</b><span class="wt-chg" id="wt-chg"></span></div>
       <svg class="wt-gauge" id="wt-gauge" viewBox="0 0 340 92" role="img" aria-label="쭈꾸미·갑오징어 적정 수온과 지금 수온"></svg>
@@ -1376,6 +1380,16 @@ const TideHarm = (() => {
     }
     return null;
   }
+  // 측정 시각을 말로: 오늘이면 '오전 1시', 어제면 '어제 오후 3시', 그 전이면 '11/5 오후 3시'
+  function obsWhen(t) {
+    const h = +t.slice(11, 13), hm = `${h < 12 ? '오전' : '오후'} ${h % 12 || 12}시`;
+    const day = new Date(Date.now() + 9 * 3600000).toISOString().slice(0, 10), yday = new Date(Date.now() + 9 * 3600000 - 86400000).toISOString().slice(0, 10);
+    const od = t.slice(0, 10);
+    return od === day ? hm : od === yday ? `어제 ${hm}` : `${+od.slice(5, 7)}/${+od.slice(8, 10)} ${hm}`;
+  }
+  const iGa = w => { const c = (w || '').charCodeAt((w || '').length - 1) - 0xAC00; return c >= 0 && c < 11172 && c % 28 ? '이' : '가'; };
+  const kmBetween = (a, b) => { const R = 6371, r = Math.PI / 180, dLa = (b[0] - a[0]) * r, dLo = (b[1] - a[1]) * r;
+    const q = Math.sin(dLa / 2) ** 2 + Math.cos(a[0] * r) * Math.cos(b[0] * r) * Math.sin(dLo / 2) ** 2; return 2 * R * Math.asin(Math.sqrt(q)); };
   // 수온: 오늘을 볼 때만, 12시간 안에 잰 값만. 하루 전과의 차이와 어느 관측소 값인지 함께
   function tempHud(st) {
     const o = st && st.obs;
@@ -1384,8 +1398,10 @@ const TideHarm = (() => {
     if (!(age <= 12)) return null;
     const d = o.wtem24 == null ? null : Math.round((o.wtem - o.wtem24) * 10) / 10;
     const trend = d == null ? null : d === 0 ? '어제와 같음' : `어제보다 ${d > 0 ? '+' : '−'}${Math.abs(d).toFixed(1)}℃`;
-    const h = +o.t.slice(11, 13), when = age > 2 ? ` ${h < 12 ? '오전' : '오후'} ${h % 12 || 12}시 측정` : '';
-    const src = `${o.name || ''}${o.near ? '(근처)' : ''}${when}`.trim();
+    // 평소 관측소가 멈춰 다른 곳 값을 쓸 때(o.stale)는 시각을 늘 보이고, 이유를 한 줄 더 (부표 이름표의 주황 글씨)
+    const when = age > 2 || o.stale ? ` ${obsWhen(o.t)} 측정` : '';
+    const src = `${o.name || ''}${o.near && !o.stale ? '(근처)' : ''}${when}`.trim();
+    if (o.stale) return { main: `수온 ${o.wtem.toFixed(1)}℃`, subs: [src], warn: `${o.stale.name} 관측이 멈춰 가까운 곳 값이에요`, d, v: o.wtem };
     // 자리가 모자라면: 근처 관측소 값이거나 오래된 값이면 '어디·언제'를, 아니면 '어제와 차이'를 남긴다
     const first = o.near || when ? [src, trend] : [trend, src];
     return { main: `수온 ${o.wtem.toFixed(1)}℃`, subs: [[trend, src].filter(Boolean).join(' · '), ...first].filter(Boolean), d, v: o.wtem };
@@ -1406,8 +1422,17 @@ const TideHarm = (() => {
     $('wt-val').textContent = ok ? `${t.toFixed(1)}℃` : '–';
     const big = d != null && Math.abs(d) >= 1;
     $('wt-chg').innerHTML = d == null ? '' : `어제보다 ${d === 0 ? '변화 없음' : `${d > 0 ? '+' : '−'}${Math.abs(d).toFixed(1)}℃`}<i class="${big ? 'warn' : 'ok'}">${big ? '급변' : Math.abs(d) >= 0.5 ? '조금 변함' : '안정'}</i>`;
-    if (ok) { const h = +o.t.slice(11, 13); $('wt-src').textContent = `${o.name || ''}${o.near ? '(근처)' : ''} 관측소 · ${h < 12 ? '오전' : '오후'} ${h % 12 || 12}시 측정`; }
+    if (ok) $('wt-src').textContent = `${o.name || ''}${o.near && !o.stale ? '(근처)' : ''} 관측소 · ${obsWhen(o.t)} 측정`;
     else $('wt-src').textContent = '';
+    // 평소 관측소가 멈춰 다른 곳 값을 보여줄 때: 왜 그 값인지 한 문장으로
+    const stEl = $('wt-stale');
+    if (ok && o.stale && o.stale.name && o.stale.t) {
+      const P = TideHarm.STATIONS[tideSt], pos = WX.obs && WX.obs[o.code] && WX.obs[o.code].pos;
+      const pn = P ? (P.custom ? P.name : P.name.split(' ').pop()) : '';
+      const km = P && pos ? Math.round(kmBetween([P.lat, P.lon], pos)) : null;
+      stEl.innerHTML = `<b>${o.stale.name} 관측소 수온이 ${obsWhen(o.stale.t)} 뒤로 들어오지 않아요.</b> 그래서 가까운 ${o.name} 관측소${km != null && pn ? `(${pn}에서 약 ${km}km)` : ''} 값을 대신 보여드려요. ${o.stale.name}${iGa(o.stale.name)} 다시 들어오면 자동으로 돌아가요.`;
+      stEl.hidden = false;
+    } else stEl.hidden = true;
     // 적정 수온 막대: 종류마다 한 줄, 지금 수온은 세로 선
     let g = '';
     WT_SP.forEach((sp, i) => {
@@ -1903,15 +1928,17 @@ const TideHarm = (() => {
       ctx.save(); ctx.textBaseline = 'middle';
       const fM = `700 12px ${C.font}`, fS = `500 9.5px ${C.font}`;
       ctx.font = fS; const sub = T.subs.find(c => ctx.measureText(c).width <= 130) || T.subs[T.subs.length - 1] || '';
-      const sw = sub ? ctx.measureText(sub).width : 0;
+      const sw = sub ? ctx.measureText(sub).width : 0, ww = T.warn ? ctx.measureText(T.warn).width : 0;
       ctx.font = fM; const mw = ctx.measureText(T.main).width;
-      const w = Math.max(mw + 30, sw + 16), h = sub ? 36 : 24;
+      const w = Math.max(mw + 30, sw + 16, ww + 16), h = 24 + (sub ? 12 : 0) + (T.warn ? 13 : 0);
       const bx = Math.max(6, Math.min(x - w / 2, px - 14 - w)), by = Math.max(hudB + 6, y - 40 - h);
-      ctx.fillStyle = 'rgba(8,20,24,.62)'; roundRect(bx, by, w, h, 10); ctx.fill();
+      ctx.fillStyle = 'rgba(8,20,24,.72)'; roundRect(bx, by, w, h, 10); ctx.fill();   // 뒤로 지나가는 낚싯줄에 글자가 묻히지 않게 조금 짙게
       ctx.beginPath(); ctx.moveTo(x - 5, by + h); ctx.lineTo(x, by + h + 6); ctx.lineTo(x + 5, by + h); ctx.closePath(); ctx.fill();
       thermo(bx + 12, by + 11, T);
       ctx.font = fM; ctx.fillStyle = '#FFFFFF'; ctx.fillText(T.main, bx + 21, by + 13);
-      if (sub) { ctx.font = fS; ctx.fillStyle = 'rgba(255,255,255,.72)'; ctx.textAlign = 'center'; ctx.fillText(sub, bx + w / 2, by + 27); }
+      ctx.font = fS; ctx.textAlign = 'center';
+      if (sub) { ctx.fillStyle = 'rgba(255,255,255,.72)'; ctx.fillText(sub, bx + w / 2, by + 27); }
+      if (T.warn) { ctx.fillStyle = '#F5BC62'; ctx.fillText(T.warn, bx + w / 2, by + (sub ? 40 : 27)); }
       ctx.restore();
     }
     // 배 깃발 = 태극기. 깃면(36×24 단위, 3:2)을 한 번 그려 두고, 장면에서는 세로 조각으로 나눠 물결치듯 펄럭이게 그린다
@@ -4955,7 +4982,7 @@ if ('serviceWorker' in navigator) addEventListener('load', () => {
   const sw = navigator.serviceWorker; let ctl = sw.controller, reloading = false;
   // 새 버전이 올라오면 한 번 새로 열어 바로 반영 (처음 설치할 때는 제외)
   sw.addEventListener('controllerchange', () => { if (ctl && !reloading) { reloading = true; location.reload(); } ctl = sw.controller; });
-  sw.register('sw.js?v=36353f3a').then(reg => {
+  sw.register('sw.js?v=f00bea04').then(reg => {
     // 앱을 켜 둔 채 다른 화면에 갔다 돌아오면 새 버전이 있는지 확인
     document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') reg.update().catch(() => {}); });
   }).catch(() => {});
