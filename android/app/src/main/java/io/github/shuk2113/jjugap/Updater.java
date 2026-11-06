@@ -39,7 +39,7 @@ public class Updater {
             waiting = true;
             new AlertDialog.Builder(a)
                 .setTitle("앱 업데이트")
-                .setMessage("처음 한 번만, 다음 화면에서 '쭈갑 물때'의 '이 출처 허용'을 켜고 돌아와 주세요. 그러면 바로 업데이트를 이어서 해요.")
+                .setMessage("처음 한 번만, 다음 화면에서 '쭈갑이 물때'의 '이 출처 허용'을 켜고 돌아와 주세요. 그러면 바로 업데이트를 이어서 해요.")
                 .setPositiveButton("켜러 가기", (d, w) -> {
                     try { a.startActivity(new Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES, Uri.parse("package:" + a.getPackageName()))); }
                     catch (Exception e) { waiting = false; }

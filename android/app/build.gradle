@@ -1,6 +1,6 @@
 plugins { id 'com.android.application' }
 
-// 쭈갑 물때 안드로이드 앱: 웹 앱(https://shuk2113.github.io/jjugap/)을 그대로 보여 주고,
+// 쭈갑이 물때 안드로이드 앱: 웹 앱(https://shuk2113.github.io/jjugap/)을 그대로 보여 주고,
 // 지도를 켜 둔 동안 홈 화면에 나가 있거나 화면이 꺼져도 GPS를 모아 두며, 홈 화면에 '포인트 저장' 단추를 띄운다
 android {
     namespace 'io.github.shuk2113.jjugap'

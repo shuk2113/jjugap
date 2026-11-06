@@ -192,7 +192,7 @@ public class TrackService extends Service implements LocationListener {
         return new Notification.Builder(this, CH)
             .setSmallIcon(R.drawable.ic_stat)
             .setColor(0xFF2F7DF6)
-            .setContentTitle("쭈갑 물때 · 선상 모드 켜짐")
+            .setContentTitle("쭈갑이 물때 · 선상 모드 켜짐")
             .setContentText(status)
             .setOngoing(true)
             .setOnlyAlertOnce(true)
@@ -200,7 +200,7 @@ public class TrackService extends Service implements LocationListener {
             .setCategory(Notification.CATEGORY_SERVICE)
             .setContentIntent(openApp("map", 1))
             .addAction(new Notification.Action.Builder(null, "포인트 저장", openApp("save", 2)).build())
-            .addAction(new Notification.Action.Builder(null, "기록 끄기", stop).build())
+            .addAction(new Notification.Action.Builder(null, "선상 모드 끄기", stop).build())
             .build();
     }
 

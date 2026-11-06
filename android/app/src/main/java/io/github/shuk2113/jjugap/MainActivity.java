@@ -20,7 +20,7 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
 /**
- * 쭈갑 물때 앱 화면: 웹 앱을 그대로 띄운다.
+ * 쭈갑이 물때 앱 화면: 웹 앱을 그대로 띄운다.
  * 웹 앱이 지도를 열면(setMapOpen) 위치 기록 서비스를 켜서, 홈 화면에 나가 있거나 화면이 꺼져도 GPS를 모으고
  * 홈 화면 위에 '포인트 저장' 단추를 띄운다.
  */
@@ -179,7 +179,7 @@ public class MainActivity extends Activity {
         sp.edit().putBoolean("askedOverlay", true).apply();
         new AlertDialog.Builder(this)
             .setTitle("홈 화면에 '포인트 저장' 단추")
-            .setMessage("선상 모드를 켠 채 홈 화면으로 나가도 '포인트 저장' 단추가 떠 있게 하려면, 다음 화면에서 '쭈갑 물때'를 찾아 '다른 앱 위에 표시'를 켜 주세요.")
+            .setMessage("선상 모드를 켠 채 홈 화면으로 나가도 '포인트 저장' 단추가 떠 있게 하려면, 다음 화면에서 '쭈갑이 물때'를 찾아 '다른 앱 위에 표시'를 켜 주세요.")
             .setPositiveButton("켜러 가기", (d, w) -> openOverlaySettings())
             .setNegativeButton("나중에", null)
             .show();

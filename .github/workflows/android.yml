@@ -1,4 +1,4 @@
-# 쭈갑 물때 안드로이드 앱 만들기 → 가상 휴대폰에서 시험 → 결과(화면·기록)를 android-out 가지에, 진짜 서명이면 앱 파일을 gh-pages/app/ 에
+# 쭈갑이 물때 안드로이드 앱 만들기 → 가상 휴대폰에서 시험 → 결과(화면·기록)를 android-out 가지에, 진짜 서명이면 앱 파일을 gh-pages/app/ 에
 name: android
 on:
   push:
