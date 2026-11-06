@@ -539,6 +539,11 @@ a.mv-row-btn{text-decoration:none; gap:10px} .mv-row-btn span{font-size:calc(20p
 .cal-stage{overflow:hidden; touch-action:pan-y; -webkit-tap-highlight-color:transparent}
 .cal-track{display:flex; align-items:flex-start; will-change:transform}
 .cal-track > .cal{flex:0 0 100%; min-width:0}
+/* 달력 판 사이 틈: 무대(stage)를 양옆으로 반 틈씩 넓히고, 각 판 안쪽에 같은 만큼 여백을 둬서
+   가만히 있을 땐 그대로, 밀 때만 지난달·다음 달 판 사이에 빈 틈이 보이게 (판끼리 붙어 보이지 않게) */
+.cal-stage, .mp-stage{--pgh:12px} .pc-stage, .pc-mp-stage{--pgh:10px}
+.cal-stage, .mp-stage, .pc-stage, .pc-mp-stage{margin-left:calc(var(--pgh) * -1); margin-right:calc(var(--pgh) * -1)}
+.cal-track > .cal, .mp-page, .pc-track > .cal, .pc-mp-page{box-sizing:border-box; padding-left:var(--pgh); padding-right:var(--pgh)}
 .cal-note{display:flex; align-items:center; justify-content:center; gap:7px; margin:12px 0 0; text-align:center; font-size:calc(12px * var(--k)); color:var(--ink-2); line-height:1.4}
 .cal-note .c-rec-k{flex:none; width:7px; height:7px; border-radius:50%; background:#2F7DF6}
 .cal-week{font-size:calc(12px * var(--k)); color:var(--ink-2); text-align:center}
@@ -1700,10 +1705,18 @@ const TideHarm = (() => {
   // 달력: 지난달 · 이번 달 · 다음 달 판을 나란히 두고 가운데를 보여준다 (좌우로 밀어 달 이동)
   const calStage = $('cal-stage'), calTrack = $('cal-track');
   let calAnim = null, calTapAt = 0;
+  // 판을 밀 때 나가는 판은 살짝 흐려지고 들어오는 판은 또렷해진다 (세 판: 지난 · 지금 · 다음)
+  window.pageFade = (track, dx, w, ms) => {
+    const ps = track.children; if (ps.length < 3) return;
+    const k = Math.min(1, Math.abs(dx) / (w || 1)), inc = dx < 0 ? 2 : 0, oth = 2 - inc, tr = ms ? `opacity ${ms}ms ease-out` : 'none';
+    for (const el of ps) el.style.transition = tr;
+    ps[1].style.opacity = (1 - .6 * k).toFixed(3); ps[inc].style.opacity = (.4 + .6 * k).toFixed(3); ps[oth].style.opacity = '.4';
+  };
   const monthStep = (v, d) => d > 0 ? (v.m === 12 ? { y: v.y + 1, m: 1 } : { y: v.y, m: v.m + 1 }) : (v.m === 1 ? { y: v.y - 1, m: 12 } : { y: v.y, m: v.m - 1 });
   function calPlace(dx, ms) {
     calTrack.style.transition = ms ? `transform ${ms}ms cubic-bezier(.25,.8,.25,1)` : 'none';
     calTrack.style.transform = `translateX(${-calStage.clientWidth + dx}px)`;
+    pageFade(calTrack, dx, calStage.clientWidth, ms);
   }
   function calFit(el, ms) {
     calStage.style.transition = ms ? `height ${ms}ms cubic-bezier(.25,.8,.25,1)` : 'none';
@@ -2381,6 +2394,7 @@ const TideHarm = (() => {
     function place(dx, ms) {
       track.style.transition = ms ? `transform ${ms}ms cubic-bezier(.25,.8,.25,1)` : 'none';
       track.style.transform = `translateX(${-stage.clientWidth + dx}px)`;
+      pageFade(track, dx, stage.clientWidth, ms);
     }
     function paint() { ytxt.textContent = `${py}년`; track.innerHTML = page(py - 1) + page(py) + page(py + 1); place(0, 0); }
     // 넘어가는 중이던 움직임은 즉시 끝낸다 (연속으로 빠르게 밀어도 바로바로 넘어가게)
@@ -4702,6 +4716,7 @@ const TideHarm = (() => {
       P.setX = (dx, ms, ease) => {
         track.style.transition = ms ? `transform ${ms}ms ${ease || 'cubic-bezier(.2,.8,.2,1)'}` : 'none';
         track.style.transform = `translate3d(calc(-100% + ${dx.toFixed(1)}px),0,0)`;
+        pageFade(track, dx, stage.clientWidth, ms);
       };
       P.roles = () => [...P.panes].forEach((el, k) => { el.setAttribute('aria-hidden', String(k !== 1)); if (o.id) el.id = k === 1 ? o.id : ''; el.querySelectorAll('button').forEach(b => { b.tabIndex = k === 1 ? 0 : -1; }); });
       P.paint = () => { [-1, 0, 1].forEach(d => o.render(P.panes[d + 1], d)); P.roles(); o.title(0); P.setX(0, 0); if (o.fit) o.fit(0, P.panes[1]); };
@@ -4950,7 +4965,7 @@ if ('serviceWorker' in navigator) addEventListener('load', () => {
   const sw = navigator.serviceWorker; let ctl = sw.controller, reloading = false;
   // 새 버전이 올라오면 한 번 새로 열어 바로 반영 (처음 설치할 때는 제외)
   sw.addEventListener('controllerchange', () => { if (ctl && !reloading) { reloading = true; location.reload(); } ctl = sw.controller; });
-  sw.register('sw.js?v=0739f4f6').then(reg => {
+  sw.register('sw.js?v=b5d82aab').then(reg => {
     // 앱을 켜 둔 채 다른 화면에 갔다 돌아오면 새 버전이 있는지 확인
     document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') reg.update().catch(() => {}); });
   }).catch(() => {});
