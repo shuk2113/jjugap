@@ -792,7 +792,7 @@ a.mv-row-btn{text-decoration:none; gap:10px} .mv-row-btn span{font-size:calc(20p
     <button class="mv-pts" id="mv-pts">포인트 <b id="mv-pts-n">0</b></button>
   </div>
   <div class="mv-map" id="mv-map">
-    <canvas id="mv-cv" aria-label="바다 지도: 내 위치와 출항지, 저장한 포인트"></canvas>
+    <canvas id="mv-cv" aria-label="선상 모드 지도: 내 위치와 출항지, 저장한 포인트"></canvas>
     <div class="mv-tools">
       <button id="mv-zin" aria-label="확대">+</button><button id="mv-zout" aria-label="축소">−</button>
       <button id="mv-me" class="on" aria-label="내 위치로"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="6.2" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="2.4" fill="currentColor"/><path d="M12 2.5v3.3M12 18.2v3.3M2.5 12h3.3M18.2 12h3.3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
@@ -3738,14 +3738,14 @@ const TideHarm = (() => {
         (points.length ? `<p class="mv-tip">포인트를 꾹 누르면 고치기·지우기, 왼쪽으로 밀어도 지울 수 있어요.</p><div class="mv-trips">${body}</div>`
           : `<p class="mv-empty">아직 저장한 포인트가 없어요. 배 위에서 지도 아래 파란 핀 단추를 누르면 그 자리와 물때·조류·수온이 함께 남아요.</p>`) +
         `<div class="mv-set">`
-        + `<button type="button" class="mv-sw${autoOn ? ' on' : ''}" data-act="auto-tog" role="switch" aria-checked="${autoOn}"><span><b>5분 머문 곳 자동 기록</b><small>${NAT ? '지도를 켜 두면 GPS로 배 위치를 계속 지켜봐요. 홈 화면에 나가 있거나 화면이 잠겨 있어도 한자리(반경 약 250m)에 5분 넘게 머문 곳을 포인트로 남기고 알림으로 알려 줘요. 알림줄에 \'지도 켜짐\'이 떠 있는 동안 돼요.' : '지도 화면이 켜져 있을 때 배가 한자리에 5분 넘게 머물면 포인트로 남겨요.'} 마릿수는 나중에 넣어요.</small></span><i></i></button>`
-        + (NAT ? `<button type="button" class="mv-sw${natBubble() ? ' on' : ''}" data-act="bubble-tog" role="switch" aria-checked="${natBubble()}"><span><b>홈 화면에 '포인트 저장' 단추 띄우기</b><small>지도를 켠 채 홈 화면으로 나가면 떠 있는 단추가 생겨요. 끌어서 옮기고, 누르면 바로 저장 화면이 열려요. 아래 ×로 끌어 놓으면 숨겨요.</small></span><i></i></button>`
-          : `<button type="button" class="mv-sw${notiOn ? ' on' : ''}" data-act="noti-tog" role="switch" aria-checked="${notiOn}"><span><b>앱을 나가면 알림줄에 바로가기</b><small>지도를 켠 채 나가면 알림이 생겨요. 누르면 지도로, '포인트 저장'을 누르면 바로 저장 화면이 열려요.</small></span><i></i></button>`)
+        + `<button type="button" class="mv-sw${autoOn ? ' on' : ''}" data-act="auto-tog" role="switch" aria-checked="${autoOn}"><span><b>5분 머문 곳 자동 기록</b><small>${NAT ? '선상 모드를 켜 두면 GPS로 배 위치를 계속 지켜봐요. 홈 화면에 나가 있거나 화면이 잠겨 있어도 한자리(반경 약 250m)에 5분 넘게 머문 곳을 포인트로 남기고 알림으로 알려 줘요. 알림줄에 \'선상 모드 켜짐\'이 떠 있는 동안 돼요.' : '선상 모드가 켜져 있을 때 배가 한자리에 5분 넘게 머물면 포인트로 남겨요.'} 마릿수는 나중에 넣어요.</small></span><i></i></button>`
+        + (NAT ? `<button type="button" class="mv-sw${natBubble() ? ' on' : ''}" data-act="bubble-tog" role="switch" aria-checked="${natBubble()}"><span><b>홈 화면에 '포인트 저장' 단추 띄우기</b><small>선상 모드를 켠 채 홈 화면으로 나가면 떠 있는 단추가 생겨요. 끌어서 옮기고, 누르면 바로 저장 화면이 열려요. 아래 ×로 끌어 놓으면 숨겨요.</small></span><i></i></button>`
+          : `<button type="button" class="mv-sw${notiOn ? ' on' : ''}" data-act="noti-tog" role="switch" aria-checked="${notiOn}"><span><b>앱을 나가면 알림줄에 바로가기</b><small>선상 모드를 켠 채 나가면 알림이 생겨요. 누르면 선상 모드로, '포인트 저장'을 누르면 바로 저장 화면이 열려요.</small></span><i></i></button>`)
         + (NAT && natUpd ? `<button type="button" class="mv-row-btn" data-act="app-upd">앱 업데이트 (새 버전 1.${natUpd})<span>›</span></button>` : '')
         + `<button type="button" class="mv-row-btn" data-act="move">다른 폰·앱으로 포인트 옮기기<span>›</span></button>`
         + (!NAT && appVer ? `<a class="mv-row-btn" href="app/jjugap.apk" download="jjugap.apk">안드로이드 앱 받기 (홈 화면에 떠 있는 저장 단추·화면이 꺼져도 자동 기록)<span>›</span></a>` : '')
         + (NAT && natBatteryNeed() ? `<button type="button" class="mv-row-btn" data-act="battery">화면이 잠겨도 끊기지 않게: 배터리 제한 풀기<span>›</span></button>` : '')
-        + (NAT ? `<p class="mv-tip">앱 아이콘을 꾹 누르면 '포인트 저장'·'바다 지도' 바로가기가 나와요. 그것을 다시 꾹 눌러 홈 화면에 따로 놓을 수도 있어요.</p></div>`
+        + (NAT ? `<p class="mv-tip">앱 아이콘을 꾹 누르면 '포인트 저장'·'선상 모드' 바로가기가 나와요. 그것을 다시 꾹 눌러 홈 화면에 따로 놓을 수도 있어요.</p></div>`
           : `<p class="mv-tip">홈 화면에 저장 단추 놓기: 쭈갑 물때 아이콘을 꾹 누르면 나오는 '포인트 저장'을 다시 꾹 눌러 원하는 곳에 끌어다 놓으세요.</p></div>`)
         + `<div class="mv-btns"><button data-act="back">닫기</button></div>`;
       panel.scrollTop = keepTop;
@@ -4044,7 +4044,7 @@ const TideHarm = (() => {
     }
     function setAuto(on) {
       autoOn = on; track = []; stay = null; try { localStorage.setItem(AUTO_KEY, on ? 'on' : 'off'); } catch (_) {}
-      autoPill(); toast(on ? (window.JjugapNative ? '자동 기록을 켰어요 · 지도를 켜 두면 홈 화면·화면 잠금 중에도 돼요' : '자동 기록을 켰어요 · 지도 화면이 켜져 있는 동안 돼요') : '자동 기록을 껐어요');
+      autoPill(); toast(on ? (window.JjugapNative ? '자동 기록을 켰어요 · 선상 모드를 켜 두면 홈 화면·화면 잠금 중에도 돼요' : '자동 기록을 켰어요 · 선상 모드가 켜져 있는 동안 돼요') : '자동 기록을 껐어요');
       if (mode === 'list') showList();
     }
     pill.onclick = () => setAuto(!autoOn);
@@ -4072,8 +4072,8 @@ const TideHarm = (() => {
     function notiSync(show) {
       if (!canNoti()) return;
       navigator.serviceWorker.ready.then(reg => {
-        if (show) return reg.showNotification('쭈갑 물때 · 바다 지도', { tag: NOTI_TAG, body: '눌러서 지도로 돌아가기 · 자동 기록은 앱 화면이 켜져 있을 때만 돼요',
-          icon: 'icon-192.png', badge: 'badge-96.png', silent: true, data: { act: 'map' }, actions: [{ action: 'save', title: '포인트 저장' }, { action: 'map', title: '지도 열기' }] });
+        if (show) return reg.showNotification('쭈갑 물때 · 선상 모드', { tag: NOTI_TAG, body: '눌러서 선상 모드로 돌아가기 · 자동 기록은 앱 화면이 켜져 있을 때만 돼요',
+          icon: 'icon-192.png', badge: 'badge-96.png', silent: true, data: { act: 'map' }, actions: [{ action: 'save', title: '포인트 저장' }, { action: 'map', title: '선상 모드' }] });
         return reg.getNotifications({ tag: NOTI_TAG }).then(ns => ns.forEach(n => n.close()));
       }).catch(() => {});
     }
@@ -4683,7 +4683,7 @@ if ('serviceWorker' in navigator) addEventListener('load', () => {
   const sw = navigator.serviceWorker; let ctl = sw.controller, reloading = false;
   // 새 버전이 올라오면 한 번 새로 열어 바로 반영 (처음 설치할 때는 제외)
   sw.addEventListener('controllerchange', () => { if (ctl && !reloading) { reloading = true; location.reload(); } ctl = sw.controller; });
-  sw.register('sw.js?v=c4ccea38').then(reg => {
+  sw.register('sw.js?v=77c4d6ec').then(reg => {
     // 앱을 켜 둔 채 다른 화면에 갔다 돌아오면 새 버전이 있는지 확인
     document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') reg.update().catch(() => {}); });
   }).catch(() => {});

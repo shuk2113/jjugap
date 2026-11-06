@@ -44,9 +44,9 @@
       ]
     },
     {
-      "name": "바다 지도",
-      "short_name": "바다 지도",
-      "description": "내 위치 바다 지도 열기",
+      "name": "선상 모드",
+      "short_name": "선상 모드",
+      "description": "바다에서 내 위치·조류 보기와 포인트 기록",
       "url": "./?act=map",
       "icons": [
         {
