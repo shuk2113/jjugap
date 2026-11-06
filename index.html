@@ -1811,9 +1811,10 @@ const TideHarm = (() => {
     // 조류 세기(0~1) → 낚시하기 알맞은 정도: 정조 0.7, 약~보통 1, 셀수록 낮아진다
     const flowFit = e => e < 0.08 ? 0.7 + 0.3 * (e / 0.08) : e <= 0.45 ? 1 : e <= 0.7 ? 1 - 0.45 * (e - 0.45) / 0.25 : Math.max(0.25, 0.55 - 0.3 * (e - 0.7) / 0.3);
     const LV_MIN = -50, LV_MAX = 1000;
-    const surfOf = l => H * (0.16 + 0.5 * (1 - (l - LV_MIN) / (LV_MAX - LV_MIN)));
-    // 바닥: 왼쪽은 깊은 바다, 오른쪽으로 갈수록 얕아져 물가(갯벌)로 올라간다
-    const bedOf = x => { const r = Math.max(0, Math.min(1, (x - W * 0.48) / (W * 0.52))); return H * 0.88 - Math.pow(r, 1.15) * H * 0.5 + 2.5 * Math.sin(x / 23); };
+    // 수면은 그림 높이의 33%(물 가장 높을 때)~68%(가장 낮을 때) 사이에서 오르내린다. 위쪽 하늘에 날씨 줄·배 깃발·수온 부표 이름표가 겹치지 않게
+    const surfOf = l => H * (0.33 + 0.35 * (1 - (l - LV_MIN) / (LV_MAX - LV_MIN)));
+    // 바닥: 대부분 깊은 바다이고, 오른쪽 40%만 낮고 완만한 갯벌로 올라간다 (물이 빠지면 오른쪽 끝이 드러난다)
+    const bedOf = x => { const r = Math.max(0, Math.min(1, (x - W * 0.6) / (W * 0.4))); return H * 0.9 - Math.pow(r, 1.7) * H * 0.38 + 2 * Math.sin(x / 23); };
     // 하늘색: 해 높이에 따라 밤 → 노을 → 낮
     const hex = c => [1, 3, 5].map(i => parseInt(c.slice(i, i + 2), 16));
     const mix = (a, b, t) => { const A = hex(a), B = hex(b); return `rgb(${A.map((v, i) => Math.round(v + (B[i] - v) * t)).join(',')})`; };
@@ -1849,11 +1850,19 @@ const TideHarm = (() => {
     function drawHud(surf) {
       if (!hud) return;
       ctx.save(); ctx.textBaseline = 'middle';
-      const x0 = 10, y0 = 10, fS = `700 12.5px ${C.font}`, fL = `600 12px ${C.font}`;
-      ctx.font = fS; const sw = ctx.measureText(hud.sig).width;
-      ctx.font = fL; const lw = hud.line ? ctx.measureText(hud.line).width : 0;
-      const one = sw + lw + 50 <= W - 64;   // 오른쪽 위 달과 겹치지 않으면 한 줄로
+      const x0 = 10, y0 = 10;
+      // 오른쪽 위 달과 겹치지 않으면 한 줄로. 좁은 폰에서 넘치면 글자를 조금 줄여 한 번 더 맞춰 본다 (두 줄이 되면 배 깃발과 겹치기 쉬워서)
+      let fS, fL, sw, lw, one;
+      for (const [a, b] of [[12.5, 12], [11.5, 10.5]]) {
+        fS = `700 ${a}px ${C.font}`; fL = `600 ${b}px ${C.font}`;
+        ctx.font = fS; sw = ctx.measureText(hud.sig).width;
+        ctx.font = fL; lw = hud.line ? ctx.measureText(hud.line).width : 0;
+        one = sw + lw + 50 <= W - 64;
+        if (one) break;
+      }
+      if (!one) { fS = `700 12.5px ${C.font}`; fL = `600 12px ${C.font}`; ctx.font = fS; sw = ctx.measureText(hud.sig).width; ctx.font = fL; lw = hud.line ? ctx.measureText(hud.line).width : 0; }
       const w1 = one ? sw + lw + 48 : sw + 32;
+      hudB = one || !hud.line ? y0 + 28 : y0 + 57;
       roundRect(x0, y0, w1, 28, 14); ctx.fillStyle = 'rgba(8,20,24,.5)'; ctx.fill();
       ctx.fillStyle = hud.color; ctx.beginPath(); ctx.arc(x0 + 14, y0 + 14, 4.5, 0, 2 * Math.PI); ctx.fill();
       ctx.font = fS; ctx.fillStyle = '#FFFFFF'; ctx.fillText(hud.sig, x0 + 25, y0 + 14.5);
@@ -1867,28 +1876,93 @@ const TideHarm = (() => {
           ctx.fillStyle = 'rgba(255,255,255,.95)'; ctx.fillText(hud.line, x0 + 10, y0 + 45.5);
         }
       }
-      if (hud.temp) drawTemp(x0, y0 + (hud.line && !one ? 62 : 33));
       ctx.restore();
     }
-    // 수온: 물속 왼쪽 아래에 작게 (물과 함께 읽히도록)
-    // 수온 이름표: 날씨 이름표 아래 작은 한 줄 (온도계 · 수온 · 어제와 차이 · 관측소)
-    function drawTemp(x, y) {
-      const T = hud.temp, fM = `700 12px ${C.font}`, fS = `500 10px ${C.font}`;
-      ctx.save(); ctx.textBaseline = 'middle';
-      ctx.font = fM; const mw = ctx.measureText(T.main).width;
-      // 오른쪽 눈금 막대에 닿지 않는 만큼만: 전부 → 어제와 차이만 → 수온만
-      const maxW = W * 0.72 - 16 - x;
-      ctx.font = fS; let sub = '', sw = 0;
-      for (const c of T.subs) { const cw = ctx.measureText(c).width; if (30 + mw + 8 + cw + 2 <= maxW) { sub = c; sw = cw; break; } }
-      const w = 30 + mw + (sub ? 8 + sw : 0) + 2;
-      roundRect(x, y, w, 24, 12); ctx.fillStyle = 'rgba(8,20,24,.42)'; ctx.fill();
-      const ix = x + 13, iy = y + 10;
+    let hudB = 38;   // 날씨 줄의 아래 끝 (한 줄이면 38, 두 줄이면 67)
+    function thermo(ix, iy, T) {
       ctx.strokeStyle = 'rgba(255,255,255,.85)'; ctx.lineWidth = 1.4; ctx.lineCap = 'round';
       ctx.beginPath(); ctx.moveTo(ix, iy - 4.5); ctx.lineTo(ix, iy + 2); ctx.stroke();
       ctx.fillStyle = T.d > 0 ? '#F2A25C' : T.d < 0 ? '#7FB2EE' : 'rgba(255,255,255,.85)';
       ctx.beginPath(); ctx.arc(ix, iy + 4, 2.6, 0, 2 * Math.PI); ctx.fill();
-      ctx.font = fM; ctx.fillStyle = '#FFFFFF'; ctx.fillText(T.main, x + 22, y + 12.5);
-      if (sub) { ctx.font = fS; ctx.fillStyle = 'rgba(255,255,255,.75)'; ctx.fillText(sub, x + 30 + mw, y + 12.5); }
+    }
+    // 수온 부표: 물결 따라 흔들리는 부표 위 이름표에 수온과 어느 관측소·언제 잰 값인지 (예: 보령 오후 3시 측정)
+    function drawBuoy(x, waveY, t, T, px) {
+      const y = waveY(x) + 2, ang = Math.max(-0.3, Math.min(0.3, Math.atan((waveY(x + 6) - waveY(x - 6)) / 12)));
+      ctx.save(); ctx.translate(x, y); ctx.rotate(ang); ctx.scale(1.25, 1.25);
+      ctx.lineJoin = 'round'; ctx.strokeStyle = C['hull-line']; ctx.lineWidth = 1.1;
+      ctx.beginPath(); ctx.moveTo(-11, -2); ctx.lineTo(11, -2); ctx.lineTo(8, 8); ctx.quadraticCurveTo(0, 11, -8, 8); ctx.closePath(); ctx.fillStyle = '#F2A23A'; ctx.fill(); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(-6, -2); ctx.lineTo(-4, -16); ctx.lineTo(4, -16); ctx.lineTo(6, -2); ctx.closePath(); ctx.fillStyle = C.hull; ctx.fill(); ctx.stroke();
+      ctx.beginPath(); ctx.rect(-4.6, -11, 9.2, 3.4); ctx.fillStyle = '#F2A23A'; ctx.fill();
+      ctx.beginPath(); ctx.moveTo(0, -16); ctx.lineTo(0, -24); ctx.stroke();
+      const on = (Math.sin(t * 2.2) + 1) / 2;   // 꼭대기 불빛이 천천히 깜빡
+      ctx.fillStyle = `rgba(255,214,110,${(0.5 + 0.5 * on).toFixed(2)})`; ctx.beginPath(); ctx.arc(0, -26, 2.6, 0, 2 * Math.PI); ctx.fill();
+      ctx.restore();
+      // 이름표 (기울지 않게): 위 줄 수온, 아래 줄 관측소·측정 시각. 자리가 모자라면 날씨 줄 아래·눈금 기둥 왼쪽에 붙인다
+      ctx.save(); ctx.textBaseline = 'middle';
+      const fM = `700 12px ${C.font}`, fS = `500 9.5px ${C.font}`;
+      ctx.font = fS; const sub = T.subs.find(c => ctx.measureText(c).width <= 130) || T.subs[T.subs.length - 1] || '';
+      const sw = sub ? ctx.measureText(sub).width : 0;
+      ctx.font = fM; const mw = ctx.measureText(T.main).width;
+      const w = Math.max(mw + 30, sw + 16), h = sub ? 36 : 24;
+      const bx = Math.max(6, Math.min(x - w / 2, px - 14 - w)), by = Math.max(hudB + 6, y - 40 - h);
+      ctx.fillStyle = 'rgba(8,20,24,.62)'; roundRect(bx, by, w, h, 10); ctx.fill();
+      ctx.beginPath(); ctx.moveTo(x - 5, by + h); ctx.lineTo(x, by + h + 6); ctx.lineTo(x + 5, by + h); ctx.closePath(); ctx.fill();
+      thermo(bx + 12, by + 11, T);
+      ctx.font = fM; ctx.fillStyle = '#FFFFFF'; ctx.fillText(T.main, bx + 21, by + 13);
+      if (sub) { ctx.font = fS; ctx.fillStyle = 'rgba(255,255,255,.72)'; ctx.textAlign = 'center'; ctx.fillText(sub, bx + w / 2, by + 27); }
+      ctx.restore();
+    }
+    // 배 깃발 = 태극기. 깃면(36×24 단위, 3:2)을 한 번 그려 두고, 장면에서는 세로 조각으로 나눠 물결치듯 펄럭이게 그린다
+    let tgImg = null;
+    function makeTG() {
+      const S = 12, c = document.createElement('canvas'); c.width = 36 * S; c.height = 24 * S;
+      const g = c.getContext('2d'); g.scale(S, S);
+      g.fillStyle = '#FFFFFF'; g.fillRect(0, 0, 36, 24);
+      // 태극: 지름은 깃면 세로의 1/2. 건·곤을 잇는 대각선이 경계로, 위는 빨강(둥근 머리는 깃대 쪽), 아래는 파랑
+      g.save(); g.translate(18, 12); g.rotate(Math.atan2(2, 3));
+      g.fillStyle = '#0047A0'; g.beginPath(); g.arc(0, 0, 6, 0, 2 * Math.PI); g.fill();
+      g.fillStyle = '#CD2E3A'; g.beginPath(); g.arc(0, 0, 6, Math.PI, 2 * Math.PI); g.closePath(); g.fill();
+      g.beginPath(); g.arc(-3, 0, 3, 0, 2 * Math.PI); g.fill();
+      g.fillStyle = '#0047A0'; g.beginPath(); g.arc(3, 0, 3, 0, 2 * Math.PI); g.fill();
+      g.restore();
+      // 4괘: 건(왼쪽 위) 곤(오른쪽 아래) 감(오른쪽 위) 리(왼쪽 아래). 작은 그림에서도 보이게 막대를 규격보다 조금 굵게
+      const bt = 1.35, bg = 0.95, L = 6.4, gap = 1.1, dist = 6 + 2.6 + (3 * bt + 2 * bg) / 2, k = 1 / Math.sqrt(13);
+      const tri = (ux, uy, pat) => {
+        g.save(); g.translate(18 + ux * dist, 12 + uy * dist); g.rotate(Math.atan2(uy, ux)); g.fillStyle = '#000000';
+        pat.forEach((solid, i) => {
+          const x = (i - 1) * (bt + bg) - bt / 2;
+          if (solid) g.fillRect(x, -L / 2, bt, L); else { g.fillRect(x, -L / 2, bt, L / 2 - gap / 2); g.fillRect(x, gap / 2, bt, L / 2 - gap / 2); }
+        });
+        g.restore();
+      };
+      tri(-3 * k, -2 * k, [1, 1, 1]); tri(3 * k, 2 * k, [0, 0, 0]); tri(3 * k, -2 * k, [0, 1, 0]); tri(-3 * k, 2 * k, [1, 0, 1]);
+      return c;
+    }
+    // 바람이 셀수록 크게 물결치고, 약하면 끝이 아래로 처진다. 바람이 반대로 불면 반대쪽으로 날리며 뒷면(좌우 뒤집힘)이 보인다
+    function drawTG(t) {
+      if (!tgImg) tgImg = makeTG();
+      const mx = -5, mTop = -53, FW = 21, FH = 14;
+      ctx.beginPath(); ctx.moveTo(mx, -25); ctx.lineTo(mx, mTop - 2); ctx.strokeStyle = C['hull-line']; ctx.lineWidth = 1.6; ctx.stroke();
+      ctx.beginPath(); ctx.arc(mx, mTop - 2.5, 1.6, 0, 2 * Math.PI); ctx.fillStyle = '#E3B04B'; ctx.fill();   // 깃봉
+      const wv = Math.min(14, wind), d = windX >= 0 ? 1 : -1, lift = Math.min(1, wv / 4), calm = 1 - lift;
+      const om = 4 + wv * 0.7, amp = 0.35 + lift * (0.9 + wv * 0.08), kx = 2 * Math.PI / (FW * 0.85);
+      const off = x => { const e = Math.pow(x / FW, 0.85); return e * (amp * Math.sin(x * kx - t * om) + amp * 0.35 * Math.sin(x * kx * 2.2 - t * om * 1.6 + 1)); };
+      const ofs = x => off(x) + calm * FW * 0.6 * Math.pow(x / FW, 1.6);
+      ctx.save(); ctx.translate(mx, mTop); ctx.scale(d, 1);
+      ctx.rotate(calm * 0.45 + Math.sin(t * 1.3) * 0.03 * calm); ctx.scale(1 - 0.3 * calm, 1);
+      const N = 14, sw = FW / N, src = tgImg.width / N;
+      for (let i = 0; i < N; i++) {
+        const x0 = i * sw, y0 = ofs(x0 + sw / 2), sl = (off(x0 + sw) - off(x0)) / sw;
+        ctx.drawImage(tgImg, i * src, 0, src, tgImg.height, x0, y0, sw + 0.35, FH);
+        const sh = Math.max(-0.16, Math.min(0.2, sl * 0.45));   // 주름 그늘
+        if (Math.abs(sh) > 0.01) { ctx.fillStyle = sh > 0 ? `rgba(0,0,0,${sh.toFixed(3)})` : `rgba(255,255,255,${(-sh).toFixed(3)})`; ctx.fillRect(x0, y0, sw + 0.35, FH); }
+      }
+      // 흰 깃면이 밝은 하늘에 묻히지 않게 가는 테두리
+      ctx.beginPath(); ctx.moveTo(0, ofs(0));
+      for (let i = 1; i <= N; i++) ctx.lineTo(i * sw, ofs(i * sw - sw / 2));
+      ctx.lineTo(FW, ofs(FW - sw / 2) + FH);
+      for (let i = N; i >= 0; i--) ctx.lineTo(i * sw, ofs(Math.max(0, i * sw - sw / 2)) + FH);
+      ctx.closePath(); ctx.strokeStyle = 'rgba(13,24,25,.5)'; ctx.lineWidth = 0.6; ctx.stroke();
       ctx.restore();
     }
     // 쭈꾸미: 둥근 머리, 금테 무늬, 바닥에 펼친 여덟 다리가 꿈틀
@@ -2169,8 +2243,8 @@ const TideHarm = (() => {
       ctx.beginPath(); let on = false;
       for (let x = 0; x <= W + 6; x += 6) { const y = bedOf(x); if (y < surf - 1) { on ? ctx.lineTo(x, y) : ctx.moveTo(x, y); on = true; } else on = false; }
       ctx.strokeStyle = 'rgba(255,255,255,.28)'; ctx.lineWidth = 1.4; ctx.stroke();   // 드러난 갯벌의 젖은 윤기
-      // 물 높이 눈금 막대 (0~9m)
-      const px = W * 0.72, pTop = surfOf(950) - 6, pBot = bedOf(px) + 6;
+      // 물 높이 눈금 막대 (0~9m): 오른쪽 끝 물가에 (숫자가 잘리지 않는 가장 오른쪽)
+      const px = W * 0.86, pTop = surfOf(950) - 6, pBot = bedOf(px) + 6;
       // 지그(애기) 위치를 미리 구해 바닥 친구들이 다가갈 수 있게
       const bx0 = Math.min(W * 0.24, 130), by0 = waveY(bx0), ang0 = Math.max(-0.26, Math.min(0.26, Math.atan((waveY(bx0 + 8) - waveY(bx0 - 8)) / 16) * 0.8));
       const tx0 = bx0 + Math.cos(ang0) * 60 + Math.sin(ang0) * 44, drift0 = dir * eff * Math.min(W * 0.42, 230);
@@ -2215,18 +2289,7 @@ const TideHarm = (() => {
       ctx.fillStyle = C.hull; ctx.fill(); ctx.stroke();
       ctx.beginPath(); ctx.moveTo(-38, -2); ctx.lineTo(40, -2); ctx.strokeStyle = C.strong; ctx.lineWidth = 2.5; ctx.stroke();
       ctx.beginPath(); ctx.moveTo(30, -8); ctx.lineTo(60, -44); ctx.strokeStyle = C['hull-line']; ctx.lineWidth = 1.8; ctx.stroke();
-      if (wxOn) {
-        const mx = -5, mTop = -50;
-        ctx.beginPath(); ctx.moveTo(mx, -25); ctx.lineTo(mx, mTop); ctx.strokeStyle = C['hull-line']; ctx.lineWidth = 1.6; ctx.stroke();
-        const wv = Math.min(14, wind), d = windX >= 0 ? 1 : -1, len = 9 + wv * 1.5, lift = Math.min(1, wv / 4);
-        const fl = Math.sin(t * (2.5 + wv * 0.7)) * (0.6 + wv * 0.22), fl2 = Math.sin(t * (2.5 + wv * 0.7) + 1.4) * (0.5 + wv * 0.18);
-        // 바람이 약하면 깃발이 아래로 처지고, 세면 옆으로 곧게 선다
-        const tipX = mx + d * len * (0.35 + 0.65 * lift), tipY = mTop + 5 + (1 - lift) * 12 + fl;
-        ctx.beginPath(); ctx.moveTo(mx, mTop);
-        ctx.quadraticCurveTo(mx + d * len * 0.5, mTop + 2 + fl2 + (1 - lift) * 5, tipX, tipY);
-        ctx.quadraticCurveTo(mx + d * len * 0.45, mTop + 9 + fl2 * 0.6 + (1 - lift) * 6, mx, mTop + 10);
-        ctx.closePath(); ctx.fillStyle = C.strong; ctx.fill(); ctx.strokeStyle = C['hull-line']; ctx.lineWidth = 1; ctx.stroke();
-      }
+      if (wxOn) drawTG(t);
       ctx.restore();
       const tx = bx + Math.cos(ang) * 60 + Math.sin(ang) * 44, ty = by + Math.sin(ang) * 60 - Math.cos(ang) * 44;
       // 낚싯줄: 물이 흐르는 쪽으로 날리고, 셀수록 바닥에서 뜬다. 정조 때는 곧게 내려간다
@@ -2255,6 +2318,7 @@ const TideHarm = (() => {
         }
       }
       drawHud(surf);
+      if (hud && hud.temp) drawBuoy(W * 0.65, waveY, t, hud.temp, px);
     }
     const mapvEl = document.getElementById('mapv');
     function frame(now) {
@@ -4889,7 +4953,7 @@ if ('serviceWorker' in navigator) addEventListener('load', () => {
   const sw = navigator.serviceWorker; let ctl = sw.controller, reloading = false;
   // 새 버전이 올라오면 한 번 새로 열어 바로 반영 (처음 설치할 때는 제외)
   sw.addEventListener('controllerchange', () => { if (ctl && !reloading) { reloading = true; location.reload(); } ctl = sw.controller; });
-  sw.register('sw.js?v=bc950f36').then(reg => {
+  sw.register('sw.js?v=776f1fcb').then(reg => {
     // 앱을 켜 둔 채 다른 화면에 갔다 돌아오면 새 버전이 있는지 확인
     document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') reg.update().catch(() => {}); });
   }).catch(() => {});
