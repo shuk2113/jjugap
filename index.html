@@ -4300,6 +4300,9 @@ const TideHarm = (() => {
       if (b && b.since && Date.now() - b.since < 18 * 3600000) { board = b; setTimeout(() => { if (!onBoard) boardOn(); }, 0); }
       else localStorage.removeItem(BOARD_KEY);
     } catch (_) {}
+    // 새 버전으로 화면을 새로 열기 직전에 선상 모드 지도가 열려 있었으면 다시 연다 (지도가 저절로 닫힌 채 단추만 켜져 있지 않게)
+    window.jjugapMapOpen = () => isOpen && !viewMode && mode !== 'pick';
+    try { if (sessionStorage.getItem('jjukgap-reopen') === 'map') { sessionStorage.removeItem('jjukgap-reopen'); if (board) setTimeout(() => { if (!isOpen) open(); }, 0); } } catch (_) {}
     // ---------- 앱을 나가면 알림줄에 바로가기 (켠 경우): 알림을 누르면 지도로, '포인트 저장'을 누르면 바로 저장 화면
     const NOTI_KEY = 'jjukgap-noti', NOTI_TAG = 'jjugap-map';
     let notiOn = false; try { notiOn = localStorage.getItem(NOTI_KEY) === 'on'; } catch (_) {}
@@ -4979,12 +4982,36 @@ const TideHarm = (() => {
 
 <script>
 if ('serviceWorker' in navigator) addEventListener('load', () => {
-  const sw = navigator.serviceWorker; let ctl = sw.controller, reloading = false;
-  // 새 버전이 올라오면 한 번 새로 열어 바로 반영 (처음 설치할 때는 제외)
-  sw.addEventListener('controllerchange', () => { if (ctl && !reloading) { reloading = true; location.reload(); } ctl = sw.controller; });
-  sw.register('sw.js?v=6ef79732').then(reg => {
-    // 앱을 켜 둔 채 다른 화면에 갔다 돌아오면 새 버전이 있는지 확인
-    document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') reg.update().catch(() => {}); });
+  const sw = navigator.serviceWorker, VER = 'e9944c95'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
+  // 화면에 손을 대기 시작했는지 (쓰는 중에는 새로 열지 않으려고)
+  ['pointerdown', 'keydown'].forEach(t => addEventListener(t, () => { touched = true; }, { capture: true, passive: true }));
+  const reload = () => {
+    if (reloading) return; reloading = true;
+    try { if (window.jjugapMapOpen && jjugapMapOpen()) sessionStorage.setItem('jjukgap-reopen', 'map'); } catch (e) {}   // 지도가 열려 있었으면 새로 연 뒤 다시 연다
+    location.reload();
+  };
+  // 새 버전이 자리 잡았을 때: 앱을 켤 때 화면은 늘 새로 받으므로 보통 이 화면이 이미 그 버전 → 새로 열지 않는다.
+  // 화면이 옛 버전일 때만 새로 여는데, 이미 쓰는 중이면(선상 모드를 눌러 지도가 열리는 중 등) 다음에 앱으로 돌아올 때로 미룬다
+  // (새 일꾼에게 몇 번 버전인지 물어본다. 답이 없으면 모르는 것으로 보고 미룬다)
+  const askVer = () => new Promise(res => {
+    const ch = new MessageChannel(), t = setTimeout(() => res(null), 3000);
+    ch.port1.onmessage = e => { clearTimeout(t); res(e.data); };
+    try { sw.controller.postMessage({ ask: 'ver' }, [ch.port2]); } catch (e) { clearTimeout(t); res(null); }
+  });
+  sw.addEventListener('controllerchange', () => {
+    const first = !ctl; ctl = sw.controller; if (first || reloading) return;
+    askVer().then(v => {
+      if (v === 'jjugap-' + VER) return;
+      if (v && !touched && document.visibilityState === 'visible') reload(); else pending = true;
+    });
+  });
+  sw.register('sw.js?v=' + VER).then(reg => {
+    // 앱을 켜 둔 채 다른 화면에 갔다 돌아오면: 미뤄 둔 새로 열기가 있으면 지금(손대기 전에), 없으면 새 버전이 있는지 확인
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState !== 'visible') return;
+      if (pending) { touched = false; reload(); return; }
+      reg.update().catch(() => {});
+    });
   }).catch(() => {});
 });
 </script>

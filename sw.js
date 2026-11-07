@@ -1,10 +1,11 @@
 // 쭈갑이 물때 오프라인 지원: 앱 화면은 인터넷이 되면 새로 받고, 안 되면 저장해 둔 것으로 연다
-const CACHE = 'jjugap-6ef79732';
+const CACHE = 'jjugap-e9944c95';
 const CORE = ['./', './index.html', './manifest.webmanifest', './icon-192.png', './icon-512.png', './icon-180.png', './sc-save.png', './sc-map.png', './badge-96.png', './data/basemap.json', './data/spots.json', './data/ports.json'];
 const FIXED = ['/data/basemap.json', '/data/spots.json', '/data/ports.json', '/data/coast.json'];   // 앱과 함께 바뀌는 고정 자료 (바다 지도, 이 자리 계산 자료)
 // 새 버전을 받을 때는 브라우저가 묵혀 둔 사본(깃허브는 10분)을 건너뛰고 서버에서 바로 받는다
 // (안 그러면 방금 바뀐 출항지 목록 같은 고정 자료가 옛것으로 저장돼 다음 버전까지 남는다)
 self.addEventListener('install', e => { e.waitUntil(caches.open(CACHE).then(c => c.addAll(CORE.map(u => new Request(u, { cache: 'reload' })))).then(() => self.skipWaiting())); });
+self.addEventListener('message', e => { if (e.data && e.data.ask === 'ver' && e.ports && e.ports[0]) e.ports[0].postMessage(CACHE); });   // 화면이 새로 열기가 필요한지 알 수 있게
 self.addEventListener('activate', e => {
   e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k !== CACHE && k.startsWith('jjugap-')).map(k => caches.delete(k)))).then(() => self.clients.claim()));
 });
