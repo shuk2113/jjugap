@@ -42,3 +42,4 @@ $ osmium fileinfo -e kr.pbf | grep -i "timestamp" | head -1 > when.txt → 0 (2s
 $ osmium tags-filter kr.pbf nwr/natural=water nwr/waterway=riverbank nwr/landuse=reservoir,basin -o water.pbf --overwrite → 0 (6s) 
 $ osmium export water.pbf -f geojsonseq -o water.geojsonseq --overwrite --geometry-types=polygon → 0 (0s) 
 $ osmium tags-filter kr.pbf nwr/place=island,islet,archipelago nwr/natural=bay -o places.pbf --overwrite → 0 (6s) 
+$ osmium export places.pbf -f geojsonseq -o places.geojsonseq --overwrite --attributes=type,id → 0 (0s) 
