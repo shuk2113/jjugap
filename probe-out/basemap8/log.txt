@@ -13,3 +13,5 @@ $ /usr/bin/python3 -m pip install -q --user --break-system-packages shapely nump
 [19s] shapely 2.2.0 · 코어 4
 $ wget -q --timeout=60 --tries=5 https://download.geofabrik.de/asia/south-korea-latest.osm.pbf -O kr.pbf; wget -q --timeout=60 --tries=5 https → 0 (25s) -rw-r--r-- 1 runner runner 291019374 Nov  6 16:34 kr.pbf
 -rw-r--r-- 1 runner runner  93220944 Nov  6 16:21 nk.pbf
+
+$ osmium tags-filter kr.pbf w/natural=coastline -o c1.pbf --overwrite && osmium tags-filter nk.pbf w/natural=coastline -o c2.pbf --overwrite & → 0 (8s) 
