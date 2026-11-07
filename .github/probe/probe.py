@@ -5,14 +5,19 @@
 - 방조제 안 호수·저수지·큰 강(W), 섬·만·호수 이름(lab) — Geofabrik 한국 추출본
 """
 import json, os, subprocess, sys, time, importlib, site, traceback, math, re, gzip, multiprocessing as mp
-OUT = 'probe-out/basemap6'; os.makedirs(OUT, exist_ok=True)
+OUT = 'probe-out/basemap7'; os.makedirs(OUT, exist_ok=True)
 BIG = (118.0, 30.0, 134.0, 44.5)                              # 주변국 해안까지 (멀리 볼 때 지도가 잘려 보이지 않게)
 FINE = [(124.0, 33.0, 131.0, 38.75), (130.5, 37.0, 132.0, 37.75)]   # 자세히: 남한 바다 전체 · 울릉도·독도
 LON0, LAT0, Q = 118.0, 30.0, 100000
 KX = math.cos(math.radians(36.6))
-LV = {   # 칸 크기(도), 자세한 곳/거친 곳 단순화(도), 작은 섬 빼기(대각선, 도)
-    0: dict(cell=1.0, tol=(0.0006, 0.005), mind=(0.004, 0.02)),
-    1: dict(cell=0.25, tol=(0.0001, 0.002), mind=(0.0004, 0.01)),
+# 네 단계: 멀리 볼수록 거칠게 (각 단계를 쓰는 가장 큰 배율에서 단순화 오차가 1점 안, 3점보다 작은 섬은 뺀다)
+# 앱은 배율(1도에 몇 점) TH 경계에서 단계를 바꾼다
+TH = [240, 800, 2600]
+LV = {   # 칸 크기(도), 자세한 곳/거친 곳 단순화(도), 작은 섬 빼기(대각선, 도), 물(단순화, 작은 것 빼기)
+    0: dict(cell=2.0, tol=(0.0035, 0.008), mind=(0.014, 0.04), w=(0.003, 0.03)),
+    1: dict(cell=1.0, tol=(0.001, 0.004), mind=(0.004, 0.02), w=(0.001, 0.012)),
+    2: dict(cell=0.5, tol=(0.0003, 0.002), mind=(0.0012, 0.01), w=(0.0004, 0.005)),
+    3: dict(cell=0.25, tol=(0.0001, 0.002), mind=(0.0004, 0.01), w=(0.00025, 0.003)),
 }
 log = []
 def sh(c):
@@ -238,7 +243,7 @@ try:
 
     L, K = [], []
     NC = os.cpu_count() or 2
-    for lv in (0, 1):
+    for lv in LV:
         nx = int(math.ceil((BIG[2] - BIG[0]) / LV[lv]['cell'] - 1e-9)); Lp, Kp, n = [], [], 0
         with mp.get_context('fork').Pool(NC) as pool:
             for j, (a, b, c) in enumerate(pool.imap(build_col, [(lv, ix) for ix in range(nx)])):
@@ -292,7 +297,7 @@ try:
                 if len(s) >= 3: rings.append(enc(s)[0])
             if rings: out.append(rings)
         return out
-    W = [level_poly(wu, 0.001, 0.02), level_poly(wu, 0.00025, 0.003)]
+    W = [level_poly(wu, *LV[lv]['w']) for lv in LV]
 
     # 이름표
     HAN = re.compile('[가-힣]')
@@ -345,24 +350,24 @@ try:
     for l in labs:
         if any(k[0] == l[0] and math.hypot((k[1] - l[1]) * KX, k[2] - l[2]) < 0.02 for k in keep): continue
         keep.append(l)
-    OVR = {'제주도': 60, '울릉도': 100, '독도': 100, '백령도': 200, '거제도': 200}
+    OVR = {'제주도': (126.55, 33.38, 60), '울릉도': (130.87, 37.5, 100), '독도': (131.87, 37.24, 100), '백령도': (124.68, 37.95, 200), '거제도': (128.65, 34.86, 200)}   # 같은 이름의 작은 섬은 빼고 그 섬만
     out_l = []
     for name, x, y, a, kind in keep:
         if kind in ('bay', 'lake'): minS = max(600, min(5000, 20 / math.sqrt(max(a, 1e-6))))
         elif kind == 'group': minS = 900
         else: minS = max(250, min(60000, 10 / math.sqrt(a))) if a > 0 else 5000
-        if name in OVR and kind == 'island': minS = min(minS, OVR[name])
+        if name in OVR and math.hypot(x - OVR[name][0], y - OVR[name][1]) < 0.3: minS = min(minS, OVR[name][2]); kind = 'island'
         out_l.append([name, round(x, 5), round(y, 5), round(minS), {'island': 0, 'bay': 1, 'group': 2, 'lake': 1}[kind]])
     # 바다 이름 (멀리 볼 때만, 앱이 kind 3을 크게 그린다)
     out_l += [['서해', 125.0, 36.15, 60, 3], ['남해', 127.75, 33.95, 60, 3], ['동해', 130.25, 37.95, 60, 3]]
     say(f'이름표 {len(out_l)}')
 
     js = json.dumps({'src': '© OpenStreetMap 기여자 (ODbL)', 'date': when, 'o': [LON0, LAT0], 'q': Q,
-                     'L': L, 'kc': [round(LV[0]['cell'] * Q), round(LV[1]['cell'] * Q)], 'F': [[], []], 'W': W, 'lab': out_l}, ensure_ascii=False, separators=(',', ':'))
+                     'L': L, 'kc': [round(LV[lv]['cell'] * Q) for lv in LV], 'lv': TH, 'F': [[] for _ in LV], 'W': W, 'lab': out_l}, ensure_ascii=False, separators=(',', ':'))
     open(f'{OUT}/basemap.json', 'w').write(js)
     gz = len(gzip.compress(js.encode(), 6))
     part = lambda o: len(json.dumps(o, separators=(',', ':')).encode()) // 1024
-    say(f'크기 {len(js.encode()) // 1024} KB (압축하면 {gz // 1024} KB) · L0 {part(L[0])} L1 {part(L[1])} K0 {part(K[0])} K1 {part(K[1])} W {part(W)} 이름 {part(out_l)} KB')
+    say(f'크기 {len(js.encode()) // 1024} KB (압축하면 {gz // 1024} KB) · 땅 {[part(x) for x in L]} · 물 {[part(x) for x in W]} · 이름 {part(out_l)} KB')
 except Exception:
     log.append(traceback.format_exc())
 open(f'{OUT}/log.txt', 'w').write('\n'.join(log))
