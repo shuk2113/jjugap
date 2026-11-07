@@ -43,3 +43,4 @@ $ osmium tags-filter kr.pbf nwr/natural=water nwr/waterway=riverbank nwr/landuse
 $ osmium export water.pbf -f geojsonseq -o water.geojsonseq --overwrite --geometry-types=polygon → 0 (1s) 
 $ osmium tags-filter kr.pbf nwr/place=island,islet,archipelago nwr/natural=bay -o places.pbf --overwrite → 0 (9s) 
 $ osmium export places.pbf -f geojsonseq -o places.geojsonseq --overwrite --attributes=type,id → 0 (0s) 
+[145s] 물 1284개 → 합침, 이름 113
