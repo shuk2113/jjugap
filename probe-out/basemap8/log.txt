@@ -20,3 +20,4 @@ $ osmium tags-filter kr.pbf w/natural=coastline -o c1.pbf --overwrite && osmium 
 [61s] 남북한 OSM 육지 점 661219 · 확인 틀린 곳 []
 [63s] 육지 조각 4819개, 점 574347
 [65s] 단계 0: 칸 줄 8/8
+[67s] 단계 0: 땅 조각 570 · 해안선 596 · 점 9782 (코어 4)
