@@ -95,23 +95,15 @@ tapText "^(OK|Ok|확인|Turn on|TURN ON|사용)\|" a11 || tapText "(OK|확인|Tu
 sleep 8; locState after-ask; shot 12-locon-after
 adb shell cmd location set-location-enabled true
 for i in $(seq 1 3); do adb emu geo fix 126.3302 37.1702; sleep 4; done
-# 끝날 때 (홈 화면에서 알림줄 '선상 모드 끄기') → 알림 '선상 모드가 끝났어요 · 위치를 꺼 주세요'
+# 끝날 때 (홈 화면에서 알림줄 '선상 모드 끄기') → 위치를 끄라는 알림이 뜨지 않아야 한다 (없앤 기능)
 adb shell input keyevent KEYCODE_HOME; sleep 4
 adb shell cmd statusbar expand-notifications; sleep 4
 for k in 1 2 3 4; do tapText "^선상 모드 끄기\|" n13-$k && break; tapExpand "선상 모드 켜짐" e13-$k; sleep 2; done
 sleep 5; adb shell cmd statusbar collapse; sleep 2; adb shell cmd statusbar expand-notifications; sleep 4; shot 13-end-noti
-# 그 알림을 누르면 → 위치 설정 화면 → (끄고) 뒤로 → 앱이 '위치를 껐어요'
-for k in 1 2 3; do
-  F=$(adb shell dumpsys window | grep -m1 mCurrentFocus); echo "focus $F" | tee -a "$OUT/loc.txt"
-  echo "$F" | grep -qi settings && break
-  tapText "선상 모드가 끝났어요" n13t-$k || tapExpand "선상 모드가 끝났어요" e13t-$k
-  sleep 4
-done
-shot 13b-settings
-adb shell cmd location set-location-enabled false; sleep 2
-adb shell input keyevent KEYCODE_BACK; sleep 1; shot 13c-toast
+adb shell uiautomator dump /sdcard/ui.xml >/dev/null 2>&1; adb pull /sdcard/ui.xml "$OUT/ui-end13.xml" >/dev/null 2>&1
+grep -q "위치를 꺼 주세요" "$OUT/ui-end13.xml" && echo "END NOTE SHOWN (안 떠야 함)" | tee -a "$OUT/loc.txt" || echo "end note none (ok)" | tee -a "$OUT/loc.txt"
 adb shell cmd statusbar collapse; sleep 2
-# (1) 위치를 끈 채 선상 모드를 켜면 → 바로 '위치 켜기' 창 → 확인 → 앱 화면에서 끄면 '위치를 끌까요?' 창
+# (1) 위치를 끈 채 선상 모드를 켜면 → 바로 '위치 켜기' 창 → 확인 → 앱 화면에서 꺼도 '위치를 끌까요?' 창이 뜨지 않아야 한다
 adb shell cmd location set-location-enabled false; sleep 4
 adb shell am start -n $P/.MainActivity --es act map; sleep 12
 shot 14-start-ask
@@ -120,12 +112,12 @@ sleep 8; locState after-ask2
 for i in $(seq 1 3); do adb emu geo fix 126.3303 37.1703; sleep 4; done
 shot 15-map-on
 adb shell uiautomator dump /sdcard/ui.xml >/dev/null 2>&1; sleep 2   # 웹 화면 글자를 읽을 수 있게 한 번 먼저
-for k in 1 2 3; do tapText "\|mv-off$" w16-$k && break; sleep 3; done
+XY=""; for k in 1 2 3; do tapText "\|mv-off$" w16-$k && break; sleep 3; done
 [ -z "$XY" ] && { XY="999 200"; echo "mv-off 글자를 못 읽어 자리로 누름 $XY" | tee -a "$OUT/loc.txt"; adb shell input tap $XY; }   # 지도 윗줄 오른쪽 끝 (pixel 6)
 sleep 1; adb shell input tap $XY   # 한 번 더 눌러 확인 (끄기 단추는 실수로 꺼지지 않게 두 번)
-sleep 5; shot 16-end-dialog
-# '위치 끄기' → 설정 화면 → 끄지 않고 뒤로 → '위치가 아직 켜져 있어요' · 다시 → 끄고 뒤로 → '위치를 껐어요'
-tapText "^위치 끄기\|" d16 && { sleep 4; shot 17-settings; adb shell input keyevent KEYCODE_BACK; sleep 1; shot 18-still-on; }
+sleep 5; shot 16-end-no-dialog
+adb shell uiautomator dump /sdcard/ui.xml >/dev/null 2>&1; adb pull /sdcard/ui.xml "$OUT/ui-end16.xml" >/dev/null 2>&1
+grep -q "위치를 끌까요" "$OUT/ui-end16.xml" && echo "END DIALOG SHOWN (안 떠야 함)" | tee -a "$OUT/loc.txt" || echo "end dialog none (ok)" | tee -a "$OUT/loc.txt"
 adb shell cmd location set-location-enabled false; sleep 2
 adb logcat -d -s jjugap:I | grep -E "loc |locon" >> "$OUT/loc.txt"
 # 앱 안에서 업데이트: 같은 파일을 받아 설치 화면을 여는지

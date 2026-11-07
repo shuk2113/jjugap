@@ -45,7 +45,7 @@ import java.util.Locale;
  * 지도를 켜 둔 동안 도는 위치 기록 서비스 (알림줄에 '선상 모드 켜짐' 표시).
  * - 앱 화면이 안 보일 때(홈 화면·다른 앱·화면 꺼짐) GPS를 모아 두면, 웹 앱이 받아 가서 5분 머문 곳을 자동 기록한다
  * - 앱 화면이 안 보일 때 홈 화면 위에 '포인트 저장' 단추를 띄운다 (끌어서 옮기기, 누르면 바로 저장 화면, 아래 ×에 놓으면 숨기기)
- * - 휴대폰 위치가 2분 넘게 꺼져 있으면 진동 알림 (누르면 위치 켜기) · 그날 앱이 켜 준 위치는 끝날 때 끄라고 알려 준다
+ * - 휴대폰 위치가 2분 넘게 꺼져 있으면 진동 알림 (누르면 위치 켜기)
  * - 배터리: 앱 화면을 볼 때는 웹 앱이 GPS를 받으니 여기는 쉰다 · 안 볼 때는 흘리는 중 10초, 달리는 중 30초마다 받고
  *   30초씩 모아서 한꺼번에 받는다 (그동안 휴대폰이 쉴 수 있게) · 통신망 위치는 GPS가 안 잡힐 때만 (구글 위치 서비스가 없는 폰)
  */
@@ -202,14 +202,7 @@ public class TrackService extends Service implements LocationListener {
         self = null;
         NotificationManager nm = getSystemService(NotificationManager.class);
         try { nm.cancel(NID3); } catch (Exception ignored) { }
-        // 선상 모드가 끝났다: 그날 앱이 켜 준 위치가 아직 켜져 있으면 끄라고 한 번 알려 준다
-        if (Loc.helped(this) && Loc.on(this)) {
-            Loc.clearHelped(this);
-            MainActivity a = MainActivity.live;
-            if (appVisible && a != null) a.runOnUiThread(a::askLocationOff);
-            else offNote(nm);
-            Log.i("jjugap", "loc off ask " + (appVisible && a != null ? "dialog" : "note"));
-        } else Loc.clearOffSeen(this);
+        Loc.clearHelped(this);   // 선상 모드가 끝나도 위치를 끄라고 묻지 않는다 (사용자 요청)
         Log.i("jjugap", "service stopped");
         super.onDestroy();
     }
@@ -367,7 +360,7 @@ public class TrackService extends Service implements LocationListener {
         try { getSystemService(NotificationManager.class).notify(NID3, n); Log.i("jjugap", "loc off note"); } catch (Exception ignored) { }
     }
 
-    /** 선상 모드가 끝났다 · 그날 앱이 켜 준 위치를 꺼 달라고 (앱 화면을 안 보고 있을 때) */
+    /* (없앰) 선상 모드가 끝났을 때 '위치를 꺼 주세요' 알림
     void offNote(NotificationManager nm) {
         // 앱을 거쳐 설정 화면으로 (끄고 뒤로 오면 앱이 '위치를 껐어요'라고 알려 준다)
         Intent go = new Intent(this, MainActivity.class).putExtra("locoff", true)
@@ -386,6 +379,7 @@ public class TrackService extends Service implements LocationListener {
             .build();
         try { nm.notify(NID4, n); } catch (Exception ignored) { }
     }
+    */
 
     // ---------- 알림줄
     PendingIntent openApp(String act, int rc) {

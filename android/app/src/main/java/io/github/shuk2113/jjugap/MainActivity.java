@@ -32,7 +32,7 @@ import com.google.android.gms.location.Priority;
  * 쭈갑이 물때 앱 화면: 웹 앱을 그대로 띄운다.
  * 웹 앱이 지도를 열면(setMapOpen) 위치 기록 서비스를 켜서, 홈 화면에 나가 있거나 화면이 꺼져도 GPS를 모으고
  * 홈 화면 위에 '포인트 저장' 단추를 띄운다.
- * 선상 모드를 켤 때 휴대폰 위치가 꺼져 있으면 한 번에 켜는 창을 띄우고, 그날 끝날 때는 위치를 끄라고 알려 준다.
+ * 선상 모드를 켤 때 휴대폰 위치가 꺼져 있으면 한 번에 켜는 창을 띄운다.
  */
 public class MainActivity extends Activity {
     static final String HOME = "https://shuk2113.github.io/jjugap/";
@@ -44,9 +44,7 @@ public class MainActivity extends Activity {
     String geoOrigin;
     boolean mapOpen;
     boolean askingLoc, sentLocOn;   // 위치 켜기 창을 띄운 중 · 위치 켜러 설정 화면에 보냄
-    boolean sentLocOff, leftForOff; // 위치 끄러 설정 화면에 보냄 · 실제로 그 화면으로 넘어갔다 (돌아오면 껐는지 알려 준다)
     long locNoAt;                    // '위치 켜기'를 마다한 때 (10분 동안은 앱에 돌아올 때마다 다시 묻지 않는다)
-    AlertDialog offAsk;
 
     SharedPreferences prefs() { return getSharedPreferences("jjugap", MODE_PRIVATE); }
 
@@ -98,8 +96,8 @@ public class MainActivity extends Activity {
         web.loadUrl(HOME + (act != null ? "?act=" + act : ""));
         if ("update".equals(getIntent().getStringExtra("act"))) Updater.start(this);
         if (getIntent().getBooleanExtra("locon", false)) web.postDelayed(this::askLocationOn, 1200);
-        if (getIntent().getBooleanExtra("locoff", false)) goLocOff();
-        getIntent().removeExtra("locon"); getIntent().removeExtra("locoff");   // 화면을 다시 만들 때 또 열리지 않게
+        getIntent().removeExtra("locon");   // 화면을 다시 만들 때 또 열리지 않게
+        try { getSystemService(android.app.NotificationManager.class).cancel(TrackService.NID4); } catch (Exception ignored) { }   // 예전 판의 '위치를 꺼 주세요' 알림이 남아 있으면 지운다
     }
 
     @Override
@@ -108,7 +106,6 @@ public class MainActivity extends Activity {
         setIntent(i);
         if ("update".equals(i.getStringExtra("act"))) { Updater.start(this); return; }
         if (i.getBooleanExtra("locon", false) && web != null) web.postDelayed(this::askLocationOn, 600);
-        if (i.getBooleanExtra("locoff", false)) { i.removeExtra("locoff"); goLocOff(); return; }
         String act = actOf(i);
         if (act != null && web != null) {
             web.evaluateJavascript("window.jjugapAct ? jjugapAct('" + act + "') : location.replace('" + HOME + "?act=" + act + "')", null);
@@ -125,18 +122,6 @@ public class MainActivity extends Activity {
     protected void onResume() {
         super.onResume();
         Updater.resume(this);   // '이 출처 허용'을 켜고 돌아오면 이어서 업데이트
-        if (sentLocOff && leftForOff) {   // 위치를 끄러 설정 화면에 갔다 돌아옴
-            sentLocOff = leftForOff = false;
-            boolean off = !Loc.on(this);
-            Toast.makeText(this, off ? "위치를 껐어요" : "위치가 아직 켜져 있어요", Toast.LENGTH_SHORT).show();
-            Log.i("jjugap", off ? "loc off done" : "loc still on");
-        }
-        // '위치를 꺼 주세요' 알림을 그대로 둔 채 앱을 열었으면 (묶인 알림을 눌렀거나 그냥 열었거나) 창으로 묻는다
-        if (!sentLocOff && Loc.on(this) && TrackService.noteShown(this, TrackService.NID4)) {
-            try { getSystemService(android.app.NotificationManager.class).cancel(TrackService.NID4); } catch (Exception ignored) { }
-            askLocationOff();
-            Log.i("jjugap", "loc off ask dialog (from note)");
-        }
         if (sentLocOn) {   // 위치를 켜러 설정 화면에 갔다 돌아옴
             sentLocOn = false;
             if (Loc.on(this)) { Loc.markHelped(this); locOnNow(); }
@@ -147,7 +132,6 @@ public class MainActivity extends Activity {
     @Override
     protected void onStop() {
         super.onStop();
-        if (sentLocOff) leftForOff = true;
         TrackService.setAppVisible(false);
     }
 
@@ -293,24 +277,6 @@ public class MainActivity extends Activity {
     /** 위치가 켜졌다 → 웹 앱이 GPS를 다시 받게 */
     void locOnNow() {
         if (web != null) web.evaluateJavascript("window.jjugapLocOn && jjugapLocOn()", null);
-    }
-
-    /** 선상 모드가 끝났는데 그날 앱이 켜 준 위치가 아직 켜져 있을 때 (앱 화면을 보고 있으면) */
-    void askLocationOff() {
-        if (isFinishing() || !Loc.on(this)) return;
-        if (offAsk != null && offAsk.isShowing()) return;
-        offAsk = new AlertDialog.Builder(this)
-            .setTitle("위치를 끌까요?")
-            .setMessage("선상 모드가 끝났어요. 오늘 켠 휴대폰 위치(GPS)가 아직 켜져 있어요.\n\n'위치 끄기'를 누른 뒤, 다음 화면 맨 위 스위치('사용 중')를 끄고 뒤로 돌아오세요.")
-            .setPositiveButton("위치 끄기", (d, w) -> goLocOff())
-            .setNegativeButton("그대로 두기", null)
-            .show();
-    }
-
-    /** 위치를 끄러 설정 화면으로 (돌아오면 껐는지 알려 준다) */
-    void goLocOff() {
-        sentLocOff = true; leftForOff = false;
-        if (!Loc.openSettings(this)) sentLocOff = false;
     }
 
     /** 웹 앱에서 부르는 것들 (window.JjugapNative) */
