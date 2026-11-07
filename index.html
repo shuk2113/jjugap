@@ -238,7 +238,13 @@ h2{margin:0; font-size:calc(16px * var(--k)); font-weight:700; text-wrap:balance
 .mv-x svg{width:15px; height:15px}
 .mv-title{flex:1; min-width:0; display:flex; flex-direction:column; line-height:1.25}
 .mv-title b{font-size:calc(16px * var(--k))} .mv-title span{font-size:calc(12px * var(--k)); color:var(--ink-2); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
-.mv-title span.ok{color:var(--calm)} .mv-title span.warn{color:var(--mid)}
+.mv-title span.ok{color:var(--calm)} .mv-title span.warn{color:var(--mid)} .mv-title span.bad{color:var(--strong); font-weight:700}
+.mv-locoff{flex:none; display:flex; align-items:center; gap:10px; padding:8px 10px 8px 12px; background:#D63B3B; color:#fff; font-size:calc(13px * var(--k)); font-weight:700; line-height:1.35}
+.mv-locoff[hidden]{display:none}
+.mv-locoff svg{flex:none; width:20px; height:20px}
+.mv-locoff span{flex:1; min-width:0; word-break:keep-all}
+.mv-locoff button{flex:none; height:34px; padding:0 14px; border:0; border-radius:999px; background:#fff; color:#C42F2F; font:inherit; font-size:calc(13px * var(--k)); font-weight:800; -webkit-tap-highlight-color:transparent}
+.mv-locoff button:active{transform:scale(.96)}
 .mv-off{flex:none; height:38px; min-width:38px; display:inline-flex; align-items:center; justify-content:center; gap:5px; padding:0; border:0; border-radius:999px; background:var(--well); color:var(--ink-2); font:inherit; font-size:calc(13px * var(--k)); font-weight:800; -webkit-tap-highlight-color:transparent; transition:background .15s, padding .15s}
 .mv-off svg{width:17px; height:17px} .mv-off span{display:none} .mv-off[hidden]{display:none}
 .mv-off.ask{padding:0 13px; background:#D64545; color:#fff} .mv-off.ask span{display:inline}
@@ -344,6 +350,7 @@ h2{margin:0; font-size:calc(16px * var(--k)); font-weight:700; text-wrap:balance
 .mv-auto i{width:8px; height:8px; border-radius:50%; background:#22B07D; box-shadow:0 0 0 3px rgba(34,176,125,.22)}
 .mv-auto:not(.wait){background:var(--card)} .mv-auto.off i, .mv-auto.idle i{background:var(--ink-2); box-shadow:none} .mv-auto.off{color:var(--ink-2)}
 .mv-auto.wait i{animation:mvBlink 1.2s ease-in-out infinite} .mv-auto.done i{background:#FF9F1A; box-shadow:0 0 0 3px rgba(255,159,26,.25)}
+.mv-auto.locoff{color:var(--strong); border-color:var(--strong)} .mv-auto.locoff i{background:#E5484D; box-shadow:0 0 0 3px rgba(229,72,77,.25); animation:mvBlink 1.2s ease-in-out infinite}
 @keyframes mvBlink{50%{opacity:.25}}
 .mv-set{margin:4px 0 10px; border-bottom:1px solid var(--line)}
 .mv-sw{width:100%; display:flex; align-items:center; gap:12px; padding:11px 2px; border:0; border-top:1px solid var(--line); background:none; font:inherit; text-align:left; color:var(--ink); -webkit-tap-highlight-color:transparent}
@@ -835,6 +842,7 @@ a.mv-row-btn{text-decoration:none; gap:10px} .mv-row-btn span{font-size:calc(20p
     <button class="mv-pts" id="mv-pts">포인트 <b id="mv-pts-n">0</b></button>
     <button class="mv-off" id="mv-off" type="button" aria-label="선상 모드 끄기" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 3.5v8"/><path d="M6.6 6.8a7.5 7.5 0 1 0 10.8 0"/></g></svg><span>끄기</span></button>
   </div>
+  <div class="mv-locoff" id="mv-locoff" role="alert" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.2 4.4A6.6 6.6 0 0 1 18.6 10c0 1.6-.6 3.3-1.4 4.8M14.6 17.9c-1.3 1.8-2.6 3.1-2.6 3.1s-6.6-5.6-6.6-11c0-.7.1-1.4.3-2"/><path d="M3.5 3.5l17 17"/></g></svg><span id="mv-locoff-t">위치가 꺼져 있어 포인트 저장·자동 기록이 안 돼요</span><button type="button" id="mv-locoff-b">위치 켜기</button></div>
   <div class="mv-map" id="mv-map">
     <canvas id="mv-cv" aria-label="선상 모드 지도: 내 위치와 출항지, 저장한 포인트"></canvas>
     <div class="mv-tools">
@@ -4144,6 +4152,7 @@ const TideHarm = (() => {
     let gpsMsg = '';
     function setGps(t, cls) { gpsEl.textContent = t; gpsEl.className = cls || ''; }
     function onPos(pos) {
+      if (locOff && !natLocOk()) { locOff = false; gpsMsg = ''; paintLocBar(); }   // 위치가 다시 들어온다
       if (NAT && onBoard) natFixes();
       const c = pos.coords; gps = { lat: c.latitude, lon: c.longitude, acc: c.accuracy, heading: Number.isFinite(c.heading) && c.speed > 0.5 ? c.heading : null, t: pos.timestamp };
       if (me && me.virtual) { setGps('가상 위치 · GPS 잡힘 (‘내 위치로’를 누르면 돌아가요)', 'warn'); return; }
@@ -4156,6 +4165,9 @@ const TideHarm = (() => {
       if (pendingSave && mode !== 'pick') { pendingSave = false; showSave(); }
     }
     function onErr(err) {
+      // 휴대폰 위치(GPS)가 꺼져 있다: 앱이면 바로 물어보고, 웹이면 '위치를 못 받음' 오류(2)로 짐작한다
+      if (natLocOk()) { let on = true; try { on = window.JjugapNative.locationOn(); } catch (_) {} if (!on) return setLocOff(true); }
+      else if (err.code === 2) return setLocOff(true);
       gpsMsg = err.code === 1 ? (window.JjugapNative ? '위치 권한이 꺼져 있어요. 휴대폰 설정 → 애플리케이션 → 쭈갑이 물때 → 권한 → 위치에서 허용해 주세요.' : inFrame ? '이 화면에서는 위치를 받을 수 없어요. 폰에 설치한 앱(웹 주소)에서 써 주세요.' : '위치 권한이 꺼져 있어요. 휴대폰 설정에서 이 앱(브라우저)의 위치 권한을 켜 주세요.')
         : 'GPS 신호를 찾는 중이에요. 하늘이 트인 곳에서 잠시 기다려 주세요.';
       if (!me || !me.virtual) setGps(err.code === 1 ? '위치 권한 없음' : 'GPS 찾는 중…', 'warn');
@@ -4177,6 +4189,50 @@ const TideHarm = (() => {
       placeAt(me.lon, me.lat, fy);
     }
     function stopGps() { if (watchId != null) { navigator.geolocation.clearWatch(watchId); watchId = null; } }
+    // ---------- 휴대폰 위치(GPS)가 꺼져 있으면: 지도 위에 빨간 띠 + 자동 기록 표시 '위치 꺼짐 · 기록 멈춤' (앱이면 '위치 켜기'로 한 번에 켠다)
+    let locOff = false;
+    const locBar = $('mv-locoff');
+    const natLocOk = () => { const N = window.JjugapNative; return !!N && typeof N.locationOn === 'function'; };
+    function paintLocBar() {
+      if (!locBar) return;
+      const nat = natLocOk();
+      locBar.hidden = !(locOff && !viewMode);
+      $('mv-locoff-t').textContent = nat ? '위치가 꺼져 있어 포인트 저장·자동 기록이 안 돼요' : '위치를 못 받고 있어요 · 휴대폰 위치(GPS)가 켜져 있는지 봐 주세요';
+      $('mv-locoff-b').textContent = nat ? '위치 켜기' : '다시 찾기';
+    }
+    function setLocOff(off) {
+      if (off !== locOff) {
+        locOff = off;
+        if (off) {
+          gpsMsg = natLocOk() ? '휴대폰 위치(GPS)가 꺼져 있어요. 위의 ‘위치 켜기’를 눌러 켜 주세요.' : '위치를 못 받고 있어요. 휴대폰 위치(GPS)가 켜져 있는지 봐 주세요.';
+          if (!me || !me.virtual) setGps(natLocOk() ? '위치 꺼짐' : '위치 못 받음', 'bad');
+        } else locBack();
+        autoPill(); if (isOpen && !me) paintPanel(true);
+      }
+      paintLocBar();
+    }
+    // 위치가 다시 켜졌다: GPS를 새로 받는다 (꺼져 있던 동안 끊긴 것을 다시 잇게)
+    function locBack() {
+      locOff = false; gpsMsg = '';
+      if (!me || !me.virtual) setGps('위치 찾는 중…', '');
+      if (onBoard || isOpen) { stopGps(); startGps(); }
+      paintLocBar(); autoPill(); if (isOpen && !me) paintPanel(true);
+    }
+    function locCheck() {
+      if (!natLocOk()) return;
+      let on = true; try { on = window.JjugapNative.locationOn(); } catch (_) {}
+      setLocOff(!on);
+    }
+    window.jjugapLocOn = () => { if (natLocOk()) { locBack(); locCheck(); } };   // 앱이 '위치 켜기'를 마쳤을 때
+    window.jjugapLocCheck = () => { if (onBoard || isOpen) locCheck(); };       // 앱 화면에 돌아왔을 때
+    $('mv-locoff-b').onclick = () => {
+      const N = window.JjugapNative;
+      if (natLocOk() && typeof N.askLocationOn === 'function') { try { N.askLocationOn(); } catch (_) {} return; }
+      toast('위치를 다시 찾는 중이에요');
+      stopGps(); startGps();
+      if (navigator.geolocation) navigator.geolocation.getCurrentPosition(onPos, onErr, { enableHighAccuracy: true, maximumAge: 0, timeout: 20000 });
+    };
+    setInterval(() => { if ((onBoard || isOpen) && document.visibilityState === 'visible') locCheck(); }, 3000);
     // ---------- 5분 머문 곳 자동 기록: 지도를 켜 둔 동안 배가 한자리(반경 약 250m)에 5분 넘게 머물면 포인트로 남긴다
     // 웹 앱이라 화면이 꺼지거나 다른 앱으로 가 있는 동안은 휴대폰이 앱을 멈춘다. 다시 켰을 때 그 전과 같은 자리면 계속 머문 것으로 본다
     const AUTO_KEY = 'jjukgap-auto', STAY_MS = 5 * 60000, STAY_R = 250, LEAVE_R = 400;
@@ -4249,6 +4305,7 @@ const TideHarm = (() => {
       if (!pill) return;
       let cls = '', txt = '자동 기록 켜짐';
       if (!autoOn) { cls = 'off'; txt = '자동 기록 꺼짐'; }
+      else if (locOff && !(me && me.virtual)) { cls = 'locoff'; txt = natLocOk() ? '위치 꺼짐 · 기록 멈춤' : '위치 못 받음 · 기록 멈춤'; }
       else if (!me || me.virtual) { cls = 'idle'; txt = me ? '자동 기록 · 가상 위치라 쉬는 중' : '자동 기록 · GPS 찾는 중'; }
       else if (stay) { if (stay.id) { cls = 'done'; txt = '이 자리 기록됨'; } }
       else if (track.length) {
@@ -4299,6 +4356,7 @@ const TideHarm = (() => {
       const t = view.querySelector('.mv-title b'); if (t) t.textContent = viewMode ? '내 기록' : '선상 모드';
       view.setAttribute('aria-label', viewMode ? '내 기록 지도' : '선상 모드 지도');
       pill.hidden = viewMode;
+      paintLocBar();
       if (viewMode && !me) setGps('선상 모드 꺼짐 · 기록만 보기', '');
       if (fabHTML == null) fabHTML = fab.innerHTML;
       fab.classList.toggle('to-board', viewMode);
@@ -4320,7 +4378,7 @@ const TideHarm = (() => {
     function boardOn() {
       if (onBoard) return;
       onBoard = true; seaFrom = 0; if (!board || !board.since) board = { since: Date.now(), sea: false, portFrom: 0 };
-      saveBoard(); loadLand(); loadMapPorts(); startGps(); natBoard(true); paintBoardBtn(); autoPill.last = ''; autoPill();
+      saveBoard(); loadLand(); loadMapPorts(); startGps(); natBoard(true); paintBoardBtn(); autoPill.last = ''; locCheck(); autoPill();
     }
     function boardOff(msg) {
       if (!onBoard) return;
@@ -5067,7 +5125,7 @@ const TideHarm = (() => {
 
 <script>
 if ('serviceWorker' in navigator) addEventListener('load', () => {
-  const sw = navigator.serviceWorker, VER = '45778cec'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
+  const sw = navigator.serviceWorker, VER = '3dd494e0'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
   // 화면에 손을 대기 시작했는지 (쓰는 중에는 새로 열지 않으려고)
   ['pointerdown', 'keydown'].forEach(t => addEventListener(t, () => { touched = true; }, { capture: true, passive: true }));
   const reload = () => {
