@@ -350,7 +350,7 @@ try:
     for l in labs:
         if any(k[0] == l[0] and math.hypot((k[1] - l[1]) * KX, k[2] - l[2]) < 0.02 for k in keep): continue
         keep.append(l)
-    OVR = {'제주도': (126.55, 33.38, 60), '울릉도': (130.87, 37.5, 100), '독도': (131.87, 37.24, 100), '백령도': (124.68, 37.95, 200), '거제도': (128.65, 34.86, 200)}   # 같은 이름의 작은 섬은 빼고 그 섬만
+    OVR = {'제주도': (126.55, 33.38, 45), '울릉도': (130.87, 37.5, 50), '독도': (131.87, 37.24, 50), '백령도': (124.68, 37.95, 200), '거제도': (128.65, 34.86, 200)}   # 같은 이름의 작은 섬은 빼고 그 섬만
     out_l = []
     for name, x, y, a, kind in keep:
         if kind in ('bay', 'lake'): minS = max(600, min(5000, 20 / math.sqrt(max(a, 1e-6))))
@@ -359,7 +359,7 @@ try:
         if name in OVR and math.hypot(x - OVR[name][0], y - OVR[name][1]) < 0.3: minS = min(minS, OVR[name][2]); kind = 'island'
         out_l.append([name, round(x, 5), round(y, 5), round(minS), {'island': 0, 'bay': 1, 'group': 2, 'lake': 1}[kind]])
     # 바다 이름 (멀리 볼 때만, 앱이 kind 3을 크게 그린다)
-    out_l += [['서해', 125.0, 36.15, 60, 3], ['남해', 127.75, 33.95, 60, 3], ['동해', 130.25, 37.95, 60, 3]]
+    out_l += [['서해', 125.0, 36.15, 40, 3], ['남해', 127.75, 33.95, 40, 3], ['동해', 130.25, 37.95, 40, 3]]   # 가장 멀리(배율 50)에서도 보이게
     say(f'이름표 {len(out_l)}')
 
     js = json.dumps({'src': '© OpenStreetMap 기여자 (ODbL)', 'date': when, 'o': [LON0, LAT0], 'q': Q,
