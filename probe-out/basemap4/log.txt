@@ -11,3 +11,4 @@ No VM guests are running outdated hypervisor (qemu) binaries on this host.
 
 $ /usr/bin/python3 -m pip install -q --user --break-system-packages shapely numpy → 0 (2s) 
 [21s] shapely 2.2.0 · 코어 4
+$ timeout 1800 wget -q --timeout=60 --tries=5 https://osmdata.openstreetmap.de/download/land-polygons-split-4326.zip -O land.zip; ls -la land. → 0 (311s) -rw-r--r-- 1 runner runner 0 Nov  7 02:36 land.zip
