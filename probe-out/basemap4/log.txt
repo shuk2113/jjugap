@@ -20,3 +20,12 @@ $ unzip -q -o land.zip → 9 (0s) [land.zip]
   the last disk(s) of this archive.
 unzip:  cannot find zipfile directory in one of land.zip or
         land.zip.zip, and cannot find land.zip.ZIP, period.
+
+$ ogr2ogr -f GeoJSONSeq -spat 118.0 30.0 134.0 44.5 land.geojsonseq  → 1 (0s) 
+               [-resolveDomains]
+               [-explodecollections] [-zfield <field_name>]
+               [-gcp <ungeoref_x> <ungeoref_y> <georef_x> <georef_y> [<elevation>]]... [[-order <n>]|[-tps]]
+               [-s_coord_epoch <epoch>] [-t_coord_epoch <epoch>] [-a_coord_epoch <epoch>]
+               [-nomd] [-mo <META-TAG>=<VALUE>]... [-noNativeData]
+
+FAILURE: no source datasource provided
