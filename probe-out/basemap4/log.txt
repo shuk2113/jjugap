@@ -12,3 +12,11 @@ No VM guests are running outdated hypervisor (qemu) binaries on this host.
 $ /usr/bin/python3 -m pip install -q --user --break-system-packages shapely numpy → 0 (2s) 
 [21s] shapely 2.2.0 · 코어 4
 $ timeout 1800 wget -q --timeout=60 --tries=5 https://osmdata.openstreetmap.de/download/land-polygons-split-4326.zip -O land.zip; ls -la land. → 0 (311s) -rw-r--r-- 1 runner runner 0 Nov  7 02:36 land.zip
+
+$ unzip -q -o land.zip → 9 (0s) [land.zip]
+  End-of-central-directory signature not found.  Either this file is not
+  a zipfile, or it constitutes one disk of a multi-part archive.  In the
+  latter case the central directory and zipfile comment will be found on
+  the last disk(s) of this archive.
+unzip:  cannot find zipfile directory in one of land.zip or
+        land.zip.zip, and cannot find land.zip.ZIP, period.
