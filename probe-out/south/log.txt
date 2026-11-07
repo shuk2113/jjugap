@@ -5,3 +5,4 @@
 [532s] TideBED 1200/2471 · 응답 {'tidebed:00': 1225, 'tidebed:10': 274, 'tidebed:URLError': 37, 'tidebed:TimeoutError': 2}
 [722s] TideBED 1600/2471 · 응답 {'tidebed:00': 1682, 'tidebed:10': 286, 'tidebed:URLError': 47, 'tidebed:TimeoutError': 5, 'tidebed:HTTPError': 1}
 [920s] TideBED 2000/2471 · 응답 {'tidebed:00': 2143, 'tidebed:10': 289, 'tidebed:URLError': 60, 'tidebed:TimeoutError': 10, 'tidebed:HTTPError': 4}
+[1127s] TideBED 2400/2471 · 응답 {'tidebed:00': 2560, 'tidebed:10': 424, 'tidebed:URLError': 75, 'tidebed:TimeoutError': 10, 'tidebed:HTTPError': 4, 'tidebed:03': 6}
