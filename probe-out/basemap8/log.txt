@@ -39,3 +39,4 @@ $ osmium tags-filter kr.pbf w/natural=coastline -o c1.pbf --overwrite && osmium 
 [86s] 단계 3: 칸 줄 64/64
 [87s] 단계 3: 땅 조각 6066 · 해안선 4876 · 점 154109 (코어 4)
 $ osmium fileinfo -e kr.pbf | grep -i "timestamp" | head -1 > when.txt → 0 (2s) 
+$ osmium tags-filter kr.pbf nwr/natural=water nwr/waterway=riverbank nwr/landuse=reservoir,basin -o water.pbf --overwrite → 0 (6s) 
