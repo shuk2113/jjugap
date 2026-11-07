@@ -323,7 +323,7 @@ h2{margin:0; font-size:calc(16px * var(--k)); font-weight:700; text-wrap:balance
 .mv-sel{padding-right:28px; text-overflow:ellipsis; white-space:nowrap; overflow:hidden}
 .mv-selw{position:relative; flex:1; min-width:0; display:flex}
 .mv-selw::after{content:''; position:absolute; right:11px; top:50%; width:7px; height:7px; margin-top:-6px; border:solid var(--ink-2); border-width:0 2px 2px 0; transform:rotate(45deg); pointer-events:none}
-.mv-sug{position:absolute; left:14px; right:14px; z-index:6; display:flex; flex-direction:column; border:1px solid var(--line); border-radius:12px; overflow:hidden; background:var(--card); box-shadow:0 8px 22px rgba(0,0,0,.22)}
+.mv-sug{position:absolute; left:14px; right:14px; z-index:6; display:flex; flex-direction:column; border:1px solid var(--line); border-radius:12px; overflow-x:hidden; overflow-y:auto; overscroll-behavior:contain; background:var(--card); box-shadow:0 8px 22px rgba(0,0,0,.22)}
 .mv-sug[hidden]{display:none}
 .mv-sug button{display:flex; align-items:center; gap:10px; min-height:44px; padding:8px 12px; border:0; border-top:1px solid var(--line); background:none; font:inherit; text-align:left; color:var(--ink); -webkit-tap-highlight-color:transparent; touch-action:manipulation}
 .mv-sug button:first-child{border-top:0} .mv-sug button:active{background:var(--well)}
@@ -3828,10 +3828,8 @@ const TideHarm = (() => {
         const sub = [x.e.src === 0 ? '전에 쓴 곳' : x.e.sub, x.aka && x.aka !== x.e.n && x.aka.length <= 8 ? x.aka : '', x.d != null ? (x.d < 10 ? x.d.toFixed(1) : Math.round(x.d)) + 'km' : ''].filter(Boolean).join(' · ');
         return `<button type="button" role="option" data-sug="${i}">${pin}<b>${hl(x.e.n)}</b><span>${esc(sub)}</span></button>`;
       }).join('');
-      // 입력 칸 바로 아래에 떠서 보인다 (판 높이는 그대로 → 글자를 칠 때마다 판이 흔들리지 않게). 처음 뜰 때만 다 보이게 한 번 내린다
-      const row = box.previousElementSibling; if (row) box.style.top = (row.offsetTop + row.offsetHeight + 6) + 'px';
-      const was = box.hidden; box.hidden = false;
-      if (was) requestAnimationFrame(() => { const over = box.offsetTop + box.offsetHeight + 8 - (panel.scrollTop + panel.clientHeight); if (over > 0) panel.scrollTop += over; });
+      // 입력 칸 바로 아래에 떠서 보인다. 판도 입력 칸도 움직이지 않고, 목록은 칸 아래 남은 자리 안에서만 (넘치면 목록 안에서 밀어 보기)
+      box.hidden = false; pinDep();
     }
     function pickSug(i) {
       const x = sugs[i], el = $('mv-dep'); if (!x || !form) return;
@@ -3951,10 +3949,24 @@ const TideHarm = (() => {
       if (!f.virtual) absorbAuto(points[0]);
       savePts(); form = null; mode = 'info'; sheetDown(); toast('포인트를 저장했어요'); paintPanel(true); draw();
     }
+    // 출항지 칸: 키보드가 올라온 뒤 추천 3줄 자리가 칸 아래에 없을 때만 칸을 판 맨 위로 한 번 올려 둔다. 그 뒤로는 글자를 쳐도 움직이지 않는다
+    function pinDep() {
+      const el = $('mv-dep'), box = $('mv-dep-sug'); if (!el || !box || document.activeElement !== el) return;
+      const row = box.previousElementSibling; if (!row) return;
+      const rowTop = row.offsetTop, boxTop = rowTop + row.offsetHeight + 6;
+      let room = panel.scrollTop + panel.clientHeight - boxTop - 8;
+      if (room < 140 || rowTop < panel.scrollTop) {
+        panel.scrollTop = Math.max(0, Math.min(rowTop - 6, panel.scrollHeight - panel.clientHeight));
+        room = panel.scrollTop + panel.clientHeight - boxTop - 8;
+      }
+      box.style.top = boxTop + 'px'; box.style.maxHeight = Math.max(92, Math.floor(room)) + 'px';
+    }
+    addEventListener('resize', () => { if (document.activeElement && document.activeElement.id === 'mv-dep') setTimeout(pinDep, 80); });
     // 숫자 칸: 누르면 전체 선택(바로 새 숫자를 치게), 숫자만 받기, 비우고 나가면 0
     panel.addEventListener('focusin', e => {
       const t = e.target;
       if (t.classList.contains('mv-n') || t.id === 'mv-dep' || t.id === 'mv-boat') setTimeout(() => { try { t.select(); } catch (_) {} }, 0);
+      if (t.id === 'mv-dep') { setTimeout(pinDep, 320); return; }
       if (t.matches('input')) setTimeout(() => { try { t.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); } catch (_) {} }, 280);
     });
     panel.addEventListener('input', e => {
@@ -5235,7 +5247,7 @@ const TideHarm = (() => {
 
 <script>
 if ('serviceWorker' in navigator) addEventListener('load', () => {
-  const sw = navigator.serviceWorker, VER = 'c0e36ae4'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
+  const sw = navigator.serviceWorker, VER = 'bd8eaf6d'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
   // 화면에 손을 대기 시작했는지 (쓰는 중에는 새로 열지 않으려고)
   ['pointerdown', 'keydown'].forEach(t => addEventListener(t, () => { touched = true; }, { capture: true, passive: true }));
   const reload = () => {
