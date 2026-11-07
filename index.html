@@ -3952,7 +3952,7 @@ const TideHarm = (() => {
     }
     const tripTxt = p => (p.boat || p.depName ? `${p.boat ? esc(p.boat) : '배 기록 없음'}${p.depName ? ` · ${esc(p.depName)} 출항` : ''}` : '');
     // ---------- 채비: 봉돌 호수 · 에기 색 (오늘 출조 정리와 포인트 저장에서 같은 단추로)
-    const SINKS = [8, 10, 12, 15, 20, 25, 30];
+    const SINKS = [8, 10, 12, 14, 16, 18, 20, 25, 30];   // 20호까지는 짝수, 그 위는 25·30호
     const EGI = [
       { id: 'gcj', n: '고추장', c: ['#D32F2F', '#FFFFFF'] }, { id: 'wm', n: '수박', c: ['#2E7D32', '#E53935'] },
       { id: 'sd', n: '색동', c: ['#E53935', '#FDD835', '#43A047', '#1E88E5'] }, { id: 'army', n: '국방', c: ['#556B2F', '#A39A6B'] },
@@ -5607,7 +5607,7 @@ const TideHarm = (() => {
 
 <script>
 if ('serviceWorker' in navigator) addEventListener('load', () => {
-  const sw = navigator.serviceWorker, VER = 'd29ae1d3'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
+  const sw = navigator.serviceWorker, VER = '26bf02ac'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
   // 화면에 손을 대기 시작했는지 (쓰는 중에는 새로 열지 않으려고)
   ['pointerdown', 'keydown'].forEach(t => addEventListener(t, () => { touched = true; }, { capture: true, passive: true }));
   const reload = () => {
