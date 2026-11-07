@@ -17,3 +17,4 @@ $ wget -q --timeout=60 --tries=5 https://download.geofabrik.de/asia/south-korea-
 $ osmium tags-filter kr.pbf w/natural=coastline -o c1.pbf --overwrite && osmium tags-filter nk.pbf w/natural=coastline -o c2.pbf --overwrite & → 0 (9s) 
 [75s] 해안선 길 7206개
 [77s] 섬 고리 4845 · 열린 선 1 · 이은 틈(m) [] · 본토 196720점 (124.1044113, 39.7837178) → (130.7416338, 42.3519792)
+[82s] 남북한 OSM 육지 점 661219 · 확인 틀린 곳 []
