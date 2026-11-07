@@ -131,6 +131,12 @@ public class MainActivity extends Activity {
             Toast.makeText(this, off ? "위치를 껐어요" : "위치가 아직 켜져 있어요", Toast.LENGTH_SHORT).show();
             Log.i("jjugap", off ? "loc off done" : "loc still on");
         }
+        // '위치를 꺼 주세요' 알림을 그대로 둔 채 앱을 열었으면 (묶인 알림을 눌렀거나 그냥 열었거나) 창으로 묻는다
+        if (!sentLocOff && Loc.on(this) && TrackService.noteShown(this, TrackService.NID4)) {
+            try { getSystemService(android.app.NotificationManager.class).cancel(TrackService.NID4); } catch (Exception ignored) { }
+            askLocationOff();
+            Log.i("jjugap", "loc off ask dialog (from note)");
+        }
         if (sentLocOn) {   // 위치를 켜러 설정 화면에 갔다 돌아옴
             sentLocOn = false;
             if (Loc.on(this)) { Loc.markHelped(this); locOnNow(); }

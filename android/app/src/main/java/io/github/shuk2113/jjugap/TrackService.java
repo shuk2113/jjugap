@@ -230,11 +230,20 @@ public class TrackService extends Service implements LocationListener {
         return PendingIntent.getActivity(this, rc, i, PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
     }
 
+    static boolean noteShown(Context c, int id) {
+        try {
+            for (android.service.notification.StatusBarNotification n : c.getSystemService(NotificationManager.class).getActiveNotifications())
+                if (n.getId() == id) return true;
+        } catch (Exception ignored) { }
+        return false;
+    }
+
     /** 선상 모드 중인데 위치가 꺼져 있다 (진동) */
     void offOnNote() {
         Notification n = new Notification.Builder(this, CH3)
             .setSmallIcon(R.drawable.ic_stat)
             .setColor(0xFFE5484D)
+            .setGroup("jjugap-locon")   // 다른 알림과 묶이지 않게 (묶인 줄을 누르면 앱만 열려서)
             .setContentTitle("위치가 꺼져 기록이 멈췄어요")
             .setContentText("선상 모드 중인데 휴대폰 위치(GPS)가 꺼져 있어요 · 눌러서 켜기")
             .setStyle(new Notification.BigTextStyle().bigText("선상 모드 중인데 휴대폰 위치(GPS)가 꺼져 있어서 포인트 저장·자동 기록이 안 돼요. 눌러서 위치를 켜 주세요."))
@@ -255,6 +264,7 @@ public class TrackService extends Service implements LocationListener {
         Notification n = new Notification.Builder(this, CH3)
             .setSmallIcon(R.drawable.ic_stat)
             .setColor(0xFF2F7DF6)
+            .setGroup("jjugap-locoff")  // 다른 알림과 묶이지 않게 (묶인 줄을 누르면 앱만 열려서)
             .setContentTitle("선상 모드가 끝났어요 · 위치를 꺼 주세요")
             .setContentText("눌러서 맨 위 스위치('사용 중')를 끄고 돌아오세요")
             .setStyle(new Notification.BigTextStyle().bigText("오늘 켠 휴대폰 위치(GPS)가 아직 켜져 있어요. 눌러서 다음 화면 맨 위 스위치('사용 중')를 끄고 뒤로 돌아오세요."))
