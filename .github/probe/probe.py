@@ -4,8 +4,8 @@
 - 두 단계: 멀리 볼 때(0) · 가까이 볼 때(1)
 - 방조제 안 호수·저수지·큰 강(W), 섬·만·호수 이름(lab) — Geofabrik 한국 추출본
 """
-import json, os, subprocess, sys, time, importlib, site, traceback, math, re, gzip
-OUT = 'probe-out/basemap'; os.makedirs(OUT, exist_ok=True)
+import json, os, subprocess, sys, time, importlib, site, traceback, math, re, gzip, multiprocessing as mp
+OUT = 'probe-out/basemap2'; os.makedirs(OUT, exist_ok=True)
 BIG = (118.0, 30.0, 134.0, 44.5)                              # 주변국 해안까지 (멀리 볼 때 지도가 잘려 보이지 않게)
 FINE = [(124.0, 33.0, 131.0, 38.75), (130.5, 37.0, 132.0, 37.75)]   # 자세히: 남한 바다 전체 · 울릉도·독도
 LON0, LAT0, Q = 118.0, 30.0, 100000
@@ -30,7 +30,7 @@ try:
     from shapely.geometry import shape, box
     from shapely import STRtree, clip_by_rect, union_all
     from shapely.ops import polylabel
-    say(f'shapely {shapely.__version__}')
+    say(f'shapely {shapely.__version__} · 코어 {os.cpu_count()}')
 
     # ---------- 1) 육지 조각 받기
     sh('wget -q https://osmdata.openstreetmap.de/download/land-polygons-split-4326.zip -O land.zip && unzip -q -o land.zip')
@@ -40,7 +40,7 @@ try:
     for l in open('land.geojsonseq'):
         l = l.strip().strip('\x1e')
         if l: pieces.append(shape(json.loads(l)['geometry']))
-    tree = STRtree(pieces)
+    say('육지 받기 끝'); tree = STRtree(pieces)
     say(f'육지 조각 {len(pieces)}개, 점 {sum(shapely.get_num_coordinates(p) for p in pieces)}')
 
     # ---------- 2) 칸마다: 조각을 칸으로 자르고 합친 뒤, 칸 경계 점은 고정한 채 단순화
@@ -76,20 +76,23 @@ try:
         out += d.flatten().tolist()
         return out, len(q)
 
+    def sides_of(xy, bb, e=1e-9):
+        x, y = xy[:, 0], xy[:, 1]
+        return ((np.abs(x - bb[0]) < e) * 1 | (np.abs(x - bb[2]) < e) * 2 | (np.abs(y - bb[1]) < e) * 4 | (np.abs(y - bb[3]) < e) * 8).astype(np.int64)
+
     def ring_simplify(coords, bb, tol):
         """닫힌 고리 → (단순화한 점들, 각 점의 경계 표시). 칸 경계 위 점은 고정"""
         xy = np.asarray(coords)[:-1, :2]
-        sides = [on_side(p, bb) for p in xy]
-        fixed = [i for i, s in enumerate(sides) if s]
-        if fixed:   # 경계 점에서 시작하게 돌려서, 고리를 열린 선으로 단순화
-            r0 = fixed[0]; xy = np.roll(xy, -r0, axis=0); sides = sides[r0:] + sides[:r0]
-            fixed = [(i - r0) % len(xy) for i in fixed]
+        fixed = np.flatnonzero(sides_of(xy, bb))
+        if len(fixed):   # 경계 점에서 시작하게 돌려서, 고리를 열린 선으로 단순화
+            r0 = int(fixed[0]); xy = np.roll(xy, -r0, axis=0)
+            fixed = (fixed - r0) % len(xy)
             line = np.vstack([xy, xy[:1]]); s = dp(line, tol, fixed)[:-1]
         else:       # 칸 안에 오롯이 있는 섬: 반으로 나눠 단순화
             h = len(xy) // 2
             if len(xy) < 4: s = xy
             else: s = np.vstack([dp(xy[:h + 1], tol, [])[:-1], dp(np.vstack([xy[h:], xy[:1]]), tol, [])[:-1]])
-        return s, [on_side(p, bb) for p in s]
+        return s, sides_of(s, bb).tolist()
 
     def coast_runs(s, sd):
         """단순화한 고리에서 칸 경계를 따라가는 마디를 빼고 남은 해안선 조각들 (열린 선)"""
@@ -110,10 +113,11 @@ try:
         if cur is not None and len(cur) >= 2: runs.append(np.asarray(cur))
         return runs
 
-    def build_level(lv):
+    def build_col(arg):
+        lv, ix = arg
         P = LV[lv]; cs = P['cell']; Lp, Kp, npt = [], [], 0
-        nx = int(round((BIG[2] - BIG[0]) / cs)); ny = int(round((BIG[3] - BIG[1]) / cs))
-        for ix in range(nx):
+        ny = int(round((BIG[3] - BIG[1]) / cs))
+        if True:
             for iy in range(ny):
                 bb = (BIG[0] + ix * cs, BIG[1] + iy * cs, BIG[0] + (ix + 1) * cs, BIG[1] + (iy + 1) * cs)
                 hits = tree.query(box(*bb))
@@ -131,7 +135,7 @@ try:
                     for k, ring in enumerate([pg.exterior] + list(pg.interiors)):
                         c = np.asarray(ring.coords)
                         x0, y0 = c[:, 0].min(), c[:, 1].min(); x1, y1 = c[:, 0].max(), c[:, 1].max()
-                        touches = any(on_side(p, bb) for p in c)
+                        touches = bool(sides_of(c, bb).any())
                         if not touches and math.hypot((x1 - x0) * KX, y1 - y0) < mind:
                             if k == 0: break          # 작은 섬은 통째로 뺀다
                             continue                  # 작은 구멍(호수)은 뺀다
@@ -145,9 +149,13 @@ try:
         return Lp, Kp, npt
 
     L, K = [], []
+    NC = os.cpu_count() or 2
     for lv in (0, 1):
-        Lp, Kp, n = build_level(lv); L.append(Lp); K.append(Kp)
-        say(f'단계 {lv}: 땅 조각 {len(Lp)} · 해안선 {len(Kp)} · 점 {n}')
+        nx = int(round((BIG[2] - BIG[0]) / LV[lv]['cell'])); Lp, Kp, n = [], [], 0
+        with mp.get_context('fork').Pool(NC) as pool:
+            for a, b, c in pool.imap(build_col, [(lv, ix) for ix in range(nx)]): Lp += a; Kp += b; n += c
+        L.append(Lp); K.append(Kp)
+        say(f'단계 {lv}: 땅 조각 {len(Lp)} · 해안선 {len(Kp)} · 점 {n} (코어 {NC})')
 
     # ---------- 3) 한국 OSM: 호수·저수지·큰 강, 섬·만 이름
     sh('wget -q https://download.geofabrik.de/asia/south-korea-latest.osm.pbf -O kr.pbf')
