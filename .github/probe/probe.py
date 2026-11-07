@@ -5,7 +5,7 @@
 - 방조제 안 호수·저수지·큰 강(W), 섬·만·호수 이름(lab) — Geofabrik 한국 추출본
 """
 import json, os, subprocess, sys, time, importlib, site, traceback, math, re, gzip, multiprocessing as mp
-OUT = 'probe-out/basemap2'; os.makedirs(OUT, exist_ok=True)
+OUT = 'probe-out/basemap3'; os.makedirs(OUT, exist_ok=True)
 BIG = (118.0, 30.0, 134.0, 44.5)                              # 주변국 해안까지 (멀리 볼 때 지도가 잘려 보이지 않게)
 FINE = [(124.0, 33.0, 131.0, 38.75), (130.5, 37.0, 132.0, 37.75)]   # 자세히: 남한 바다 전체 · 울릉도·독도
 LON0, LAT0, Q = 118.0, 30.0, 100000
@@ -16,8 +16,9 @@ LV = {   # 칸 크기(도), 자세한 곳/거친 곳 단순화(도), 작은 섬 
 }
 log = []
 def sh(c):
+    t = time.time(); print(f'$ {c[:140]}', flush=True)
     r = subprocess.run(c, shell=True, capture_output=True, text=True)
-    log.append(f'$ {c[:140]} → {r.returncode} {(r.stdout + r.stderr)[-400:]}'); return r.returncode
+    log.append(f'$ {c[:140]} → {r.returncode} ({time.time() - t:.0f}s) {(r.stdout + r.stderr)[-400:]}'); print(log[-1], flush=True); return r.returncode
 def say(m): log.append(f'[{time.time() - T0:.0f}s] {m}'); print(log[-1], flush=True)
 in_fine = (lambda x, y: any(a <= x <= c and b <= y <= d for a, b, c, d in FINE))
 T0 = time.time()
@@ -33,9 +34,11 @@ try:
     say(f'shapely {shapely.__version__} · 코어 {os.cpu_count()}')
 
     # ---------- 1) 육지 조각 받기
-    sh('wget -q https://osmdata.openstreetmap.de/download/land-polygons-split-4326.zip -O land.zip && unzip -q -o land.zip')
+    sh('timeout 1800 wget -q --timeout=60 --tries=5 https://osmdata.openstreetmap.de/download/land-polygons-split-4326.zip -O land.zip; ls -la land.zip')
+    sh('unzip -q -o land.zip')
     shp = subprocess.run('ls land-polygons-split-4326/*.shp', shell=True, capture_output=True, text=True).stdout.strip()
     sh(f'ogr2ogr -f GeoJSONSeq -spat {BIG[0]} {BIG[1]} {BIG[2]} {BIG[3]} land.geojsonseq {shp}')
+    say(f'잘라낸 파일 {os.path.getsize("land.geojsonseq") // 1048576} MB')
     pieces = []
     for l in open('land.geojsonseq'):
         l = l.strip().strip('\x1e')
