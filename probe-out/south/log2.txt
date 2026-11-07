@@ -8,3 +8,4 @@
 [653s] 2100/3780 · 응답 {'00': 2113, 'URLError': 59, 'HTTPError': 5, 'TimeoutError': 4}
 [744s] 2400/3780 · 응답 {'00': 2499, 'URLError': 66, 'HTTPError': 5, 'TimeoutError': 4}
 [807s] 2700/3780 · 응답 {'00': 2805, 'URLError': 68, 'HTTPError': 5, 'TimeoutError': 4}
+[885s] 3000/3780 · 응답 {'00': 3087, 'URLError': 75, 'HTTPError': 5, 'TimeoutError': 4}
