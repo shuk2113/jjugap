@@ -4852,6 +4852,7 @@ const TideHarm = (() => {
       if (!onBoard || !board) return;
       natFixes(); if (!onBoard) return;
       const now = Date.now();
+      if (now - (board.seen || 0) > 60000) { board.seen = now; saveBoard(); }   // 살아 있던 때 (다시 열었을 때 이어서 켤지 판단)
       if (!board.sea && now - board.since >= NOSEA_MS) return boardOff('바다에 나가지 않은 채 3시간이 지나 선상 모드를 껐어요');
       if (board.sea && board.portFrom && now - board.portFrom >= PORT_MS) return boardOff('항구에 돌아와 30분이 지나 선상 모드를 껐어요');
     }
@@ -4919,11 +4920,26 @@ const TideHarm = (() => {
       mainToastEl.textContent = t; mainToastEl.hidden = false; clearTimeout(mainToastT); mainToastT = setTimeout(() => { mainToastEl.hidden = true; }, 4000);
     }
     document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && mainToastWait) { const t = mainToastWait; mainToastWait = ''; setTimeout(() => mainToast(t), 400); } });
-    // 앱을 다시 열었을 때 선상 모드가 켜져 있었으면 이어서 (18시간 넘은 것은 버린다)
+    // 앱을 다시 열었을 때: 선상 모드가 정말 아직 켜져 있을 때만 이어서 (사용자가 켜지 않았는데 저절로 켜지지 않게)
+    // - 안드로이드 앱: 위치 기록 서비스가 지금도 돌고 있을 때만 (알림줄에서 껐거나 앱이 닫혀 서비스가 멈췄으면 이어서 켜지 않는다)
+    // - 웹: 화면이 잠깐 새로 열린 경우만 (마지막으로 살아 있던 때가 20분 안)
     try {
       const b = JSON.parse(localStorage.getItem(BOARD_KEY) || 'null');
-      if (b && b.since && Date.now() - b.since < 18 * 3600000) { board = b; setTimeout(() => { if (!onBoard) boardOn(); }, 0); }
-      else localStorage.removeItem(BOARD_KEY);
+      if (b && b.since && Date.now() - b.since < 18 * 3600000) {
+        const N = window.JjugapNative; let live = false; if (N) { try { live = N.isTracking(); } catch (_) {} }
+        const ago = Date.now() - (b.seen || b.since);
+        if (N ? live : ago < 20 * 60000) { board = b; setTimeout(() => { if (!onBoard) boardOn(); }, 0); }
+        else {
+          localStorage.removeItem(BOARD_KEY);
+          // 그사이 끝난 출조: 오늘 다녀온 기록이 있으면 '오늘 출조 정리'를, 없으면 꺼져 있다고만 알려 준다
+          let pend = false;
+          try {
+            const tr = tripGroups().list.find(t => kstDay(t.pts[t.pts.length - 1].t) === kstDay(Date.now()));
+            if (tr && (b.sea || tr.pts.some(p => p.t >= b.since)) && !(sums()[tr.key] && sums()[tr.key].t > b.since)) { saveJ(SUM_PEND, { k: tr.key, at: Date.now() }); pend = true; }
+          } catch (_) {}
+          if (!pend && ago < 60 * 60000) setTimeout(() => mainToast('선상 모드가 꺼져 있어요. 다시 켜려면 ‘선상 모드’를 눌러 주세요'), 900);
+        }
+      } else localStorage.removeItem(BOARD_KEY);
     } catch (_) {}
     // 새 버전으로 화면을 새로 열기 직전에 선상 모드 지도가 열려 있었으면 다시 연다 (지도가 저절로 닫힌 채 단추만 켜져 있지 않게)
     window.jjugapMapOpen = () => isOpen && !viewMode && mode !== 'pick';
@@ -5007,7 +5023,8 @@ const TideHarm = (() => {
       else { pendingSave = true; toast('위치를 찾는 중이에요. 잡히면 바로 저장 화면이 열려요'); }
     }
     const act0 = new URLSearchParams(location.search).get('act');
-    if (NAT && !onBoard) { try { if (NAT.isTracking()) setTimeout(boardOn, 0); } catch (_) {} }
+    // 위치 기록 서비스는 돌고 있는데 선상 모드 기록이 없거나 너무 오래된 경우(하루 가까이 켜 둔 채 잊음): 이어서 켜지 말고 끈다
+    if (NAT && !onBoard && !board) { try { if (NAT.isTracking()) { NAT.setMapOpen(false); setTimeout(() => mainToast('선상 모드가 너무 오래 켜져 있어서 껐어요'), 900); } } catch (_) {} }
     if (act0 === 'save' || act0 === 'map') { try { history.replaceState(history.state, '', location.pathname + location.hash); } catch (_) {} setTimeout(() => quickAct(act0), 0); }
     if ('serviceWorker' in navigator) navigator.serviceWorker.addEventListener('message', e => { const a = e.data && e.data.jjugap; if (a === 'save' || a === 'map') quickAct(a); });
     window.jjugapAct = a => { if (a === 'save' || a === 'map') quickAct(a); };
@@ -5607,7 +5624,7 @@ const TideHarm = (() => {
 
 <script>
 if ('serviceWorker' in navigator) addEventListener('load', () => {
-  const sw = navigator.serviceWorker, VER = '26bf02ac'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
+  const sw = navigator.serviceWorker, VER = 'b9addf60'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
   // 화면에 손을 대기 시작했는지 (쓰는 중에는 새로 열지 않으려고)
   ['pointerdown', 'keydown'].forEach(t => addEventListener(t, () => { touched = true; }, { capture: true, passive: true }));
   const reload = () => {
