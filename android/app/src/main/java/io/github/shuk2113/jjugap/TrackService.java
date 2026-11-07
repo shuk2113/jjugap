@@ -248,13 +248,16 @@ public class TrackService extends Service implements LocationListener {
 
     /** 선상 모드가 끝났다 · 그날 앱이 켜 준 위치를 꺼 달라고 (앱 화면을 안 보고 있을 때) */
     void offNote(NotificationManager nm) {
-        PendingIntent set = PendingIntent.getActivity(this, 8, Loc.settings(), PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
+        // 앱을 거쳐 설정 화면으로 (끄고 뒤로 오면 앱이 '위치를 껐어요'라고 알려 준다)
+        Intent go = new Intent(this, MainActivity.class).putExtra("locoff", true)
+            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        PendingIntent set = PendingIntent.getActivity(this, 8, go, PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
         Notification n = new Notification.Builder(this, CH3)
             .setSmallIcon(R.drawable.ic_stat)
             .setColor(0xFF2F7DF6)
             .setContentTitle("선상 모드가 끝났어요 · 위치를 꺼 주세요")
-            .setContentText("오늘 켠 휴대폰 위치(GPS)가 아직 켜져 있어요 · 눌러서 끄기")
-            .setStyle(new Notification.BigTextStyle().bigText("오늘 켠 휴대폰 위치(GPS)가 아직 켜져 있어요. 배터리를 아끼려면 눌러서 '위치'를 꺼 주세요."))
+            .setContentText("눌러서 맨 위 스위치('사용 중')를 끄고 돌아오세요")
+            .setStyle(new Notification.BigTextStyle().bigText("오늘 켠 휴대폰 위치(GPS)가 아직 켜져 있어요. 눌러서 다음 화면 맨 위 스위치('사용 중')를 끄고 뒤로 돌아오세요."))
             .setAutoCancel(true)
             .setContentIntent(set)
             .addAction(new Notification.Action.Builder(null, "위치 끄기", set).build())

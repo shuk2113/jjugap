@@ -20,6 +20,7 @@ import android.webkit.WebResourceRequest;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.Toast;
 
 import com.google.android.gms.common.api.ResolvableApiException;
 import com.google.android.gms.location.LocationRequest;
@@ -43,6 +44,7 @@ public class MainActivity extends Activity {
     String geoOrigin;
     boolean mapOpen;
     boolean askingLoc, sentLocOn;   // 위치 켜기 창을 띄운 중 · 위치 켜러 설정 화면에 보냄
+    boolean sentLocOff, leftForOff; // 위치 끄러 설정 화면에 보냄 · 실제로 그 화면으로 넘어갔다 (돌아오면 껐는지 알려 준다)
     long locNoAt;                    // '위치 켜기'를 마다한 때 (10분 동안은 앱에 돌아올 때마다 다시 묻지 않는다)
     AlertDialog offAsk;
 
@@ -96,6 +98,8 @@ public class MainActivity extends Activity {
         web.loadUrl(HOME + (act != null ? "?act=" + act : ""));
         if ("update".equals(getIntent().getStringExtra("act"))) Updater.start(this);
         if (getIntent().getBooleanExtra("locon", false)) web.postDelayed(this::askLocationOn, 1200);
+        if (getIntent().getBooleanExtra("locoff", false)) goLocOff();
+        getIntent().removeExtra("locon"); getIntent().removeExtra("locoff");   // 화면을 다시 만들 때 또 열리지 않게
     }
 
     @Override
@@ -104,6 +108,7 @@ public class MainActivity extends Activity {
         setIntent(i);
         if ("update".equals(i.getStringExtra("act"))) { Updater.start(this); return; }
         if (i.getBooleanExtra("locon", false) && web != null) web.postDelayed(this::askLocationOn, 600);
+        if (i.getBooleanExtra("locoff", false)) { i.removeExtra("locoff"); goLocOff(); return; }
         String act = actOf(i);
         if (act != null && web != null) {
             web.evaluateJavascript("window.jjugapAct ? jjugapAct('" + act + "') : location.replace('" + HOME + "?act=" + act + "')", null);
@@ -120,6 +125,12 @@ public class MainActivity extends Activity {
     protected void onResume() {
         super.onResume();
         Updater.resume(this);   // '이 출처 허용'을 켜고 돌아오면 이어서 업데이트
+        if (sentLocOff && leftForOff) {   // 위치를 끄러 설정 화면에 갔다 돌아옴
+            sentLocOff = leftForOff = false;
+            boolean off = !Loc.on(this);
+            Toast.makeText(this, off ? "위치를 껐어요" : "위치가 아직 켜져 있어요", Toast.LENGTH_SHORT).show();
+            Log.i("jjugap", off ? "loc off done" : "loc still on");
+        }
         if (sentLocOn) {   // 위치를 켜러 설정 화면에 갔다 돌아옴
             sentLocOn = false;
             if (Loc.on(this)) { Loc.markHelped(this); locOnNow(); }
@@ -130,6 +141,7 @@ public class MainActivity extends Activity {
     @Override
     protected void onStop() {
         super.onStop();
+        if (sentLocOff) leftForOff = true;
         TrackService.setAppVisible(false);
     }
 
@@ -283,10 +295,16 @@ public class MainActivity extends Activity {
         if (offAsk != null && offAsk.isShowing()) return;
         offAsk = new AlertDialog.Builder(this)
             .setTitle("위치를 끌까요?")
-            .setMessage("선상 모드가 끝났어요. 오늘 켠 휴대폰 위치(GPS)가 아직 켜져 있어요. 배터리를 아끼려면 다음 화면에서 '위치'를 꺼 주세요.")
-            .setPositiveButton("위치 끄기", (d, w) -> Loc.openSettings(this))
+            .setMessage("선상 모드가 끝났어요. 오늘 켠 휴대폰 위치(GPS)가 아직 켜져 있어요.\n\n'위치 끄기'를 누른 뒤, 다음 화면 맨 위 스위치('사용 중')를 끄고 뒤로 돌아오세요.")
+            .setPositiveButton("위치 끄기", (d, w) -> goLocOff())
             .setNegativeButton("그대로 두기", null)
             .show();
+    }
+
+    /** 위치를 끄러 설정 화면으로 (돌아오면 껐는지 알려 준다) */
+    void goLocOff() {
+        sentLocOff = true; leftForOff = false;
+        if (!Loc.openSettings(this)) sentLocOff = false;
     }
 
     /** 웹 앱에서 부르는 것들 (window.JjugapNative) */

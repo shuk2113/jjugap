@@ -99,6 +99,16 @@ adb shell input keyevent KEYCODE_HOME; sleep 4
 adb shell cmd statusbar expand-notifications; sleep 4
 for k in 1 2 3 4; do tapText "^선상 모드 끄기\|" n13-$k && break; tapExpand "선상 모드 켜짐" e13-$k; sleep 2; done
 sleep 5; adb shell cmd statusbar collapse; sleep 2; adb shell cmd statusbar expand-notifications; sleep 4; shot 13-end-noti
+# 그 알림을 누르면 → 위치 설정 화면 → (끄고) 뒤로 → 앱이 '위치를 껐어요'
+for k in 1 2 3; do
+  F=$(adb shell dumpsys window | grep -m1 mCurrentFocus); echo "focus $F" | tee -a "$OUT/loc.txt"
+  echo "$F" | grep -qi settings && break
+  tapText "선상 모드가 끝났어요" n13t-$k || tapExpand "선상 모드가 끝났어요" e13t-$k
+  sleep 4
+done
+shot 13b-settings
+adb shell cmd location set-location-enabled false; sleep 2
+adb shell input keyevent KEYCODE_BACK; sleep 1; shot 13c-toast
 adb shell cmd statusbar collapse; sleep 2
 # (1) 위치를 끈 채 선상 모드를 켜면 → 바로 '위치 켜기' 창 → 확인 → 앱 화면에서 끄면 '위치를 끌까요?' 창
 adb shell cmd location set-location-enabled false; sleep 4
@@ -113,7 +123,9 @@ for k in 1 2 3; do tapText "\|mv-off$" w16-$k && break; sleep 3; done
 [ -z "$XY" ] && { XY="999 200"; echo "mv-off 글자를 못 읽어 자리로 누름 $XY" | tee -a "$OUT/loc.txt"; adb shell input tap $XY; }   # 지도 윗줄 오른쪽 끝 (pixel 6)
 sleep 1; adb shell input tap $XY   # 한 번 더 눌러 확인 (끄기 단추는 실수로 꺼지지 않게 두 번)
 sleep 5; shot 16-end-dialog
-adb shell input keyevent KEYCODE_BACK; sleep 2
+# '위치 끄기' → 설정 화면 → 끄지 않고 뒤로 → '위치가 아직 켜져 있어요' · 다시 → 끄고 뒤로 → '위치를 껐어요'
+tapText "^위치 끄기\|" d16 && { sleep 4; shot 17-settings; adb shell input keyevent KEYCODE_BACK; sleep 1; shot 18-still-on; }
+adb shell cmd location set-location-enabled false; sleep 2
 adb logcat -d -s jjugap:I | grep -E "loc |locon" >> "$OUT/loc.txt"
 # 앱 안에서 업데이트: 같은 파일을 받아 설치 화면을 여는지
 adb shell appops set $P REQUEST_INSTALL_PACKAGES allow
