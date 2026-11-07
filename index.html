@@ -46,7 +46,7 @@
     --calm:#45C59A; --mid:#EDB43C; --strong:#F2745C;
     --calm-soft:rgba(69,197,154,.16); --mid-soft:rgba(237,180,60,.16); --strong-soft:rgba(242,116,92,.16);
     --sat:#7AA2F0; --sun:#F2745C; --hi:#7FB2EE; --lo:#EACB52; --moon-ic:#E8D9A8;
-  --map-sea:#2B4766; --map-shallow:rgba(255,200,180,.08); --map-land:#86685A; --map-shade:rgba(0,0,0,.16); --map-coast:#C69C80; --map-flat:#3A4E62; --map-isl:#F6DED0; --map-bay:#B5CCF0; --map-lab:#F7E6DA; --map-cur:#FFB89A;
+  --map-sea:#2B4A55; --map-shallow:rgba(170,222,230,.12); --map-land:#5A574D; --map-shade:rgba(0,0,0,.16); --map-coast:#86816F; --map-flat:#2E4A4C; --map-isl:#DAD9CF; --map-bay:#A3D8E0; --map-lab:#D3DEDA; --map-cur:#8EE3E8;
     color-scheme:dark;
   }
 }
@@ -60,7 +60,7 @@
   --calm:#45C59A; --mid:#EDB43C; --strong:#F2745C;
   --calm-soft:rgba(69,197,154,.16); --mid-soft:rgba(237,180,60,.16); --strong-soft:rgba(242,116,92,.16);
   --sat:#7AA2F0; --sun:#F2745C; --hi:#7FB2EE; --lo:#EACB52; --moon-ic:#E8D9A8;
-  --map-sea:#2B4766; --map-shallow:rgba(255,200,180,.08); --map-land:#86685A; --map-shade:rgba(0,0,0,.16); --map-coast:#C69C80; --map-flat:#3A4E62; --map-isl:#F6DED0; --map-bay:#B5CCF0; --map-lab:#F7E6DA; --map-cur:#FFB89A;
+  --map-sea:#2B4A55; --map-shallow:rgba(170,222,230,.12); --map-land:#5A574D; --map-shade:rgba(0,0,0,.16); --map-coast:#86816F; --map-flat:#2E4A4C; --map-isl:#DAD9CF; --map-bay:#A3D8E0; --map-lab:#D3DEDA; --map-cur:#8EE3E8;
   color-scheme:dark;
 }
 /* 앱 안의 모드 전환 버튼으로 고른 모드가 기기·뷰어 설정보다 우선한다 (기본은 다크) */
@@ -74,7 +74,7 @@ html:root[data-app="dark"]{
   --calm:#45C59A; --mid:#EDB43C; --strong:#F2745C;
   --calm-soft:rgba(69,197,154,.16); --mid-soft:rgba(237,180,60,.16); --strong-soft:rgba(242,116,92,.16);
   --sat:#7AA2F0; --sun:#F2745C; --hi:#7FB2EE; --lo:#EACB52; --moon-ic:#E8D9A8;
-  --map-sea:#2B4766; --map-shallow:rgba(255,200,180,.08); --map-land:#86685A; --map-shade:rgba(0,0,0,.16); --map-coast:#C69C80; --map-flat:#3A4E62; --map-isl:#F6DED0; --map-bay:#B5CCF0; --map-lab:#F7E6DA; --map-cur:#FFB89A;
+  --map-sea:#2B4A55; --map-shallow:rgba(170,222,230,.12); --map-land:#5A574D; --map-shade:rgba(0,0,0,.16); --map-coast:#86816F; --map-flat:#2E4A4C; --map-isl:#DAD9CF; --map-bay:#A3D8E0; --map-lab:#D3DEDA; --map-cur:#8EE3E8;
   color-scheme:dark;
 }
 html:root[data-app="light"]{
@@ -5028,7 +5028,7 @@ const TideHarm = (() => {
 
 <script>
 if ('serviceWorker' in navigator) addEventListener('load', () => {
-  const sw = navigator.serviceWorker, VER = '85541965'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
+  const sw = navigator.serviceWorker, VER = '217c79c5'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
   // 화면에 손을 대기 시작했는지 (쓰는 중에는 새로 열지 않으려고)
   ['pointerdown', 'keydown'].forEach(t => addEventListener(t, () => { touched = true; }, { capture: true, passive: true }));
   const reload = () => {
