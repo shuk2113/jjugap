@@ -899,12 +899,12 @@ a.mv-row-btn{text-decoration:none; gap:10px} .mv-row-btn span{font-size:calc(20p
     <div class="sh-title">출항지 고르기</div>
     <button class="sh-x" id="st-x" type="button" aria-label="닫기"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 3.5l9 9M12.5 3.5l-9 9" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
   </div>
-  <div class="st-search"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M15.5 15.5l5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><input id="st-q" type="search" placeholder="항·포구 이름 (예: 대천항)" autocomplete="off" enterkeyhint="search" aria-label="출항지 이름으로 찾기"><button id="st-q-x" type="button" aria-label="검색어 지우기" hidden>×</button></div>
+  <div class="st-search"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M15.5 15.5l5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><input id="st-q" type="search" placeholder="항·포구 이름 (예: 대천항, 국동항)" autocomplete="off" enterkeyhint="search" aria-label="출항지 이름으로 찾기"><button id="st-q-x" type="button" aria-label="검색어 지우기" hidden>×</button></div>
   <button class="st-gps" id="st-gps" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="7" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="2.6" fill="currentColor"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span>내 위치에서 가장 가까운 곳</span></button>
   <p class="st-gps-msg" id="st-gps-msg" aria-live="polite" hidden></p>
   <div class="st-list" id="st-list"></div>
   <button class="st-pick" id="st-pick" type="button">목록에 없나요? <b>지도에서 직접 고르기</b></button>
-  <p class="st-note">고른 곳의 국립해양조사원 예보에 맞춘 계산이에요. 검색·지도로 고른 곳은 해양조사원 바다 격자(TideBED)로 그 자리 물때를 계산하고, 바람·파도·수온은 가까운 기본 출항지 값을 써요. 물때(몇 물)는 음력이라 어디서나 같아요.</p>
+  <p class="st-note">고른 곳의 국립해양조사원 예보에 맞춘 계산이에요. 항·포구는 해양조사원 바다 격자(TideBED)로 그 자리 물때를 계산하고, 바람·파도는 가장 가까운 바다 예보 지점, 수온은 가까운 관측소 값을 써요. 물때(몇 물)는 음력이라 어디서나 같아요.</p>
 </div>
 
 <script>
@@ -1151,7 +1151,7 @@ const TideHarm = (() => {
   const R = Math.PI / 180;
   // 출항지: 고른 곳은 이 폰에 기억. 조류 100%는 지점마다 2년 치 계산값의 상위 0.5%(사리 때 가장 센 시간)
   // 검색·지도로 고른 출항지 (이 폰에 저장): 해양조사원 TideBED 격자로 만든 조화상수를 함께 저장해 두어 인터넷 없이도 계산한다.
-  // 바람·파도·수온은 가장 가까운 기본 출항지의 바다 예보를 쓴다(wx).
+  // 바람·파도·수온은 가장 가까운 바다 예보 지점·관측소 값을 쓴다 (wxOf).
   const CUSTOM_KEY = 'jjukgap-custom-ports', DEFS_KEY = 'jjukgap-spot-defs';
   let customPorts = [], spotDefs = null;
   try { customPorts = JSON.parse(localStorage.getItem(CUSTOM_KEY) || '[]') || []; spotDefs = JSON.parse(localStorage.getItem(DEFS_KEY) || 'null'); } catch (_) { customPorts = []; }
@@ -1163,13 +1163,66 @@ const TideHarm = (() => {
   }
   customPorts = customPorts.filter(registerCustom);
   const saveCustom = () => { try { localStorage.setItem(CUSTOM_KEY, JSON.stringify(customPorts)); } catch (_) {} };
-  const wxOf = k => (TideHarm.STATIONS[k] && TideHarm.STATIONS[k].wx) || k;
+  // 그 출항지의 바다 날씨·수온 자료: 예전 기본 출항지는 제 이름 자료, 나머지는 자료(weather.json)의 예보 지점 가운데 가장 가까운 곳
+  const wxNear = new Map();
+  const wxOf = k => {
+    const S = TideHarm.STATIONS[k]; if (!S) return k;
+    const st = typeof WX !== 'undefined' && WX && WX.stations;
+    if (!st) return S.wx || k;
+    if (!S.custom && st[k]) return k;
+    const ck = k + '|' + (WX.generated || '');
+    if (wxNear.has(ck)) return wxNear.get(ck);
+    let best = S.wx && st[S.wx] ? S.wx : k, bd = Infinity;
+    const r = Math.PI / 180, cand = [];
+    for (const key in st) { const q = st[key].pos; if (q) cand.push([key, q[0], q[1]]); }
+    for (const key in (WX.pts || {})) cand.push([key, WX.pts[key][1], WX.pts[key][2]]);
+    for (const [key, la, lo] of cand) {
+      const h = Math.sin((la - S.lat) * r / 2) ** 2 + Math.cos(S.lat * r) * Math.cos(la * r) * Math.sin((lo - S.lon) * r / 2) ** 2, d = 12742 * Math.asin(Math.sqrt(h));
+      if (d < bd) { bd = d; best = key; }
+    }
+    wxNear.set(ck, best);
+    if (WX.pts && WX.pts[best] && !st[best]) loadWxPt(best);
+    return best;
+  };
+  // 해안 예보 지점 자료(data/wx/<지점>.json)는 그 지점을 쓸 때만 받는다. 받으면 날씨·수온을 다시 그린다
+  const wxPtP = new Map();
+  function loadWxPt(key) {
+    if (!WX || !WX.pts || !WX.pts[key] || (WX.stations && WX.stations[key])) return Promise.resolve();
+    const gen = WX.generated || '', pk = key + '|' + gen;
+    if (wxPtP.has(pk)) return wxPtP.get(pk);
+    const pr = fetch(`data/wx/${key}.json`, { cache: 'no-cache' }).then(r => (r.ok ? r.json() : null)).then(j => {
+      if (j && WX && WX.stations && (WX.generated || '') === gen) { WX.stations[key] = j; capFor = null; renderTide(); paintWx(); renderWxStrip(); renderCal(); }
+    }).catch(() => { wxPtP.delete(pk); });
+    wxPtP.set(pk, pr); return pr;
+  }
+  const wxName = key => (TideHarm.STATIONS[key] && TideHarm.STATIONS[key].name) || (typeof WX !== 'undefined' && WX && ((WX.stations && WX.stations[key] && WX.stations[key].name) || (WX.pts && WX.pts[key] && WX.pts[key][0]))) || '';
   const ST_KEYS = Object.keys(TideHarm.STATIONS).filter(k => !TideHarm.STATIONS[k].custom).sort((a, b) => TideHarm.STATIONS[b].lat - TideHarm.STATIONS[a].lat);
   let tideSt = 'incheon';
   try { const k = localStorage.getItem('jjukgap-station'); if (k && TideHarm.STATIONS[k]) tideSt = k; } catch (e) {}
+  // 최근 고른 출항지 (이 폰에 기억): 정해 둔 출항지 목록 없이, 사용자가 검색·지도·내 위치로 고른 곳만 보여 준다
+  const RECENT_KEY = 'jjukgap-recent-st';
+  let recentSt = null;
+  try { recentSt = JSON.parse(localStorage.getItem(RECENT_KEY) || 'null'); } catch (_) {}
+  if (!Array.isArray(recentSt)) recentSt = customPorts.map(c => c.k);   // 예전에 고른 곳들
+  recentSt = [tideSt, ...recentSt.filter(k => k !== tideSt)].filter(k => TideHarm.STATIONS[k]).slice(0, 12);
+  const saveRecent = () => { try { localStorage.setItem(RECENT_KEY, JSON.stringify(recentSt)); } catch (_) {} };
+  const touchRecent = k => { recentSt = [k, ...recentSt.filter(x => x !== k)].filter(x => TideHarm.STATIONS[x]).slice(0, 12); saveRecent(); };
+  const myStations = () => [...new Set([tideSt, ...recentSt])].filter(k => TideHarm.STATIONS[k]);   // 지도·추천에 보일 출항지
+  // 사리 때 물 높이 차(대략, 주태음반일주조+주태양반일주조 진폭의 두 배)
+  const springRange = S => { const a = c => { const x = S.cons.find(q => q[0] === c); return x ? Math.hypot(x[4], x[5]) : 0; }; return 2 * (a('M2') + a('S2')) / 100; };
   const flowRef = () => TideHarm.STATIONS[tideSt].ref;
   const FB = 78, FH = 12; // 시간 막대 아래 조류 띠의 기준선과 최대 높이
-  const SX0 = 12, SX1 = 348, SYT = 20, SYB = 60, HMIN = -50, HMAX = 1000;
+  const SX0 = 12, SX1 = 348, SYT = 20, SYB = 60, HMIN = -50;
+  // 물 높이 눈금의 위 끝(cm): 출항지마다 (서해 큰 곳 10m, 남해·제주는 4~5m) — 물이 차고 빠지는 게 잘 보이게
+  const lvTopC = new Map();
+  function lvTopOf(k) {
+    if (lvTopC.has(k)) return lvTopC.get(k);
+    const S = TideHarm.STATIONS[k]; let a = 0;
+    if (S && S.cons) for (const c of S.cons) a += Math.hypot(c[4], c[5]);
+    const top = S ? Math.min(1000, Math.max(400, Math.ceil(((S.z0 || 0) + a + 40) / 100) * 100)) : 1000;
+    lvTopC.set(k, top); return top;
+  }
+  let HMAX = 1000;
   const WXY = 108;        // 3시간 날씨 띠가 시작하는 높이
   const sx = min => SX0 + (SX1 - SX0) * min / 1440;
   const sy = h => SYB - (SYB - SYT) * (h - HMIN) / (HMAX - HMIN);
@@ -1212,6 +1265,7 @@ const TideHarm = (() => {
   let tMin = kstMin(Date.now()), followNow = true, dayEx = [], dayMaxRate = 1;
   const dayStartOf = n => n * DAY - 9 * 3600000;
   function renderTide() {
+    HMAX = lvTopOf(tideSt);
     const ex = TideHarm.extremes(tideSt, sel), pts = TideHarm.curve(tideSt, sel, 10), ds = dayStartOf(sel);
     dayEx = ex.map(e => ({ ...e, min: (e.ms - ds) / 60000 }));
     dayMaxRate = Math.max(...pts.slice(1).map((p, i) => Math.abs(p.h - pts[i].h) / 10)) || 1;
@@ -1237,7 +1291,7 @@ const TideHarm = (() => {
     if (sun.set != null) { const x = sx(sun.set), t = hm(sun.set); g += `<g class="sc-sunm" id="sc-set"><g class="sc-moon-ic">${MOON_IC(x, 7)}</g><text class="sc-sun-t" x="${(x - 7.5).toFixed(1)}" y="7.3" text-anchor="end">${t}</text></g>`; sunMarks.push({ id: 'sc-set', a: x - 8 - t.length * 4.6, b: x + 6 }); }
     $('scrub-plot').innerHTML = g;
     placeNow(); renderWxStrip();
-    if (capFor !== tideSt) { capFor = tideSt; $('scrub-cap').lastElementChild.textContent = `아래는 3시간 날씨(바람 m/s, 파도 m) · ${TideHarm.STATIONS[wxOf(tideSt)].name} 기준`; fitCap(); }
+    const capK = tideSt + '|' + (WX && WX.generated || ''); if (capFor !== capK) { capFor = capK; $('scrub-cap').lastElementChild.textContent = `아래는 3시간 날씨(바람 m/s, 파도 m) · ${TideHarm.STATIONS[wxOf(tideSt)] ? wxName(wxOf(tideSt)) : TideHarm.STATIONS[tideSt].name + ' 근처 바다'} 기준`; fitCap(); }
     const list = $('tide-list'), nowMs = Date.now();
     list.style.setProperty('--n', String(Math.max(3, dayEx.length)));
     list.innerHTML = dayEx.map(e => `<button class="ti ${e.type}${sel === today && e.ms <= nowMs ? ' past' : ''}" data-min="${e.min.toFixed(2)}" aria-label="${e.type === 'H' ? '만조' : '간조'} ${hhmm(e.min)} ${meters(e.h)}로 이동">`
@@ -1538,8 +1592,9 @@ const TideHarm = (() => {
       const r = await fetch('data/weather.json', { cache: 'no-cache' });
       if (!r.ok) throw new Error(r.status);
       WX = await r.json(); wxState = 'ok'; wxAt = Date.now();
+      await loadWxPt(wxOf(tideSt));   // 고른 출항지가 해안 예보 지점을 쓰면 그 자료도
     } catch (_) { if (!WX) wxState = 'error'; }
-    paintWx(); renderWxStrip(); renderCal();
+    capFor = null; renderTide(); paintWx(); renderWxStrip(); renderCal();
   }
   document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && Date.now() - wxAt > 20 * 60000) loadWx(); });
   // 시간 막대 조작: 톡 누르면 그 시각으로, 옆으로 밀면 따라가고, 만조·간조 근처에서 놓으면 그 시각에 착 붙는다
@@ -1837,9 +1892,9 @@ const TideHarm = (() => {
     let lifeT = { jj: 0.85, gap: 0.85 }, lifeLast = 0;
     // 조류 세기(0~1) → 낚시하기 알맞은 정도: 정조 0.7, 약~보통 1, 셀수록 낮아진다
     const flowFit = e => e < 0.08 ? 0.7 + 0.3 * (e / 0.08) : e <= 0.45 ? 1 : e <= 0.7 ? 1 - 0.45 * (e - 0.45) / 0.25 : Math.max(0.25, 0.55 - 0.3 * (e - 0.7) / 0.3);
-    const LV_MIN = -50, LV_MAX = 1000;
+    const LV_MIN = -50, LV_MAX = () => lvTopOf(tideSt);   // 출항지마다 (서해 10m · 남해·제주 4~5m)
     // 수면은 그림 높이의 33%(물 가장 높을 때)~68%(가장 낮을 때) 사이에서 오르내린다. 위쪽 하늘에 날씨 줄·배 깃발·수온 부표 이름표가 겹치지 않게
-    const surfOf = l => H * (0.33 + 0.35 * (1 - (l - LV_MIN) / (LV_MAX - LV_MIN)));
+    const surfOf = l => H * (0.33 + 0.35 * (1 - (l - LV_MIN) / (LV_MAX() - LV_MIN)));
     // 바닥: 대부분 깊은 바다이고, 오른쪽 40%만 낮고 완만한 갯벌로 올라간다 (물이 빠지면 오른쪽 끝이 드러난다)
     const bedOf = x => { const r = Math.max(0, Math.min(1, (x - W * 0.6) / (W * 0.4))); return H * 0.9 - Math.pow(r, 1.7) * H * 0.38 + 2 * Math.sin(x / 23); };
     // 하늘색: 해 높이에 따라 밤 → 노을 → 낮
@@ -2272,8 +2327,8 @@ const TideHarm = (() => {
       ctx.beginPath(); let on = false;
       for (let x = 0; x <= W + 6; x += 6) { const y = bedOf(x); if (y < surf - 1) { on ? ctx.lineTo(x, y) : ctx.moveTo(x, y); on = true; } else on = false; }
       ctx.strokeStyle = 'rgba(255,255,255,.28)'; ctx.lineWidth = 1.4; ctx.stroke();   // 드러난 갯벌의 젖은 윤기
-      // 물 높이 눈금 막대 (0~9m): 오른쪽 끝 물가에 (숫자가 잘리지 않는 가장 오른쪽)
-      const px = W * 0.86, pTop = surfOf(950) - 6, pBot = bedOf(px) + 6;
+      // 물 높이 눈금 막대 (서해 0~9m · 남해 0~3m 등): 오른쪽 끝 물가에 (숫자가 잘리지 않는 가장 오른쪽)
+      const lvTop = LV_MAX(), px = W * 0.86, pTop = surfOf(lvTop - 50) - 6, pBot = bedOf(px) + 6;
       // 지그(애기) 위치를 미리 구해 바닥 친구들이 다가갈 수 있게
       const bx0 = Math.min(W * 0.24, 130), by0 = waveY(bx0), ang0 = Math.max(-0.26, Math.min(0.26, Math.atan((waveY(bx0 + 8) - waveY(bx0 - 8)) / 16) * 0.8));
       const tx0 = bx0 + Math.cos(ang0) * 60 + Math.sin(ang0) * 44, drift0 = dir * eff * Math.min(W * 0.42, 230);
@@ -2282,8 +2337,8 @@ const TideHarm = (() => {
       ctx.fillStyle = C.hull; ctx.strokeStyle = C['hull-line']; ctx.lineWidth = 1;
       ctx.beginPath(); ctx.rect(px - 3, pTop, 6, pBot - pTop); ctx.fill(); ctx.stroke();
       ctx.font = `700 10px ${C.font}`; ctx.textBaseline = 'middle';
-      for (let m = 0; m <= 9; m++) {
-        const y = surfOf(m * 100), big = m % 3 === 0;
+      for (let m = 0; m <= lvTop / 100 - 1; m++) {
+        const y = surfOf(m * 100), big = lvTop >= 900 ? m % 3 === 0 : true;
         ctx.strokeStyle = C['hull-line']; ctx.lineWidth = big ? 1.6 : 1;
         ctx.beginPath(); ctx.moveTo(px - 3, y); ctx.lineTo(px - (big ? 10 : 7), y); ctx.stroke();
         if (big) { ctx.lineWidth = 3; ctx.strokeStyle = 'rgba(0,0,0,.5)'; ctx.strokeText(`${m}m`, px + 6, y); ctx.fillStyle = '#FFFFFF'; ctx.fillText(`${m}m`, px + 6, y); }
@@ -2558,12 +2613,8 @@ const TideHarm = (() => {
   {
     const btn = $('st-btn'), sheet = $('st-sheet'), back = $('st-back'), list = $('st-list');
     const reduceM = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const diffText = S => {
-      const m = Math.abs(S.dmin), t = m >= 60 ? `${Math.floor(m / 60)}시간 ${m % 60 ? (m % 60) + '분' : ''}`.trim() : `${m}분`;
-      return S.dmin === 0 && S.amp === 1 ? '기준 지점' : `${m < 8 ? '만조 시각이 인천과 비슷' : `인천보다 만조 약 ${t} ${S.dmin < 0 ? '빠름' : '늦음'}`} · 물 높이 차 ${Math.round(S.amp * 100)}%`;
-    };
     function paintBtn() { $('st-name').textContent = TideHarm.STATIONS[tideSt].name; }
-    // ---------- 목록: 검색어가 없으면 '내가 고른 곳'과 기본 출항지, 있으면 항·포구 검색 결과
+    // ---------- 목록: 검색어가 없으면 최근 고른 곳, 있으면 항·포구 검색 결과
     let PORTS = null, portsP = null, results = [], busy = false;
     const qEl = $('st-q'), qX = $('st-q-x');
     function loadPorts() {
@@ -2571,7 +2622,7 @@ const TideHarm = (() => {
       return portsP;
     }
     const norm = t => String(t || '').replace(/\s+/g, '').toLowerCase();
-    // 기본 출항지를 흔히 부르는 다른 이름 (항·포구 목록에서는 같은 곳이라 뺐다)
+    // 예전 기본 출항지(관측소에 직접 맞춘 곳)를 흔히 부르는 다른 이름
     const ST_AKA = { incheon: '연안부두 인천항연안여객터미널', bangameori: '방아머리항 방아머리선착장', ocheon: '오천항 오천선착장', gunsan: '군산항',
       hongwon: '홍원항', gyeokpo: '격포항', anheung: '안흥 신진도', yeongheung: '영흥' };
     // 점수: 이름이 검색어로 시작 > 이름에 들어 있음 > 지역까지 합쳐 모든 낱말이 들어 있음 > 글자 순서대로 들어 있음
@@ -2597,17 +2648,17 @@ const TideHarm = (() => {
     function paintList() {
       const raw = qEl.value.trim(), q = norm(raw), toks = raw.split(/\s+/).map(norm).filter(Boolean);
       qX.hidden = !raw;
-      const customs = Object.keys(TideHarm.STATIONS).filter(k => TideHarm.STATIONS[k].custom);
-      const cSub = S => `${S.sub ? S.sub + ' · ' : ''}${diffText(S)}`;
+      const mine = myStations();
+      const cSub = S => `${S.sub ? S.sub + ' · ' : ''}사리 때 물 높이 차 약 ${springRange(S).toFixed(1)}m`;
       if (!q) {
-        list.innerHTML = (customs.length ? `<p class="st-sec">내가 고른 곳</p>` + customs.map(k => { const S = TideHarm.STATIONS[k];
-            return item(k, S.name, cSub(S), `<span class="del" data-del="${k}" role="button" aria-label="${esc(S.name)} 목록에서 빼기">×</span>`); }).join('') + `<p class="st-sec">기본 출항지</p>` : '')
-          + ST_KEYS.map(k => item(k, TideHarm.STATIONS[k].name, diffText(TideHarm.STATIONS[k]))).join('');
+        list.innerHTML = `<p class="st-sec">최근 고른 곳</p>` + mine.map(k => { const S = TideHarm.STATIONS[k];
+            return item(k, S.name, cSub(S), `<span class="del" data-del="${k}" role="button" aria-label="${esc(S.name)} 목록에서 빼기">×</span>`); }).join('')
+          + `<p class="st-none">다른 곳은 위에서 <b>항·포구 이름</b>으로 찾거나 <b>내 위치에서 가장 가까운 곳</b>을 눌러 주세요. 서해·남해·제주의 항·포구를 찾을 수 있어요.</p>`;
         return;
       }
       if (!PORTS) { list.innerHTML = '<p class="st-none">항·포구 목록을 불러오는 중이에요…</p>'; loadPorts(); return; }
       const rs = [];
-      for (const k of [...customs, ...ST_KEYS]) { const S = TideHarm.STATIONS[k], sc = Math.max(score(q, toks, S.name, S.sub || ''), akaScore(q, toks, ST_AKA[k], 4)); if (sc) rs.push({ sc: sc + 0.5, k, name: S.name, sub: S.custom ? cSub(S) : '기본 출항지 · ' + diffText(S), lat: S.lat, lon: S.lon }); }
+      for (const k of mine) { const S = TideHarm.STATIONS[k], sc = Math.max(score(q, toks, S.name, S.sub || ''), akaScore(q, toks, ST_AKA[k], 4)); if (sc) rs.push({ sc: sc + 0.5, k, name: S.name, sub: '최근 고른 곳 · ' + cSub(S), lat: S.lat, lon: S.lon }); }
       for (const r of PORTS) {
         let sc = score(q, toks, r[0], r[3]), aka = '';
         const sa = akaScore(q, toks, r[5], 3.5);   // 다른 이름으로 찾음
@@ -2652,8 +2703,9 @@ const TideHarm = (() => {
     function pickResult(i) { const x = results[i]; if (x) makePort(x.name, x.region || '', x.lat, x.lon, 140); }
     async function makePort(name, sub, lat, lon, delay) {
       if (busy) return;
-      const same = Object.keys(TideHarm.STATIONS).find(k => TideHarm.STATIONS[k].name === name && distKm(TideHarm.STATIONS[k].lat, TideHarm.STATIONS[k].lon, lat, lon) < 1);
-      if (same) { choose(same, delay); return; }
+      const same = Object.keys(TideHarm.STATIONS).find(k => TideHarm.STATIONS[k].name === name && distKm(TideHarm.STATIONS[k].lat, TideHarm.STATIONS[k].lon, lat, lon) < 1)
+        || ST_KEYS.find(k => distKm(TideHarm.STATIONS[k].lat, TideHarm.STATIONS[k].lon, lat, lon) < 1.5);   // 관측소에 직접 맞춘 계산이 있는 곳
+      if (same) { qEl.value = ''; choose(same, delay); return; }
       if (!spotKit) { say('잠시 후 다시 눌러 주세요.'); return; }
       busy = true; say('그 자리 물때 계산식을 만드는 중이에요…');
       try {
@@ -2665,10 +2717,12 @@ const TideHarm = (() => {
       } catch (_) { say('인터넷 연결을 확인하고 다시 눌러 주세요. (처음 한 번은 계산 자료를 받아야 해요)'); }
       finally { busy = false; }
     }
+    // 최근 목록에서 빼기 (검색·지도로 만든 곳은 계산식도 지운다)
     function removeCustom(k) {
       const S = TideHarm.STATIONS[k]; if (!S) return;
-      customPorts = customPorts.filter(x => x.k !== k); saveCustom(); delete TideHarm.STATIONS[k];
-      if (tideSt === k) choose(S.wx || 'incheon', 0); else paintList();
+      recentSt = recentSt.filter(x => x !== k); saveRecent();
+      if (S.custom) { customPorts = customPorts.filter(x => x.k !== k); saveCustom(); delete TideHarm.STATIONS[k]; }
+      if (tideSt === k) choose(recentSt[0] || 'incheon', 0); else paintList();
     }
     // 위치를 바로잡은 항·포구: 예전 자리로 골라 둔 출항지는 새 자리로 물때 계산식을 다시 만든다 (저장한 포인트와 이어진 이름표는 그대로)
     const MOVED = { '시화방조제 중간선착장': [37.312, 126.6052, 37.32689, 126.65453] };
@@ -2775,8 +2829,9 @@ const TideHarm = (() => {
     });
     function choose(k, delay) {
       if (!TideHarm.STATIONS[k]) return;
-      tideSt = k;
+      tideSt = k; touchRecent(k);
       try { localStorage.setItem('jjukgap-station', tideSt); } catch (_) {}
+      autoRegion(k);
       paintBtn(); paintList(); renderTide(); renderCal();
       setTimeout(() => close(), delay);
     }
@@ -2801,16 +2856,14 @@ const TideHarm = (() => {
       navigator.geolocation.getCurrentPosition(pos => {
         gpsBtn.removeAttribute('aria-busy');
         const { latitude: la, longitude: lo } = pos.coords;
-        let best = ST_KEYS[0], bd = Infinity;
-        for (const k of Object.keys(TideHarm.STATIONS)) { const S = TideHarm.STATIONS[k], d = distKm(la, lo, S.lat, S.lon); if (d < bd) { bd = d; best = k; } }
-        const near = (PORTS || []).map(r => ({ r, d: distKm(la, lo, r[1], r[2]) })).sort((a, b) => a.d - b.d)[0];
-        if (near && near.d < bd - 0.5) {   // 기본 출항지보다 더 가까운 항·포구가 있으면 그곳으로
-          say(`가장 가까운 곳은 ${near.r[0]}이에요 (약 ${near.d < 10 ? near.d.toFixed(1) : Math.round(near.d)}km)`);
-          makePort(near.r[0], near.r[3], near.r[1], near.r[2], 1400); return;
-        }
-        const km = bd < 10 ? bd.toFixed(1) : Math.round(bd);
-        say(`가장 가까운 곳은 ${TideHarm.STATIONS[best].name}이에요 (약 ${km}km)` + (bd > 80 ? ' · 등록된 출항지와는 꽤 멀어요' : ''));
-        choose(best, 1400);
+        loadPorts().then(() => {
+          const near = (PORTS || []).map(r => ({ r, d: distKm(la, lo, r[1], r[2]) })).sort((a, b) => a.d - b.d)[0];
+          if (!near) { say('항·포구 목록을 받지 못했어요. 인터넷 연결을 확인하고 다시 눌러 주세요.'); return; }
+          const km = near.d < 10 ? near.d.toFixed(1) : Math.round(near.d);
+          if (near.d > 40) { say(`가까운 항·포구가 없어요 (가장 가까운 ${near.r[0]}까지 약 ${km}km). 아직 서해·남해·제주만 돼요.`); return; }
+          say(`가장 가까운 곳은 ${near.r[0]}이에요 (약 ${km}km)`);
+          makePort(near.r[0], near.r[3], near.r[1], near.r[2], 1400);
+        });
       }, err => {
         gpsBtn.removeAttribute('aria-busy');
         if (inFrame) say('이 미리보기 화면에서는 위치를 쓸 수 없어요. 폰에 설치한 앱에서 눌러 주세요.');
@@ -2855,7 +2908,14 @@ const TideHarm = (() => {
     const dirOf = (a, b) => WX_DIRS[Math.round(((Math.atan2((b.lon - a.lon) * KX, b.lat - a.lat) * 180 / Math.PI) + 360) % 360 / 22.5) % 16];
     const kmTxt = d => d < 1 ? `${Math.round(d * 1000 / 10) * 10}m` : `${d < 10 ? d.toFixed(1) : Math.round(d)}km`;
     const dm = (x, pos, neg) => { const a = Math.abs(x), d = Math.floor(a); return `${d}°${((a - d) * 60).toFixed(2)}′${x >= 0 ? pos : neg}`; };
-    const nearest = p => Object.keys(TideHarm.STATIONS).map(k => ({ k, d: distKm(p, TideHarm.STATIONS[k]) })).sort((a, b) => a.d - b.d)[0];
+    const nearest = p => myStations().map(k => ({ k, d: distKm(p, TideHarm.STATIONS[k]) })).sort((a, b) => a.d - b.d)[0];   // 내 출항지(지금·최근 고른 곳) 가운데
+    // 이 자리를 부르는 말 '○○에서 서남서쪽 10km': 그 출항지(k)가 25km 안이면 그곳, 아니면 가장 가까운 항·포구(지도 이름표 목록)
+    function whereTxt(p, k) {
+      const S = k && TideHarm.STATIONS[k];
+      let best = S ? { n: short(k), lat: S.lat, lon: S.lon, d: distKm(p, S) } : null;
+      if ((!best || best.d > 25) && mapPorts) for (const r of mapPorts) { const d = distKm(p, r); if (!best || d < best.d) best = { n: r.n, lat: r.lat, lon: r.lon, d }; }
+      return best ? `${best.n}에서 ${dirOf(best, p)}쪽 ${kmTxt(best.d)}` : `${dm(p.lat, 'N', 'S')} ${dm(p.lon, 'E', 'W')}`;
+    }
     // 화면 좌표
     const toS = (lon, lat) => [W / 2 + (lon - v.lon) * KX * v.s, H / 2 - (lat - v.lat) * v.s];
     const toG = (x, y) => ({ lon: v.lon + (x - W / 2) / (KX * v.s), lat: v.lat - (y - H / 2) / v.s });
@@ -2936,7 +2996,7 @@ const TideHarm = (() => {
     // 출항지 이름표 자리 (섬 이름과 겹치지 않게 먼저 계산)
     function portBoxes(g, font) {
       g.font = `700 11.5px ${font}`;
-      return Object.keys(TideHarm.STATIONS).map(k => {
+      return myStations().map(k => {
         const S = TideHarm.STATIONS[k], [x, y] = toS(S.lon, S.lat), t = short(k), w = g.measureText(t).width + 16;
         const bx = x + 9;   // 이름은 늘 점 오른쪽 (자리가 바뀌지 않게)
         return { k, x, y, t, bx, by: y - 10, w, h: 20 };
@@ -3008,7 +3068,7 @@ const TideHarm = (() => {
         if (!Array.isArray(d)) return;
         portsList = portsList || d;
         const minS = [1000, 1500, 2600];   // 큰 항 · 선착장 · 작은 포구가 보이기 시작하는 배율
-        mapPorts = d.filter(r => !Object.keys(TideHarm.STATIONS).some(k => { const S = TideHarm.STATIONS[k]; return distKm(S, { lat: r[1], lon: r[2] }) < 0.8; }))
+        mapPorts = d
           .map(r => ({ n: r[0], lat: r[1], lon: r[2], minS: minS[r[4] ?? (/항(\(.*\))?$/.test(r[0]) ? 0 : /선착장|터미널|마리나/.test(r[0]) ? 1 : 2)] || 3800, k: r[4] ?? 2 }))
           .sort((a, b) => a.k - b.k || a.n.length - b.n.length);
         labC = null; depCache.clear(); draw();
@@ -3078,8 +3138,11 @@ const TideHarm = (() => {
     let portsOff = false; try { portsOff = localStorage.getItem('jjukgap-map-ports') === 'off'; } catch (_) {}   // 항구 이름 숨기기 (이 폰에 기억)
     const shownL = new Map();   // id → { c, a(보이는 정도), on }
     const levelSets = new Map(), LV_F = 1.25;
+    let labCKey = '';
     function labCands() {
-      if (labC) return labC;
+      const ck = myStations().join(',');
+      if (labC && labCKey === ck) return labC;
+      labCKey = ck;
       if (!basemap) return null;
       const big = [], small = [], ports = [];
       basemap.lab.forEach(([n, lon, lat, minS, kind], i) => {
@@ -3087,7 +3150,8 @@ const TideHarm = (() => {
         const bigL = minS <= 700, strong = (kind === 0 && bigL) || kind === 1;
         (bigL ? big : small).push({ id: 'i' + i, t: 'i', n, lon, lat, minS, kind, big: kind === 0 && bigL, fs: kind === 1 ? 12 : kind === 0 && bigL ? 12.5 : 11, wt: strong ? 700 : 600 });
       });
-      if (mapPorts) mapPorts.forEach((pt, i) => ports.push({ id: 'p' + i, t: 'p', n: pt.n, lon: pt.lon, lat: pt.lat, minS: pt.minS }));
+      const mineS = myStations().map(k => TideHarm.STATIONS[k]);
+      if (mapPorts) mapPorts.forEach((pt, i) => !mineS.some(S => distKm(S, pt) < 0.8) && ports.push({ id: 'p' + i, t: 'p', n: pt.n, lon: pt.lon, lat: pt.lat, minS: pt.minS }));
       labC = [big, ports, small];
       byId = new Map(); for (const L of labC) for (const c of L) byId.set(c.id, c);
       for (const [id, e] of shownL) if (byId.get(id) !== e.c) shownL.delete(id);   // 목록이 바뀌었으면 예전 이름표는 버린다
@@ -3095,9 +3159,9 @@ const TideHarm = (() => {
       return labC;
     }
     const twOf = (c, font) => c.tw || (ctx.font = c.t === 'i' ? `${c.wt} ${c.fs}px ${font}` : `700 10.5px ${font}`, c.tw = ctx.measureText(c.n).width);
-    // 이 배율 단계에서 보일 이름표 (우선순위: 기본 출항지 → 큰 섬·만 → 항구 → 작은 섬, 앞의 것과 겹치면 뺀다)
+    // 이 배율 단계에서 보일 이름표 (우선순위: 내 출항지 → 큰 섬·만 → 항구 → 작은 섬, 앞의 것과 겹치면 뺀다)
     function levelSet(L, font) {
-      const key = [Object.keys(TideHarm.STATIONS).join(','), portsOff, font].join('|');
+      const key = [myStations().join(','), portsOff, font].join('|');
       if (key !== levelKey) { levelSets.clear(); levelKey = key; }
       let set = levelSets.get(L); if (set) return set;
       const Lc = labCands(); set = new Set(); if (!Lc) return set;
@@ -3107,7 +3171,7 @@ const TideHarm = (() => {
       const hit = b => cells(b).some(k => (grid.get(k) || []).some(a => b[0] < a[2] && b[2] > a[0] && b[1] < a[3] && b[3] > a[1]));
       const put = b => { for (const k of cells(b)) { let l = grid.get(k); if (!l) grid.set(k, l = []); l.push(b); } };
       ctx.font = `700 11.5px ${font}`;
-      for (const k of Object.keys(TideHarm.STATIONS)) {
+      for (const k of myStations()) {
         const S = TideHarm.STATIONS[k], x = S.lon * KX * s, y = -S.lat * s, w = ctx.measureText(short(k)).width + 16;
         put([x - 7, y - 13, x + 9 + w + 3, y + 13]);
       }
@@ -3206,7 +3270,7 @@ const TideHarm = (() => {
       }
       // 가까운 출항지까지 점선
       const nr = me && nearest(me);
-      if (nr) {
+      if (nr && nr.d < 60) {   // 내 출항지가 60km 안일 때만 (멀면 지도를 가로지르는 선이 돼서)
         const S = TideHarm.STATIONS[nr.k], [ax, ay] = toS(S.lon, S.lat), [bx, by] = toS(me.lon, me.lat);
         ctx.save(); ctx.setLineDash([5, 5]); ctx.strokeStyle = ME; ctx.globalAlpha = 0.55; ctx.lineWidth = 1.6;
         ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(bx, by); ctx.stroke(); ctx.restore();
@@ -3367,7 +3431,7 @@ const TideHarm = (() => {
     //                  조류예보 지점 34곳의 흐름 조화상수(최강창낙조·전류 표를 맞춘 것). 바뀌지 않는 자료라 앱과 함께 저장해 둔다.
     // data/seagrid.json: 약 10km 간격 바다 격자의 시간별 바람·파도 (하루 8번 새로 받음)
     const KN = 51.444;   // 1노트 = 51.444cm/s
-    let SP = null, spState = 'idle', SEA = null, seaState = 'idle', seaAt = 0, arrows = null;
+    let SP = null, spState = 'idle', SEA = null, seaState = 'idle', seaAt = 0, seaS = false, arrows = null;
     const spCache = new Map();
     let spotsP = null;
     function loadSpots() {
@@ -3382,12 +3446,17 @@ const TideHarm = (() => {
           return SP;
         }).catch(() => { spState = 'error'; paintPanel(true); return null; });
       }
-      if (seaState !== 'loading' && (!SEA || Date.now() - seaAt > 20 * 60000)) {
+      // 남해·제주 격자(seagrid-s.json)는 내 위치·지도·출항지가 남쪽일 때만 함께 받는다
+      const wantS = (me ? me.lat : v.lat) < 35.6 || TideHarm.STATIONS[tideSt].lat < 35.6;
+      if (seaState !== 'loading' && (!SEA || Date.now() - seaAt > 20 * 60000 || (wantS && !seaS))) {
         seaState = 'loading';
-        fetch('data/seagrid.json', { cache: 'no-cache' }).then(r => { if (!r.ok) throw new Error(r.status); return r.json(); }).then(j => {
-          if (j && j.c && j.t0) { SEA = j; seaAt = Date.now(); arrows = null; }
+        const get = u => fetch(u, { cache: 'no-cache' }).then(r => (r.ok ? r.json() : null)).catch(() => null);
+        Promise.all([get('data/seagrid.json'), wantS ? get('data/seagrid-s.json') : null]).then(([a, b]) => {
+          let j = a && a.c && a.t0 ? a : null;
+          if (b && b.c && b.t0) j = !j ? b : b.t0 === j.t0 ? { ...j, c: [...j.c, ...b.c] } : j;
+          if (j) { SEA = j; seaAt = Date.now(); seaS = wantS && !!b; arrows = null; }
           seaState = 'done'; paintPanel(true); draw();
-        }).catch(() => { seaState = 'done'; });
+        });
       }
       return spotsP;
     }
@@ -3557,7 +3626,7 @@ const TideHarm = (() => {
       const nr = nearest(p), k = nr.k, S = TideHarm.STATIONS[k], now = atMs, td = Math.floor((now + 9 * 3600000) / DAY), dd = dayData(td);
       const h = TideHarm.heightAt(k, now), rate = TideHarm.rateAt(k, now), pct = Math.round(Math.min(1, Math.abs(rate) / S.ref) * 100);
       const ex = [...TideHarm.extremes(k, td), ...TideHarm.extremes(k, td + 1)].find(e => e.ms > now);
-      const st = WX && WX.stations && WX.stations[wxOf(k)], hr = Math.floor(kstMin(now) / 60), r = wxRow(st, td, hr);
+      const st = nr.d <= 40 && WX && WX.stations && WX.stations[wxOf(k)], hr = Math.floor(kstMin(now) / 60), r = wxRow(st, td, hr);   // 출항지가 멀면 그곳 날씨·수온은 쓰지 않는다
       const o = st && st.obs, at = o && o.t ? Date.parse(o.t.replace(' ', 'T') + ':00+09:00') : NaN;
       const wt = o && o.wtem > 0.5 && (now - at) / 3600000 <= 12 ? o : null;
       const nearEx = [...TideHarm.extremes(k, td - 1), ...TideHarm.extremes(k, td), ...TideHarm.extremes(k, td + 1)].find(e => Math.abs(e.ms - now) <= 25 * 60000);
@@ -3587,7 +3656,7 @@ const TideHarm = (() => {
         + (i.wtModel ? ' 수온: 모델 예측이라 관측과 1℃쯤 다를 수 있어요.' : '') + (SP ? ' 화살표: 진한 것 조류예보 지점, 옅은 것 모델.' : '')
         + ' 낚시 정보 확인용이며 항해·안전에는 쓰지 마세요.';
       panel.innerHTML = (viewMode ? recSummary() : '') + `
-        <div class="mv-where"><b>${esc(short(i.k))}에서 ${i.dir}쪽 ${kmTxt(i.d)}</b><span>${dm(me.lat, 'N', 'S')} ${dm(me.lon, 'E', 'W')}</span></div>
+        <div class="mv-where"><b>${esc(whereTxt(me, i.k))}</b><span>${dm(me.lat, 'N', 'S')} ${dm(me.lon, 'E', 'W')}</span></div>
         <div class="mv-grid">
           <div class="mv-c"><small>물때</small><b class="t-${i.dd.lv}">${i.dd.name} · ${LV[i.dd.lv].chip}</b></div>
           <div class="mv-c"><small>지금 물${i.spot ? ' · 이 자리' : ''}</small><b>${i.stand || (i.rising ? '들물 ↑' : '날물 ↓')} ${meters(i.h)}</b></div>
@@ -3624,7 +3693,7 @@ const TideHarm = (() => {
       const seen = new Set(), out = [];
       const add = n => { n = (n || '').trim(); if (n && !seen.has(n)) { seen.add(n); out.push(n); } };
       points.forEach(q => add(q.depName)); boatsMem().forEach(b => add(boatDep(b)));
-      [...customPorts.map(c => c.k), ...ST_KEYS].forEach(k => TideHarm.STATIONS[k] && add(TideHarm.STATIONS[k].name));
+      myStations().forEach(k => add(TideHarm.STATIONS[k].name));
       return out.slice(0, 30);
     }
     // ---------- 출항지 이름 ↔ 자리: 항·포구 목록, 기본·고른 출항지, 전에 고른 기록에서 찾는다 (출항지에서 첫 포인트까지 점선을 잇는 데 쓴다)
@@ -3677,7 +3746,7 @@ const TideHarm = (() => {
       for (const q of points) if (q.depName && !recent.has(normName(q.depName))) recent.set(normName(q.depName), q);
       for (const q of recent.values()) { const pp = depPosOf(q); add(q.depName, pp ? pp.lat : null, pp ? pp.lon : null, '', 0); }
       for (const b of boatsMem()) { const n = boatDep(b); if (n) add(n, b.depLat != null ? b.depLat : null, b.depLon != null ? b.depLon : null, '', 0); }
-      for (const k of [...customPorts.map(c => c.k), ...ST_KEYS]) { const S = TideHarm.STATIONS[k]; if (S) add(S.name, S.lat, S.lon, S.custom ? '고른 출항지' : '기본 출항지', 1, short(k)); }
+      for (const k of myStations()) { const S = TideHarm.STATIONS[k]; if (S) add(S.name, S.lat, S.lon, '고른 출항지', 1, short(k)); }
       if (portsList) for (const r of portsList) add(r[0], r[1], r[2], r[3], 2, r[5]);
       return out;
     }
@@ -3776,7 +3845,7 @@ const TideHarm = (() => {
     function paintForm() {
       const f = form, i = f.i;
       const note = f.edit ? `${when(f.at)} · ${esc(f.where)} · ${esc(f.cond)}`
-        : `${esc(short(i.k))}에서 ${i.dir}쪽 ${kmTxt(i.d)} · ${i.dd.name} · ${i.stand || (i.rising ? '들물' : '날물')} ${meters(i.h)} · 조류 ${i.cur ? (i.cur.calm ? '물돌이' : `${toward(i.cur.dir)}쪽 ${knTxt(i.cur.sp)}`) : (i.pct < 8 ? '정조' : i.pct + '%')}${i.wt == null ? '' : ` · 수온 ${i.wt.toFixed(1)}℃`} 함께 저장돼요.`;
+        : `${esc(whereTxt(f, i.k))} · ${i.dd.name} · ${i.stand || (i.rising ? '들물' : '날물')} ${meters(i.h)} · 조류 ${i.cur ? (i.cur.calm ? '물돌이' : `${toward(i.cur.dir)}쪽 ${knTxt(i.cur.sp)}`) : (i.pct < 8 ? '정조' : i.pct + '%')}${i.wt == null ? '' : ` · 수온 ${i.wt.toFixed(1)}℃`} 함께 저장돼요.`;
       panel.innerHTML = `
         <div class="mv-h"><b>${f.edit ? '포인트 고치기' : '포인트 저장'}</b><span>${f.edit ? '배·출항지·조과·메모를 고칠 수 있어요' : `${ampm(kstMin(f.at))}${f.virtual ? ' · 가상 위치' : ''}`}</span></div>
         <p class="mv-note">${note}</p>
@@ -3801,7 +3870,7 @@ const TideHarm = (() => {
       sheetAtLeast('open');
       const S = TideHarm.STATIONS[p.port] || TideHarm.STATIONS[nearest(p).k];
       form = { edit: id, boat: p.boat || '', depName: p.depName || depLabel(p.dep), depPos: p.depLat != null ? { n: p.depName, lat: p.depLat, lon: p.depLon } : null, hint: '', jj: p.jj || 0, gap: p.gap || 0, etc: (p.etc && p.etc.length ? p.etc : [{ n: '', c: 0 }]).map(e => ({ n: e.n || '', c: e.c || 0 })), memo: p.memo || '', at: p.t,
-        where: `${short(p.port)}에서 ${dirOf(S, p)}쪽 ${kmTxt(distKm(S, p))}`, cond: `${p.mul} · ${p.stand ? p.stand.replace(' · ', ' ') : (p.rising ? '들물' : '날물')} ${meters(p.h)}` };
+        where: whereTxt(p, TideHarm.STATIONS[p.port] ? p.port : nearest(p).k), cond: `${p.mul} · ${p.stand ? p.stand.replace(' · ', ' ') : (p.rising ? '들물' : '날물')} ${meters(p.h)}` };
       mode = 'save'; selId = id; paintForm(); draw();
     }
     // 저장할 때 함께 남기는 그때의 물때·물 높이·조류·바람·수온
@@ -3884,7 +3953,7 @@ const TideHarm = (() => {
           const S = TideHarm.STATIONS[p.port] || TideHarm.STATIONS[nearest(p).k], ti = TG.by.get(p.id);
           return `<li class="mv-row" data-id="${p.id}"><button class="mv-trash" data-act="swdel" data-id="${p.id}" tabindex="-1" aria-label="이 포인트 지우기">${ICON_TRASH}</button>`
             + `<button class="mv-item" data-act="pick" data-id="${p.id}"><b>${tr.pts.length > 1 ? `<em class="mv-no" style="color:${tr.color};border-color:${tr.color}">${ti.n}</em>` : ''}${ampm(kstMin(p.t))} · ${esc(catchTxt(p))}${ti.best ? '<em class="mv-best">이날 최고</em>' : ''}${p.auto ? '<em class="mv-autot">자동</em>' : ''}</b>`
-            + `<span>${esc(short(p.port))}에서 ${dirOf(S, p)}쪽 ${kmTxt(distKm(S, p))} · ${p.mul} · 조류 ${pctTxt(p)}${p.wt == null ? '' : ` · 수온 ${p.wt.toFixed(1)}℃`}</span></button></li>`;
+            + `<span>${esc(whereTxt(p, TideHarm.STATIONS[p.port] ? p.port : nearest(p).k))} · ${p.mul} · 조류 ${pctTxt(p)}${p.wt == null ? '' : ` · 수온 ${p.wt.toFixed(1)}℃`}</span></button></li>`;
         }).join('');
         return `<section class="mv-tg${fold ? ' fold' : ''}"><button class="mv-grp" data-act="fold" data-k="${esc(tr.key)}" aria-expanded="${!fold}">`
           + `<i style="background:${tr.color}"></i><span class="t">${md(kstDay(first.t))} · ${tripTxt(first) || '배·출항지 기록 없음'}</span><span class="n">${tr.pts.length}곳 · ${tot}마리</span>${ICON_CHEV}</button>`
@@ -4037,7 +4106,7 @@ const TideHarm = (() => {
             const sub = ti && n > 1 ? `<i>이 출조 ${ti.n}번째 포인트 · 모두 ${n}곳${ti.best ? ' · 이날 가장 많이 잡은 곳' : ''}</i>` : '';
             return tripTxt(p) || sub ? `<div class="mv-c wide"><small>탄 배 · 출항지</small><b>${tripTxt(p) || '배·출항지 기록 없음'}</b>${sub}</div>` : ''; })()}
           <div class="mv-c"><small>잡은 시각</small><b>${ampm(kstMin(p.t))}</b></div>
-          <div class="mv-c"><small>위치</small><b>${esc(short(p.port))}에서 ${dirOf(S, p)}쪽 ${kmTxt(distKm(S, p))}</b></div>
+          <div class="mv-c"><small>위치</small><b>${esc(whereTxt(p, TideHarm.STATIONS[p.port] ? p.port : nearest(p).k))}</b></div>
           <div class="mv-c"><small>물때 · 물</small><b>${p.mul} · ${p.stand ? p.stand.replace(' · ', ' ') : (p.rising ? '들물' : '날물')} ${meters(p.h)}</b></div>
           <div class="mv-c"><small>조류 · 수온</small><b>${pctTxt(p)}${p.wt == null ? '' : ` · ${p.wt.toFixed(1)}℃`}</b></div>
         </div>
@@ -4688,7 +4757,7 @@ const TideHarm = (() => {
     // 확대 · 축소 · 내 위치로
     const zoomAt = (f, x = W / 2, y = focusY()) => { const g = toG(x, y); v.s = clampS(v.s * f); const g2 = toG(x, y); v.lon += g.lon - g2.lon; v.lat += g.lat - g2.lat; if (follow && me) placeAt(me.lon, me.lat, fy ?? focusY()); draw(); };
     $('mv-zin').onclick = () => zoomAt(1.8);
-    // 항구 이름 숨기기·보이기 (기본 출항지와 섬 이름은 그대로)
+    // 항구 이름 숨기기·보이기 (내 출항지와 섬 이름은 그대로)
     const pnmBtn = $('mv-pnm');
     const paintPnm = () => { pnmBtn.classList.toggle('off', portsOff); pnmBtn.setAttribute('aria-pressed', String(portsOff)); pnmBtn.setAttribute('aria-label', portsOff ? '항구 이름 보이기' : '항구 이름 숨기기'); };
     paintPnm();
@@ -4955,6 +5024,9 @@ const TideHarm = (() => {
     for (const b of $('sea-menu').querySelectorAll('[data-reg]')) b.setAttribute('aria-checked', b.dataset.reg === r);
     render();
   }
+  // 출항지를 고르면 그 바다의 물때 세는 방식으로 (서해 7물때 · 남해·제주 8물때). 바다 단추로 직접 바꿀 수도 있다
+  function seaOfSt(S) { return (S.lat < 34.05 || (S.lat < 34.75 && S.lon > 126.35) || (S.lat < 35.4 && S.lon > 127.4)) ? 'south' : 'west'; }
+  function autoRegion(k) { const S = TideHarm.STATIONS[k]; if (!S) return; const r = seaOfSt(S); if (r !== region) try { setRegion(r); } catch (_) {} }
   // 제목 아래 바다 단추: 누르면 목록, 고르거나 바깥을 누르면 닫힘
   const SEAS = { west: { name: '서해', rule: '7물때 기준' }, south: { name: '남해', rule: '8물때 기준' } };
   const seaBtn = $('sea-btn'), seaMenu = $('sea-menu');
@@ -5028,7 +5100,7 @@ const TideHarm = (() => {
 
 <script>
 if ('serviceWorker' in navigator) addEventListener('load', () => {
-  const sw = navigator.serviceWorker, VER = '217c79c5'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
+  const sw = navigator.serviceWorker, VER = 'dd760372'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
   // 화면에 손을 대기 시작했는지 (쓰는 중에는 새로 열지 않으려고)
   ['pointerdown', 'keydown'].forEach(t => addEventListener(t, () => { touched = true; }, { capture: true, passive: true }));
   const reload = () => {
