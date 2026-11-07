@@ -21,3 +21,4 @@ $ osmium tags-filter kr.pbf w/natural=coastline -o c1.pbf --overwrite && osmium 
 [90s] 육지 조각 4819개, 점 574347
 [92s] 단계 0: 칸 줄 8/16
 [93s] 단계 0: 칸 줄 16/16
+[94s] 단계 0: 땅 조각 1466 · 해안선 1485 · 점 41938 (코어 4)
