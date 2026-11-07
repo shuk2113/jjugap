@@ -11,3 +11,4 @@
 [885s] 3000/3780 · 응답 {'00': 3087, 'URLError': 75, 'HTTPError': 5, 'TimeoutError': 4}
 [967s] 3300/3780 · 응답 {'00': 3338, 'URLError': 84, 'HTTPError': 5, 'TimeoutError': 4, '03': 24}
 [1116s] 3600/3780 · 응답 {'00': 3621, 'URLError': 91, 'HTTPError': 5, 'TimeoutError': 4, '03': 147}
+[1166s] 끝: 관측소 84 · 날 45 · 못 받음 37 · 응답 {'00': 3743, 'URLError': 96, 'HTTPError': 5, 'TimeoutError': 4, '03': 147}
