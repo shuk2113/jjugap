@@ -29,6 +29,15 @@ import android.view.ViewConfiguration;
 import android.view.WindowManager;
 import android.widget.Toast;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GoogleApiAvailability;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationCallback;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationResult;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.Priority;
+
 import java.util.ArrayList;
 import java.util.Locale;
 
@@ -37,11 +46,15 @@ import java.util.Locale;
  * - 앱 화면이 안 보일 때(홈 화면·다른 앱·화면 꺼짐) GPS를 모아 두면, 웹 앱이 받아 가서 5분 머문 곳을 자동 기록한다
  * - 앱 화면이 안 보일 때 홈 화면 위에 '포인트 저장' 단추를 띄운다 (끌어서 옮기기, 누르면 바로 저장 화면, 아래 ×에 놓으면 숨기기)
  * - 휴대폰 위치가 2분 넘게 꺼져 있으면 진동 알림 (누르면 위치 켜기) · 그날 앱이 켜 준 위치는 끝날 때 끄라고 알려 준다
+ * - 배터리: 앱 화면을 볼 때는 웹 앱이 GPS를 받으니 여기는 쉰다 · 안 볼 때는 흘리는 중 10초, 달리는 중 30초마다 받고
+ *   30초씩 모아서 한꺼번에 받는다 (그동안 휴대폰이 쉴 수 있게) · 통신망 위치는 GPS가 안 잡힐 때만 (구글 위치 서비스가 없는 폰)
  */
 public class TrackService extends Service implements LocationListener {
     static final String CH = "track", CH2 = "saved", CH3 = "loc";
     static final int NID = 7, NID2 = 8, NID3 = 9, NID4 = 10;
     static final long OFF_WAIT = 120000;   // 위치가 이만큼 꺼져 있으면 알림
+    static final long SLOW_MS = 10000, FAST_MS = 30000, BATCH_MS = 30000;   // 흘리는 중 · 달리는 중 간격, 모아 받기
+    static final float FAST_ON = 3.0f, FAST_OFF = 2.0f;   // m/s: 약 6노트 넘게 두 번이면 달리는 중, 4노트 밑이면 흘리는 중
     static final ArrayList<double[]> fixes = new ArrayList<>();
     static volatile boolean appVisible = true;
     static volatile String status = "자동 기록 켜짐";
@@ -58,8 +71,26 @@ public class TrackService extends Service implements LocationListener {
     boolean hidden;
     long offSince;      // 위치가 꺼진 걸 처음 본 때 (elapsedRealtime, 0 = 켜져 있음)
     boolean offNoted;   // '위치가 꺼져 기록이 멈췄어요' 알림을 띄웠다
+    FusedLocationProviderClient flp;   // 구글 위치 서비스 (없으면 null → LocationManager)
+    LocationCallback flpCb;
+    int gpsMode = -1;   // 0 쉼(앱 화면) · 1 흘리는 중 · 2 달리는 중
+    boolean fast, netOn;
+    int fastCnt;
+    long lastFixEl;     // 마지막으로 위치를 받은 때 (elapsedRealtime)
+    double spLat, spLon; long spT;   // 속도를 셀 앞 위치
+    final LocationListener netL = new LocationListener() {
+        @Override public void onLocationChanged(Location l) { if (SystemClock.elapsedRealtime() - lastFixEl > 60000) { onFix(l); pushNow(); } }
+        @Override public void onStatusChanged(String p, int st, Bundle b) { }
+        @Override public void onProviderEnabled(String p) { }
+        @Override public void onProviderDisabled(String p) { }
+    };
     final Runnable watch = new Runnable() {
-        @Override public void run() { checkLoc(); if (self != null) h.postDelayed(this, 15000); }
+        @Override public void run() {
+            checkLoc();
+            // 구글 위치 서비스가 없는 폰: GPS가 1분 넘게 안 잡히면 통신망 위치라도
+            if (flp == null && gpsMode > 0 && Loc.on(TrackService.this)) setNet(SystemClock.elapsedRealtime() - lastFixEl > 60000);
+            if (self != null) h.postDelayed(this, 15000);
+        }
     };
 
     static boolean running() { return self != null; }
@@ -74,7 +105,7 @@ public class TrackService extends Service implements LocationListener {
     static void setAppVisible(boolean v) {
         appVisible = v;
         TrackService s = self;
-        if (s != null) { s.h.post(s::syncBubble); s.h.post(s::checkLoc); }
+        if (s != null) { s.h.post(s::syncBubble); s.h.post(s::checkLoc); s.h.post(s::applyMode); }
     }
 
     static void refresh() { TrackService s = self; if (s != null) s.h.post(s::syncBubble); }
@@ -123,12 +154,19 @@ public class TrackService extends Service implements LocationListener {
         goForeground();
         lm = getSystemService(LocationManager.class);
         try {
-            lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 4000, 0, this, Looper.getMainLooper());
-        } catch (SecurityException | IllegalArgumentException e) { Log.w("jjugap", "gps", e); }
-        try {   // 위치가 꺼져 있어도 걸어 둔다 (켜지면 그때부터 들어온다)
-            if (lm.getAllProviders().contains(LocationManager.NETWORK_PROVIDER))
-                lm.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 15000, 0, this, Looper.getMainLooper());
-        } catch (SecurityException | IllegalArgumentException e) { Log.w("jjugap", "net", e); }
+            if (GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(this) == ConnectionResult.SUCCESS) {
+                flp = LocationServices.getFusedLocationProviderClient(this);
+                flpCb = new LocationCallback() {
+                    @Override public void onLocationResult(LocationResult r) {
+                        int n = 0;
+                        for (Location l : r.getLocations()) { onFix(l); n++; }
+                        pushNow();
+                        Log.i("jjugap", "gps batch " + n);
+                    }
+                };
+            }
+        } catch (Throwable t) { Log.w("jjugap", "fused", t); flp = null; }
+        applyMode();
         wm = getSystemService(WindowManager.class);
         syncBubble();
         h.post(watch);
@@ -158,7 +196,7 @@ public class TrackService extends Service implements LocationListener {
     @Override
     public void onDestroy() {
         h.removeCallbacks(watch);
-        if (lm != null) { try { lm.removeUpdates(this); } catch (Exception ignored) { } }
+        stopUpdates();
         removeBubble();
         hideTrash();
         self = null;
@@ -179,10 +217,86 @@ public class TrackService extends Service implements LocationListener {
     @Override
     public IBinder onBind(Intent i) { return null; }
 
-    // ---------- 위치: 앱 화면이 안 보일 때만 모아 둔다 (보일 때는 웹 앱이 직접 받는다)
+    // ---------- 위치 받기: 상황에 맞는 간격으로 (배터리)
+    void applyMode() {
+        if (self == null) return;
+        int m = appVisible ? 0 : fast ? 2 : 1;
+        if (m == gpsMode) return;
+        int was = gpsMode;
+        gpsMode = m;
+        if (m == 0) {
+            // 앱 화면을 본다: 웹 앱이 GPS를 받으니 여기는 쉰다. 모아 둔 위치는 먼저 내보내서 바로 보이게
+            if (flp != null && was > 0) {
+                try { flp.flushLocations().addOnCompleteListener(t -> { if (gpsMode == 0) stopUpdates(); pushNow(); }); }
+                catch (Exception e) { stopUpdates(); }
+            } else stopUpdates();
+            Log.i("jjugap", "gps rest (app on screen)");
+            return;
+        }
+        long iv = m == 2 ? FAST_MS : SLOW_MS;
+        stopUpdates();
+        try {
+            if (flp != null) {
+                LocationRequest r = new LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, iv)
+                    .setMinUpdateIntervalMillis(Math.min(iv, 8000))
+                    .setMaxUpdateDelayMillis(BATCH_MS)
+                    .build();
+                flp.requestLocationUpdates(r, flpCb, Looper.getMainLooper());
+            } else {
+                lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, iv, 0, this, Looper.getMainLooper());
+            }
+        } catch (SecurityException | IllegalArgumentException e) { Log.w("jjugap", "gps", e); }
+        Log.i("jjugap", "gps " + (m == 2 ? "fast 30s" : "slow 10s") + (flp != null ? " fused batch 30s" : " lm"));
+    }
+
+    void stopUpdates() {
+        if (flp != null && flpCb != null) { try { flp.removeLocationUpdates(flpCb); } catch (Exception ignored) { } }
+        if (lm != null) { try { lm.removeUpdates(this); } catch (Exception ignored) { } }
+        setNet(false);
+    }
+
+    /** 통신망 위치: GPS가 1분 넘게 안 잡힐 때만 (구글 위치 서비스가 없는 폰에서) */
+    void setNet(boolean on) {
+        if (on == netOn || lm == null) return;
+        netOn = on;
+        try {
+            if (on && lm.getAllProviders().contains(LocationManager.NETWORK_PROVIDER))
+                lm.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 30000, 0, netL, Looper.getMainLooper());
+            else lm.removeUpdates(netL);
+        } catch (SecurityException | IllegalArgumentException e) { Log.w("jjugap", "net", e); }
+    }
+
+    /** 속도로 '달리는 중/흘리는 중'을 판단해 간격을 바꾼다 */
+    void judgeSpeed(Location l, long t) {
+        float v = -1;
+        if (l.hasSpeed()) v = l.getSpeed();
+        else if (spT > 0 && t - spT >= 5000) {
+            float[] d = new float[1];
+            Location.distanceBetween(spLat, spLon, l.getLatitude(), l.getLongitude(), d);
+            v = d[0] / ((t - spT) / 1000f);
+        }
+        spLat = l.getLatitude(); spLon = l.getLongitude(); spT = t;
+        if (v < 0) return;
+        boolean was = fast;
+        if (v >= FAST_ON) { if (++fastCnt >= 2) fast = true; }
+        else { fastCnt = 0; if (v < FAST_OFF) fast = false; }
+        if (fast != was) h.post(this::applyMode);
+    }
+
+    void pushNow() {
+        MainActivity a = MainActivity.live;
+        if (a != null) { lastPush = System.currentTimeMillis(); a.pushFixes(); }
+    }
+
     @Override
-    public void onLocationChanged(Location l) {
-        if (appVisible) return;
+    public void onLocationChanged(Location l) {   // 구글 위치 서비스가 없는 폰 (LocationManager GPS)
+        onFix(l);
+        long now = System.currentTimeMillis();
+        if (now - lastPush > 20000) pushNow();   // 20초마다 웹 앱에 넘겨 처리
+    }
+
+    // 모아 두기 (웹 앱이 받아 가서 5분 머문 곳을 자동 기록한다)
+    void onFix(Location l) {
         if (l.hasAccuracy() && l.getAccuracy() > 100) return;
         long t = l.getTime() > 0 ? l.getTime() : System.currentTimeMillis();
         synchronized (fixes) {
@@ -195,10 +309,8 @@ public class TrackService extends Service implements LocationListener {
             if (fixes.size() > 20000) fixes.remove(0);
             lastT = t; lastLat = l.getLatitude(); lastLon = l.getLongitude();
         }
-        // 20초마다 웹 앱에 바로 넘겨 처리 (화면 잠금 중에도 5분 머문 곳이 제때 기록되게)
-        long now = System.currentTimeMillis();
-        MainActivity a = MainActivity.live;
-        if (a != null && now - lastPush > 20000) { lastPush = now; a.pushFixes(); }
+        if (LocationManager.GPS_PROVIDER.equals(l.getProvider()) || flp != null) { lastFixEl = SystemClock.elapsedRealtime(); setNet(false); }
+        judgeSpeed(l, t);
     }
 
     @Override public void onStatusChanged(String p, int s, Bundle b) { }
@@ -305,6 +417,7 @@ public class TrackService extends Service implements LocationListener {
     }
 
     void savedNote(String t) {
+        Log.i("jjugap", "saved note " + t);
         post();
         if (appVisible) return;   // 앱 화면에서는 웹 앱이 직접 알려 준다
         Notification n = new Notification.Builder(this, CH2)

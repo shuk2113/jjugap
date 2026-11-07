@@ -16,7 +16,7 @@ shot 1-map
 adb shell input keyevent KEYCODE_HOME
 sleep 8
 shot 2-home
-for i in $(seq 1 40); do adb emu geo fix 126.330$((RANDOM%9)) 37.170$((RANDOM%9)); sleep 9; done
+for i in $(seq 1 46); do adb emu geo fix 126.330$((RANDOM%9)) 37.170$((RANDOM%9)); sleep 9; done   # 6분 넘게 (30초씩 모아 받아도 넉넉히)
 shot 3-home-later
 adb shell cmd statusbar expand-notifications; sleep 4; shot 4-noti; adb shell cmd statusbar collapse; sleep 3
 B=$(adb logcat -d -s jjugap:I | grep "bubble " | tail -1); echo "$B" > "$OUT/bubble.txt"
@@ -30,10 +30,11 @@ adb shell input keyevent KEYCODE_BACK; sleep 2; adb shell am start -n $P/.MainAc
 for i in $(seq 1 6); do adb emu geo fix 126.3$((3 + i))00 37.1600; sleep 6; done
 adb shell input keyevent KEYCODE_SLEEP
 sleep 3
-for i in $(seq 1 42); do adb emu geo fix 126.390$((RANDOM%9)) 37.160$((RANDOM%9)); sleep 9; done
+for i in $(seq 1 48); do adb emu geo fix 126.390$((RANDOM%9)) 37.160$((RANDOM%9)); sleep 9; done
 adb shell input keyevent KEYCODE_WAKEUP; sleep 2; adb shell wm dismiss-keyguard; sleep 3
 adb shell cmd statusbar expand-notifications; sleep 4; shot 7-lock-noti; adb shell cmd statusbar collapse; sleep 2
 adb shell am start -n $P/.MainActivity --es act map; sleep 6; shot 8-after-lock
+adb logcat -d -s jjugap:I | grep -E "gps |service |saved|stay" > "$OUT/gps.txt"   # GPS 간격 바뀜·모아 받기 기록
 # ---------- 휴대폰 위치(GPS) 꺼짐
 # 화면의 글자(알림·창·웹 단추 이름)를 찾아 누른다: tapText <정규식> <이름>
 tapText() {
