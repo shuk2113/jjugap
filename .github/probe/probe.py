@@ -5,7 +5,7 @@
 - 방조제 안 호수·저수지·큰 강(W), 섬·만·호수 이름(lab) — Geofabrik 한국 추출본
 """
 import json, os, subprocess, sys, time, importlib, site, traceback, math, re, gzip, multiprocessing as mp
-OUT = 'probe-out/basemap3'; os.makedirs(OUT, exist_ok=True)
+OUT = 'probe-out/basemap4'; os.makedirs(OUT, exist_ok=True)
 BIG = (118.0, 30.0, 134.0, 44.5)                              # 주변국 해안까지 (멀리 볼 때 지도가 잘려 보이지 않게)
 FINE = [(124.0, 33.0, 131.0, 38.75), (130.5, 37.0, 132.0, 37.75)]   # 자세히: 남한 바다 전체 · 울릉도·독도
 LON0, LAT0, Q = 118.0, 30.0, 100000
@@ -18,8 +18,13 @@ log = []
 def sh(c):
     t = time.time(); print(f'$ {c[:140]}', flush=True)
     r = subprocess.run(c, shell=True, capture_output=True, text=True)
-    log.append(f'$ {c[:140]} → {r.returncode} ({time.time() - t:.0f}s) {(r.stdout + r.stderr)[-400:]}'); print(log[-1], flush=True); return r.returncode
-def say(m): log.append(f'[{time.time() - T0:.0f}s] {m}'); print(log[-1], flush=True)
+    log.append(f'$ {c[:140]} → {r.returncode} ({time.time() - t:.0f}s) {(r.stdout + r.stderr)[-400:]}'); print(log[-1], flush=True); push_log(); return r.returncode
+def push_log():   # 진행 상황을 그때그때 가지에 올려, 밖에서 볼 수 있게
+    open(f'{OUT}/log.txt', 'w').write('\n'.join(log))
+    subprocess.run(f'git config user.name "github-actions[bot]"; git config user.email "41898282+github-actions[bot]@users.noreply.github.com"; '
+                   f'git add {OUT}/log.txt && git commit -q -m "진행 [skip ci]" && (git push -q origin HEAD:probe || (git pull -q --rebase origin probe && git push -q origin HEAD:probe))',
+                   shell=True, capture_output=True)
+def say(m): log.append(f'[{time.time() - T0:.0f}s] {m}'); print(log[-1], flush=True); push_log()
 in_fine = (lambda x, y: any(a <= x <= c and b <= y <= d for a, b, c, d in FINE))
 T0 = time.time()
 try:
@@ -156,7 +161,9 @@ try:
     for lv in (0, 1):
         nx = int(round((BIG[2] - BIG[0]) / LV[lv]['cell'])); Lp, Kp, n = [], [], 0
         with mp.get_context('fork').Pool(NC) as pool:
-            for a, b, c in pool.imap(build_col, [(lv, ix) for ix in range(nx)]): Lp += a; Kp += b; n += c
+            for j, (a, b, c) in enumerate(pool.imap(build_col, [(lv, ix) for ix in range(nx)])):
+                Lp += a; Kp += b; n += c
+                if j % 8 == 7: say(f'단계 {lv}: 칸 줄 {j + 1}/{nx}')
         L.append(Lp); K.append(Kp)
         say(f'단계 {lv}: 땅 조각 {len(Lp)} · 해안선 {len(Kp)} · 점 {n} (코어 {NC})')
 
