@@ -1,2 +1,3 @@
 [7s] 육지 조각 6066
 [17s] 격자 후보 2471 (해안 12km 안 2085)
+[137s] TideBED 400/2471 · 응답 {'tidebed:00': 304, 'tidebed:10': 196, 'tidebed:URLError': 5}
