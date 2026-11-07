@@ -1,11 +1,11 @@
 """전국 바다 지도 자료(basemap.json) 만들기 — 깃허브 작업에서 돌린다 (결과: probe-out/basemap/)
-- 육지: OpenStreetMap 육지(osmdata.openstreetmap.de land-polygons-split) — 남한 바다는 자세히, 북한·중국·일본 해안은 거칠게
+- 육지: 남한 바다는 OpenStreetMap 해안선(Geofabrik 남·북한 추출본)으로 자세히, 북한 북쪽·중국·일본은 Natural Earth 1:10m로 거칠게
 - 칸(타일)으로 나눠 앱이 화면에 보이는 칸만 그리게 한다. 해안선(K)은 칸 경계선을 빼고 따로 담아, 칸 경계에 선이 생기지 않게
 - 두 단계: 멀리 볼 때(0) · 가까이 볼 때(1)
 - 방조제 안 호수·저수지·큰 강(W), 섬·만·호수 이름(lab) — Geofabrik 한국 추출본
 """
 import json, os, subprocess, sys, time, importlib, site, traceback, math, re, gzip, multiprocessing as mp
-OUT = 'probe-out/basemap4'; os.makedirs(OUT, exist_ok=True)
+OUT = 'probe-out/basemap5'; os.makedirs(OUT, exist_ok=True)
 BIG = (118.0, 30.0, 134.0, 44.5)                              # 주변국 해안까지 (멀리 볼 때 지도가 잘려 보이지 않게)
 FINE = [(124.0, 33.0, 131.0, 38.75), (130.5, 37.0, 132.0, 37.75)]   # 자세히: 남한 바다 전체 · 울릉도·독도
 LON0, LAT0, Q = 118.0, 30.0, 100000
@@ -38,17 +38,97 @@ try:
     from shapely.ops import polylabel
     say(f'shapely {shapely.__version__} · 코어 {os.cpu_count()}')
 
-    # ---------- 1) 육지 조각 받기
-    sh('timeout 1800 wget -q --timeout=60 --tries=5 https://osmdata.openstreetmap.de/download/land-polygons-split-4326.zip -O land.zip; ls -la land.zip')
-    sh('unzip -q -o land.zip')
-    shp = subprocess.run('ls land-polygons-split-4326/*.shp', shell=True, capture_output=True, text=True).stdout.strip()
-    sh(f'ogr2ogr -f GeoJSONSeq -spat {BIG[0]} {BIG[1]} {BIG[2]} {BIG[3]} land.geojsonseq {shp}')
-    say(f'잘라낸 파일 {os.path.getsize("land.geojsonseq") // 1048576} MB')
-    pieces = []
-    for l in open('land.geojsonseq'):
+    # ---------- 1) 육지 만들기
+    # 남한 바다(FINE, 일본 쪽 빼고)는 OSM 해안선(Geofabrik 남·북한 추출본, 매일 갱신)으로 직접 만들고,
+    # 그 밖(북한 북쪽·중국·러시아)과 일본 쪽은 Natural Earth 1:10m(ne_big.json, 멀리 볼 때만 쓰는 거친 해안)
+    from shapely.geometry import Polygon, LineString, Point
+    W1 = 'wget -q --timeout=60 --tries=5'
+    sh(f'{W1} https://download.geofabrik.de/asia/south-korea-latest.osm.pbf -O kr.pbf; {W1} https://download.geofabrik.de/asia/north-korea-latest.osm.pbf -O nk.pbf; ls -la kr.pbf nk.pbf')
+    open('lin.json', 'w').write('{"linear_tags": true, "area_tags": false}')   # 닫힌 길도 선으로 (방향 그대로)
+    sh('osmium tags-filter kr.pbf w/natural=coastline -o c1.pbf --overwrite && osmium tags-filter nk.pbf w/natural=coastline -o c2.pbf --overwrite '
+       '&& osmium merge c1.pbf c2.pbf -o coast.pbf --overwrite && osmium export coast.pbf -c lin.json -f geojsonseq --geometry-types=linestring -o coast.geojsonseq --overwrite')
+    lines = []
+    for l in open('coast.geojsonseq'):
         l = l.strip().strip('\x1e')
-        if l: pieces.append(shape(json.loads(l)['geometry']))
-    say('육지 받기 끝'); tree = STRtree(pieces)
+        if not l: continue
+        g = json.loads(l)['geometry']
+        if g['type'] == 'LineString' and len(g['coordinates']) >= 2: lines.append(LineString(g['coordinates']))
+    say(f'해안선 길 {len(lines)}개')
+    mg = shapely.line_merge(shapely.MultiLineString(lines), directed=True)
+    parts = [list(g.coords) for g in (mg.geoms if hasattr(mg, 'geoms') else [mg])]
+    rings = [c for c in parts if len(c) >= 4 and c[0] == c[-1]]
+    opens = [c for c in parts if not (len(c) >= 4 and c[0] == c[-1])]
+    # 끊긴 곳 잇기 (1km 안, 방향이 거꾸로 된 길도) — 한 번 돌 때 여러 곳을 잇고, 더 이을 게 없을 때까지
+    def dd(p, q): return math.hypot((p[0] - q[0]) * KX, p[1] - q[1])
+    GAP = 0.01; gaps = []
+    while opens:
+        n = len(opens); S = np.array([c[0][:2] for c in opens], float); E = np.array([c[-1][:2] for c in opens], float)
+        used = np.zeros(n, bool); joined = 0
+        for i in sorted(range(n), key=lambda k: -len(opens[k])):
+            if used[i]: continue
+            a = opens[i]
+            if len(a) >= 4 and dd(a[-1], a[0]) < GAP:
+                gaps.append(round(dd(a[-1], a[0]) * 111000)); rings.append(a + [a[0]]); used[i] = True; joined += 1; continue
+            ex, ey = a[-1][0], a[-1][1]
+            ds = np.hypot((S[:, 0] - ex) * KX, S[:, 1] - ey); de = np.hypot((E[:, 0] - ex) * KX, E[:, 1] - ey)
+            ds[used] = 9; de[used] = 9; ds[i] = 9; de[i] = 9
+            j1, j2 = int(np.argmin(ds)), int(np.argmin(de))
+            if min(ds[j1], de[j2]) >= GAP: continue
+            if ds[j1] <= de[j2]: j, b = j1, opens[j1]; d = ds[j1]
+            else: j, b = j2, opens[j2][::-1]; d = de[j2]
+            gaps.append(round(d * 111000)); opens[i] = a + b; used[j] = True; E[i] = b[-1][:2]; joined += 1
+        opens = [opens[k] for k in range(n) if not used[k]]
+        if not joined: break
+    opens.sort(key=len, reverse=True)
+    main = opens[0]
+    say(f'섬 고리 {len(rings)} · 열린 선 {len(opens)} · 이은 틈(m) {sorted(gaps)[-8:]} · 본토 {len(main)}점 {main[0]} → {main[-1]}')
+    for o in opens[1:12]: log.append(f'  남은 열린 선 {len(o)}점 {o[0]} → {o[-1]}')
+    ok_ends = main[0][1] > 38.8 and main[-1][1] > 38.8 and main[0][0] < 127 and main[-1][0] > 127
+    if not ok_ends:   # 방향이 반대로 잡혔으면 뒤집어 본다
+        r = main[::-1]
+        if r[0][1] > 38.8 and r[-1][1] > 38.8 and r[0][0] < 127 and r[-1][0] > 127: main = r; ok_ends = True
+    if not ok_ends: raise RuntimeError('본토 해안선이 북한 북쪽까지 이어지지 않음')
+    # 본토: 해안선 끝(두만강 쪽)에서 내륙(중국)을 돌아 시작(압록강 쪽)으로 닫는다 — 모두 북위 38.8도 위라 남한 바다에는 영향 없음
+    close = [(130.0, 43.6), (126.0, 43.6), (123.4, 41.6)]
+    mpoly = shapely.make_valid(Polygon(main + close + [main[0]]))
+    mpoly = union_all([g for g in (mpoly.geoms if hasattr(mpoly, 'geoms') else [mpoly]) if g.geom_type in ('Polygon', 'MultiPolygon')])
+    shapely.prepare(mpoly)
+    isl, holes = [], []
+    for c in rings:
+        pg = shapely.make_valid(Polygon(c))
+        if pg.is_empty: continue
+        if not shapely.LinearRing(c).is_ccw and mpoly.contains(pg.representative_point()): holes.append(pg)   # 땅 안의 바닷물(석호)
+        else: isl.append(pg)
+    osm = union_all([mpoly] + isl)
+    if holes: osm = osm.difference(union_all(holes))
+    chk = {'서울': (126.98, 37.57, True), '대전': (127.38, 36.35, True), '부산': (129.05, 35.2, True), '목포': (126.4, 34.8, True),
+           '제주': (126.55, 33.4, True), '울릉': (130.87, 37.5, True), '서해': (125.5, 36.5, False), '동해': (130.0, 37.5, False), '남해': (127.5, 34.0, False)}
+    shapely.prepare(osm)
+    bad = [k for k, (x, y, want) in chk.items() if osm.contains(Point(x, y)) != want]
+    say(f'남북한 OSM 육지 점 {shapely.get_num_coordinates(osm)} · 확인 틀린 곳 {bad}')
+    if bad: raise RuntimeError(f'육지 확인 실패 {bad}')
+    JP = union_all([box(128.7, 32.5, 132.5, 34.0), box(129.0, 32.5, 132.5, 34.8)])     # 대마도·이키·규슈·혼슈 끝 (일본 쪽)
+    KF = union_all([box(*f) for f in FINE]).difference(JP)
+    nep = []
+    for rs in json.load(open('.github/probe/ne_big.json')):
+        try: pg = shapely.make_valid(Polygon(rs[0], rs[1:]))
+        except Exception: continue
+        if not pg.is_empty: nep.append(pg)
+    ne_land = union_all(nep).difference(KF)
+    osm_k = osm.intersection(KF)
+    def polys_of(g):
+        for q in shapely.get_parts(g):
+            if q.geom_type == 'Polygon':
+                if not q.is_empty: yield q
+            elif q.geom_type in ('MultiPolygon', 'GeometryCollection'): yield from polys_of(q)
+    srcs = list(polys_of(osm_k)) + list(polys_of(ne_land)); st = STRtree(srcs)
+    pieces = []
+    for ix in range(int(BIG[2] - BIG[0])):
+        for iy in range(int(math.ceil(BIG[3] - BIG[1]))):
+            bb = (BIG[0] + ix, BIG[1] + iy, BIG[0] + ix + 1, BIG[1] + iy + 1)
+            for k in st.query(box(*bb)):
+                pieces += list(polys_of(clip_by_rect(srcs[k], *bb)))
+    tree = STRtree(pieces)
     say(f'육지 조각 {len(pieces)}개, 점 {sum(shapely.get_num_coordinates(p) for p in pieces)}')
 
     # ---------- 2) 칸마다: 조각을 칸으로 자르고 합친 뒤, 칸 경계 점은 고정한 채 단순화
@@ -168,7 +248,6 @@ try:
         say(f'단계 {lv}: 땅 조각 {len(Lp)} · 해안선 {len(Kp)} · 점 {n} (코어 {NC})')
 
     # ---------- 3) 한국 OSM: 호수·저수지·큰 강, 섬·만 이름
-    sh('wget -q https://download.geofabrik.de/asia/south-korea-latest.osm.pbf -O kr.pbf')
     sh('osmium fileinfo -e kr.pbf | grep -i "timestamp" | head -1 > when.txt')
     when = open('when.txt').read().split('timestamp=')[-1].strip()[:10] if os.path.exists('when.txt') else ''
     sh('osmium tags-filter kr.pbf nwr/natural=water nwr/waterway=riverbank nwr/landuse=reservoir,basin -o water.pbf --overwrite')
