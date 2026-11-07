@@ -109,7 +109,8 @@ sleep 8; locState after-ask2
 for i in $(seq 1 3); do adb emu geo fix 126.3303 37.1703; sleep 4; done
 shot 15-map-on
 adb shell uiautomator dump /sdcard/ui.xml >/dev/null 2>&1; sleep 2   # 웹 화면 글자를 읽을 수 있게 한 번 먼저
-for k in 1 2 3 4 5; do tapText "\|mv-off$" w16-$k && break; sleep 3; done
+for k in 1 2 3; do tapText "\|mv-off$" w16-$k && break; sleep 3; done
+[ -z "$XY" ] && { XY="999 200"; echo "mv-off 글자를 못 읽어 자리로 누름 $XY" | tee -a "$OUT/loc.txt"; adb shell input tap $XY; }   # 지도 윗줄 오른쪽 끝 (pixel 6)
 sleep 1; adb shell input tap $XY   # 한 번 더 눌러 확인 (끄기 단추는 실수로 꺼지지 않게 두 번)
 sleep 5; shot 16-end-dialog
 adb shell input keyevent KEYCODE_BACK; sleep 2
