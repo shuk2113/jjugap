@@ -11,3 +11,5 @@ No VM guests are running outdated hypervisor (qemu) binaries on this host.
 
 $ /usr/bin/python3 -m pip install -q --user --break-system-packages shapely numpy → 0 (3s) 
 [19s] shapely 2.2.0 · 코어 4
+$ wget -q --timeout=60 --tries=5 https://download.geofabrik.de/asia/south-korea-latest.osm.pbf -O kr.pbf; wget -q --timeout=60 --tries=5 https → 0 (25s) -rw-r--r-- 1 runner runner 291019374 Nov  6 16:34 kr.pbf
+-rw-r--r-- 1 runner runner  93220944 Nov  6 16:21 nk.pbf
