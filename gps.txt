@@ -1,0 +1,63 @@
+11-07 17:42:36.878  3285  3285 I jjugap  : gps rest (app on screen)
+11-07 17:42:36.878  3285  3285 I jjugap  : service started
+11-07 17:43:16.197  3285  3285 I jjugap  : gps slow 10s fused batch 30s
+11-07 17:43:16.551  3285  3285 I jjugap  : gps batch 1
+11-07 17:43:25.869  3285  3285 I jjugap  : gps batch 1
+11-07 17:44:00.894  3285  3285 I jjugap  : gps batch 4
+11-07 17:44:35.897  3285  3285 I jjugap  : gps batch 3
+11-07 17:45:10.901  3285  3285 I jjugap  : gps batch 4
+11-07 17:45:45.905  3285  3285 I jjugap  : gps batch 3
+11-07 17:46:20.907  3285  3285 I jjugap  : gps batch 3
+11-07 17:46:55.910  3285  3285 I jjugap  : gps batch 4
+11-07 17:47:30.913  3285  3285 I jjugap  : gps batch 3
+11-07 17:48:05.916  3285  3285 I jjugap  : gps batch 4
+11-07 17:48:05.939  3285  3285 I jjugap  : saved note 오전 2:48 · 5분 머문 곳을 포인트로 남겼어요
+11-07 17:48:40.919  3285  3285 I jjugap  : gps batch 3
+11-07 17:48:40.920  3285  3285 I jjugap  : gps fast 30s fused batch 30s
+11-07 17:48:40.923  3285  3285 I jjugap  : gps batch 1
+11-07 17:48:45.151  3285  3285 I jjugap  : gps batch 1
+11-07 17:48:45.152  3285  3285 I jjugap  : gps slow 10s fused batch 30s
+11-07 17:48:45.156  3285  3285 I jjugap  : gps batch 1
+11-07 17:49:20.165  3285  3285 I jjugap  : gps batch 3
+11-07 17:49:55.169  3285  3285 I jjugap  : gps batch 3
+11-07 17:50:25.168  3285  3285 I jjugap  : gps rest (app on screen)
+11-07 17:50:25.534  3285  3285 I jjugap  : gps batch 3
+11-07 17:50:35.925  3285  3285 I jjugap  : gps slow 10s fused batch 30s
+11-07 17:50:36.146  3285  3285 I jjugap  : gps batch 1
+11-07 17:50:37.537  3285  3285 I jjugap  : gps rest (app on screen)
+11-07 17:51:21.877  3285  3285 I jjugap  : gps slow 10s fused batch 30s
+11-07 17:51:21.911  3285  3285 I jjugap  : gps batch 1
+11-07 17:52:01.969  3285  3285 I jjugap  : gps batch 3
+11-07 17:52:01.969  3285  3285 I jjugap  : gps fast 30s fused batch 30s
+11-07 17:52:01.974  3285  3285 I jjugap  : gps batch 1
+11-07 17:52:06.174  3285  3285 I jjugap  : gps batch 1
+11-07 17:52:06.174  3285  3285 I jjugap  : gps slow 10s fused batch 30s
+11-07 17:52:06.179  3285  3285 I jjugap  : gps batch 1
+11-07 17:52:46.189  3285  3285 I jjugap  : gps batch 3
+11-07 17:53:26.195  3285  3285 I jjugap  : gps batch 4
+11-07 17:53:26.195  3285  3285 I jjugap  : gps fast 30s fused batch 30s
+11-07 17:53:26.200  3285  3285 I jjugap  : gps batch 1
+11-07 17:53:30.181  3285  3285 I jjugap  : gps batch 1
+11-07 17:54:00.183  3285  3285 I jjugap  : gps batch 1
+11-07 17:54:00.183  3285  3285 I jjugap  : gps slow 10s fused batch 30s
+11-07 17:54:00.186  3285  3285 I jjugap  : gps batch 1
+11-07 17:54:40.200  3285  3285 I jjugap  : gps batch 3
+11-07 17:54:40.201  3285  3285 I jjugap  : gps fast 30s fused batch 30s
+11-07 17:54:40.208  3285  3285 I jjugap  : gps batch 1
+11-07 17:54:44.186  3285  3285 I jjugap  : gps batch 1
+11-07 17:55:14.188  3285  3285 I jjugap  : gps batch 1
+11-07 17:55:14.188  3285  3285 I jjugap  : gps slow 10s fused batch 30s
+11-07 17:55:14.192  3285  3285 I jjugap  : gps batch 1
+11-07 17:55:54.201  3285  3285 I jjugap  : gps batch 3
+11-07 17:56:34.211  3285  3285 I jjugap  : gps batch 4
+11-07 17:56:34.254  3285  3285 I jjugap  : saved note 오전 2:56 · 5분 머문 곳을 포인트로 남겼어요
+11-07 17:57:14.258  3285  3285 I jjugap  : gps batch 4
+11-07 17:57:14.258  3285  3285 I jjugap  : gps fast 30s fused batch 30s
+11-07 17:57:14.265  3285  3285 I jjugap  : gps batch 1
+11-07 17:57:18.197  3285  3285 I jjugap  : gps batch 1
+11-07 17:57:48.200  3285  3285 I jjugap  : gps batch 1
+11-07 17:57:48.200  3285  3285 I jjugap  : gps slow 10s fused batch 30s
+11-07 17:57:48.202  3285  3285 I jjugap  : gps batch 1
+11-07 17:58:28.211  3285  3285 I jjugap  : gps batch 3
+11-07 17:58:36.798  3285  3285 I jjugap  : gps rest (app on screen)
+11-07 17:58:36.986  3285  3285 I jjugap  : gps batch 1

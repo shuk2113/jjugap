@@ -1,0 +1,24 @@
+off: location=0 false
+tapText 위치가 꺼져 기록이 멈췄어요 -> 587 730
+tapText ^(OK|Ok|확인|Turn on|TURN ON|사용)\| -> 842 1356
+after-ask: location=3 true
+tapText ^선상 모드 끄기\| -> 
+tapExpand 선상 모드 켜짐 -> 945 641
+tapText ^선상 모드 끄기\| -> 
+tapExpand 선상 모드 켜짐 -> 964 1048
+tapText ^선상 모드 끄기\| -> 541 1280
+end note none (ok)
+tapText ^(OK|Ok|확인|Turn on|TURN ON|사용)\| -> 842 1356
+after-ask2: location=3 true
+tapText \|mv-off$ -> 
+tapText \|mv-off$ -> 
+tapText \|mv-off$ -> 
+mv-off 글자를 못 읽어 자리로 누름 999 200
+end dialog none (ok)
+11-07 17:59:07.032  3285  3285 I jjugap  : loc off
+11-07 18:01:07.036  3285  3285 I jjugap  : loc off note
+11-07 18:02:02.730  3285  3285 I jjugap  : loc on by app
+11-07 18:02:07.404  3285  3285 I jjugap  : loc on
+11-07 18:03:04.176  3285  3285 I jjugap  : loc off
+11-07 18:03:20.824  3285  3285 I jjugap  : loc on by app
+11-07 18:03:34.213  3285  3285 I jjugap  : loc on

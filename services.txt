@@ -1,0 +1,39 @@
+ACTIVITY MANAGER SERVICES (dumpsys activity services)
+  User 0 active services:
+  * ServiceRecord{bd5f860 u0 io.github.shuk2113.jjugap/org.chromium.content.app.SandboxedProcessService0:0}
+    intent={cmp=io.github.shuk2113.jjugap/org.chromium.content.app.SandboxedProcessService0:0}
+    packageName=io.github.shuk2113.jjugap
+    processName=com.google.android.webview:sandboxed_process0:org.chromium.content.app.SandboxedProcessService0:0
+    baseDir=/data/app/~~6I-nGoKKGbrY7AuM0_JHyQ==/com.google.android.webview-vx0Jgbr9kjuV41ReRdeMJQ==/WebViewGoogle.apk
+    dataDir=/data/user/0/com.google.android.webview
+    app=ProcessRecord{334a6fa 3432:com.google.android.webview:sandboxed_process0:org.chromium.content.app.SandboxedProcessService0:0/u0a192i0}
+    isolationHostProc=ProcessRecord{334a6fa 3432:com.google.android.webview:sandboxed_process0:org.chromium.content.app.SandboxedProcessService0:0/u0a192i0}
+    mAllowWhileInUsePermissionInFgsReason=PROC_STATE_TOP
+    allowUiJobScheduling=false
+    recentCallingPackage=io.github.shuk2113.jjugap
+    recentCallingUid=10192
+    allowStartForeground=PROC_STATE_TOP
+    startForegroundCount=0
+    infoAllowStartForeground=[callingPackage: io.github.shuk2113.jjugap; callingUid: 10192; uidState: TOP ; uidBFSL: [BFSL]; intent: Intent { cmp=io.github.shuk2113.jjugap/org.chromium.content.app.SandboxedProcessService0:0 (has extras) }; code:PROC_STATE_TOP; tempAllowListReason:<null>; targetSdkVersion:34; callerTargetSdkVersion:34; startForegroundCount:0; bindFromPackage:null: isBindService:true]
+    createTime=-22m30s348ms startingBgTimeout=--
+    lastActivity=-22m28s696ms restartTime=-22m29s857ms createdFromFg=true
+    Bindings:
+    * IntentBindRecord{c51dbdb CREATE}:
+      intent={cmp=io.github.shuk2113.jjugap/org.chromium.content.app.SandboxedProcessService0:0}
+      binder=android.os.BinderProxy@6398678
+      requested=true received=true hasBound=true doRebind=false
+      * Client AppBindRecord{6470151 ProcessRecord{5bb9556 3285:io.github.shuk2113.jjugap/u0a192}}
+        Per-process Connections:
+          ConnectionRecord{184c2aa u0 CR WPRI io.github.shuk2113.jjugap/org.chromium.content.app.SandboxedProcessService0:0:@d648195 flags=0x80000021}
+          ConnectionRecord{ef4e50a u0 CR IMP io.github.shuk2113.jjugap/org.chromium.content.app.SandboxedProcessService0:0:@1903175 flags=0x80000041}
+    All Connections:
+      ConnectionRecord{ef4e50a u0 CR IMP io.github.shuk2113.jjugap/org.chromium.content.app.SandboxedProcessService0:0:@1903175 flags=0x80000041}
+      ConnectionRecord{184c2aa u0 CR WPRI io.github.shuk2113.jjugap/org.chromium.content.app.SandboxedProcessService0:0:@d648195 flags=0x80000021}
+
+  Connection bindings to services:
+  * ConnectionRecord{ef4e50a u0 CR IMP io.github.shuk2113.jjugap/org.chromium.content.app.SandboxedProcessService0:0:@1903175 flags=0x80000041}
+    binding=AppBindRecord{6470151 io.github.shuk2113.jjugap/org.chromium.content.app.SandboxedProcessService0:0:io.github.shuk2113.jjugap}
+    conn=android.os.BinderProxy@1903175 flags=0x80000041
+  * ConnectionRecord{184c2aa u0 CR WPRI io.github.shuk2113.jjugap/org.chromium.content.app.SandboxedProcessService0:0:@d648195 flags=0x80000021}
+    binding=AppBindRecord{6470151 io.github.shuk2113.jjugap/org.chromium.content.app.SandboxedProcessService0:0:io.github.shuk2113.jjugap}
+    conn=android.os.BinderProxy@d648195 flags=0x80000021
