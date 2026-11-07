@@ -321,6 +321,8 @@ h2{margin:0; font-size:calc(16px * var(--k)); font-weight:700; text-wrap:balance
 .mv-rig > span{flex:none; width:44px; padding-top:7px; font-size:calc(14px * var(--k)); font-weight:700}
 .mv-rchips{flex:1; min-width:0; display:flex; flex-wrap:wrap; gap:5px}
 .mv-rig.scroll .mv-rchips, .mv-rig.scroll .mv-egis{flex-wrap:nowrap; overflow-x:auto; scrollbar-width:none; -webkit-overflow-scrolling:touch} .mv-rig.scroll ::-webkit-scrollbar{display:none}
+/* 옆으로 더 있으면 그쪽 끝을 흐리게 (밀어 보면 더 있다는 표시) */
+.mv-rig.scroll .mv-rchips, .mv-rig.scroll .mv-egis{-webkit-mask-image:linear-gradient(90deg, transparent 0, #000 var(--fl, 0px), #000 calc(100% - var(--fr, 0px)), transparent 100%); mask-image:linear-gradient(90deg, transparent 0, #000 var(--fl, 0px), #000 calc(100% - var(--fr, 0px)), transparent 100%)}
 .mv-rchips button{flex:none; min-width:42px; height:34px; padding:0 10px; border:1px solid var(--line); border-radius:999px; background:var(--card); font:inherit; font-size:calc(13.5px * var(--k)); font-weight:700; color:var(--ink); -webkit-tap-highlight-color:transparent}
 .mv-rchips button.on{border-color:#2F7DF6; background:#2F7DF6; color:#fff} .mv-rchips button.own{border-style:dashed; color:var(--ink-2)}
 .mv-rchips input{width:74px; height:34px; padding:0 10px; border:1px solid #2F7DF6; border-radius:999px; background:var(--paper); font:inherit; font-size:calc(15px * var(--k)); font-weight:700; color:var(--ink)}
@@ -4104,7 +4106,26 @@ const TideHarm = (() => {
       if (n > 0 && n <= 200 && !form.sink.includes(n)) form.sink.push(n);
       repaint();
     }
-    function repaint() { const st = panel.scrollTop; if (mode === 'sum') paintSum(); else paintForm(); panel.scrollTop = st; if (form && form.egiNew) eginSync(false); }
+    function repaint() {
+      const st = panel.scrollTop, keep = [...panel.querySelectorAll('.mv-rig.scroll .mv-rchips, .mv-rig.scroll .mv-egis')].map(el => el.scrollLeft);   // 옆으로 민 자리도 그대로
+      if (mode === 'sum') paintSum(); else paintForm();
+      panel.scrollTop = st; panel.querySelectorAll('.mv-rig.scroll .mv-rchips, .mv-rig.scroll .mv-egis').forEach((el, i) => { if (keep[i]) el.scrollLeft = keep[i]; edgeFade(el); });
+      if (form && form.egiNew) eginSync(false);
+    }
+    // 옆으로 밀 수 있는 줄: 더 있는 쪽 끝을 흐리게 · 처음 한 번은 살짝 밀었다 돌아와서 밀 수 있다는 걸 보여 준다
+    function edgeFade(el) {
+      const max = el.scrollWidth - el.clientWidth;
+      el.style.setProperty('--fl', el.scrollLeft > 2 ? '22px' : '0px'); el.style.setProperty('--fr', el.scrollLeft < max - 2 ? '34px' : '0px');
+    }
+    function rigScrollInit() {
+      const els = [...panel.querySelectorAll('.mv-rig.scroll .mv-rchips, .mv-rig.scroll .mv-egis')]; if (!els.length) return;
+      els.forEach(edgeFade);
+      let seen = false; try { seen = localStorage.getItem('jjukgap-rig-nudge') === '1'; } catch (_) {}
+      if (seen || matchMedia('(prefers-reduced-motion: reduce)').matches || !els.some(el => el.scrollWidth - el.clientWidth > 8)) return;
+      try { localStorage.setItem('jjukgap-rig-nudge', '1'); } catch (_) {}
+      setTimeout(() => { els.forEach(el => { if (el.scrollLeft === 0) el.scrollTo({ left: Math.min(56, el.scrollWidth - el.clientWidth), behavior: 'smooth' }); }); }, 500);
+      setTimeout(() => { els.forEach(el => el.scrollTo({ left: 0, behavior: 'smooth' })); }, 1200);
+    }
     // ---------- 포인트 저장 · 고치기: 쭈꾸미·갑오징어·기타 어종 마릿수(숫자를 누르면 숫자 자판), 메모
     const ETC_PICKS = ['낙지', '문어'];
     const clampN = n => Math.max(0, Math.min(999, Math.round(+n || 0)));
@@ -4140,7 +4161,7 @@ const TideHarm = (() => {
       const i = infoAt(me), at = Date.now(), rg = rigToday();
       form = { jj: 0, gap: 0, etc: [{ n: '', c: 0 }], memo: '', i, at, lat: me.lat, lon: me.lon, acc: me.acc || 0, virtual: !!me.virtual, ...tripFor(at),
         sink: rg ? rg.sink.slice() : [], egi: rg ? rg.egi.map(x => ({ ...x })) : [] };
-      mode = 'save'; paintForm();
+      mode = 'save'; paintForm(); requestAnimationFrame(rigScrollInit);
     }
     function showEdit(id) {
       const p = points.find(q => q.id === id); if (!p) return;
@@ -4149,7 +4170,7 @@ const TideHarm = (() => {
       form = { edit: id, boat: p.boat || '', depName: p.depName || depLabel(p.dep), depPos: p.depLat != null ? { n: p.depName, lat: p.depLat, lon: p.depLon } : null, hint: '', jj: p.jj || 0, gap: p.gap || 0, etc: (p.etc && p.etc.length ? p.etc : [{ n: '', c: 0 }]).map(e => ({ n: e.n || '', c: e.c || 0 })), memo: p.memo || '', at: p.t,
         where: whereTxt(p, TideHarm.STATIONS[p.port] ? p.port : nearest(p).k), cond: `${p.mul} · ${p.stand ? p.stand.replace(' · ', ' ') : (p.rising ? '들물' : '날물')} ${meters(p.h)}` };
       form.sink = (p.sink || []).slice(); form.egi = (p.egi || []).map(x => ({ ...x }));
-      mode = 'save'; selId = id; paintForm(); draw();
+      mode = 'save'; selId = id; paintForm(); requestAnimationFrame(rigScrollInit); draw();
     }
     // 저장할 때 함께 남기는 그때의 물때·물 높이·조류·바람·수온
     const condOf = i => ({ port: i.k, mul: i.dd.name, lv: i.dd.lv, h: Math.round(i.h), rising: i.rising, stand: i.stand, pct: i.pct, wind: i.wind, wave: i.wave, wt: i.wt,
@@ -4284,6 +4305,7 @@ const TideHarm = (() => {
     panel.addEventListener('pointerdown', e => { if (e.target.closest && e.target.closest('[data-sug]')) e.preventDefault(); });
     panel.addEventListener('click', e => { const b = e.target.closest && e.target.closest('[data-sug]'); if (b) { e.stopPropagation(); pickSug(+b.dataset.sug); } }, true);
     panel.addEventListener('keydown', e => { if (e.target.id === 'mv-sink-own' && e.key === 'Enter') { e.preventDefault(); sinkOwnDone(); } });
+    panel.addEventListener('scroll', e => { const t = e.target; if (t !== panel && t.matches && t.matches('.mv-rig.scroll .mv-rchips, .mv-rig.scroll .mv-egis')) edgeFade(t); }, true);
     panel.addEventListener('input', e => {
       if (e.target.id !== 'mv-egi-r' || !form) return;
       const x = form.egiCur && form.egi.find(q => q.c === form.egiCur); if (!x) return;
@@ -5585,7 +5607,7 @@ const TideHarm = (() => {
 
 <script>
 if ('serviceWorker' in navigator) addEventListener('load', () => {
-  const sw = navigator.serviceWorker, VER = '5a3bc0c0'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
+  const sw = navigator.serviceWorker, VER = 'd29ae1d3'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
   // 화면에 손을 대기 시작했는지 (쓰는 중에는 새로 열지 않으려고)
   ['pointerdown', 'keydown'].forEach(t => addEventListener(t, () => { touched = true; }, { capture: true, passive: true }));
   const reload = () => {
