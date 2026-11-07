@@ -45,3 +45,4 @@ $ osmium tags-filter kr.pbf nwr/place=island,islet,archipelago nwr/natural=bay -
 $ osmium export places.pbf -f geojsonseq -o places.geojsonseq --overwrite --attributes=type,id → 0 (0s) 
 [145s] 물 1284개 → 합침, 이름 113
 [150s] 이름표 1515
+[152s] 크기 3114 KB (압축하면 1215 KB) · 땅 [98, 270, 646, 1273] · 물 [44, 115, 248, 356] · 이름 71 KB
