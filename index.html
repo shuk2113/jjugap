@@ -333,6 +333,7 @@ h2{margin:0; font-size:calc(16px * var(--k)); font-weight:700; text-wrap:balance
 .mv-sug span{flex:none; font-size:calc(11.5px * var(--k)); font-weight:600; color:var(--ink-2)}
 .mv-hint{margin:6px 0 0; font-size:calc(11.5px * var(--k)); line-height:1.45; color:#2F7DF6; word-break:keep-all}
 .mv-tip{margin:-2px 0 8px; font-size:calc(11px * var(--k)); color:var(--ink-2)}
+.mv-btns + .mv-tip{margin-top:12px}   /* '전체 기록 보기' 단추 바로 아래면 조금 띄운다 */
 .mv-tg + .mv-tg{margin-top:4px}
 .mv-grp{width:100%; display:flex; align-items:center; gap:7px; padding:7px 2px; border:0; background:none; font:inherit; font-size:calc(12.5px * var(--k)); font-weight:700; color:var(--ink-2); text-align:left; -webkit-tap-highlight-color:transparent; touch-action:manipulation}
 .mv-grp i{flex:none; width:9px; height:9px; border-radius:50%}
@@ -5225,7 +5226,7 @@ const TideHarm = (() => {
 
 <script>
 if ('serviceWorker' in navigator) addEventListener('load', () => {
-  const sw = navigator.serviceWorker, VER = 'b5270082'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
+  const sw = navigator.serviceWorker, VER = '19676b04'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
   // 화면에 손을 대기 시작했는지 (쓰는 중에는 새로 열지 않으려고)
   ['pointerdown', 'keydown'].forEach(t => addEventListener(t, () => { touched = true; }, { capture: true, passive: true }));
   const reload = () => {
