@@ -15,3 +15,4 @@ $ wget -q --timeout=60 --tries=5 https://download.geofabrik.de/asia/south-korea-
 -rw-r--r-- 1 runner runner  93220944 Nov  6 16:21 nk.pbf
 
 $ osmium tags-filter kr.pbf w/natural=coastline -o c1.pbf --overwrite && osmium tags-filter nk.pbf w/natural=coastline -o c2.pbf --overwrite & → 0 (9s) 
+[75s] 해안선 길 7206개
