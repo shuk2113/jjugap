@@ -10,7 +10,9 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.PowerManager;
+import android.os.SystemClock;
 import android.provider.Settings;
+import android.util.Log;
 import android.webkit.GeolocationPermissions;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebChromeClient;
@@ -19,20 +21,30 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
+import com.google.android.gms.common.api.ResolvableApiException;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.LocationSettingsRequest;
+import com.google.android.gms.location.Priority;
+
 /**
  * 쭈갑이 물때 앱 화면: 웹 앱을 그대로 띄운다.
  * 웹 앱이 지도를 열면(setMapOpen) 위치 기록 서비스를 켜서, 홈 화면에 나가 있거나 화면이 꺼져도 GPS를 모으고
  * 홈 화면 위에 '포인트 저장' 단추를 띄운다.
+ * 선상 모드를 켤 때 휴대폰 위치가 꺼져 있으면 한 번에 켜는 창을 띄우고, 그날 끝날 때는 위치를 끄라고 알려 준다.
  */
 public class MainActivity extends Activity {
     static final String HOME = "https://shuk2113.github.io/jjugap/";
-    static final int REQ_LOC = 11, REQ_NOTI = 12;
+    static final int REQ_LOC = 11, REQ_NOTI = 12, REQ_LOCON = 13;
 
     WebView web;
     static MainActivity live;   // 위치 기록 서비스가 모아 둔 GPS를 바로 넘겨줄 화면
     GeolocationPermissions.Callback geoCb;
     String geoOrigin;
     boolean mapOpen;
+    boolean askingLoc, sentLocOn;   // 위치 켜기 창을 띄운 중 · 위치 켜러 설정 화면에 보냄
+    long locNoAt;                    // '위치 켜기'를 마다한 때 (10분 동안은 앱에 돌아올 때마다 다시 묻지 않는다)
+    AlertDialog offAsk;
 
     SharedPreferences prefs() { return getSharedPreferences("jjugap", MODE_PRIVATE); }
 
@@ -83,6 +95,7 @@ public class MainActivity extends Activity {
         String act = actOf(getIntent());
         web.loadUrl(HOME + (act != null ? "?act=" + act : ""));
         if ("update".equals(getIntent().getStringExtra("act"))) Updater.start(this);
+        if (getIntent().getBooleanExtra("locon", false)) web.postDelayed(this::askLocationOn, 1200);
     }
 
     @Override
@@ -90,6 +103,7 @@ public class MainActivity extends Activity {
         super.onNewIntent(i);
         setIntent(i);
         if ("update".equals(i.getStringExtra("act"))) { Updater.start(this); return; }
+        if (i.getBooleanExtra("locon", false) && web != null) web.postDelayed(this::askLocationOn, 600);
         String act = actOf(i);
         if (act != null && web != null) {
             web.evaluateJavascript("window.jjugapAct ? jjugapAct('" + act + "') : location.replace('" + HOME + "?act=" + act + "')", null);
@@ -106,6 +120,11 @@ public class MainActivity extends Activity {
     protected void onResume() {
         super.onResume();
         Updater.resume(this);   // '이 출처 허용'을 켜고 돌아오면 이어서 업데이트
+        if (sentLocOn) {   // 위치를 켜러 설정 화면에 갔다 돌아옴
+            sentLocOn = false;
+            if (Loc.on(this)) { Loc.markHelped(this); locOnNow(); }
+        }
+        if (web != null) web.evaluateJavascript("window.jjugapLocCheck && jjugapLocCheck()", null);
     }
 
     @Override
@@ -146,6 +165,16 @@ public class MainActivity extends Activity {
     }
 
     @Override
+    protected void onActivityResult(int req, int res, Intent data) {
+        super.onActivityResult(req, res, data);
+        if (req == REQ_LOCON) {
+            askingLoc = false;
+            if (res == RESULT_OK || Loc.on(this)) { Loc.markHelped(this); locOnNow(); afterLocOn(); Log.i("jjugap", "loc on by app"); }
+            else { locNoAt = SystemClock.elapsedRealtime(); Log.i("jjugap", "loc on declined"); }
+        }
+    }
+
+    @Override
     public void onRequestPermissionsResult(int req, String[] perms, int[] res) {
         super.onRequestPermissionsResult(req, perms, res);
         if (req == REQ_LOC) {
@@ -174,6 +203,17 @@ public class MainActivity extends Activity {
 
     void startTracking() {
         TrackService.start(this);
+        if (!Loc.on(this)) {   // 위치부터 (단추 안내는 다음에)
+            Loc.markOffSeen(this);
+            if (locNoAt == 0 || SystemClock.elapsedRealtime() - locNoAt > 10 * 60000) askLocationOn();
+            return;
+        }
+        askOverlay();
+    }
+
+    void afterLocOn() { if (mapOpen) askOverlay(); }
+
+    void askOverlay() {
         SharedPreferences sp = prefs();
         if (!sp.getBoolean("bubble", true) || Settings.canDrawOverlays(this) || sp.getBoolean("askedOverlay", false)) return;
         sp.edit().putBoolean("askedOverlay", true).apply();
@@ -193,9 +233,69 @@ public class MainActivity extends Activity {
         }
     }
 
+    // ---------- 휴대폰 위치(GPS) 켜기 · 끄기 안내
+    /** 위치가 꺼져 있으면 '위치 켜기' 창 (구글 위치 서비스로 한 번에, 안 되면 설정 화면으로) */
+    void askLocationOn() {
+        if (Loc.on(this)) { locOnNow(); return; }
+        if (askingLoc || isFinishing()) return;
+        askingLoc = true;
+        try {
+            LocationRequest lr = new LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 4000).build();
+            LocationSettingsRequest r = new LocationSettingsRequest.Builder().addLocationRequest(lr).setAlwaysShow(true).build();
+            LocationServices.getSettingsClient(this).checkLocationSettings(r)
+                .addOnSuccessListener(this, x -> {
+                    askingLoc = false;
+                    if (Loc.on(this)) { locOnNow(); afterLocOn(); } else locOnDialog();
+                })
+                .addOnFailureListener(this, e -> {
+                    if (e instanceof ResolvableApiException) {
+                        try { ((ResolvableApiException) e).startResolutionForResult(this, REQ_LOCON); return; }
+                        catch (Exception x) { Log.w("jjugap", "locon", x); }
+                    }
+                    askingLoc = false;
+                    locOnDialog();
+                });
+        } catch (Throwable t) {   // 구글 위치 서비스가 없는 휴대폰
+            Log.w("jjugap", "locon", t);
+            askingLoc = false;
+            locOnDialog();
+        }
+    }
+
+    void locOnDialog() {
+        if (isFinishing() || Loc.on(this)) return;
+        new AlertDialog.Builder(this)
+            .setTitle("위치가 꺼져 있어요")
+            .setMessage("포인트 저장과 자동 기록에는 휴대폰 위치(GPS)가 필요해요. 다음 화면에서 '위치'를 켜고 돌아와 주세요.")
+            .setPositiveButton("위치 켜기", (d, w) -> { sentLocOn = true; Loc.openSettings(this); })
+            .setNegativeButton("나중에", (d, w) -> locNoAt = SystemClock.elapsedRealtime())
+            .show();
+    }
+
+    /** 위치가 켜졌다 → 웹 앱이 GPS를 다시 받게 */
+    void locOnNow() {
+        if (web != null) web.evaluateJavascript("window.jjugapLocOn && jjugapLocOn()", null);
+    }
+
+    /** 선상 모드가 끝났는데 그날 앱이 켜 준 위치가 아직 켜져 있을 때 (앱 화면을 보고 있으면) */
+    void askLocationOff() {
+        if (isFinishing() || !Loc.on(this)) return;
+        if (offAsk != null && offAsk.isShowing()) return;
+        offAsk = new AlertDialog.Builder(this)
+            .setTitle("위치를 끌까요?")
+            .setMessage("선상 모드가 끝났어요. 오늘 켠 휴대폰 위치(GPS)가 아직 켜져 있어요. 배터리를 아끼려면 다음 화면에서 '위치'를 꺼 주세요.")
+            .setPositiveButton("위치 끄기", (d, w) -> Loc.openSettings(this))
+            .setNegativeButton("그대로 두기", null)
+            .show();
+    }
+
     /** 웹 앱에서 부르는 것들 (window.JjugapNative) */
     class Bridge {
-        @JavascriptInterface public String version() { return "1"; }
+        @JavascriptInterface public String version() { return "2"; }
+        @JavascriptInterface public boolean locationOn() { return Loc.on(MainActivity.this); }
+        @JavascriptInterface public void askLocationOn() { runOnUiThread(MainActivity.this::askLocationOn); }
+        @JavascriptInterface public void openLocationSettings() { runOnUiThread(() -> Loc.openSettings(MainActivity.this)); }
+        @JavascriptInterface public boolean helpedToday() { return Loc.helped(MainActivity.this); }
         @JavascriptInterface public boolean batteryOk() { return MainActivity.this.batteryOk(); }
         @JavascriptInterface public void askBattery() { runOnUiThread(MainActivity.this::askBattery); }
         @JavascriptInterface public long versionCode() { return Updater.versionCode(MainActivity.this); }

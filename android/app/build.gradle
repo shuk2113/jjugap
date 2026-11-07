@@ -26,3 +26,8 @@ android {
     compileOptions { sourceCompatibility JavaVersion.VERSION_17; targetCompatibility JavaVersion.VERSION_17 }
     lint { checkReleaseBuilds false; abortOnError false }
 }
+
+dependencies {
+    // 휴대폰 위치가 꺼져 있을 때 '위치 켜기' 창을 한 번에 띄우는 데만 쓴다
+    implementation 'com.google.android.gms:play-services-location:21.3.0'
+}

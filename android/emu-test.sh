@@ -34,6 +34,62 @@ for i in $(seq 1 42); do adb emu geo fix 126.390$((RANDOM%9)) 37.160$((RANDOM%9)
 adb shell input keyevent KEYCODE_WAKEUP; sleep 2; adb shell wm dismiss-keyguard; sleep 3
 adb shell cmd statusbar expand-notifications; sleep 4; shot 7-lock-noti; adb shell cmd statusbar collapse; sleep 2
 adb shell am start -n $P/.MainActivity --es act map; sleep 6; shot 8-after-lock
+# ---------- 휴대폰 위치(GPS) 꺼짐
+# 화면의 글자(알림·창·웹 단추 이름)를 찾아 누른다: tapText <정규식> <이름>
+tapText() {
+  adb shell uiautomator dump /sdcard/ui.xml >/dev/null 2>&1
+  adb pull /sdcard/ui.xml "$OUT/ui-$2.xml" >/dev/null 2>&1
+  XY=$(python3 - "$OUT/ui-$2.xml" "$1" <<'PY'
+import re, sys
+s = open(sys.argv[1], encoding='utf-8', errors='ignore').read()
+for m in re.finditer(r'<node [^>]*>', s):
+    n = m.group(0)
+    t = re.search(r' text="([^"]*)"', n); d = re.search(r'content-desc="([^"]*)"', n)
+    txt = (t.group(1) if t else '') + '|' + (d.group(1) if d else '')
+    if re.search(sys.argv[2], txt):
+        b = re.search(r'bounds="\[(\d+),(\d+)\]\[(\d+),(\d+)\]"', n)
+        if b:
+            x1, y1, x2, y2 = map(int, b.groups()); print((x1 + x2) // 2, (y1 + y2) // 2); break
+PY
+)
+  echo "tapText $1 -> $XY" | tee -a "$OUT/loc.txt"
+  [ -n "$XY" ] && adb shell input tap $XY
+  [ -n "$XY" ]
+}
+locState() { echo "$1: location=$(adb shell settings get secure location_mode) $(adb shell cmd location is-location-enabled 2>/dev/null)" | tee -a "$OUT/loc.txt"; }
+# (1) 선상 모드 중 위치를 끄면 → 지도에 빨간 띠 · 알약 '위치 꺼짐 · 기록 멈춤'
+adb shell am start -n $P/.MainActivity --es act map; sleep 8
+adb shell cmd location set-location-enabled false; sleep 10
+locState off; shot 9-locoff-map
+# (4) 홈 화면에서 2분 넘게 꺼져 있으면 → 진동 알림 '위치가 꺼져 기록이 멈췄어요'
+adb shell input keyevent KEYCODE_HOME
+sleep 150
+adb shell cmd statusbar expand-notifications; sleep 4; shot 10-locoff-noti
+# 알림을 누르면 → 앱이 열리고 '위치 켜기' 창 (구글 위치 서비스) → 확인
+tapText "위치가 꺼져 기록이 멈췄어요" n10 || { adb shell cmd statusbar collapse; adb shell am start -n $P/.MainActivity --es act map --ez locon true; }
+sleep 8; shot 11-locon-ask
+tapText "^(OK|Ok|확인|Turn on|TURN ON|사용)\|" a11 || tapText "(OK|확인|Turn on|사용)" a11b || adb shell cmd location set-location-enabled true
+sleep 8; locState after-ask; shot 12-locon-after
+adb shell cmd location set-location-enabled true
+for i in $(seq 1 3); do adb emu geo fix 126.3302 37.1702; sleep 4; done
+# 끝날 때 (홈 화면에서 알림줄 '선상 모드 끄기') → 알림 '선상 모드가 끝났어요 · 위치를 꺼 주세요'
+adb shell input keyevent KEYCODE_HOME; sleep 4
+adb shell cmd statusbar expand-notifications; sleep 4
+tapText "^선상 모드 끄기\|" n13 || tapText "선상 모드 끄기" n13b
+sleep 5; adb shell cmd statusbar collapse; sleep 2; adb shell cmd statusbar expand-notifications; sleep 4; shot 13-end-noti
+adb shell cmd statusbar collapse; sleep 2
+# (1) 위치를 끈 채 선상 모드를 켜면 → 바로 '위치 켜기' 창 → 확인 → 앱 화면에서 끄면 '위치를 끌까요?' 창
+adb shell cmd location set-location-enabled false; sleep 4
+adb shell am start -n $P/.MainActivity --es act map; sleep 12
+shot 14-start-ask
+tapText "^(OK|Ok|확인|Turn on|TURN ON|사용)\|" a14 || tapText "(OK|확인|Turn on|사용)" a14b || adb shell cmd location set-location-enabled true
+sleep 8; locState after-ask2
+for i in $(seq 1 3); do adb emu geo fix 126.3303 37.1703; sleep 4; done
+shot 15-map-on
+tapText "선상 모드 끄기" w16; sleep 1; tapText "한 번 더 누르면 선상 모드를 꺼요|선상 모드 끄기" w16b
+sleep 5; shot 16-end-dialog
+adb shell input keyevent KEYCODE_BACK; sleep 2
+adb logcat -d -s jjugap:I | grep -E "loc |locon" >> "$OUT/loc.txt"
 # 앱 안에서 업데이트: 같은 파일을 받아 설치 화면을 여는지
 adb shell appops set $P REQUEST_INSTALL_PACKAGES allow
 adb shell am start -n $P/.MainActivity --es act update

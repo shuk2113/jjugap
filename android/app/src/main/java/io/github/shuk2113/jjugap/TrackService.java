@@ -18,6 +18,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
+import android.os.SystemClock;
 import android.provider.Settings;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -35,10 +36,12 @@ import java.util.Locale;
  * 지도를 켜 둔 동안 도는 위치 기록 서비스 (알림줄에 '선상 모드 켜짐' 표시).
  * - 앱 화면이 안 보일 때(홈 화면·다른 앱·화면 꺼짐) GPS를 모아 두면, 웹 앱이 받아 가서 5분 머문 곳을 자동 기록한다
  * - 앱 화면이 안 보일 때 홈 화면 위에 '포인트 저장' 단추를 띄운다 (끌어서 옮기기, 누르면 바로 저장 화면, 아래 ×에 놓으면 숨기기)
+ * - 휴대폰 위치가 2분 넘게 꺼져 있으면 진동 알림 (누르면 위치 켜기) · 그날 앱이 켜 준 위치는 끝날 때 끄라고 알려 준다
  */
 public class TrackService extends Service implements LocationListener {
-    static final String CH = "track", CH2 = "saved";
-    static final int NID = 7, NID2 = 8;
+    static final String CH = "track", CH2 = "saved", CH3 = "loc";
+    static final int NID = 7, NID2 = 8, NID3 = 9, NID4 = 10;
+    static final long OFF_WAIT = 120000;   // 위치가 이만큼 꺼져 있으면 알림
     static final ArrayList<double[]> fixes = new ArrayList<>();
     static volatile boolean appVisible = true;
     static volatile String status = "자동 기록 켜짐";
@@ -53,6 +56,11 @@ public class TrackService extends Service implements LocationListener {
     TrashView trash;
     WindowManager.LayoutParams lp, tlp;
     boolean hidden;
+    long offSince;      // 위치가 꺼진 걸 처음 본 때 (elapsedRealtime, 0 = 켜져 있음)
+    boolean offNoted;   // '위치가 꺼져 기록이 멈췄어요' 알림을 띄웠다
+    final Runnable watch = new Runnable() {
+        @Override public void run() { checkLoc(); if (self != null) h.postDelayed(this, 15000); }
+    };
 
     static boolean running() { return self != null; }
 
@@ -66,7 +74,7 @@ public class TrackService extends Service implements LocationListener {
     static void setAppVisible(boolean v) {
         appVisible = v;
         TrackService s = self;
-        if (s != null) s.h.post(s::syncBubble);
+        if (s != null) { s.h.post(s::syncBubble); s.h.post(s::checkLoc); }
     }
 
     static void refresh() { TrackService s = self; if (s != null) s.h.post(s::syncBubble); }
@@ -107,17 +115,23 @@ public class TrackService extends Service implements LocationListener {
         c2.enableVibration(true);
         c2.setVibrationPattern(new long[]{0, 120, 90, 120});
         nm.createNotificationChannel(c2);
+        NotificationChannel c3 = new NotificationChannel(CH3, "위치(GPS) 알림", NotificationManager.IMPORTANCE_HIGH);
+        c3.setSound(null, null);
+        c3.enableVibration(true);
+        c3.setVibrationPattern(new long[]{0, 400, 200, 400, 200, 400});
+        nm.createNotificationChannel(c3);
         goForeground();
         lm = getSystemService(LocationManager.class);
         try {
             lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 4000, 0, this, Looper.getMainLooper());
         } catch (SecurityException | IllegalArgumentException e) { Log.w("jjugap", "gps", e); }
-        try {
-            if (lm.isProviderEnabled(LocationManager.NETWORK_PROVIDER))
+        try {   // 위치가 꺼져 있어도 걸어 둔다 (켜지면 그때부터 들어온다)
+            if (lm.getAllProviders().contains(LocationManager.NETWORK_PROVIDER))
                 lm.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 15000, 0, this, Looper.getMainLooper());
         } catch (SecurityException | IllegalArgumentException e) { Log.w("jjugap", "net", e); }
         wm = getSystemService(WindowManager.class);
         syncBubble();
+        h.post(watch);
         Log.i("jjugap", "service started");
     }
 
@@ -143,10 +157,21 @@ public class TrackService extends Service implements LocationListener {
 
     @Override
     public void onDestroy() {
+        h.removeCallbacks(watch);
         if (lm != null) { try { lm.removeUpdates(this); } catch (Exception ignored) { } }
         removeBubble();
         hideTrash();
         self = null;
+        NotificationManager nm = getSystemService(NotificationManager.class);
+        try { nm.cancel(NID3); } catch (Exception ignored) { }
+        // 선상 모드가 끝났다: 그날 앱이 켜 준 위치가 아직 켜져 있으면 끄라고 한 번 알려 준다
+        if (Loc.helped(this) && Loc.on(this)) {
+            Loc.clearHelped(this);
+            MainActivity a = MainActivity.live;
+            if (appVisible && a != null) a.runOnUiThread(a::askLocationOff);
+            else offNote(nm);
+            Log.i("jjugap", "loc off ask " + (appVisible && a != null ? "dialog" : "note"));
+        } else Loc.clearOffSeen(this);
         Log.i("jjugap", "service stopped");
         super.onDestroy();
     }
@@ -177,8 +202,65 @@ public class TrackService extends Service implements LocationListener {
     }
 
     @Override public void onStatusChanged(String p, int s, Bundle b) { }
-    @Override public void onProviderEnabled(String p) { }
-    @Override public void onProviderDisabled(String p) { }
+    @Override public void onProviderEnabled(String p) { h.post(this::checkLoc); }
+    @Override public void onProviderDisabled(String p) { h.post(this::checkLoc); }
+
+    // ---------- 휴대폰 위치(GPS)가 꺼졌는지 15초마다
+    void checkLoc() {
+        if (self == null) return;
+        boolean on = Loc.on(this);
+        long now = SystemClock.elapsedRealtime();
+        if (!on) {
+            if (offSince == 0) { offSince = now; Loc.markOffSeen(this); post(); Log.i("jjugap", "loc off"); }
+            if (!offNoted && !appVisible && now - offSince >= OFF_WAIT) { offNoted = true; offOnNote(); }
+        } else if (offSince != 0) {
+            offSince = 0;
+            Loc.noteOn(this);
+            post();
+            Log.i("jjugap", "loc on");
+            if (offNoted) { offNoted = false; try { getSystemService(NotificationManager.class).cancel(NID3); } catch (Exception ignored) { } }
+            MainActivity a = MainActivity.live;
+            if (a != null) a.runOnUiThread(a::locOnNow);
+        }
+    }
+
+    PendingIntent locOnIntent(int rc) {
+        Intent i = new Intent(this, MainActivity.class).putExtra("act", "map").putExtra("locon", true)
+            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        return PendingIntent.getActivity(this, rc, i, PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
+    }
+
+    /** 선상 모드 중인데 위치가 꺼져 있다 (진동) */
+    void offOnNote() {
+        Notification n = new Notification.Builder(this, CH3)
+            .setSmallIcon(R.drawable.ic_stat)
+            .setColor(0xFFE5484D)
+            .setContentTitle("위치가 꺼져 기록이 멈췄어요")
+            .setContentText("선상 모드 중인데 휴대폰 위치(GPS)가 꺼져 있어요 · 눌러서 켜기")
+            .setStyle(new Notification.BigTextStyle().bigText("선상 모드 중인데 휴대폰 위치(GPS)가 꺼져 있어서 포인트 저장·자동 기록이 안 돼요. 눌러서 위치를 켜 주세요."))
+            .setCategory(Notification.CATEGORY_STATUS)
+            .setAutoCancel(true)
+            .setContentIntent(locOnIntent(6))
+            .addAction(new Notification.Action.Builder(null, "위치 켜기", locOnIntent(7)).build())
+            .build();
+        try { getSystemService(NotificationManager.class).notify(NID3, n); Log.i("jjugap", "loc off note"); } catch (Exception ignored) { }
+    }
+
+    /** 선상 모드가 끝났다 · 그날 앱이 켜 준 위치를 꺼 달라고 (앱 화면을 안 보고 있을 때) */
+    void offNote(NotificationManager nm) {
+        PendingIntent set = PendingIntent.getActivity(this, 8, Loc.settings(), PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
+        Notification n = new Notification.Builder(this, CH3)
+            .setSmallIcon(R.drawable.ic_stat)
+            .setColor(0xFF2F7DF6)
+            .setContentTitle("선상 모드가 끝났어요 · 위치를 꺼 주세요")
+            .setContentText("오늘 켠 휴대폰 위치(GPS)가 아직 켜져 있어요 · 눌러서 끄기")
+            .setStyle(new Notification.BigTextStyle().bigText("오늘 켠 휴대폰 위치(GPS)가 아직 켜져 있어요. 배터리를 아끼려면 눌러서 '위치'를 꺼 주세요."))
+            .setAutoCancel(true)
+            .setContentIntent(set)
+            .addAction(new Notification.Action.Builder(null, "위치 끄기", set).build())
+            .build();
+        try { nm.notify(NID4, n); } catch (Exception ignored) { }
+    }
 
     // ---------- 알림줄
     PendingIntent openApp(String act, int rc) {
@@ -193,12 +275,12 @@ public class TrackService extends Service implements LocationListener {
             .setSmallIcon(R.drawable.ic_stat)
             .setColor(0xFF2F7DF6)
             .setContentTitle("쭈갑이 물때 · 선상 모드 켜짐")
-            .setContentText(status)
+            .setContentText(offSince != 0 ? "위치 꺼짐 · 기록 멈춤 · 눌러서 위치 켜기" : status)
             .setOngoing(true)
             .setOnlyAlertOnce(true)
             .setShowWhen(false)
             .setCategory(Notification.CATEGORY_SERVICE)
-            .setContentIntent(openApp("map", 1))
+            .setContentIntent(offSince != 0 ? locOnIntent(9) : openApp("map", 1))
             .addAction(new Notification.Action.Builder(null, "포인트 저장", openApp("save", 2)).build())
             .addAction(new Notification.Action.Builder(null, "선상 모드 끄기", stop).build())
             .build();
