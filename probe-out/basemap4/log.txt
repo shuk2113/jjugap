@@ -29,3 +29,10 @@ $ ogr2ogr -f GeoJSONSeq -spat 118.0 30.0 134.0 44.5 land.geojsonseq  → 1 (0s)
                [-nomd] [-mo <META-TAG>=<VALUE>]... [-noNativeData]
 
 FAILURE: no source datasource provided
+
+Traceback (most recent call last):
+  File "/home/runner/work/jjugap/jjugap/.github/probe/probe.py", line 46, in <module>
+    say(f'잘라낸 파일 {os.path.getsize("land.geojsonseq") // 1048576} MB')
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen genericpath>", line 62, in getsize
+FileNotFoundError: [Errno 2] No such file or directory: 'land.geojsonseq'
