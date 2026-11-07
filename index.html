@@ -218,7 +218,13 @@ h2{margin:0; font-size:calc(16px * var(--k)); font-weight:700; text-wrap:balance
 .sheet-back{position:fixed; inset:0; z-index:40; background:rgba(0,0,0,.4); animation:fadeIn .22s ease}
 /* 출항지 줄: 출항지 버튼 + 선상 모드 버튼 */
 .loc-row{display:flex; align-items:center; justify-content:space-between; gap:8px}
-.me-btn{flex:none; display:inline-flex; align-items:center; gap:6px; height:36px; padding:0 14px 0 11px; border:1px solid var(--line); border-radius:999px; background:var(--card); font:inherit; font-size:calc(13.5px * var(--k)); font-weight:700; color:var(--ink); -webkit-tap-highlight-color:transparent; transition:transform .12s}
+.me-btn{flex:none; display:inline-flex; align-items:center; gap:6px; height:36px; padding:0 14px 0 11px; border:1px solid var(--line); border-radius:999px; background:var(--card); font:inherit; font-size:calc(13.5px * var(--k)); font-weight:700; color:var(--ink); -webkit-tap-highlight-color:transparent; transition:transform .12s; position:relative; overflow:hidden; isolation:isolate; -webkit-user-select:none; user-select:none; -webkit-touch-callout:none}
+.me-btn::before{content:''; position:absolute; inset:0; z-index:-1; background:#E5484D; transform:scaleX(0); transform-origin:left center; pointer-events:none}
+.me-btn.hold::before{transform:scaleX(1); transition:transform 1s linear}
+.hold-tip{position:fixed; z-index:61; width:max-content; max-width:min(250px, calc(100% - 32px)); box-sizing:border-box; padding:9px 13px; border-radius:14px; background:#2F7DF6; color:#fff; font-size:calc(13px * var(--k)); font-weight:700; line-height:1.4; word-break:keep-all; text-wrap:balance; box-shadow:0 6px 18px rgba(0,0,0,.28); animation:holdTipIn .25s ease-out}
+.hold-tip::after{content:''; position:absolute; top:-5px; right:var(--ax, 24px); width:11px; height:11px; margin-right:-5.5px; background:inherit; transform:rotate(45deg); border-radius:2px}
+@keyframes holdTipIn{from{opacity:0; transform:translateY(-5px)}}
+@media (prefers-reduced-motion:reduce){ .hold-tip{animation:none} }
 .me-btn:active{transform:scale(.97)} .me-btn svg{width:17px; height:17px; color:#2F7DF6}
 /* 선상 모드가 켜져 있는 동안: 파랗게 채우고 깜빡이는 점 · 오늘 포인트 수 */
 .me-btn .live{display:none; width:7px; height:7px; border-radius:50%; background:#fff; margin-left:1px; animation:livePulse 1.6s ease-in-out infinite}
@@ -4476,10 +4482,47 @@ const TideHarm = (() => {
       const lb = btn.querySelector('.lb'), cnt = btn.querySelector('.cnt');
       if (lb) lb.textContent = '선상 모드';
       if (cnt) { cnt.textContent = n; cnt.hidden = !onBoard || !n; }
-      btn.setAttribute('aria-label', onBoard ? `선상 모드 켜짐 · 오늘 포인트 ${n}개 · 눌러서 지도로` : '선상 모드: 바다에서 내 위치·조류 보기와 포인트 기록');
+      btn.setAttribute('aria-label', onBoard ? `선상 모드 켜짐 · 오늘 포인트 ${n}개 · 눌러서 지도로 · 길게 누르면 끄기` : '선상 모드: 바다에서 내 위치·조류 보기와 포인트 기록');
       const off = $('mv-off'); if (off) off.hidden = !onBoard;
     }
     // 끄기 단추: 실수로 꺼지지 않게 한 번 더 눌러 확인
+    // 첫 화면 '선상 모드' 단추를 1초 꾹 누르면 끄기: 누르는 동안 단추가 왼쪽부터 빨갛게 차오르고, 다 차면 꺼진다 (중간에 떼면 취소)
+    const HOLD_MS = 1000;
+    let holdT = 0, holdXY = null, holdDone = false, holdArmed = false, holdDown = 0, holdLong = false;
+    function holdStop() { clearTimeout(holdT); holdT = 0; holdXY = null; btn.classList.remove('hold'); }
+    btn.addEventListener('pointerdown', e => {
+      holdDone = false; holdLong = false; holdArmed = false;
+      if (!onBoard || isOpen || (e.pointerType === 'mouse' && e.button !== 0)) return;
+      holdArmed = true; holdDown = performance.now(); holdXY = [e.clientX, e.clientY]; holdTipHide();
+      btn.classList.remove('hold'); void btn.offsetWidth; btn.classList.add('hold');   // 처음부터 차오르게
+      holdT = setTimeout(() => { holdT = 0; holdDone = true; btn.classList.remove('hold'); boardOff('선상 모드를 껐어요'); }, HOLD_MS);
+    });
+    btn.addEventListener('pointermove', e => { if (holdXY && Math.hypot(e.clientX - holdXY[0], e.clientY - holdXY[1]) > 12) holdStop(); });
+    btn.addEventListener('pointerup', () => { if (holdArmed && performance.now() - holdDown > 350) holdLong = true; holdStop(); });
+    ['pointercancel', 'pointerleave'].forEach(t => btn.addEventListener(t, holdStop));
+    btn.addEventListener('contextmenu', e => { if (onBoard || holdDone) e.preventDefault(); });
+    // 끄려고 꾹 누르다 뗀 것은 '누름'으로 치지 않는다 (지도가 열리지 않게)
+    document.addEventListener('click', e => {
+      if ((holdDone || holdLong) && btn.contains(e.target)) { holdDone = holdLong = false; e.preventDefault(); e.stopImmediatePropagation(); }
+    }, true);
+    // 알려 주기: 선상 모드를 켠 채 처음 첫 화면으로 나왔을 때 단추 아래에 말풍선 한 번 (아무 데나 누르거나 8초 지나면 사라짐)
+    let holdTipEl = null, holdTipT = 0;
+    function holdTipHide() { clearTimeout(holdTipT); if (holdTipEl) { holdTipEl.remove(); holdTipEl = null; } }
+    function holdTip() {
+      let seen = false; try { seen = localStorage.getItem('jjukgap-hold-tip') === '1'; } catch (_) {}
+      if (seen || !onBoard || isOpen || document.visibilityState !== 'visible') return;
+      const r = btn.getBoundingClientRect(); if (!r.width) return;
+      try { localStorage.setItem('jjukgap-hold-tip', '1'); } catch (_) {}
+      holdTipHide();
+      const el = holdTipEl = document.createElement('div'); el.className = 'hold-tip'; el.setAttribute('role', 'status');
+      el.textContent = '길게 누르면 선상 모드가 꺼져요';
+      document.body.appendChild(el);
+      const right = Math.max(12, innerWidth - r.right); el.style.top = (r.bottom + 9) + 'px'; el.style.right = right + 'px';
+      el.style.setProperty('--ax', Math.max(14, Math.min(el.offsetWidth - 14, innerWidth - right - (r.left + r.width / 2))) + 'px');
+      holdTipT = setTimeout(holdTipHide, 8000);
+    }
+    document.addEventListener('pointerdown', e => { if (holdTipEl && !btn.contains(e.target)) holdTipHide(); }, true);
+    document.addEventListener('visibilitychange', () => { if (document.visibilityState !== 'visible') holdTipHide(); });
     const offBtn = $('mv-off'); let offAskT = 0;
     const offAsk = on => { offBtn.classList.toggle('ask', on); offBtn.setAttribute('aria-label', on ? '한 번 더 누르면 선상 모드를 꺼요' : '선상 모드 끄기'); };
     offBtn.onclick = () => {
@@ -4818,6 +4861,7 @@ const TideHarm = (() => {
     // ---------- 열기 · 닫기
     // o.pick: 출항지 고르기로 잠깐 여는 것 · o.view: '내 기록' 보기 (둘 다 선상 모드를 켜지 않는다. 선상 모드가 이미 켜져 있으면 '내 기록'은 그 지도에서 목록으로)
     function open(o) {
+      holdTipHide();
       if (isOpen) return; isOpen = true; view.hidden = false; mode = 'info'; selId = null; form = null;
       const rec = !!(o && o.view); viewMode = rec && !onBoard; if (!rec) dayFilter = null;
       if (!me) { const S = TideHarm.STATIONS[tideSt]; v = { lon: S.lon - 0.05, lat: S.lat - 0.02, s: 1400 }; }
@@ -4838,6 +4882,7 @@ const TideHarm = (() => {
       if (mode === 'pick') { mode = 'info'; pickCb = null; }
       if (useHist && !fromPop && history.state && history.state.mapv) { skipPop = true; history.back(); }
       paintBoardBtn();
+      if (onBoard) setTimeout(holdTip, 450);   // 지도가 닫히고 나서
       if (onBoard) { let n = 0; try { n = +localStorage.getItem('jjukgap-board-tip') || 0; } catch (_) {} if (n < 2) { try { localStorage.setItem('jjukgap-board-tip', n + 1); } catch (_) {} mainToast('선상 모드는 켜 둔 채예요. 파란 단추를 누르면 지도로 돌아가요'); } }
     }
     btn.onclick = () => open();
@@ -5180,7 +5225,7 @@ const TideHarm = (() => {
 
 <script>
 if ('serviceWorker' in navigator) addEventListener('load', () => {
-  const sw = navigator.serviceWorker, VER = '1ad8b761'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
+  const sw = navigator.serviceWorker, VER = 'b5270082'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
   // 화면에 손을 대기 시작했는지 (쓰는 중에는 새로 열지 않으려고)
   ['pointerdown', 'keydown'].forEach(t => addEventListener(t, () => { touched = true; }, { capture: true, passive: true }));
   const reload = () => {
