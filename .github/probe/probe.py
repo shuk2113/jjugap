@@ -5,19 +5,19 @@
 - 방조제 안 호수·저수지·큰 강(W), 섬·만·호수 이름(lab) — Geofabrik 한국 추출본
 """
 import json, os, subprocess, sys, time, importlib, site, traceback, math, re, gzip, multiprocessing as mp
-OUT = 'probe-out/basemap7'; os.makedirs(OUT, exist_ok=True)
+OUT = 'probe-out/basemap8'; os.makedirs(OUT, exist_ok=True)
 BIG = (118.0, 30.0, 134.0, 44.5)                              # 주변국 해안까지 (멀리 볼 때 지도가 잘려 보이지 않게)
 FINE = [(124.0, 33.0, 131.0, 38.75), (130.5, 37.0, 132.0, 37.75)]   # 자세히: 남한 바다 전체 · 울릉도·독도
 LON0, LAT0, Q = 118.0, 30.0, 100000
 KX = math.cos(math.radians(36.6))
 # 네 단계: 멀리 볼수록 거칠게 (각 단계를 쓰는 가장 큰 배율에서 단순화 오차가 1점 안, 3점보다 작은 섬은 뺀다)
 # 앱은 배율(1도에 몇 점) TH 경계에서 단계를 바꾼다
-TH = [240, 800, 2600]
+TH = [240, 900, 2800]
 LV = {   # 칸 크기(도), 자세한 곳/거친 곳 단순화(도), 작은 섬 빼기(대각선, 도), 물(단순화, 작은 것 빼기)
     0: dict(cell=2.0, tol=(0.0035, 0.008), mind=(0.014, 0.04), w=(0.003, 0.03)),
     1: dict(cell=1.0, tol=(0.001, 0.004), mind=(0.004, 0.02), w=(0.001, 0.012)),
-    2: dict(cell=0.5, tol=(0.0003, 0.002), mind=(0.0012, 0.01), w=(0.0004, 0.005)),
-    3: dict(cell=0.25, tol=(0.0001, 0.002), mind=(0.0004, 0.01), w=(0.00025, 0.003)),
+    2: dict(cell=0.5, tol=(0.0004, 0.002), mind=(0.0015, 0.01), w=(0.0005, 0.006)),
+    3: dict(cell=0.25, tol=(0.00012, 0.002), mind=(0.0004, 0.01), w=(0.00025, 0.003)),
 }
 log = []
 def sh(c):
