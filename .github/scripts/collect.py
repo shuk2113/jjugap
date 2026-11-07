@@ -4,7 +4,9 @@
 - 국립해양조사원 조위관측소 최신 관측: 실제 수온(지금, 24시간 전)
   출항지 관측소에 수온이 없거나(센서 고장·점검) 서버가 응답하지 않으면 가까운 관측소 값을 쓰고, 어디 값인지 함께 적는다
 
-결과는 앱이 읽는 data/weather.json 으로 저장한다.
+결과는 앱이 읽는 data/weather.json 으로 저장한다 (예전 기본 출항지 8곳 · 수온 관측소 · 중기 해상예보 · 예보 지점 목록).
+서해·남해·제주 해안의 예보 지점(wx_points.json, 항·포구를 약 12km 안으로 묶은 곳)마다 같은 형식의 예보·수온을 data/wx/<지점>.json 으로
+따로 저장한다 (앱은 고른 출항지에서 가장 가까운 지점 파일만 받는다).
 지도 화면(바다 위 내 위치)에서 쓰는 앞바다 격자 예보는 따로 data/seagrid.json 으로 저장한다 (약 10km 간격 바다 격자).
 같은 격자마다 해양조사원 ROMS 수치예측모델의 시간별 흐름(방향·세기)과 수온도 담는다 (하루 몇 번만 새로 받음).
 인증키는 GitHub 비밀 저장소(DATA_GO_KR_KEY)에서만 읽고, 로그나 파일에는 남기지 않는다.
@@ -36,7 +38,15 @@ EXTRA_OBS = ['DT_0037', 'DT_0017']   # 어청도, 대산
 OBS_POS = {'DT_0001': (37.451, 126.592), 'DT_0008': (37.192, 126.647), 'DT_0043': (37.238, 126.428), 'DT_0067': (36.674, 126.129),
            'DT_0025': (36.406, 126.486), 'DT_0051': (36.128, 126.495), 'DT_0018': (35.975, 126.563), 'DT_0068': (35.618, 126.301),
            'DT_0037': (36.117, 125.984), 'DT_0017': (37.007, 126.352)}
-SEA_CELLS = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'sea_cells.json')   # [격자x, 격자y, 위도, 경도]
+HERE = os.path.dirname(os.path.abspath(__file__))
+SEA_CELLS = os.path.join(HERE, 'sea_cells.json')        # [격자x, 격자y, 위도, 경도] 서해 (ROMS 흐름·수온도)
+SEA_CELLS_S = os.path.join(HERE, 'sea_cells_s.json')    # 남해·제주 (바람·파도만)
+WX_POINTS = json.load(open(os.path.join(HERE, 'wx_points.json')))   # {지점: {name, pos, sea: [[위도, 경도]…], obs: [관측소…], mid}}
+OBS_POS.update({k: tuple(v) for k, v in json.load(open(os.path.join(HERE, 'obs_pos.json'))).items()})
+# 예전 기본 출항지 자리 (앱이 가장 가까운 예보 지점을 고를 때 쓰게 함께 저장)
+BASE_POS = {'incheon': (37.45, 126.6), 'bangameori': (37.29, 126.57), 'yeongheung': (37.25, 126.47), 'anheung': (36.67, 126.13),
+            'ocheon': (36.44, 126.52), 'hongwon': (36.15, 126.5), 'gunsan': (35.98, 126.56), 'gyeokpo': (35.62, 126.47)}
+OBS_NEAR_KM = 150   # 센서 이상을 볼 때 비교할 이웃 관측소 거리 (먼 바다·제주와는 수온이 원래 다르다)
 SEA_HOURS = 60     # 앞바다 격자 예보를 몇 시간치 담을지 (지난 6시간 포함)
 OBS_FRESH_H = 12   # 이보다 오래된 수온은 '지금 수온'으로 쓰지 않는다
 OBS_STALE_H = 3    # 평소 관측소가 이보다 오래 멈춰 있으면, 다음 관측소에 이보다 새 값이 있을 때 그 값을 쓴다
@@ -287,7 +297,7 @@ def main():
             pc.pop('wtem', None); pc.pop('t', None); pc.pop('wtem24', None)
         prev_codes[code] = pc
     codes, obs_timeouts = {}, 0
-    for code in dict.fromkeys([c for cfg in STATIONS.values() for c in cfg['obs']] + EXTRA_OBS):
+    for code in dict.fromkeys([c for cfg in STATIONS.values() for c in cfg['obs']] + EXTRA_OBS + [c for p in WX_POINTS.values() for c in p['obs']]):
         pc = prev_codes.get(code) or {}
         if obs_timeouts >= 2:   # 서버가 연달아 응답이 없으면 이번에는 건너뛰고 지난 기록을 유지
             if pc:
@@ -301,20 +311,24 @@ def main():
             codes[code] = pc
         if code in codes and code in OBS_POS:
             codes[code]['pos'] = list(OBS_POS[code])
-    # 센서 이상 거르기: 지금 값들의 가운데값과 너무 다르면 이번에는 쓰지 않는다
-    now_vals = sorted(v['wtem'] for v in codes.values() if v.get('wtem') is not None)
-    if len(now_vals) >= 3:
-        med = now_vals[len(now_vals) // 2]
-        for code, v in codes.items():
-            if v.get('wtem') is not None and abs(v['wtem'] - med) > OBS_FAR_C:
-                note(f'수온 {code}({v.get("name")}): {v["wtem"]}℃ — 다른 곳({med}℃)과 너무 달라 센서 이상으로 보고 뺌', 'warning')
+    # 센서 이상 거르기: 가까운 관측소들(150km 안)의 지금 값 가운데값과 너무 다르면 이번에는 쓰지 않는다
+    def km2(a, b):
+        return math.hypot((a[1] - b[1]) * math.cos(math.radians(36)), a[0] - b[0]) * 111.32
+    for code, v in codes.items():
+        if v.get('wtem') is None or code not in OBS_POS:
+            continue
+        nb = sorted(u['wtem'] for c2, u in codes.items() if c2 != code and u.get('wtem') is not None and c2 in OBS_POS and km2(OBS_POS[c2], OBS_POS[code]) <= OBS_NEAR_KM)
+        if len(nb) >= 2:
+            med = nb[len(nb) // 2]
+            if abs(v['wtem'] - med) > OBS_FAR_C:
+                note(f'수온 {code}({v.get("name")}): {v["wtem"]}℃ — 가까운 곳({med}℃)과 너무 달라 센서 이상으로 보고 뺌', 'warning')
                 v['bad'] = True
     out['obs'] = codes
     cache = {}
     ok_f = ok_o = 0
     wt = []
     mids = {}
-    for reg in sorted({c['mid'] for c in STATIONS.values()}):
+    for reg in sorted({c['mid'] for c in STATIONS.values()} | {p['mid'] for p in WX_POINTS.values()}):
         m = fetch_mid(reg, now)
         if m:
             mids[reg] = m
@@ -322,8 +336,8 @@ def main():
         elif (prev.get('mid') or {}).get(reg):
             mids[reg] = prev['mid'][reg]   # 못 받으면 지난 것 유지
     out['mid'] = mids
-    for key, cfg in STATIONS.items():
-        pst = (prev.get('stations') or {}).get(key) or {}
+    def make_station(key, cfg, pst):
+        nonlocal ok_f, ok_o
         st = {'fc': {}}
         got = None
         for lat, lon in cfg['sea']:
@@ -384,18 +398,52 @@ def main():
         else:
             wt.append(f'{key} 없음')
         st['mid'] = cfg['mid']
+        return st
+    # 앞바다 예보 격자는 미리 한꺼번에 (여러 곳이 같은 격자를 쓴다)
+    allsea = [g for cfg in STATIONS.values() for g in cfg['sea']] + [tuple(g) for p in WX_POINTS.values() for g in p['sea']]
+    need = list(dict.fromkeys(to_grid(la, lo) for la, lo in allsea))
+    def pre(g):
+        try:
+            used, items = fetch_fcst(g[0], g[1], base)
+            return g, (used, pack_fcst(items))
+        except RuntimeError as e:
+            return g, (None, {})
+    with ThreadPoolExecutor(4) as ex:
+        for g, r in ex.map(pre, need):
+            cache[g] = r
+    log(f'앞바다 예보 격자 {len(need)}곳 받음 ({sum(1 for g in need if cache[g][1])}곳 자료 있음)')
+    for key, cfg in STATIONS.items():
+        st = make_station(key, cfg, (prev.get('stations') or {}).get(key) or {})
+        st['pos'] = list(BASE_POS[key])
         out['stations'][key] = st
+    # 해안 예보 지점: 지점마다 파일 하나 (data/wx/<지점>.json)
+    wdir = os.path.join(os.path.dirname(os.path.abspath(OUT)), 'wx'); os.makedirs(wdir, exist_ok=True)
+    n0f, n0o = ok_f, ok_o
+    out['pts'] = {}
+    for key, cfg in WX_POINTS.items():
+        try:
+            pst = json.load(open(os.path.join(wdir, key + '.json')))
+        except Exception:
+            pst = {}
+        st = make_station(key, {**cfg, 'sea': [tuple(g) for g in cfg['sea']]}, pst)
+        st.update({'generated': now.isoformat(timespec='minutes'), 'name': cfg['name'], 'pos': cfg['pos']})
+        with open(os.path.join(wdir, key + '.json'), 'w') as fp:
+            json.dump(st, fp, ensure_ascii=False, separators=(',', ':'))
+        out['pts'][key] = [cfg['name'], cfg['pos'][0], cfg['pos'][1]]
+    note(f'해안 예보 지점 {len(WX_POINTS)}곳: 예보 {ok_f - n0f}곳, 수온 {ok_o - n0o}곳')
+    wt = wt[:len(STATIONS)]
     if ok_f == 0 and ok_o == 0:
         sys.exit('예보·관측을 하나도 받지 못했어요')
     os.makedirs(os.path.dirname(os.path.abspath(OUT)), exist_ok=True)
     with open(OUT, 'w') as fp:
         json.dump(out, fp, ensure_ascii=False, separators=(',', ':'))
     note('수온: ' + ', '.join(wt))
-    try:
-        sea_grid(now, base, cache, os.path.join(os.path.dirname(os.path.abspath(OUT)), 'seagrid.json'))
-    except Exception as e:   # 지도용 격자는 없어도 앱은 돈다
-        note(f'앞바다 격자 예보 실패: {type(e).__name__} {str(e)[:160]}', 'warning')
-    note(f'저장: 예보 {ok_f}/8곳, 수온 {ok_o}/8곳' + ('' if obs_timeouts < 2 else ' (해양조사원 서버 응답 없음 → 수온은 다음 실행에 다시)'))
+    for cf, name, roms in ((SEA_CELLS, 'seagrid.json', True), (SEA_CELLS_S, 'seagrid-s.json', False)):
+        try:
+            sea_grid(now, base, cache, os.path.join(os.path.dirname(os.path.abspath(OUT)), name), cf, roms)
+        except Exception as e:   # 지도용 격자는 없어도 앱은 돈다
+            note(f'앞바다 격자 예보 실패({name}): {type(e).__name__} {str(e)[:160]}', 'warning')
+    note(f'저장: 예보 {ok_f}/{len(STATIONS) + len(WX_POINTS)}곳, 수온 {ok_o}/{len(STATIONS) + len(WX_POINTS)}곳' + ('' if obs_timeouts < 2 else ' (해양조사원 서버 응답 없음 → 수온은 다음 실행에 다시)'))
 
 
 def fetch_roms(la, lo):
@@ -432,11 +480,11 @@ def fetch_roms(la, lo):
     return out
 
 
-def sea_grid(now, base, cache, path):
+def sea_grid(now, base, cache, path, cells_file=SEA_CELLS, roms=True):
     """지도 화면용: 바다 격자(약 10km 간격)마다 시간별 기상청 풍속·풍향·파고와 ROMS 흐름·수온.
     {generated, t0: 'YYYYMMDDHH'(첫 시각), rr: ROMS 예측 시작, rf: ROMS 받은 때,
      c: [[위도, 경도, [풍속…], [풍향/10…], [파고…], [흐름방향/5…], [흐름세기 cm/s…], [수온×10…]], …]}"""
-    cells = json.load(open(SEA_CELLS))
+    cells = json.load(open(cells_file))
     try:
         prev = json.load(open(path))
     except Exception:
@@ -452,7 +500,7 @@ def sea_grid(now, base, cache, path):
             old[key] = {(p0 + timedelta(hours=i)).strftime('%Y%m%d%H'): tuple(row[j][i] for j in range(2, 8)) for i in range(len(row[2]))}
     # ROMS: 지난번에 받은 지 ROMS_EVERY_H 시간이 지났거나 없으면 다시
     rf = prev.get('rf')
-    want_roms = not rf or (now - datetime.fromisoformat(rf)).total_seconds() > ROMS_EVERY_H * 3600
+    want_roms = roms and (not rf or (now - datetime.fromisoformat(rf)).total_seconds() > ROMS_EVERY_H * 3600)
     def one(cell):
         x, y, la, lo = cell
         fc = cache[(x, y)][1] if (x, y) in cache else None
@@ -490,7 +538,7 @@ def sea_grid(now, base, cache, path):
             for j, val in enumerate(w3 + tuple(r3)):
                 cols[j].append(val)
         if any(w is not None for w in cols[0]) or any(w is not None for w in cols[4]):
-            rows.append([la, lo] + cols)
+            rows.append([la, lo] + (cols if roms else cols[:3]))   # ROMS를 안 받는 격자는 바람·파도 칸만
     if not ok and not rok and prev:
         note('앞바다 격자 예보: 하나도 못 받아 지난 자료 유지', 'warning')
         return
