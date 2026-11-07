@@ -33,3 +33,4 @@ $ osmium tags-filter kr.pbf w/natural=coastline -o c1.pbf --overwrite && osmium 
 [101s] 단계 3: 칸 줄 16/64
 [102s] 단계 3: 칸 줄 24/64
 [103s] 단계 3: 칸 줄 32/64
+[104s] 단계 3: 칸 줄 40/64
