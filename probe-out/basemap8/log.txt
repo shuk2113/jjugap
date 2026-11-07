@@ -22,3 +22,4 @@ $ osmium tags-filter kr.pbf w/natural=coastline -o c1.pbf --overwrite && osmium 
 [65s] 단계 0: 칸 줄 8/8
 [67s] 단계 0: 땅 조각 570 · 해안선 596 · 점 9782 (코어 4)
 [68s] 단계 1: 칸 줄 8/16
+[69s] 단계 1: 칸 줄 16/16
