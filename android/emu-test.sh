@@ -44,8 +44,8 @@ import re, sys
 s = open(sys.argv[1], encoding='utf-8', errors='ignore').read()
 for m in re.finditer(r'<node [^>]*>', s):
     n = m.group(0)
-    t = re.search(r' text="([^"]*)"', n); d = re.search(r'content-desc="([^"]*)"', n)
-    txt = (t.group(1) if t else '') + '|' + (d.group(1) if d else '')
+    t = re.search(r' text="([^"]*)"', n); d = re.search(r'content-desc="([^"]*)"', n); r = re.search(r'resource-id="([^"]*)"', n)
+    txt = (t.group(1) if t else '') + '|' + (d.group(1) if d else '') + '|' + (r.group(1) if r else '')
     if re.search(sys.argv[2], txt):
         b = re.search(r'bounds="\[(\d+),(\d+)\]\[(\d+),(\d+)\]"', n)
         if b:
@@ -55,6 +55,28 @@ PY
   echo "tapText $1 -> $XY" | tee -a "$OUT/loc.txt"
   [ -n "$XY" ] && adb shell input tap $XY
   [ -n "$XY" ]
+}
+# 알림줄에서 <정규식> 글자가 있는 알림의 '펼치기'를 누른다 (묶인 알림 → 알림 하나 → 단추가 보이게)
+tapExpand() {
+  adb shell uiautomator dump /sdcard/ui.xml >/dev/null 2>&1
+  adb pull /sdcard/ui.xml "$OUT/ui-$2.xml" >/dev/null 2>&1
+  XY=$(python3 - "$OUT/ui-$2.xml" "$1" <<'PY'
+import re, sys
+s = open(sys.argv[1], encoding='utf-8', errors='ignore').read()
+nodes = []
+for m in re.finditer(r'<node [^>]*>', s):
+    n = m.group(0); b = re.search(r'bounds="\[(\d+),(\d+)\]\[(\d+),(\d+)\]"', n)
+    if not b: continue
+    t = re.search(r' text="([^"]*)"', n); d = re.search(r'content-desc="([^"]*)"', n)
+    nodes.append(((t.group(1) if t else ''), (d.group(1) if d else ''), tuple(map(int, b.groups()))))
+ty = next(((bb[1] + bb[3]) // 2 for t, d, bb in nodes if re.search(sys.argv[2], t)), None)
+ex = [bb for t, d, bb in nodes if d == 'Expand']
+pick = next((bb for bb in ex if ty is not None and bb[1] <= ty <= bb[3]), ex[0] if ex else None)
+if pick: print((pick[0] + pick[2]) // 2, (pick[1] + pick[3]) // 2)
+PY
+)
+  echo "tapExpand $1 -> $XY" | tee -a "$OUT/loc.txt"
+  [ -n "$XY" ] && adb shell input tap $XY
 }
 locState() { echo "$1: location=$(adb shell settings get secure location_mode) $(adb shell cmd location is-location-enabled 2>/dev/null)" | tee -a "$OUT/loc.txt"; }
 # (1) 선상 모드 중 위치를 끄면 → 지도에 빨간 띠 · 알약 '위치 꺼짐 · 기록 멈춤'
@@ -75,7 +97,7 @@ for i in $(seq 1 3); do adb emu geo fix 126.3302 37.1702; sleep 4; done
 # 끝날 때 (홈 화면에서 알림줄 '선상 모드 끄기') → 알림 '선상 모드가 끝났어요 · 위치를 꺼 주세요'
 adb shell input keyevent KEYCODE_HOME; sleep 4
 adb shell cmd statusbar expand-notifications; sleep 4
-tapText "^선상 모드 끄기\|" n13 || tapText "선상 모드 끄기" n13b
+for k in 1 2 3 4; do tapText "^선상 모드 끄기\|" n13-$k && break; tapExpand "선상 모드 켜짐" e13-$k; sleep 2; done
 sleep 5; adb shell cmd statusbar collapse; sleep 2; adb shell cmd statusbar expand-notifications; sleep 4; shot 13-end-noti
 adb shell cmd statusbar collapse; sleep 2
 # (1) 위치를 끈 채 선상 모드를 켜면 → 바로 '위치 켜기' 창 → 확인 → 앱 화면에서 끄면 '위치를 끌까요?' 창
@@ -86,7 +108,9 @@ tapText "^(OK|Ok|확인|Turn on|TURN ON|사용)\|" a14 || tapText "(OK|확인|Tu
 sleep 8; locState after-ask2
 for i in $(seq 1 3); do adb emu geo fix 126.3303 37.1703; sleep 4; done
 shot 15-map-on
-tapText "선상 모드 끄기" w16; sleep 1; tapText "한 번 더 누르면 선상 모드를 꺼요|선상 모드 끄기" w16b
+adb shell uiautomator dump /sdcard/ui.xml >/dev/null 2>&1; sleep 2   # 웹 화면 글자를 읽을 수 있게 한 번 먼저
+for k in 1 2 3; do tapText "\|mv-off$" w16-$k && break; sleep 2; done
+sleep 1; tapText "\|mv-off$" w16b
 sleep 5; shot 16-end-dialog
 adb shell input keyevent KEYCODE_BACK; sleep 2
 adb logcat -d -s jjugap:I | grep -E "loc |locon" >> "$OUT/loc.txt"
