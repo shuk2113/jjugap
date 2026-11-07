@@ -92,10 +92,14 @@ public class MainActivity extends Activity {
                 return true;
             }
         });
-        String act = actOf(getIntent());
+        // 최근 앱 목록에서 다시 열었거나 화면을 다시 만든 경우: 예전에 알림·바로가기로 열 때의 요청(선상 모드 열기 등)을 또 하지 않는다
+        // (사용자가 누르지 않았는데 선상 모드가 저절로 켜지지 않게)
+        boolean stale = b != null || (getIntent().getFlags() & Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY) != 0;
+        String act = stale ? null : actOf(getIntent());
         web.loadUrl(HOME + (act != null ? "?act=" + act : ""));
-        if ("update".equals(getIntent().getStringExtra("act"))) Updater.start(this);
-        if (getIntent().getBooleanExtra("locon", false)) web.postDelayed(this::askLocationOn, 1200);
+        if (!stale && "update".equals(getIntent().getStringExtra("act"))) Updater.start(this);
+        if (!stale && getIntent().getBooleanExtra("locon", false)) web.postDelayed(this::askLocationOn, 1200);
+        if (stale) Log.i("jjugap", "launch from history: act ignored");
         getIntent().removeExtra("locon");   // 화면을 다시 만들 때 또 열리지 않게
         try { getSystemService(android.app.NotificationManager.class).cancel(TrackService.NID4); } catch (Exception ignored) { }   // 예전 판의 '위치를 꺼 주세요' 알림이 남아 있으면 지운다
     }

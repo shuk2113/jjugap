@@ -120,6 +120,14 @@ adb shell uiautomator dump /sdcard/ui.xml >/dev/null 2>&1; adb pull /sdcard/ui.x
 grep -q "위치를 끌까요" "$OUT/ui-end16.xml" && echo "END DIALOG SHOWN (안 떠야 함)" | tee -a "$OUT/loc.txt" || echo "end dialog none (ok)" | tee -a "$OUT/loc.txt"
 adb shell cmd location set-location-enabled false; sleep 2
 adb logcat -d -s jjugap:I | grep -E "loc |locon" >> "$OUT/loc.txt"
+# (17) 선상 모드를 끈 뒤 앱이 닫혔다가 '최근 앱'에서 다시 열면: 예전에 알림으로 열었던 요청(지도 열기·위치 켜기)으로 선상 모드가 저절로 켜지면 안 된다
+adb shell am force-stop $P; sleep 3; adb logcat -c
+adb shell am start -n $P/.MainActivity --es act map --ez locon true -f 0x00100000; sleep 14   # 0x00100000 = 최근 앱 목록에서 열기
+shot 17-recents
+adb shell uiautomator dump /sdcard/ui.xml >/dev/null 2>&1; adb pull /sdcard/ui.xml "$OUT/ui-recents17.xml" >/dev/null 2>&1
+if adb shell dumpsys activity services $P | grep -q TrackService; then echo "RECENTS STARTED BOARD (켜지면 안 됨)" | tee -a "$OUT/loc.txt"; else echo "recents reopen: board stays off (ok)" | tee -a "$OUT/loc.txt"; fi
+grep -qE "Turn on|TURN ON|사용|위치 정확도|location accuracy" "$OUT/ui-recents17.xml" && echo "RECENTS LOC DIALOG (안 떠야 함)" | tee -a "$OUT/loc.txt" || echo "recents reopen: no location dialog (ok)" | tee -a "$OUT/loc.txt"
+adb logcat -d -s jjugap:I | grep -E "history|service started|locon" >> "$OUT/loc.txt"
 # 앱 안에서 업데이트: 같은 파일을 받아 설치 화면을 여는지
 adb shell appops set $P REQUEST_INSTALL_PACKAGES allow
 adb shell am start -n $P/.MainActivity --es act update
