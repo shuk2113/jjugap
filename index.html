@@ -251,6 +251,8 @@ h2{margin:0; font-size:calc(16px * var(--k)); font-weight:700; text-wrap:balance
 .mv-pts{height:34px; padding:0 13px; border:1px solid var(--line); border-radius:999px; background:var(--card); font:inherit; font-size:calc(13px * var(--k)); color:var(--ink); -webkit-tap-highlight-color:transparent}
 .mv-map{position:relative; flex:1; min-height:0; overflow:hidden; background:var(--map-sea); touch-action:none; -webkit-user-select:none; user-select:none}
 #mv-cv{display:block; width:100%; height:100%}
+#mv-fx{position:absolute; inset:0; pointer-events:none; overflow:hidden}
+#mv-fx canvas{position:absolute; left:0; top:0; will-change:transform}
 .mv-tools{position:absolute; right:10px; top:10px; display:flex; flex-direction:column; gap:8px}
 .mv-tools button{width:42px; height:42px; display:grid; place-items:center; padding:0; border:1px solid var(--line); border-radius:12px; background:var(--card); font:inherit; font-size:calc(22px * var(--k)); line-height:1; color:var(--ink); box-shadow:0 2px 8px rgba(0,0,0,.12); -webkit-tap-highlight-color:transparent}
 .mv-tools button svg{width:20px; height:20px; color:var(--ink-2)} .mv-tools button.on svg{color:#2F7DF6}
@@ -844,7 +846,7 @@ a.mv-row-btn{text-decoration:none; gap:10px} .mv-row-btn span{font-size:calc(20p
   </div>
   <div class="mv-locoff" id="mv-locoff" role="alert" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.2 4.4A6.6 6.6 0 0 1 18.6 10c0 1.6-.6 3.3-1.4 4.8M14.6 17.9c-1.3 1.8-2.6 3.1-2.6 3.1s-6.6-5.6-6.6-11c0-.7.1-1.4.3-2"/><path d="M3.5 3.5l17 17"/></g></svg><span id="mv-locoff-t">위치가 꺼져 있어 포인트 저장·자동 기록이 안 돼요</span><button type="button" id="mv-locoff-b">위치 켜기</button></div>
   <div class="mv-map" id="mv-map">
-    <canvas id="mv-cv" aria-label="선상 모드 지도: 내 위치와 출항지, 저장한 포인트"></canvas>
+    <canvas id="mv-cv" aria-label="선상 모드 지도: 내 위치와 출항지, 저장한 포인트"></canvas><div id="mv-fx" aria-hidden="true"></div>
     <div class="mv-tools">
       <button id="mv-zin" aria-label="확대">+</button><button id="mv-zout" aria-label="축소">−</button>
       <button id="mv-me" class="on" aria-label="내 위치로"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="6.2" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="2.4" fill="currentColor"/><path d="M12 2.5v3.3M12 18.2v3.3M2.5 12h3.3M18.2 12h3.3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
@@ -2396,10 +2398,12 @@ const TideHarm = (() => {
       if (hud && hud.temp) drawBuoy(W * 0.65, waveY, t, hud.temp, px);
     }
     const mapvEl = document.getElementById('mapv');
+    let sceneRest = false;
+    if (mapvEl) new MutationObserver(() => { if (mapvEl.hidden && sceneRest && running) { sceneRest = false; last = performance.now(); requestAnimationFrame(frame); } }).observe(mapvEl, { attributes: true, attributeFilter: ['hidden'] });
     function frame(now) {
       if (!running) return;
       // 바다 지도가 화면을 덮고 있으면 뒤의 물때 그림은 쉰다 (지도가 매끄럽게 움직이도록)
-      if (mapvEl && !mapvEl.hidden) { last = now; setTimeout(() => requestAnimationFrame(frame), 400); return; }
+      if (mapvEl && !mapvEl.hidden) { last = now; sceneRest = true; return; }   // 지도를 닫으면 다시 (아래 지켜보기)
       const dt = Math.min(0.05, (now - last) / 1000); last = now;
       sCur += (sTarget - sCur) * Math.min(1, dt * 2.5);
       lev += (levT - lev) * Math.min(1, dt * 9);
@@ -2875,6 +2879,9 @@ const TideHarm = (() => {
   (() => {
     const btn = $('me-btn'), view = $('mapv'), cv = $('mv-cv'), box = $('mv-map'), panel = $('mv-panel'), gpsEl = $('mv-gps');
     const ctx = cv.getContext('2d', { alpha: false }), KX = Math.cos(36.6 * Math.PI / 180), ME = '#2F7DF6';
+    // 움직이는 효과(내 위치 물결 · 가장 많이 잡은 곳 반짝임)는 그 자리에만 얹은 작은 그림판에 그린다 → 지도는 바뀔 때만 다시 그려 배터리를 아낀다
+    const fxBox = $('mv-fx'), fxPool = [];
+    let fxItems = [], fxRaf = 0, fxLast = 0;
     const PT_KEY = 'jjukgap-points';
     let inFrame = false; try { inFrame = window.top !== window.self; } catch (_) { inFrame = true; }
     const useHist = !inFrame;
@@ -3244,6 +3251,7 @@ const TideHarm = (() => {
     }
     function drawNow() {
       if (!isOpen || !W) return;
+      fxItems = [];
       const C = mapColors(), font = fontC || (fontC = getComputedStyle(document.body).fontFamily);
       renderBase(C, font);
       const { k, tx, ty } = baseXf();
@@ -3326,16 +3334,7 @@ const TideHarm = (() => {
         for (const o of [...xy.filter(o => !o.info.best), ...xy.filter(o => o.info.best)]) {
           const { x, y, c, r, info, p } = o, on = p.id === selId; if (x < -50 || x > W + 50 || y < -60 || y > H + 50) continue;
           ctx.globalAlpha = A;
-          if (info.best) {
-            goldOn = true;
-            const ph = still ? 0.25 : (tnow % 1800) / 1800, gr = r + 10 + Math.sin(ph * 2 * Math.PI) * 2.5;
-            const g = ctx.createRadialGradient(x, y, r * 0.7, x, y, gr); g.addColorStop(0, 'rgba(255,200,60,.6)'); g.addColorStop(1, 'rgba(255,200,60,0)');
-            ctx.fillStyle = g; ctx.beginPath(); ctx.arc(x, y, gr, 0, 2 * Math.PI); ctx.fill();
-            [-40, 18, 96, 158].forEach((deg, k) => {
-              const t = still ? 0.85 : 0.35 + 0.65 * Math.abs(Math.sin(tnow / 480 + k * 1.9)), an = deg * Math.PI / 180, d = r + 7.5 + (k % 2) * 2.5;
-              star(x + Math.cos(an) * d, y + Math.sin(an) * d, (k % 2 ? 3.1 : 4.1) * t, k % 2 ? '#FFFFFF' : '#FFE07A');
-            });
-          }
+          if (info.best) { goldOn = true; fxItems.push({ g: 1, x, y, r, A }); }   // 반짝임은 위 그림판에서 (fxDraw)
           ctx.save(); ctx.fillStyle = 'rgba(0,0,0,.28)'; ctx.beginPath(); ctx.arc(x, y + 1.6, r + 1.1, 0, 2 * Math.PI); ctx.fill();
           if (info.best) { const g = ctx.createLinearGradient(x, y - r, x, y + r); g.addColorStop(0, '#FFE680'); g.addColorStop(1, '#FF9F1A'); ctx.fillStyle = g; }
           else ctx.fillStyle = c ? tr.color : C.sea;
@@ -3387,8 +3386,7 @@ const TideHarm = (() => {
           const a = (me.heading - 90) * Math.PI / 180; ctx.fillStyle = 'rgba(47,125,246,.85)';
           ctx.beginPath(); ctx.moveTo(x + Math.cos(a) * 22, y + Math.sin(a) * 22); ctx.lineTo(x + Math.cos(a + 2.6) * 10, y + Math.sin(a + 2.6) * 10); ctx.lineTo(x + Math.cos(a - 2.6) * 10, y + Math.sin(a - 2.6) * 10); ctx.closePath(); ctx.fill();
         }
-        const pulse = me.virtual ? 0 : (performance.now() % 2000) / 2000;
-        if (pulse) { ctx.fillStyle = `rgba(47,125,246,${(0.35 * (1 - pulse)).toFixed(3)})`; ctx.beginPath(); ctx.arc(x, y, 8 + pulse * 16, 0, 2 * Math.PI); ctx.fill(); }
+        if (!me.virtual) fxItems.push({ g: 0, x, y });   // 물결은 위 그림판에서 (fxDraw)
         ctx.fillStyle = me.virtual ? '#8A5CF6' : ME; ctx.strokeStyle = '#FFFFFF'; ctx.lineWidth = 3;
         ctx.beginPath(); ctx.arc(x, y, 7.5, 0, 2 * Math.PI); ctx.fill(); ctx.stroke();
       }
@@ -3407,11 +3405,60 @@ const TideHarm = (() => {
       const len = nice.filter(m => m / mPerPx <= 96).pop() || 50;
       $('mv-scale').firstElementChild.style.width = Math.round(len / mPerPx) + 'px';
       $('mv-scale').lastElementChild.textContent = len >= 1000 ? `${len / 1000}km` : `${len}m`;
-      if (goldOn && !raf && !RM.matches) { if (drawRaf) { cancelAnimationFrame(drawRaf); drawRaf = 0; } raf = requestAnimationFrame(loop); }
+      fxPlace(); fxDraw(performance.now()); fxKick();
     }
+    // 작은 그림판: 지도에 그린 것과 겹치는 자리(포인트·왕관·파란 점)는 비워서, 원래처럼 그 밑에 깔린 것으로 보이게
+    function fxCv(i, S) {
+      let o = fxPool[i];
+      if (!o) { const c = document.createElement('canvas'); fxBox.appendChild(c); o = fxPool[i] = { c, g: c.getContext('2d'), S: 0, d: 0 }; }
+      if (o.S !== S || o.d !== dpr) { o.S = S; o.d = dpr; o.c.width = o.c.height = Math.round(S * dpr); o.c.style.width = o.c.style.height = S + 'px'; }
+      return o;
+    }
+    function fxPlace() {   // 지도를 그릴 때: 자리 옮기기
+      fxItems = fxItems.filter(o => o.x > -40 && o.x < W + 40 && o.y > -40 && o.y < H + 40);
+      fxItems.forEach((o, i) => {
+        o.S = o.g ? 72 : 56; o.p = fxCv(i, o.S);
+        o.p.c.style.display = ''; o.p.c.style.transform = `translate(${(o.x - o.S / 2).toFixed(1)}px,${(o.y - o.S / 2).toFixed(1)}px)`;
+      });
+      for (let i = fxItems.length; i < fxPool.length; i++) fxPool[i].c.style.display = 'none';
+    }
+    function fxStar(f, sx, sy, s, col) { f.fillStyle = col; f.beginPath(); f.moveTo(sx, sy - s); f.quadraticCurveTo(sx, sy, sx + s, sy); f.quadraticCurveTo(sx, sy, sx, sy + s); f.quadraticCurveTo(sx, sy, sx - s, sy); f.quadraticCurveTo(sx, sy, sx, sy - s); f.fill(); }
+    function fxDraw(t) {
+      const still = RM.matches;
+      for (const o of fxItems) {
+        const f = o.p.g, x = o.S / 2, y = o.S / 2;
+        f.setTransform(1, 0, 0, 1, 0, 0); f.clearRect(0, 0, o.p.c.width, o.p.c.height); f.setTransform(dpr, 0, 0, dpr, 0, 0);
+        f.save(); f.beginPath(); f.rect(0, 0, o.S, o.S);
+        if (o.g) {
+          const r = o.r, cy = y - r - 2.5;
+          f.moveTo(x + r + 1.6, y + 0.8); f.arc(x, y + 0.8, r + 1.6, 0, 2 * Math.PI);
+          f.moveTo(x - 6.4, cy); f.lineTo(x - 7.2, cy - 6.8); f.lineTo(x - 3, cy - 3.4); f.lineTo(x, cy - 8.5); f.lineTo(x + 3, cy - 3.4); f.lineTo(x + 7.2, cy - 6.8); f.lineTo(x + 6.4, cy); f.closePath();
+          f.clip('evenodd'); f.globalAlpha = o.A;
+          const ph = still ? 0.25 : (t % 1800) / 1800, gr = r + 10 + Math.sin(ph * 2 * Math.PI) * 2.5;
+          const g = f.createRadialGradient(x, y, r * 0.7, x, y, gr); g.addColorStop(0, 'rgba(255,200,60,.6)'); g.addColorStop(1, 'rgba(255,200,60,0)');
+          f.fillStyle = g; f.beginPath(); f.arc(x, y, gr, 0, 2 * Math.PI); f.fill();
+          [-40, 18, 96, 158].forEach((deg, k) => {
+            const tw = still ? 0.85 : 0.35 + 0.65 * Math.abs(Math.sin(t / 480 + k * 1.9)), an = deg * Math.PI / 180, d = r + 7.5 + (k % 2) * 2.5;
+            fxStar(f, x + Math.cos(an) * d, y + Math.sin(an) * d, (k % 2 ? 3.1 : 4.1) * tw, k % 2 ? '#FFFFFF' : '#FFE07A');
+          });
+        } else {
+          const pulse = still ? 0 : (t % 2000) / 2000;
+          f.moveTo(x + 9, y); f.arc(x, y, 9, 0, 2 * Math.PI); f.clip('evenodd');
+          if (pulse) { f.fillStyle = `rgba(47,125,246,${(0.35 * (1 - pulse)).toFixed(3)})`; f.beginPath(); f.arc(x, y, 8 + pulse * 16, 0, 2 * Math.PI); f.fill(); }
+        }
+        f.restore();
+      }
+    }
+    function fxLoop(t) {
+      fxRaf = 0;
+      if (!isOpen || !fxItems.length || RM.matches) return;
+      if (!(t - fxLast < 30)) { fxLast = t; fxDraw(t); }   // 초당 30번쯤 (작은 그림판이라 가볍다)
+      fxRaf = requestAnimationFrame(fxLoop);
+    }
+    function fxKick() { if (!fxRaf && isOpen && fxItems.length && !RM.matches) fxRaf = requestAnimationFrame(fxLoop); }
     function loop(t) {
       raf = 0; if (!isOpen) return;
-      const anim = ((me && !me.virtual) || goldOn) && !RM.matches;
+      const anim = false;   // 지도는 바뀔 때만 다시 그린다 (움직이는 효과는 위 그림판 fxLoop)
       if (needDraw || interacting || !anim || !(t - lastLoopDraw < 30)) { needDraw = false; lastLoopDraw = t || 0; inLoop = true; try { drawNow(); } finally { inLoop = false; } }
       if (!raf && (anim || needDraw)) raf = requestAnimationFrame(loop);
     }
@@ -4500,6 +4547,12 @@ const TideHarm = (() => {
       }
     }
     if (NAT) {
+      // 앱 화면이 안 보이면 앱이 GPS를 받으니 웹은 쉰다 (둘이 같이 받지 않게)
+      document.addEventListener('visibilitychange', () => {
+        if (!onBoard) return;
+        if (document.visibilityState === 'hidden') { let tr = false; try { tr = NAT.isTracking(); } catch (_) {} if (tr) stopGps(); }
+        else if (watchId == null) startGps();
+      });
       setInterval(() => { natFixes(); natStopCheck(); }, 15000);
       document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') { natFixes(); if (!natStopCheck() && onBoard) natBoard(true); if (mode === 'list') showList(); } });
     }
@@ -4537,7 +4590,8 @@ const TideHarm = (() => {
     window.jjugapAct = a => { if (a === 'save' || a === 'map') quickAct(a); };
     window.jjugapNatFixes = () => natFixes();   // 안드로이드 앱의 홈 화면 단추·알림에서 부른다
     // 화면 꺼짐 막기 (지원하는 폰에서만)
-    async function wakeOn() { try { if ('wakeLock' in navigator && !wake) { wake = await navigator.wakeLock.request('screen'); wake.addEventListener('release', () => { wake = null; }); } } catch (_) { wake = null; } }
+    // 화면 꺼짐 막기: 웹(브라우저)에서만. 안드로이드 앱은 화면이 꺼져도 기록하니 휴대폰 설정대로 꺼지게 (배터리)
+    async function wakeOn() { if (window.JjugapNative) return; try { if ('wakeLock' in navigator && !wake) { wake = await navigator.wakeLock.request('screen'); wake.addEventListener('release', () => { wake = null; }); } } catch (_) { wake = null; } }
     function wakeOff() { try { wake && wake.release(); } catch (_) {} wake = null; }
     document.addEventListener('visibilitychange', () => { if (isOpen && document.visibilityState === 'visible') { if (!viewMode) wakeOn(); paintPanel(true); } });
 
@@ -4795,6 +4849,7 @@ const TideHarm = (() => {
     document.addEventListener('keydown', e => { if (e.key === 'Escape' && isOpen) close(); });
     new ResizeObserver(() => { if (isOpen) resize(); }).observe(box);
     setInterval(() => { if (isOpen && mode === 'info') paintPanel(true); }, 15000);
+    setInterval(() => { if (isOpen && document.visibilityState === 'visible') draw(); }, 30000);   // 조류 화살표 등 시간에 따라 바뀌는 것 (지도는 바뀔 때만 그리니까)
     // 확대 · 축소 · 내 위치로
     const zoomAt = (f, x = W / 2, y = focusY()) => { const g = toG(x, y); v.s = clampS(v.s * f); const g2 = toG(x, y); v.lon += g.lon - g2.lon; v.lat += g.lat - g2.lat; if (follow && me) placeAt(me.lon, me.lat, fy ?? focusY()); draw(); };
     $('mv-zin').onclick = () => zoomAt(1.8);
@@ -5125,7 +5180,7 @@ const TideHarm = (() => {
 
 <script>
 if ('serviceWorker' in navigator) addEventListener('load', () => {
-  const sw = navigator.serviceWorker, VER = '3dd494e0'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
+  const sw = navigator.serviceWorker, VER = '1ad8b761'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
   // 화면에 손을 대기 시작했는지 (쓰는 중에는 새로 열지 않으려고)
   ['pointerdown', 'keydown'].forEach(t => addEventListener(t, () => { touched = true; }, { capture: true, passive: true }));
   const reload = () => {
