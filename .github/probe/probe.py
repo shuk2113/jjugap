@@ -5,7 +5,7 @@
 - 방조제 안 호수·저수지·큰 강(W), 섬·만·호수 이름(lab) — Geofabrik 한국 추출본
 """
 import json, os, subprocess, sys, time, importlib, site, traceback, math, re, gzip, multiprocessing as mp
-OUT = 'probe-out/basemap5'; os.makedirs(OUT, exist_ok=True)
+OUT = 'probe-out/basemap6'; os.makedirs(OUT, exist_ok=True)
 BIG = (118.0, 30.0, 134.0, 44.5)                              # 주변국 해안까지 (멀리 볼 때 지도가 잘려 보이지 않게)
 FINE = [(124.0, 33.0, 131.0, 38.75), (130.5, 37.0, 132.0, 37.75)]   # 자세히: 남한 바다 전체 · 울릉도·독도
 LON0, LAT0, Q = 118.0, 30.0, 100000
@@ -204,7 +204,7 @@ try:
     def build_col(arg):
         lv, ix = arg
         P = LV[lv]; cs = P['cell']; Lp, Kp, npt = [], [], 0
-        ny = int(round((BIG[3] - BIG[1]) / cs))
+        ny = int(math.ceil((BIG[3] - BIG[1]) / cs - 1e-9))
         if True:
             for iy in range(ny):
                 bb = (BIG[0] + ix * cs, BIG[1] + iy * cs, BIG[0] + (ix + 1) * cs, BIG[1] + (iy + 1) * cs)
@@ -239,7 +239,7 @@ try:
     L, K = [], []
     NC = os.cpu_count() or 2
     for lv in (0, 1):
-        nx = int(round((BIG[2] - BIG[0]) / LV[lv]['cell'])); Lp, Kp, n = [], [], 0
+        nx = int(math.ceil((BIG[2] - BIG[0]) / LV[lv]['cell'] - 1e-9)); Lp, Kp, n = [], [], 0
         with mp.get_context('fork').Pool(NC) as pool:
             for j, (a, b, c) in enumerate(pool.imap(build_col, [(lv, ix) for ix in range(nx)])):
                 Lp += a; Kp += b; n += c
@@ -265,7 +265,7 @@ try:
         if g.is_empty: continue
         c = g.representative_point()
         # 바닷가(서해 안쪽) 물은 작은 것까지, 나머지는 큰 호수·저수지·강만
-        if g.area < (0.03 if c.x < 127.05 and c.y > 35.0 else 0.5) * A1: continue
+        if g.area < (0.03 if c.x < 127.05 and c.y > 35.0 else 2.0) * A1: continue
         if not in_fine(c.x, c.y): continue
         wpolys.append(g)
         p = f['properties']; nm = p.get('name:ko') or p.get('name')
@@ -292,7 +292,7 @@ try:
                 if len(s) >= 3: rings.append(enc(s)[0])
             if rings: out.append(rings)
         return out
-    W = [level_poly(wu, 0.0008, 0.02), level_poly(wu, 0.0002, 0.003)]
+    W = [level_poly(wu, 0.001, 0.02), level_poly(wu, 0.00025, 0.003)]
 
     # 이름표
     HAN = re.compile('[가-힣]')
@@ -358,7 +358,7 @@ try:
     say(f'이름표 {len(out_l)}')
 
     js = json.dumps({'src': '© OpenStreetMap 기여자 (ODbL)', 'date': when, 'o': [LON0, LAT0], 'q': Q,
-                     'L': L, 'K': K, 'F': [[], []], 'W': W, 'lab': out_l}, ensure_ascii=False, separators=(',', ':'))
+                     'L': L, 'kc': [round(LV[0]['cell'] * Q), round(LV[1]['cell'] * Q)], 'F': [[], []], 'W': W, 'lab': out_l}, ensure_ascii=False, separators=(',', ':'))
     open(f'{OUT}/basemap.json', 'w').write(js)
     gz = len(gzip.compress(js.encode(), 6))
     part = lambda o: len(json.dumps(o, separators=(',', ':')).encode()) // 1024
