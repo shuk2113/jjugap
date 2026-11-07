@@ -323,7 +323,7 @@ h2{margin:0; font-size:calc(16px * var(--k)); font-weight:700; text-wrap:balance
 .mv-sel{padding-right:28px; text-overflow:ellipsis; white-space:nowrap; overflow:hidden}
 .mv-selw{position:relative; flex:1; min-width:0; display:flex}
 .mv-selw::after{content:''; position:absolute; right:11px; top:50%; width:7px; height:7px; margin-top:-6px; border:solid var(--ink-2); border-width:0 2px 2px 0; transform:rotate(45deg); pointer-events:none}
-.mv-sug{display:flex; flex-direction:column; margin:6px 0 2px; border:1px solid var(--line); border-radius:12px; overflow:hidden; background:var(--card); box-shadow:0 4px 14px rgba(0,0,0,.12)}
+.mv-sug{position:absolute; left:14px; right:14px; z-index:6; display:flex; flex-direction:column; border:1px solid var(--line); border-radius:12px; overflow:hidden; background:var(--card); box-shadow:0 8px 22px rgba(0,0,0,.22)}
 .mv-sug[hidden]{display:none}
 .mv-sug button{display:flex; align-items:center; gap:10px; min-height:44px; padding:8px 12px; border:0; border-top:1px solid var(--line); background:none; font:inherit; text-align:left; color:var(--ink); -webkit-tap-highlight-color:transparent; touch-action:manipulation}
 .mv-sug button:first-child{border-top:0} .mv-sug button:active{background:var(--well)}
@@ -2683,7 +2683,7 @@ const TideHarm = (() => {
     let fitRaf = 0, lockY = null;
     function fitSearch() {
       fitRaf = 0;
-      if (!sheet.classList.contains('searching')) return;
+      if (!isOpen || !sheet.classList.contains('searching')) return;   // 닫히는 중에는 크기를 바꾸지 않는다
       const vh = vv ? vv.height : innerHeight, top = vv ? vv.offsetTop : 0, kb = Math.max(0, Math.round(innerHeight - (top + vh)));
       sheet.style.setProperty('--sh-b', kb + 'px');
       sheet.style.setProperty('--sh-h', Math.round(Math.min(vh - 12, innerHeight * 0.85)) + 'px');
@@ -2753,7 +2753,7 @@ const TideHarm = (() => {
     let isOpen = false, closeT = 0, skipPop = false;
     const resetDrag = () => { sheet.style.transform = sheet.style.transition = back.style.opacity = back.style.transition = ''; };
     function open() {
-      clearTimeout(closeT); lockPage(true); paintList(); resetDrag();
+      clearTimeout(closeT); lockPage(true); paintList(); resetDrag(); sheet.style.height = '';
       back.classList.remove('closing', 'fast'); sheet.classList.remove('closing', 'fast');
       back.hidden = false; sheet.hidden = false; sheet.scrollTop = 0; isOpen = true;
       if (useHist) { try { history.pushState({ stSheet: 1 }, ''); } catch (_) {} }
@@ -2761,9 +2761,16 @@ const TideHarm = (() => {
     // fast: X 버튼처럼 짧고 빠르게 / fromPop: 폰 뒤로가기로 닫힌 경우
     // slide: 손가락으로 끌다 놓았을 때 {d: 내려간 거리, v: 놓을 때 속도(px/ms)} → 그 속도를 이어받아 한 번에 미끄러져 내려간다
     function close(fast, fromPop, slide) {
-      if (!isOpen) return; isOpen = false; drag = null; lockPage(false); setSearching(false); if (document.activeElement === qEl) qEl.blur();
+      if (!isOpen) return; isOpen = false; drag = null;
+      // 내려가는 동안에는 판 크기·자리, 키보드, 뒤 화면을 그대로 둔다 (도중에 바뀌면 드드득 끊겨 보여서) → 다 내려간 뒤에 정리
+      if (sheet.classList.contains('searching')) sheet.style.height = sheet.getBoundingClientRect().height + 'px';
+      const done = () => {
+        back.hidden = true; sheet.hidden = true; resetDrag(); setSearching(false); sheet.style.height = '';
+        if (document.activeElement === qEl) qEl.blur();
+        lockPage(false);
+      };
       if (useHist && !fromPop && history.state && history.state.stSheet) { skipPop = true; history.back(); }
-      if (reduceM()) { back.hidden = true; sheet.hidden = true; resetDrag(); return; }
+      if (reduceM()) { done(); return; }
       if (slide) {
         // 손을 뗀 순간의 속도로 이어서 출발해 부드럽게 빨라지며 내려간다 (갑자기 튀거나 멈칫하지 않게)
         const h = sheet.offsetHeight, rem = Math.max(1, h + 12 - slide.d);
@@ -2771,13 +2778,13 @@ const TideHarm = (() => {
         const s0 = Math.min(1, Math.max(0.05, slide.v * dur / rem));
         sheet.style.transition = `transform ${dur}ms cubic-bezier(.3,${(0.3 * s0).toFixed(3)},.6,1)`; back.style.transition = `opacity ${dur}ms linear`;
         sheet.style.transform = `translateY(${h + 12}px)`; back.style.opacity = '0';
-        closeT = setTimeout(() => { back.hidden = true; sheet.hidden = true; resetDrag(); }, dur + 40);
+        closeT = setTimeout(done, dur + 40);
         return;
       }
       sheet.style.transition = back.style.transition = 'none';
       back.classList.toggle('fast', !!fast); sheet.classList.toggle('fast', !!fast);
       back.classList.add('closing'); sheet.classList.add('closing');
-      closeT = setTimeout(() => { back.hidden = true; sheet.hidden = true; resetDrag(); }, fast ? 160 : 230);
+      closeT = setTimeout(done, fast ? 160 : 230);
     }
     btn.onclick = open; back.onclick = () => close();
     $('st-x').onclick = e => { e.stopPropagation(); close(true); };
@@ -3821,8 +3828,10 @@ const TideHarm = (() => {
         const sub = [x.e.src === 0 ? '전에 쓴 곳' : x.e.sub, x.aka && x.aka !== x.e.n && x.aka.length <= 8 ? x.aka : '', x.d != null ? (x.d < 10 ? x.d.toFixed(1) : Math.round(x.d)) + 'km' : ''].filter(Boolean).join(' · ');
         return `<button type="button" role="option" data-sug="${i}">${pin}<b>${hl(x.e.n)}</b><span>${esc(sub)}</span></button>`;
       }).join('');
-      box.hidden = false;
-      setTimeout(() => { try { box.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); } catch (_) {} }, 60);
+      // 입력 칸 바로 아래에 떠서 보인다 (판 높이는 그대로 → 글자를 칠 때마다 판이 흔들리지 않게). 처음 뜰 때만 다 보이게 한 번 내린다
+      const row = box.previousElementSibling; if (row) box.style.top = (row.offsetTop + row.offsetHeight + 6) + 'px';
+      const was = box.hidden; box.hidden = false;
+      if (was) requestAnimationFrame(() => { const over = box.offsetTop + box.offsetHeight + 8 - (panel.scrollTop + panel.clientHeight); if (over > 0) panel.scrollTop += over; });
     }
     function pickSug(i) {
       const x = sugs[i], el = $('mv-dep'); if (!x || !form) return;
@@ -5226,7 +5235,7 @@ const TideHarm = (() => {
 
 <script>
 if ('serviceWorker' in navigator) addEventListener('load', () => {
-  const sw = navigator.serviceWorker, VER = '19676b04'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
+  const sw = navigator.serviceWorker, VER = 'c0e36ae4'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
   // 화면에 손을 대기 시작했는지 (쓰는 중에는 새로 열지 않으려고)
   ['pointerdown', 'keydown'].forEach(t => addEventListener(t, () => { touched = true; }, { capture: true, passive: true }));
   const reload = () => {
