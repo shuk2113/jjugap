@@ -5278,19 +5278,46 @@ const TideHarm = (() => {
       try { [d, tips, L] = await Promise.all([fetch(`data/port/p${idx}.json`).then(r => { if (!r.ok) throw 0; return r.json(); }), portTips(), portList()]); } catch (_) {}
       if (!portS || portS.tok !== myTok) return;
       if (!d) { $('pv-name').textContent = (L[idx] && L[idx][0]) || '항구 정보'; $('pv-body').innerHTML = '<p class="pv-empty">이 항구의 지도 자료를 받지 못했어요. 인터넷이 될 때 한 번 열어 두면 바다 위에서도 보여요.</p>'; return; }
+      for (let k = 0; k < 30 && landState === 'loading'; k++) { await new Promise(r => setTimeout(r, 100)); if (!portS || portS.tok !== myTok) return; }   // 바다 지도(땅 모양)가 오면 배 타는 곳을 부두 위로
       portS.d = d; portS.tip = tips[String(idx)] || null; portPrep(); portUi(L); portFit(); portDraw();
     }
     function portClose(fromPop) {
       if (!portS) return; portS = null; portEl.hidden = true; portSheet(null); document.documentElement.classList.remove('cv-lock');
       if (useHist && !fromPop && history.state && history.state.portv) { skipPop = true; history.back(); }
     }
+    // 바다 지도(가장 자세한 단계)에서 이 자리가 땅인지 (갯벌·물 빼고)
+    let portHitG = null;
+    function portLandAt(la, lo) {
+      if (!basemap) return null;
+      const lv = basemap.L.length - 1, x = lo * KX, y = -la, g = portHitG || (portHitG = document.createElement('canvas').getContext('2d'));
+      const hit = cs => (cs || []).some(cell => x >= cell.x0 && x <= cell.x1 && y >= cell.y0 && y <= cell.y1 && g.isPointInPath(cell.p, x, y, 'evenodd'));
+      return hit(basemap.L[lv]) && !hit(basemap.W[lv]) && !hit(basemap.F[lv]);
+    }
+    // 항구 자리가 물 위면: 가장 가까운 땅 가운데 길(도로)이 닿는 부두 가장자리로 (방파제 끝에 찍히지 않게)
+    function portSnap(c, segs) {
+      const here = portLandAt(c[0], c[1]); if (here !== false) return c;
+      const kx = Math.cos(c[0] * Math.PI / 180), U = 1 / 111320;
+      const nearRoad = (la, lo, m) => { const px = (lo - c[1]) * KX, py = -(la - c[0]), lim = m * U;
+        for (let i = 0; i < segs.length; i += 4) { const ax = segs[i], ay = segs[i + 1], dx = segs[i + 2] - ax, dy = segs[i + 3] - ay, L2 = dx * dx + dy * dy;
+          const t = L2 ? Math.max(0, Math.min(1, ((px - ax) * dx + (py - ay) * dy) / L2)) : 0; if (Math.hypot(ax + t * dx - px, ay + t * dy - py) < lim) return true; } return false; };
+      let first = null;
+      for (let r = 10; r <= 450; r += 10) for (let a = 0; a < 36; a++) {
+        const t = a / 36 * 2 * Math.PI, la = c[0] + r * Math.sin(t) * U, lo = c[1] + r * Math.cos(t) * U / kx;
+        if (!portLandAt(la, lo)) continue;
+        const p = portLandAt(c[0] + (r + 6) * Math.sin(t) * U, c[1] + (r + 6) * Math.cos(t) * U / kx) ? [c[0] + (r + 6) * Math.sin(t) * U, c[1] + (r + 6) * Math.cos(t) * U / kx] : [la, lo];
+        if (!first) first = p;
+        if (nearRoad(p[0], p[1], 40)) return p;
+      }
+      return first || c;
+    }
     // 그릴 것 미리 만들기 + 주차장 목록 합치기 (조사한 팁 → 공영 → OSM 주차장 구역)
     function portPrep() {
       const s = portS, d = s.d, c = d.c, tp = s.tip || {};
       const G = { road: [new Path2D(), new Path2D(), new Path2D()], bld: new Path2D(), pierL: new Path2D(), pierP: new Path2D(), labels: [], pa: [] };
-      const best = new Map();
+      const best = new Map(), segs = [];
       for (const r of d.r || []) {
         const pts = pDec(r, 2); pPath(pts, false, G.road[r[0]] || G.road[2]);
+        for (let i = 1; i < pts.length; i++) segs.push(pts[i - 1][0], pts[i - 1][1], pts[i][0], pts[i][1]);
         if (r[1] >= 0 && r[0] < 2) { let len = 0; for (let i = 1; i < pts.length; i++) len += Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]); const b = best.get(r[1]); if (!b || b.len < len) best.set(r[1], { len, pts, n: d.rn[r[1]], c: r[0] }); }
       }
       G.labels = [...best.values()].sort((a, b) => a.c - b.c || b.len - a.len);
@@ -5323,7 +5350,7 @@ const TideHarm = (() => {
         if (lots.some(l => l.lat != null && pDist(l.lat, l.lon, o.lat, o.lon) < 70)) return;
         lots.push({ ...o, n: o.n || '주차장', fee: o.k === 'free' ? '무료' : o.k === 'paid' ? '유료' : '', cap: o.cap || (o.a ? `약 ${Math.max(5, Math.round(o.a / 25 / 5) * 5)}대 넓이` : '') });
       });
-      const bd = tp.b || c;   // 배 타는 곳 (조사한 자리, 없으면 항구 자리)
+      const bd = tp.b || portSnap(c, segs);   // 배 타는 곳 (조사한 자리, 없으면 항구 자리 · 물 위면 가까운 부두로)
       for (const l of lots) l.d = l.lat != null ? pDist(bd[0], bd[1], l.lat, l.lon) : null;
       const tipN = lots.filter(l => l.src === 'tip').length;
       const rest = lots.slice(tipN).sort((a, b) => (a.d == null) - (b.d == null) || a.d - b.d);
@@ -5367,7 +5394,7 @@ const TideHarm = (() => {
     // ---------- 항구 지도 그리기
     function portFit() {
       const s = portS, c = s.d.c, cv = $('pv-cv'), W = cv.clientWidth || 360, H = cv.clientHeight || 300;
-      const pts = [[0, 0]], bx = (s.board[1] - c[1]) * KX, by = -(s.board[0] - c[0]); pts.push([bx, by]);
+      const pts = [], bx = (s.board[1] - c[1]) * KX, by = -(s.board[0] - c[0]); pts.push([bx, by]);
       s.lots.slice(0, 3).forEach(l => { if (l.lat != null && l.d < 650) pts.push([(l.lon - c[1]) * KX, -(l.lat - c[0])]); });
       let x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9; for (const [x, y] of pts) { x0 = Math.min(x0, x); x1 = Math.max(x1, x); y0 = Math.min(y0, y); y1 = Math.max(y1, y); }
       const m = 140 / 111320, sp = Math.max(x1 - x0 + 2 * m, (y1 - y0 + 2 * m) * W / H, 520 / 111320);
@@ -6922,7 +6949,7 @@ const TideHarm = (() => {
 
 <script>
 if ('serviceWorker' in navigator) addEventListener('load', () => {
-  const sw = navigator.serviceWorker, VER = 'db93bed3'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
+  const sw = navigator.serviceWorker, VER = 'd0828b4e'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
   // 화면에 손을 대기 시작했는지 (쓰는 중에는 새로 열지 않으려고)
   ['pointerdown', 'keydown'].forEach(t => addEventListener(t, () => { touched = true; }, { capture: true, passive: true }));
   const reload = () => {
