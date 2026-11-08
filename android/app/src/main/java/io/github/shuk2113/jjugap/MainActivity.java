@@ -14,6 +14,7 @@ import android.os.SystemClock;
 import android.provider.Settings;
 import android.util.Log;
 import android.webkit.GeolocationPermissions;
+import android.webkit.ValueCallback;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebChromeClient;
 import android.webkit.WebResourceRequest;
@@ -36,7 +37,8 @@ import com.google.android.gms.location.Priority;
  */
 public class MainActivity extends Activity {
     static final String HOME = "https://shuk2113.github.io/jjugap/";
-    static final int REQ_LOC = 11, REQ_NOTI = 12, REQ_LOCON = 13;
+    static final int REQ_LOC = 11, REQ_NOTI = 12, REQ_LOCON = 13, REQ_FILE = 14;
+    ValueCallback<Uri[]> fileCb;     // 조과 카드에 넣을 사진 고르기
 
     WebView web;
     static MainActivity live;   // 위치 기록 서비스가 모아 둔 GPS를 바로 넘겨줄 화면
@@ -55,7 +57,7 @@ public class MainActivity extends Activity {
 
     static String actOf(Intent i) {
         String a = i == null ? null : i.getStringExtra("act");
-        return "save".equals(a) || "map".equals(a) ? a : null;
+        return "save".equals(a) || "map".equals(a) || "card".equals(a) ? a : null;
     }
 
     @Override
@@ -81,6 +83,15 @@ public class MainActivity extends Activity {
                 if (hasLoc()) { cb.invoke(origin, true, false); return; }
                 geoOrigin = origin; geoCb = cb;
                 requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, REQ_LOC);
+            }
+            // 조과 카드: '사진 넣기' → 휴대폰 사진 고르기
+            @Override
+            public boolean onShowFileChooser(WebView v, ValueCallback<Uri[]> cb, FileChooserParams p) {
+                if (fileCb != null) fileCb.onReceiveValue(null);
+                fileCb = cb;
+                Intent i = new Intent(Intent.ACTION_GET_CONTENT).addCategory(Intent.CATEGORY_OPENABLE).setType("image/*");
+                try { startActivityForResult(Intent.createChooser(i, "사진 고르기"), REQ_FILE); Log.i("jjugap", "photo pick"); return true; }
+                catch (Exception e) { fileCb = null; Log.w("jjugap", "photo pick", e); return false; }
             }
         });
         web.setWebViewClient(new WebViewClient() {
@@ -173,6 +184,11 @@ public class MainActivity extends Activity {
     @Override
     protected void onActivityResult(int req, int res, Intent data) {
         super.onActivityResult(req, res, data);
+        if (req == REQ_FILE) {
+            Uri u = res == RESULT_OK && data != null ? data.getData() : null;
+            if (fileCb != null) fileCb.onReceiveValue(u != null ? new Uri[]{u} : null);
+            fileCb = null; return;
+        }
         if (req == REQ_LOCON) {
             askingLoc = false;
             if (res == RESULT_OK || Loc.on(this)) { Loc.markHelped(this); locOnNow(); afterLocOn(); Log.i("jjugap", "loc on by app"); }
@@ -285,7 +301,10 @@ public class MainActivity extends Activity {
 
     /** 웹 앱에서 부르는 것들 (window.JjugapNative) */
     class Bridge {
-        @JavascriptInterface public String version() { return "2"; }
+        @JavascriptInterface public String version() { return "3"; }   // 3: 조과 카드 보내기·저장·글 복사·사진 넣기
+        @JavascriptInterface public void shareImage(String b64, String name) { CardShare.share(MainActivity.this, b64, name); }
+        @JavascriptInterface public String saveImage(String b64, String name) { return CardShare.save(MainActivity.this, b64, name); }
+        @JavascriptInterface public void copyText(String t) { CardShare.copy(MainActivity.this, t); }
         @JavascriptInterface public boolean locationOn() { return Loc.on(MainActivity.this); }
         @JavascriptInterface public void askLocationOn() { runOnUiThread(MainActivity.this::askLocationOn); }
         @JavascriptInterface public void openLocationSettings() { runOnUiThread(() -> Loc.openSettings(MainActivity.this)); }

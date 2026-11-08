@@ -128,6 +128,23 @@ adb shell uiautomator dump /sdcard/ui.xml >/dev/null 2>&1; adb pull /sdcard/ui.x
 if adb shell dumpsys activity services $P | grep -q TrackService; then echo "RECENTS STARTED BOARD (켜지면 안 됨)" | tee -a "$OUT/loc.txt"; else echo "recents reopen: board stays off (ok)" | tee -a "$OUT/loc.txt"; fi
 grep -qE "Turn on|TURN ON|사용|위치 정확도|location accuracy" "$OUT/ui-recents17.xml" && echo "RECENTS LOC DIALOG (안 떠야 함)" | tee -a "$OUT/loc.txt" || echo "recents reopen: no location dialog (ok)" | tee -a "$OUT/loc.txt"
 adb logcat -d -s jjugap:I | grep -E "history|service started|locon" >> "$OUT/loc.txt"
+# (18) 조과 카드: 마지막 출조 카드 열기 → 보내기(고르는 창) → 저장(사진첩) → 사진 넣기(사진 고르기 창)
+adb logcat -c
+adb shell am start -n $P/.MainActivity --es act card; sleep 12; shot 18-card
+adb shell input tap 231 1749; sleep 6; shot 19-share   # '보내기' (웹 화면 412×842 기준 자리)
+F=$(adb shell dumpsys window | grep -E "mCurrentFocus" | head -1); echo "after share: $F" | tee -a "$OUT/card.txt"
+echo "$F" | grep -qiE "chooser|intentresolver|resolver" && echo "card share sheet (ok)" | tee -a "$OUT/card.txt" || echo "CARD SHARE SHEET NOT SEEN" | tee -a "$OUT/card.txt"
+adb shell input keyevent KEYCODE_BACK; sleep 3
+adb shell input tap 591 1749; sleep 5; shot 20-saved   # '저장'
+G=$(adb shell content query --uri content://media/external/images/media --projection _display_name:relative_path 2>/dev/null | grep -i jjugap)
+[ -n "$G" ] && echo "card in gallery (ok): $G" | tee -a "$OUT/card.txt" || echo "CARD NOT IN GALLERY" | tee -a "$OUT/card.txt"
+adb shell input tap 283 1608; sleep 6; shot 21-photo-pick   # '사진 넣기'
+F=$(adb shell dumpsys window | grep -E "mCurrentFocus" | head -1); echo "after photo: $F" | tee -a "$OUT/card.txt"
+echo "$F" | grep -qiE "documentsui|photopicker|chooser|resolver|media" && echo "photo picker (ok)" | tee -a "$OUT/card.txt" || echo "PHOTO PICKER NOT SEEN" | tee -a "$OUT/card.txt"
+adb shell input keyevent KEYCODE_BACK; sleep 2; adb shell input keyevent KEYCODE_BACK; sleep 2
+F=$(adb shell dumpsys window | grep -E "mCurrentFocus" | head -1); echo "after back: $F" | tee -a "$OUT/card.txt"
+adb logcat -d -s jjugap:I jjugap:W | grep -E "card|photo" | tee -a "$OUT/card.txt"
+adb logcat -d | grep -E "FATAL|AndroidRuntime: java" | head -5 | tee -a "$OUT/card.txt"
 # 앱 안에서 업데이트: 같은 파일을 받아 설치 화면을 여는지
 adb shell appops set $P REQUEST_INSTALL_PACKAGES allow
 adb shell am start -n $P/.MainActivity --es act update
