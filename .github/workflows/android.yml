@@ -67,7 +67,7 @@ jobs:
           disable-animations: true
           script: bash android/emu-test.sh
       - name: 앱 파일 올리기 (진짜 서명일 때만)
-        if: steps.key.outputs.real == '1'
+        if: steps.key.outputs.real == '1' && !contains(github.event.head_commit.message, '[test-only]')   # 시험만 다시 돌릴 땐 앱 파일을 올리지 않는다
         run: |
           git fetch -q origin gh-pages
           git worktree add -q "$RUNNER_TEMP/gp" origin/gh-pages

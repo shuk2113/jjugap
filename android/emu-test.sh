@@ -148,6 +148,10 @@ adb logcat -d | grep -E "FATAL|AndroidRuntime: java" | head -5 | tee -a "$OUT/ca
 # (19) 항구 정보: 주차 단추 → 길안내 앱 → 네이버지도(깔려 있지 않음) → 플레이 스토어 쪽으로 (아무 일도 안 일어나면 안 됨)
 adb shell am force-stop $P; sleep 2; adb logcat -c
 adb shell am start -n $P/.MainActivity; sleep 14; shot 22-main
+# 앞 시험에서 남은 '오늘 출조 정리' 판이 떠 있으면 뒤로 가기로 닫는다 (판이 주차 단추를 가림)
+for k in 1 2 3; do adb shell uiautomator dump /sdcard/ui.xml >/dev/null 2>&1; adb pull /sdcard/ui.xml "$OUT/ui-p21-$k.xml" >/dev/null 2>&1
+  grep -q "오늘 출조 정리" "$OUT/ui-p21-$k.xml" || break; echo "sum panel open -> back" | tee -a "$OUT/port.txt"; adb shell input keyevent KEYCODE_BACK; sleep 4; done
+shot 22b-main
 for k in 1 2 3; do tapText "\|pk-btn$" p22-$k && break; sleep 3; done
 sleep 7; shot 23-port
 for k in 1 2 3; do tapText "^길안내 앱\|" p23-$k && break; sleep 2; done
