@@ -770,6 +770,7 @@ html.cv-lock, html.cv-lock body{overflow:hidden}
 .cv-row{display:flex; gap:8px; margin-top:10px}
 .cv-row button{flex:1; height:44px; border:0; border-radius:12px; background:var(--well); font:inherit; font-size:calc(14px * var(--k)); font-weight:700; color:var(--ink); -webkit-tap-highlight-color:transparent}
 .cv-row button.sm{flex:.7; color:var(--ink-2)}
+#cv-row1 button{font-size:calc(13.5px * var(--k)); padding:0 4px}
 .cv-row button.pri{flex:1.4; background:#2F7DF6; color:#fff}
 .cv-row button:active, .cv-chips button:active, .cv-tg button:active{transform:scale(.97)}
 .cv-toast{position:fixed; left:50%; bottom:calc(84px + env(safe-area-inset-bottom, 0px)); z-index:3; transform:translateX(-50%); max-width:calc(100% - 40px); padding:9px 16px; border-radius:16px; background:rgba(8,20,24,.9); color:#fff; font-size:calc(13px * var(--k)); font-weight:600; line-height:1.4; text-align:center; pointer-events:none}
@@ -783,6 +784,9 @@ html.cv-lock, html.cv-lock body{overflow:hidden}
 .cv-thr b{width:100%; font-size:calc(14px * var(--k))}
 .cv-thr label{display:flex; align-items:center; gap:5px; font-size:calc(13px * var(--k)); color:var(--ink-2)}
 .cv-thr input{width:58px; height:34px; padding:0 8px; border:1px solid var(--line); border-radius:10px; background:var(--paper); font:inherit; font-size:calc(15px * var(--k)); font-weight:700; color:var(--ink); text-align:center}
+.cv-my{display:flex; align-items:center; gap:10px; padding:8px 0; border-top:1px solid var(--line)}
+.cv-my span{flex:none; width:52px; font-size:calc(14px * var(--k)); font-weight:700}
+.cv-my input{flex:1; min-width:0; height:42px; padding:0 12px; border:1px solid var(--line); border-radius:12px; background:var(--paper); font:inherit; font-size:calc(15px * var(--k)); color:var(--ink)}
 .cv-sherr{margin:6px 0 0; font-size:calc(12.5px * var(--k)); color:var(--strong)}
 .cv-shb{display:flex; gap:8px; margin-top:12px}
 .cv-shb button{flex:1; height:44px; border:0; border-radius:12px; background:var(--well); font:inherit; font-size:calc(14px * var(--k)); font-weight:700; color:var(--ink)}
@@ -4328,7 +4332,7 @@ const TideHarm = (() => {
     }
     // ---------- 조과 카드: 출조 하루를 사진 한 장으로 (카톡·밴드·카페에 자랑) · 포인트 위치는 어떤 카드에도 넣지 않는다
     // 카드는 1080×1080 그림(캔버스)으로 그리고, 화면에는 줄여서 보여 준다. 그림 좌표는 360칸 기준 (×3)
-    const CARD_KEY = 'jjukgap-card', CARD_TH_KEY = 'jjukgap-card-th';
+    const CARD_KEY = 'jjukgap-card', CARD_TH_KEY = 'jjukgap-card-th', CARD_MY_KEY = 'jjukgap-card-my';
     const CARD_THEMES = [
       { id: 'sticker', n: '스티커' }, { id: 'ticket', n: '승선권' }, { id: 'news', n: '호외', ph: 1 }, { id: 'polaroid', n: '폴라로이드', ph: 1 },
       { id: 'wanted', n: '현상수배', ph: 1 }, { id: 'quest', n: '퀘스트' }, { id: 'report', n: '통지표' }, { id: 'chat', n: '단톡방' }, { id: 'diary', n: '그림일기' }];
@@ -4369,43 +4373,68 @@ const TideHarm = (() => {
     const cardTier = cd => cd.sp.reduce((a, s) => Math.max(a, spLv(s)), 0);
     const cardMain = cd => cd.sp.slice().sort((a, b) => spLv(b) - spLv(a) || b.c - a.c)[0] || null;
     const pickV = (a, v) => a[((v % a.length) + a.length) % a.length];
-    // 문구에 넣는 말: {sea} 백사장항 앞바다 · {main} 쭈꾸미 · {mc} 32 · {egi} 고추장 · {tot} 43 · {spText} 쭈꾸미 32마리, 갑오징어 11마리 · {rest} 둘째 어종 한 줄
+    // 받침 따라 조사 고르기 (민수와 · 형과 / 쭈꾸미가 · 우럭이)
+    const josa = (w, a, b) => { const c = String(w || '').trim().slice(-1).charCodeAt(0); return c >= 0xAC00 && c <= 0xD7A3 && (c - 0xAC00) % 28 ? a : b; };
+    // 문구에 넣는 말: {sea} 백사장항 앞바다 · {main} 쭈꾸미 · {mc} 32 · {gc} 갑오징어 수 · {egi} 고추장 · {tot} 43 · {spText} 쭈꾸미 32마리, 갑오징어 11마리 · {rest} 둘째 어종 한 줄 · {mainGa} 쭈꾸미가
     function cardFmt(s, cd) {
-      const mn = cardMain(cd), sec = cd.sp.filter(x => x !== mn)[0], eg = cd.egiTop ? egiName(cd.egiTop) : '';
+      const mn = cardMain(cd), sec = cd.sp.filter(x => x !== mn)[0], eg = cd.egiTop ? egiName(cd.egiTop) : '', gp = cd.sp.find(x => x.k === 'gap'), mnN = mn ? mn.n : '쭈갑이';
       return s.replace(/\{sea\}/g, cd.port ? `${cd.port} 앞바다` : '바닷속').replace(/\{port\}/g, cd.port || '바다')
-        .replace(/\{main\}/g, mn ? mn.n : '쭈갑이').replace(/\{mc\}/g, mn ? mn.c : 0).replace(/\{egi\}/g, eg).replace(/\{tot\}/g, cd.tot)
+        .replace(/\{mainGa\}/g, mnN + josa(mnN, '이', '가'))
+        .replace(/\{main\}/g, mnN).replace(/\{mc\}/g, mn ? mn.c : 0).replace(/\{gc\}/g, gp ? gp.c : 0).replace(/\{egi\}/g, eg).replace(/\{tot\}/g, cd.tot)
         .replace(/\{spText\}/g, cd.sp.map(x => `${x.n} ${x.c}마리`).join(', '))
         .replace(/\{rest\}/g, sec ? `${sec.n} ${sec.c}마리도 함께 사라져` : '목격자 증언 잇따라');
     }
-    // 테마마다 마릿수 단계(0 꽝 · 1 아쉬움 · 2 손맛 · 3 대박)별 문구 (여러 개 → '다른 문구'로 바꾼다) · e: 에기 기록이 있어야 쓰는 문구
+    // 테마마다 마릿수 단계(0 꽝 · 1 아쉬움 · 2 손맛 · 3 대박)별 문구 (여러 개 → '다른 문구'로 바꾼다)
+    // 표시: e = 에기 기록이 있어야 · g = 갑오징어를 잡았어야 쓰는 문구 (글 끝 |e · 배열 셋째 칸 'e')
     const JOKE = {
-      sticker: [['쭈꾸미들 오늘 휴가', '바다 구경 잘했다', '꽝도 추억!', '오늘은 바다랑 데이트'], ['손맛은 봤다', '그래도 몇 마리!', '다음엔 더 많이!', '시작이 반!'], ['손맛 제대로!', '오늘 좋았다!', '이 정도면 선방!', '쿨러가 웃는다'], ['오늘 대박!', '쿨러 꽉 찼다!', '손이 바빴다!', '만선이다!']],
-      ticket: [['꽝', '휴항?'], ['아쉽!', '재도전!'], ['손맛!', '굿!'], ['만선!', '대박!']],
+      sticker: [
+        ['쭈꾸미들 오늘 휴가', '바다 구경 잘했다', '꽝도 추억!', '오늘은 바다랑 데이트', '바다는 넓고 쭈갑이는 없다', '오늘은 쭈갑이 정기휴일', '봉돌만 두고 왔다', '멀미 안 한 걸로 만족'],
+        ['손맛은 봤다', '그래도 몇 마리!', '다음엔 더 많이!', '시작이 반!', '밑걸림이 더 많았다…', '에기만 바다에 기부함', '물때가 안 도와줬다', '라면은 맛있었다'],
+        ['손맛 제대로!', '오늘 좋았다!', '이 정도면 선방!', '쿨러가 웃는다', '딱 먹을 만큼 잡았다', '오늘 저녁 해결!', '손맛 충전 완료', '이 맛에 배 탄다'],
+        ['오늘 대박!', '쿨러 꽉 찼다!', '손이 바빴다!', '만선이다!', '쿨러 뚜껑이 안 닫혀요', '오늘 장원은 나야 나', '팔이 아파서 행복해', '선장님도 놀란 손맛']],
+      ticket: [['꽝', '휴항?', '환불 불가', '바다 구경권'], ['아쉽!', '재도전!', '다음 배로'], ['손맛!', '굿!', '합격!'], ['만선!', '대박!', '장원!', '쿨러 만석']],
       news: [
-        [['{sea}\n쭈갑이 집단 결근', '낚시인 "바다 구경은 실컷 했다"'], ['오늘 바닷속\n전원 무사 귀가', '쭈갑이들 "오늘은 쉬는 날" 공식 발표']],
-        [['{sea}\n{main} {mc}마리만 출석', '나머지는 "오늘 휴가" 통보'], ['{main} 대부분\n무사히 탈출 성공', '낚시인 "다음엔 꼭" 재출조 다짐']],
-        [['{sea}\n{main} {mc}마리 연행', '"적당히 잡았다" … 낚시인 담담한 소감'], ['{main} {mc}마리\n오늘도 손맛 확인', '현장 "이 정도면 선방" 평가']],
-        [['{sea}\n{main} {mc}마리 실종 사건', '"범인은 {egi} 에기" … {rest}', 'e'], ['{sea}\n{main} 무더기 실종', '목격자 "손이 쉴 틈이 없었다" … {rest}'], ['속보! {main} {mc}마리\n한 사람에게 붙잡혀', '"{egi} 에기가 결정적" 증언 잇따라', 'e']]],
-      polaroid: [['바다 좋았다~', '꽝도 추억♥', '바다 구경 성공!'], ['그래도 즐거웠다', '다음엔 더!', '손맛 조금 ㅎㅎ'], ['손맛 굿!', '좋았다~', '{egi} 최고!|e'], ['오늘 최고!', '대박 났다!', '{egi} 최고!|e']],
-      wanted: [[['증거 불충분 · 쭈갑이 피해 없음', '현상금: 없음 (다음에 다시)']], [['{sea} 좀도둑', '현상금: 라면 한 그릇'], ['몇 마리만 슬쩍한 혐의', '현상금: 커피 한 잔']], [['{sea} 쭈갑이 납치범', '현상금: {egi} 에기 1개', 'e'], ['오늘도 손맛 본 상습범', '현상금: 짜장면 한 그릇']], [['{sea} 쭈갑이 연쇄 납치범', '현상금: {egi} 에기 1개', 'e'], ['바다의 무법자 · 손이 아주 빠름', '현상금: 소고기 한 근'], ['{sea} 최악의 쭈갑이 사냥꾼', '현상금: 쿨러 한 통']]],
-      quest: [['퀘스트 실패…', '이번 판은 졌다…'], ['퀘스트 완료… 겨우!', '아슬아슬 클리어!'], ['★ 퀘스트 완료! ★', '★ 클리어! ★'], ['★ 퀘스트 대성공! ★', '★ 완벽한 클리어! ★']],
-      report: [['바다를 사랑하는 마음이 큼. 다음엔 꼭 잡아 보자.', '끝까지 자리를 지킨 끈기를 칭찬함.'], ['끈기는 좋으나 조과는 조금 더 노력이 필요함.', '바다 공부를 열심히 하면 다음엔 더 잘할 것임.'], ['꾸준히 잘 잡음. 조금만 더 힘내자.', '손이 점점 빨라지고 있음. 칭찬합니다.', '{egi} 에기를 잘 골랐음. 다음엔 더 많이!|e'], ['{egi} 에기를 아주 잘 고름. 칭찬합니다.|e', '손이 아주 빠르고 집중력이 뛰어남.', '오늘 반에서 1등! 아주 잘했어요.']],
+        [['{sea}\n쭈갑이 집단 결근', '낚시인 "바다 구경은 실컷 했다"'], ['오늘 바닷속\n전원 무사 귀가', '쭈갑이들 "오늘은 쉬는 날" 공식 발표'], ['{sea}\n쭈갑이 전원 재택근무', '낚시인 "바다 공기는 최고"'],
+          ['오늘의 최대 조과는\n라면', '선상 라면 "역대급" 평가'], ['봉돌 바닷속\n실종 사건', '"쭈갑이 소행" 의심']],
+        [['{sea}\n{main} {mc}마리만 출석', '나머지는 "오늘 휴가" 통보'], ['{main} 대부분\n무사히 탈출 성공', '낚시인 "다음엔 꼭" 재출조 다짐'], ['쭈갑이들\n"에기 색이 촌스러웠다"', '낚시인은 "물때 탓" 해명'],
+          ['잡혀간 {main}\n단독 인터뷰', '"나도 나가기 싫었다"']],
+        [['{sea}\n{main} {mc}마리 연행', '"적당히 잡았다" … 낚시인 담담한 소감'], ['{main} {mc}마리\n오늘도 손맛 확인', '현장 "이 정도면 선방" 평가'], ['{main} 마을\n"배 한 척 다녀갔다"', '주민들 "적당히 데려가서 다행"'],
+          ['오늘 저녁 메뉴 확정\n{main} {mc}마리', '가족들 기대감 고조']],
+        [['{sea}\n{main} {mc}마리 실종 사건', '"범인은 {egi} 에기" … {rest}', 'e'], ['{sea}\n{main} 무더기 실종', '목격자 "손이 쉴 틈이 없었다" … {rest}'], ['속보! {main} {mc}마리\n한 사람에게 붙잡혀', '"{egi} 에기가 결정적" 증언 잇따라', 'e'],
+          ['{sea}\n{main} 마을 비상사태', '주민 {mc}마리 행방불명 … 이장 "이런 일은 처음"'], ['{main}들 {egi} 에기에\n집단 홀림', '전문가 "그 색은 반칙"', 'e'], ['갑오징어 {gc}마리\n먹물 뿌리며 저항했으나…', '끝내 전원 쿨러행', 'g']]],
+      polaroid: [['바다 좋았다~', '꽝도 추억♥', '바다 구경 성공!', '사진만 건졌다 ㅎㅎ', '바다랑 데이트함'], ['그래도 즐거웠다', '다음엔 더!', '손맛 조금 ㅎㅎ', '다음 물때 기다려!', '바다 보고 힐링'],
+        ['손맛 굿!', '좋았다~', '{egi} 최고!|e', '이 맛에 배 탄다~', '저녁 메뉴 확정!'], ['오늘 최고!', '대박 났다!', '{egi} 최고!|e', '오늘 바다가 내 편♥', '쿨러 가득 행복 가득']],
+      wanted: [[['증거 불충분 · 쭈갑이 피해 없음', '현상금: 없음 (다음에 다시)'], ['바다 구경죄 (경범죄)', '현상금: 갈매기 깃털 하나']],
+        [['{sea} 좀도둑', '현상금: 라면 한 그릇'], ['몇 마리만 슬쩍한 혐의', '현상금: 커피 한 잔'], ['봉돌 무단 투기 상습범', '현상금: 봉돌 한 봉지']],
+        [['{sea} 쭈갑이 납치범', '현상금: {egi} 에기 1개', 'e'], ['오늘도 손맛 본 상습범', '현상금: 짜장면 한 그릇'], ['주말마다 출몰하는 상습범', '현상금: 컵라면 한 박스']],
+        [['{sea} 쭈갑이 연쇄 납치범', '현상금: {egi} 에기 1개', 'e'], ['바다의 무법자 · 손이 아주 빠름', '현상금: 소고기 한 근'], ['{sea} 최악의 쭈갑이 사냥꾼', '현상금: 쿨러 한 통'],
+          ['{main} 마을 공포의 대상', '현상금: {main} 마을 전 재산'], ['에기 한 번에 둘씩 낚는 자', '현상금: {egi} 에기 100개', 'e']]],
+      quest: [['퀘스트 실패…', '이번 판은 졌다…', '퀘스트 실패… 부활 대기 중'], ['퀘스트 완료… 겨우!', '아슬아슬 클리어!'], ['★ 퀘스트 완료! ★', '★ 클리어! ★'], ['★ 퀘스트 대성공! ★', '★ 완벽한 클리어! ★', '★ 전설의 클리어! ★']],
+      questTitle: [['바다 관광객', '라면 마스터'], ['인내의 달인', '밑걸림 수집가'], ['성실한 낚시꾼', '손맛 수집가'], ['{main} 사냥꾼', '쿨러 파괴자']],
+      report: [['바다를 사랑하는 마음이 큼. 다음엔 꼭 잡아 보자.', '끝까지 자리를 지킨 끈기를 칭찬함.', '결석한 쭈갑이들에게 출석 독촉장을 보냈음.'],
+        ['끈기는 좋으나 조과는 조금 더 노력이 필요함.', '바다 공부를 열심히 하면 다음엔 더 잘할 것임.', '봉돌을 자주 잃어버림. 준비물을 잘 챙기기 바람.'],
+        ['꾸준히 잘 잡음. 조금만 더 힘내자.', '손이 점점 빨라지고 있음. 칭찬합니다.', '{egi} 에기를 잘 골랐음. 다음엔 더 많이!|e', '꾸준함이 장점. 이대로만 하면 우등생.'],
+        ['{egi} 에기를 아주 잘 고름. 칭찬합니다.|e', '손이 아주 빠르고 집중력이 뛰어남.', '오늘 반에서 1등! 아주 잘했어요.', '{main}들이 무서워하는 학생임. 장래가 기대됨.', '쿨러가 모자랐음. 다음엔 큰 쿨러를 준비할 것.']],
+      // 단톡방: 단계마다 대화 여러 개 (oc 쭈꾸미 · gp 갑오징어가 말한다) · 글에 | 가 있으면 앞: 에기 기록이 있을 때, 뒤: 없을 때
       chat: [
-        [['oc', '오늘 배 왔던데?'], ['gp', '응 근데 우리 다 숨었지 ㅋㅋ'], ['oc', '에기 구경만 실컷 했다']],
-        [['gp', '아까 배 왔었지?'], ['oc', '응 근데 거의 못 잡고 갔어 ㅋㅋ'], ['gp', '다행이다 휴']],
-        [['oc', '오늘 배 한 척 왔다 갔대'], ['gp', '많이 잡혀갔어?'], ['oc', '좀 데려갔대.. 조심해 ㅠ']],
-        [['oc', '얘들아 오늘 밖에 나가지 마'], ['gp', '왜?? 무슨 일인데'], ['oc', '{egi} 에기 든 사람 떴대 ㅠㅠ|엄청 잘 잡는 사람 떴대 ㅠㅠ']]],
-      diary: ['오늘 {port}에 낚시를 갔다. 한 마리도 못 잡았지만 바다 구경은 실컷 했다.', '오늘 {port}에서 {spText}를 잡았다. 조금 아쉬웠지만 다음엔 더 잡을 거다.',
-        '오늘 {port}에서 {spText}를 잡았다. 손맛을 봐서 기분이 좋았다.', '오늘 {port}에서 {spText}를 잡았다. 정말 신나는 하루였다!']
+        [[['oc', '오늘 배 왔던데?'], ['gp', '응 근데 우리 다 숨었지 ㅋㅋ'], ['oc', '에기 구경만 실컷 했다']], [['oc', '위에서 뭐가 자꾸 내려오던데?'], ['gp', '무시해 무시해 ㅋㅋ'], ['oc', '봉돌 하나 주웠다 ㅋㅋ']]],
+        [[['gp', '아까 배 왔었지?'], ['oc', '응 근데 거의 못 잡고 갔어 ㅋㅋ'], ['gp', '다행이다 휴']], [['gp', '에기 색 촌스러워서 안 물었어 ㅋ'], ['oc', '나도 ㅋㅋ'], ['gp', '근데 몇 명은 넘어갔대']]],
+        [[['oc', '오늘 배 한 척 왔다 갔대'], ['gp', '많이 잡혀갔어?'], ['oc', '좀 데려갔대.. 조심해 ㅠ']], [['oc', '오늘 위에 사람 좀 잘하던데'], ['gp', '몇 명 데려갔대?'], ['oc', '적당히… 다행이야']]],
+        [[['oc', '얘들아 오늘 밖에 나가지 마'], ['gp', '왜?? 무슨 일인데'], ['oc', '{egi} 에기 든 사람 떴대 ㅠㅠ|엄청 잘 잡는 사람 떴대 ㅠㅠ']],
+          [['oc', '김쭈꾸미 어디 갔어?'], ['gp', '아까 {egi} 따라갔어…|아까 에기 따라갔어…'], ['oc', '오늘만 {mc}명째야 ㅠㅠ']]]],
+      chatSad: '방장 {mainGa} 울고 있습니다',
+      diary: [
+        ['오늘 {port}에 낚시를 갔다. 한 마리도 못 잡았지만 바다 구경은 실컷 했다.', '오늘 {port}에 갔다. 쭈꾸미가 다 숨어 버렸다. 그래도 배에서 먹은 라면은 정말 맛있었다.'],
+        ['오늘 {port}에서 {spText}를 잡았다. 조금 아쉬웠지만 다음엔 더 잡을 거다.', '오늘 {port}에서 {spText}를 잡았다. 밑걸림 때문에 봉돌을 잃어버렸다. 다음엔 더 잘할 거다.'],
+        ['오늘 {port}에서 {spText}를 잡았다. 손맛을 봐서 기분이 좋았다.', '오늘 {port}에서 {spText}를 잡았다. 저녁에 쭈꾸미 볶음 먹을 생각에 신이 났다.'],
+        ['오늘 {port}에서 {spText}를 잡았다. 정말 신나는 하루였다!', '오늘 {port}에서 {spText}를 잡았다. 팔이 아플 만큼 끌어올렸다. 쿨러가 꽉 차서 뿌듯했다.']]
     };
-    // 에기 기록이 없으면 'e' 표시 문구는 건너뛴다
+    const jokeOk = (x, cd) => { const f = Array.isArray(x) ? x[2] : (/\|([eg])$/.exec(String(x)) || [])[1]; return !f || (f === 'e' ? !!cd.egiTop : f === 'g' ? cd.sp.some(s => s.k === 'gap') : true); };
     function jokeOf(list, cd, v) {
-      const hasE = !!cd.egiTop;
-      const ok = list.filter(x => (Array.isArray(x) ? x[2] !== 'e' : !/\|e$/.test(x)) || hasE);
+      const ok = list.filter(x => jokeOk(x, cd));
       const x = pickV(ok.length ? ok : list, v);
-      return Array.isArray(x) ? x.slice(0, 2).map(s => cardFmt(s, cd)) : cardFmt(String(x).replace(/\|e$/, ''), cd);
+      return Array.isArray(x) ? x.slice(0, 2).map(s => cardFmt(s, cd)) : cardFmt(String(x).replace(/\|[eg]$/, ''), cd);
     }
-
     // ---------- 그리기 도구
     const CF = { j: '"Jua","IBM Plex Sans KR",sans-serif', g: '"Gaegu","Jua",sans-serif', b: '"Black Han Sans","Jua",sans-serif' };
     const INK = '#3A2A1A';
@@ -4561,10 +4590,15 @@ const TideHarm = (() => {
       g.restore();
     }
 
+    // 내 글: 누구와 · 한마디 ('카드에 넣을 것'에서 '내 글'을 켰을 때만)
+    const myWho = o => (o.show.my && o.my && o.my.who ? String(o.my.who).trim() : '');
+    const mySay = o => (o.show.my && o.my && o.my.say ? String(o.my.say).trim() : '');
+    const whoList = w => { const a = String(w).split(/[,，·、/]+/).map(x => x.trim()).filter(Boolean); return a.length === 1 && /\s/.test(a[0]) ? a[0].split(/\s+/) : a; };
+    const whoJ = (w, sep) => whoList(w).join(sep);
     // ---------- 테마별 그림
     const CARD_DRAW = {
       sticker(K, cd, o) {
-        const g = K.g, tier = cardTier(cd), sh = o.show;
+        const g = K.g, tier = cardTier(cd), sh = o.show, who = myWho(o), say = mySay(o);
         K.box(0, 0, 360, 360, 0, '#FFE14D');
         K.circ(342, 8, 58, '#FFEC8A'); K.circ(14, 252, 34, '#FFEC8A'); K.circ(318, 352, 30, '#FFEC8A');
         K.txt(dayT(cd), 22, 42, 21, INK);
@@ -4585,6 +4619,7 @@ const TideHarm = (() => {
         // 정보 스티커들
         const tags = [];
         if (cd.sp.length > 3) tags.push([`외 ${cd.sp.length - 3}종`, '#FFFFFF']);
+        if (who) tags.push([`with ${whoJ(who, '·')}`, '#FFD1E3']);
         if (sh.cond && cd.mul) tags.push([cd.mul, '#FFFFFF']);
         if (cd.port) tags.push([cd.port, '#BDEBFF']);
         if (sh.boat && cd.boat) tags.push([cd.boat, '#C9F2C2']);
@@ -4598,17 +4633,18 @@ const TideHarm = (() => {
           if (cd.sink.length) K.txt(sinkT(cd), x, y + 5, 13, '#6B5A20', { mw: 340 - x });
           y += 30;
         }
-        if (!(sh.memo && cd.memo) && y + 36 <= 300) {
+        const note = say || (sh.memo && cd.memo ? cd.memo : '');
+        if (!note && y + 36 <= 300) {
           const by = Math.max(290, y + 40), seal = cd.sp.length >= 2 ? ['합계', `${cd.tot}마리`, '#FF7A59'] : cd.hrs >= 1 ? ['출조', `${Math.round(cd.hrs)}시간`, '#7FD9C4'] : null;
           if (seal) K.rot(70, by, -8, () => { K.circ(0, 0, 40, seal[2], 3); K.circ(0, 0, 33, null, 1.5, 'rgba(255,255,255,.8)'); K.txt(seal[0], 0, -6, 13, '#fff', { al: 'center', sw: 3, sc: INK }); K.txt(seal[1], 0, 16, 18, '#fff', { al: 'center', mw: 62, sw: 3.5, sc: INK }); });
         }
-        if (sh.memo && cd.memo) {
-          const L2 = K.wrap(cd.memo, 13, 'j', 190, 2);
-          K.rot(118, y + 8 + L2.length * 9, -2, () => { K.box(-104, -12 - L2.length * 9, 208, 20 + L2.length * 18, 8, '#FFFDF2', 2); K.box(-24, -18 - L2.length * 9, 48, 12, 2, 'rgba(126,227,201,.85)'); K.lines(L2, -94, 3 - L2.length * 9 + 9, 13, 18, INK); });
-        }
-        // 오른쪽 아래 쭈갑이 한마디
+        // 오른쪽 아래 쭈갑이 한마디 (자리를 먼저 정해 쪽지와 겹치지 않게)
         const mn = cardMain(cd), word = jokeOf(JOKE.sticker[tier], cd, o.v), bw = K.tw(word, 14) + 22;
         const bx = Math.min(338 - bw, 300 - bw / 2);
+        if (note) {
+          const ny = Math.max(y, 248), nw = ny + 44 > 262 ? Math.min(208, bx - 30) : 208, L2 = K.wrap(note, 13, 'j', nw - 18, 2), hh = 20 + L2.length * 18;
+          K.rot(16 + nw / 2, ny + hh / 2, -2, () => { K.box(-nw / 2, -hh / 2, nw, hh, 8, '#FFFDF2', 2); K.box(-24, -hh / 2 - 6, 48, 12, 2, 'rgba(126,227,201,.85)'); K.lines(L2, -nw / 2 + 10, -hh / 2 + 23, 13, 18, INK); });
+        }
         K.box(bx, 262, bw, 28, 12, '#fff', 2.5); K.txt(word, bx + bw / 2, 281, 14, INK, { al: 'center' });
         g.beginPath(); g.moveTo(bx + bw - 30, 289); g.lineTo(bx + bw - 22, 300); g.lineTo(bx + bw - 18, 289); g.fillStyle = '#fff'; g.fill(); g.lineWidth = 2.5; g.strokeStyle = INK; g.stroke();
         g.fillStyle = '#fff'; g.fillRect(bx + bw - 29, 287, 10, 3);
@@ -4616,7 +4652,7 @@ const TideHarm = (() => {
         K.brand(22, 348, '#7A6A2A');
       },
       ticket(K, cd, o) {
-        const g = K.g, tier = cardTier(cd), sh = o.show, bg = '#7FE3C9';
+        const g = K.g, tier = cardTier(cd), sh = o.show, bg = '#7FE3C9', who = myWho(o), say = mySay(o);
         K.box(0, 0, 360, 360, 0, bg);
         for (let i = 0; i < 6; i++) K.circ(20 + i * 66, 30 + (i % 2) * 10, 3, 'rgba(255,255,255,.6)');
         K.txt(dayT(cd), 22, 48, 16, '#1F5C4E');
@@ -4630,6 +4666,7 @@ const TideHarm = (() => {
         K.txt(cd.port ? `${cd.port} → 앞바다` : '바다로 출발!', X + 14, Y + 66, 22, INK, { mw: SX - X - 26 });
         const F = [['날짜', `${cd.m}.${cd.d} ${cd.dow}`]];
         if (sh.boat && cd.boat) F.push(['배', cd.boat]);
+        if (who) F.push(['동승', whoJ(who, ', ')]);
         if (sh.cond && cd.mul) F.push(['물때', cd.mul]);
         if (sh.cond && cd.wt != null) F.push(['수온', `${cd.wt.toFixed(1)}℃`]);
         if (cd.hrs >= 1) F.push(['시간', `${Math.round(cd.hrs)}시간`]);
@@ -4650,17 +4687,19 @@ const TideHarm = (() => {
         K.txt('마리', cx, Y + 116, 12.5, INK, { al: 'center' });
         cd.sp.slice(0, 3).forEach((s, i) => K.txt(`${s.n.length > 4 ? s.s : s.n} ${s.c}`, cx, Y + 136 + i * 16, 12, INK, { al: 'center', mw: 92 }));
         K.rot(cx, Y + H - 32, -14, () => { K.circ(0, 0, 25, 'rgba(255,255,255,.4)', 2.5, '#E8432F'); K.circ(0, 0, 20, null, 1.2, '#E8432F'); K.txt(jokeOf(JOKE.ticket[tier], cd, o.v), 0, 5, 14, '#E8432F', { al: 'center', mw: 36 }); });
-        if (sh.memo && cd.memo) K.lines(K.wrap(cd.memo, 12.5, 'j', 320, 2), 22, Y + H + 22, 12.5, 16, '#1F5C4E');
+        const foot = say ? `"${say}"` : sh.memo && cd.memo ? cd.memo : '';
+        if (foot) K.lines(K.wrap(foot, 12.5, 'j', 320, 2), 22, Y + H + 22, 12.5, 16, '#1F5C4E');
         K.brand(338, 352, '#1F5C4E', 'right');
       },
       news(K, cd, o) {
-        const g = K.g, tier = cardTier(cd), sh = o.show, J = jokeOf(JOKE.news[tier], cd, o.v);
+        const g = K.g, tier = cardTier(cd), sh = o.show, J = jokeOf(JOKE.news[tier], cd, o.v), who = myWho(o), say = mySay(o);
         K.box(0, 0, 360, 360, 0, '#FFF7E3');
         g.fillStyle = '#E8432F'; g.fillRect(0, 0, 360, 34);
         K.txt('쭈갑일보 · 호외', 16, 23, 15, '#fff'); K.txt(dayT(cd), 344, 22, 12, '#fff', { al: 'right' });
         const HL = J[0].split('\n'); let y = 70;
         HL.slice(0, 2).forEach(s => { K.txt(s, 16, y, 29, '#2A1C10', { f: 'b', mw: 328 }); y += 36; });
-        const sub = K.wrap(J[1], 13.5, 'j', 328, 2); y = K.lines(sub, 16, y + 2, 13.5, 18, '#6B5A48');
+        const sub = K.wrap(J[1], 13.5, 'j', 328, who ? 1 : 2); y = K.lines(sub, 16, y + 2, 13.5, 18, '#6B5A48');
+        if (who) { K.txt(`${whoJ(who, '·')} 동행 취재`, 344, y + 1, 11.5, '#8A7A66', { al: 'right', mw: 320 }); y += 14; }
         y += 4; K.line(16, y, 344, y, 1.5, '#2A1C10'); K.line(16, y + 4, 344, y + 4, .8, '#2A1C10');
         const py = y + 12, ph = 334 - py, pw = 176;
         if (o.photo) K.cover(o.photo, 16, py, pw, ph); else miniSea(K, 16, py, pw, ph, cd, '#E9DEC5');
@@ -4674,11 +4713,12 @@ const TideHarm = (() => {
         const info = [sh.cond && cd.mul ? `물때 ${cd.mul}` : '', sh.cond ? wtT(cd) : '', sh.cond ? windT(cd) : '', sh.boat && cd.boat ? `${cd.boat} 승선` : ''].filter(Boolean);
         info.forEach(s => { if (ry < 300) { K.txt(s, rx, ry + 4, 13, INK, { mw: 344 - rx }); ry += 21; } });
         if (sh.rig && cd.egi.length && ry < 312) { K.egis(cd.egi, rx, ry + 2, 9, 4, 5); ry += 24; }
-        if (sh.memo && cd.memo && ry < 322) K.lines(K.wrap(`"${cd.memo}"`, 11.5, 'j', 344 - rx, Math.max(1, Math.floor((330 - ry) / 15))), rx, ry + 6, 11.5, 15, '#6B5A48');
+        const quote = say || (sh.memo && cd.memo ? cd.memo : '');
+        if (quote && ry < 316) { if (say) { K.txt('현장 인터뷰', rx, ry + 6, 10.5, '#C0392B'); ry += 15; } K.lines(K.wrap(`"${quote}"`, 11.5, 'j', 344 - rx, Math.max(1, Math.floor((334 - ry) / 15))), rx, ry + 6, 11.5, 15, '#6B5A48'); }
         K.brand(344, 352, '#8A7A66', 'right');
       },
       polaroid(K, cd, o) {
-        const g = K.g, tier = cardTier(cd), sh = o.show;
+        const g = K.g, tier = cardTier(cd), sh = o.show, who = myWho(o), say = mySay(o);
         K.box(0, 0, 360, 360, 0, '#FFE8F0');
         for (let x = 18; x < 360; x += 18) K.line(x, 0, x, 360, .6, '#F7D3E0');
         for (let y = 18; y < 360; y += 18) K.line(0, y, 360, y, .6, '#F7D3E0');
@@ -4686,8 +4726,10 @@ const TideHarm = (() => {
         K.rot(142, 176, -3, () => {
           g.save(); g.shadowColor = 'rgba(160,70,100,.18)'; g.shadowBlur = 10; g.shadowOffsetY = 4; K.box(-112, -132, 224, 262, 3, '#fff'); g.restore();
           K.box(-112, -132, 224, 262, 3, null, 1, '#F0C9D8');
-          if (o.photo) K.cover(o.photo, -100, -120, 200, 196); else miniSea(K, -100, -120, 200, 196, cd);
-          K.txt(capS, 0, 112, 21, INK, { f: 'g', al: 'center', mw: 204, w: 700 });
+          const ph = say ? 182 : 196;
+          if (o.photo) K.cover(o.photo, -100, -120, 200, ph); else miniSea(K, -100, -120, 200, ph, cd);
+          if (say) { K.txt(say, 0, 92, 20, INK, { f: 'g', al: 'center', mw: 204, w: 700 }); K.txt(capS.replace(/ ♥$/, ''), 0, 116, 14, '#8A6A7A', { f: 'g', al: 'center', mw: 204, w: 700 }); }
+          else K.txt(capS, 0, 112, 21, INK, { f: 'g', al: 'center', mw: 204, w: 700 });
         });
         K.rot(150, 44, 4, () => K.box(-38, -10, 76, 20, 2, 'rgba(255,225,77,.78)'));
         K.rot(306, 66, 12, () => { K.circ(0, 0, 33, 'rgba(255,255,255,.35)', 3, '#E8432F'); K.circ(0, 0, 27, null, 1.2, '#E8432F');
@@ -4697,12 +4739,13 @@ const TideHarm = (() => {
           const L = K.wrap(note, 19, 'g', 96, 3); K.lines(L, 0, -6 - (L.length - 1) * 10, 19, 21, INK, { f: 'g', al: 'center', w: 700 });
           if (sh.rig && cd.egi.length) { const n = Math.min(3, cd.egi.length), w = n * 24 - 4; K.egis(cd.egi, -w / 2, 26, 10, 4, 3); }
         });
-        if (sh.memo && cd.memo) K.lines(K.wrap(cd.memo, 17, 'g', 230, 2), 26, 328, 17, 19, '#6B4A5A', { f: 'g', w: 700 });
+        if (who) K.txt(`with ${whoJ(who, ', ')}${sh.boat && cd.boat ? ` · ${cd.boat}` : ''}`, 28, 332, 18, '#6B4A5A', { f: 'g', mw: 240, w: 700 });
+        else if (sh.memo && cd.memo) K.lines(K.wrap(cd.memo, 17, 'g', 230, 2), 26, 328, 17, 19, '#6B4A5A', { f: 'g', w: 700 });
         else if (sh.boat && cd.boat) K.txt(`${cd.boat} 타고`, 30, 330, 17, '#6B4A5A', { f: 'g', w: 700 });
         K.brand(346, 352, '#B07A90', 'right');
       },
       wanted(K, cd, o) {
-        const g = K.g, tier = cardTier(cd), sh = o.show, br = '#7A4A1E', J = jokeOf(JOKE.wanted[tier], cd, o.v);
+        const g = K.g, tier = cardTier(cd), sh = o.show, br = '#7A4A1E', J = jokeOf(JOKE.wanted[tier], cd, o.v), who = myWho(o), say = mySay(o);
         K.box(0, 0, 360, 360, 0, '#F5DBA8');
         g.fillStyle = 'rgba(160,110,50,.08)'; for (let i = 0; i < 26; i++) { g.beginPath(); g.arc((i * 137) % 360, (i * 89) % 360, 6 + (i % 5) * 3, 0, 7); g.fill(); }
         K.box(12, 12, 336, 336, 8, null, 3, br); K.box(18, 18, 324, 324, 5, null, 1, br);
@@ -4717,19 +4760,21 @@ const TideHarm = (() => {
         if (cd.sp.length) cd.sp.slice(0, 3).forEach(s => { K.txt(`피해 ${s.n}`, rx, ry, 13, INK, { mw: 96 }); K.txt(s.c, 330, ry + 2, 24, '#C0392B', { al: 'right' }); ry += 30; });
         else { K.txt('피해 쭈갑이', rx, ry, 13, INK); K.txt('0', 330, ry + 2, 24, '#C0392B', { al: 'right' }); ry += 30; }
         K.txt(`${cd.m}월 ${cd.d}일${sh.cond && cd.mul ? ` · ${cd.mul}` : ''}에 목격`, rx, ry + 2, 12, br, { mw: 136 }); ry += 20;
+        if (who && ry < 250) { K.txt(`공범: ${whoJ(who, ', ')}`, rx, ry + 2, 12, '#C0392B', { mw: 136 }); ry += 20; }
         if (sh.boat && cd.boat && ry < 250) { K.txt(`도주 수단: ${cd.boat}`, rx, ry + 2, 12, br, { mw: 136 }); ry += 20; }
         if (sh.rig && cd.sink.length && ry < 250) { K.txt(`흉기: ${sinkTxt(cd.sink)} 봉돌`, rx, ry + 2, 12, br, { mw: 136 }); ry += 20; }
         if (tier === 0) K.rot(250, 214, -14, () => { K.box(-70, -22, 140, 44, 6, 'rgba(255,255,255,.5)', 3, '#C0392B'); K.txt('무혐의 석방', 0, 9, 22, '#C0392B', { al: 'center' }); });
         K.box(32, 270, 296, 32, 6, br);
-        const bt = J[1], egiB = /에기 1개/.test(bt) && cd.egiTop;
+        const bt = J[1], egiB = /에기 \d+개/.test(bt) && cd.egiTop;
         const bw = K.tw(bt, 15.5) + (egiB ? 26 : 0);
         K.txt(bt, 180 - bw / 2, 292, 15.5, '#FFE9B8', { mw: 270 });
         if (egiB) drawEgi(g, 180 + bw / 2 - 10, 286, 9, cd.egiTop, 1.6);
-        if (sh.memo && cd.memo) K.txt(`특이사항: ${cd.memo}`, 180, 320, 12, br, { al: 'center', mw: 290 });
+        if (say) K.txt(`범인의 한마디: "${say}"`, 180, 320, 12, br, { al: 'center', mw: 290 });
+        else if (sh.memo && cd.memo) K.txt(`특이사항: ${cd.memo}`, 180, 320, 12, br, { al: 'center', mw: 290 });
         K.brand(180, 336, br, 'center');
       },
       quest(K, cd, o) {
-        const g = K.g, tier = cardTier(cd), sh = o.show, mn = cardMain(cd);
+        const g = K.g, tier = cardTier(cd), sh = o.show, mn = cardMain(cd), who = myWho(o), say = mySay(o);
         K.box(0, 0, 360, 360, 0, '#5BC8FF');
         for (const [x, y, w] of [[26, 18, 54], [292, 30, 50], [300, 330, 44]]) { K.box(x, y, w, 16, 8, 'rgba(255,255,255,.75)'); K.box(x + 10, y - 8, w * .5, 14, 7, 'rgba(255,255,255,.75)'); }
         K.rot(180, 44, -2, () => { K.box(-128, -20, 256, 40, 12, '#FFC93C', 3); K.txt(jokeOf(JOKE.quest[tier], cd, o.v), 0, 8, 21, INK, { al: 'center', mw: 236 }); });
@@ -4739,6 +4784,10 @@ const TideHarm = (() => {
         K.txt(`${cd.port ? cd.port + ' ' : '바다 '}던전 · ${cd.m}/${cd.d}`, X + 16, Y + 28, 14.5, INK, { mw: W - 40 - lw });
         K.txt(`EXP +${cd.tot || 1}`, X + 16, Y + 70, 38, '#2E9E44');
         if (!cd.tot) K.txt('(바다 구경)', X + 16 + K.tw('EXP +1', 38) + 8, Y + 68, 13, '#6B8A6B');
+        { const ex = X + 16 + K.tw(`EXP +${cd.tot || 1}`, 38) + (cd.tot ? 12 : 90), cw = X + W - 14 - ex;   // 오른쪽: 칭호 · 파티원
+          if (cw > 70) { const tt = jokeOf(JOKE.questTitle[tier], cd, o.v), lab = `칭호 · ${tt}`, bw = Math.min(cw, K.tw(lab, 11.5) + 16);
+            K.box(X + W - 14 - bw, Y + 42, bw, 20, 8, '#FFF1C2', 1.8); K.txt(lab, X + W - 14 - bw / 2, Y + 56, 11.5, '#8A5A00', { al: 'center', mw: bw - 10 });
+            if (who) K.txt(`파티원: ${whoJ(who, ', ')}`, X + W - 14, Y + 80, 11.5, '#7C5CFF', { al: 'right', mw: cw }); } }
         let y = Y + 92;
         const rows = cd.sp.length ? cd.sp.slice(0, 3) : [{ n: '쭈갑이', c: 0, ch: 'oc', k: 'jj' }];
         rows.forEach(s => {
@@ -4758,11 +4807,11 @@ const TideHarm = (() => {
         let nx = '다음 판 도전! ›';
         if (mn) { const [hi] = thOf(mn.k); const t = mn.c < hi ? hi : Math.ceil((mn.c + 1) / 10) * 10; nx = `다음 퀘스트: ${mn.n} ${t}마리 ›`; }
         K.txt(nx, X + W - 14, Y + H - 14, 12.5, '#7C5CFF', { al: 'right', mw: W - 28 });
-        if (sh.memo && cd.memo) K.txt(`모험 일지: ${cd.memo}`, 22, 336, 12.5, '#fff', { mw: 250 });
+        if (say || (sh.memo && cd.memo)) K.txt(`모험 일지: ${say || cd.memo}`, 22, 336, 12.5, '#fff', { mw: 250 });
         K.brand(340, 352, '#fff', 'right');
       },
       report(K, cd, o) {
-        const g = K.g, tier = cardTier(cd), sh = o.show, gr = '#2E7D32', red = '#C0392B';
+        const g = K.g, tier = cardTier(cd), sh = o.show, gr = '#2E7D32', red = '#C0392B', who = myWho(o), say = mySay(o);
         K.box(0, 0, 360, 360, 0, '#FFFDF2');
         K.txt('쭈갑초등학교 출조 통지표', 180, 42, 21, gr, { al: 'center', mw: 320 });
         K.line(30, 52, 330, 52, 2, gr); K.line(30, 56, 330, 56, 1, gr);
@@ -4770,15 +4819,16 @@ const TideHarm = (() => {
         const grade = s => { const [hi, lo] = thOf(s.k); return s.c >= hi ? '수' : s.c >= (hi + lo) / 2 ? '우' : s.c >= lo ? '미' : s.c > 0 ? '양' : '가'; };
         const R = (cd.sp.length ? cd.sp.slice(0, 3) : [{ n: '쭈꾸미', c: 0, k: 'jj' }]).map(s => [s.n, `${s.c}마리`, grade(s)]);
         if (sh.rig && cd.egiTop) R.push(['에기 고르기', egiName(cd.egiTop), ['양', '미', '우', '수'][tier]]);
+        if (who) R.push(['짝꿍', whoJ(who, ', '), '수']);
         if (cd.hrs >= 1) R.push(['끈기', `${Math.round(cd.hrs)}시간`, cd.hrs >= 6 ? '수' : cd.hrs >= 4 ? '우' : cd.hrs >= 2 ? '미' : '양']);
         let y = 90; const rh = R.length > 4 ? 30 : 34;
         K.line(30, y, 330, y, 1.2, '#CFC5A6');
         R.slice(0, 5).forEach(([a, b, c]) => { K.txt(a, 38, y + rh * .66, 14.5, INK, { mw: 104 }); K.txt(b, 196, y + rh * .66, 14.5, INK, { al: 'center', mw: 96 }); K.txt(c, 300, y + rh * .7, 21, red, { al: 'center' }); y += rh; K.line(30, y, 330, y, 1, '#D9D0B4'); });
         K.line(152, 90, 152, y, .8, '#D9D0B4'); K.line(250, 90, 250, y, .8, '#D9D0B4');
         y += 26;
-        const room = Math.max(1, Math.floor((344 - y) / 20)), mm = sh.memo && cd.memo && room >= 3 ? Math.min(2, room - 2) : 0;
+        const stu = say || (sh.memo && cd.memo ? cd.memo : ''), room = Math.max(1, Math.floor((344 - y) / 20)), mm = stu && room >= 3 ? Math.min(2, room - 2) : 0;
         const cm = K.wrap(`선생님 말씀: ${jokeOf(JOKE.report[tier], cd, o.v)}`, 17.5, 'g', 228, Math.max(1, Math.min(3, room - mm))); y = K.lines(cm, 30, y, 17.5, 20, INK, { f: 'g', w: 700 });
-        if (mm) K.lines(K.wrap(`학생 소감: ${cd.memo}`, 15.5, 'g', 228, mm), 30, y + 2, 15.5, 18, '#5A5040', { f: 'g', w: 700 });
+        if (mm) K.lines(K.wrap(`학생 소감: ${stu}`, 15.5, 'g', 228, mm), 30, y + 2, 15.5, 18, '#5A5040', { f: 'g', w: 700 });
         const sw = tier >= 2 ? ['참 잘', '했어요'] : tier === 1 ? ['잘', '했어요'] : ['다음엔', '잘하자'];
         K.rot(298, 300, -12, () => { K.circ(0, 0, 36, 'rgba(255,255,255,.3)', 3, '#E8432F'); K.circ(0, 0, 30, null, 1.4, '#E8432F');
           if (tier >= 2) for (let i = 0; i < 8; i++) { const a = i * Math.PI / 4; K.circ(Math.cos(a) * 33, Math.sin(a) * 33, 2.2, '#E8432F'); }
@@ -4791,21 +4841,31 @@ const TideHarm = (() => {
         K.txt(`${cd.port ? cd.port + ' ' : ''}바닷속 친구들`, 16, 30, 16, INK, { mw: 270 }); if (sh.cond && cd.mul) K.txt(cd.mul, 344, 30, 13, '#5A6B7A', { al: 'right' });
         K.line(0, 42, 360, 42, 1.5, '#9CCBE8');
         const dt = `${cd.y}년 ${cd.m}월 ${cd.d}일 ${cd.dow}요일`, dw = K.tw(dt, 11) + 20; K.box(180 - dw / 2, 50, dw, 18, 9, '#9CCBE8'); K.txt(dt, 180, 63, 11, '#fff', { al: 'center' });
-        let y = 78;
-        const M = JOKE.chat[tier].map(([who, s]) => [who, s.includes('|') ? (cd.egiTop ? s.split('|')[0] : s.split('|')[1]) : s]);
-        M.forEach(([who, s]) => {
-          const t = cardFmt(s, cd), L = K.wrap(t, 14, 'j', 230, 2), bw = Math.max(...L.map(l => K.tw(l, 14))) + 20, bh = L.length * 18 + 12;
-          K.box(14, y, 36, 36, 12, '#fff'); drawChar(g, who, who === 'gp' ? 21 : 18, y + 3, 30);
-          K.txt(who === 'gp' ? '갑오징어' : '쭈꾸미', 58, y + 10, 11, '#4E6476');
-          K.box(58, y + 15, bw, bh, 12, '#fff'); K.lines(L, 68, y + 34, 14, 18, INK);
-          y += bh + 26;
-        });
-        if (sh.memo && cd.memo) { const L = K.wrap(cd.memo, 14, 'j', 220, 2), bw = Math.max(...L.map(l => K.tw(l, 14))) + 20, bh = L.length * 18 + 12; K.box(346 - bw, y - 6, bw, bh, 12, '#FFE14D'); K.lines(L, 356 - bw, y + 13, 14, 18, INK); y += bh + 10; }
-        const sys = cd.sp.length ? cd.sp.slice(0, 3).map(s => `${s.n} ${s.c}마리가 나갔습니다`) : ['오늘은 아무도 안 나갔습니다 ㅋㅋ'];
+        const who = myWho(o), say = mySay(o);
+        let y = 76;
+        if (who) { const t = `${whoList(who).map(n => n + '님').join(', ')}과 함께 출조했어요`, w = Math.min(330, K.tw(t, 11.5) + 22); K.box(180 - w / 2, y - 2, w, 19, 9.5, 'rgba(255,255,255,.62)'); K.txt(t, 180, y + 12, 11.5, '#2F5F80', { al: 'center', mw: w - 14 }); y += 26; }
+        const conv = pickV(JOKE.chat[tier], o.v).map(([w, t]) => [w, cardFmt(t.includes('|') ? (cd.egiTop ? t.split('|')[0] : t.split('|')[1]) : t, cd)]);
+        const mine = say || (sh.memo && cd.memo ? cd.memo : '');
+        let sys = cd.sp.length ? cd.sp.slice(0, 3).map(x => `${x.n} ${x.c}마리가 나갔습니다`) : ['오늘은 아무도 안 나갔습니다 ㅋㅋ'];
         if (cd.sp.length > 3) sys.push(`외 ${cd.sp.length - 3}종도 나갔습니다`);
+        if (tier === 3) sys.push(cardFmt(JOKE.chatSad, cd));
+        // 자리 맞추기: 넘치면 말풍선 사이를 좁히고, 그래도 넘치면 알림줄을 줄인다
+        const bub = conv.map(([, t]) => K.wrap(t, 14, 'j', 230, 2)), mineL = mine ? K.wrap(mine, 14, 'j', 220, 2) : null;
+        const need = gp => bub.reduce((a, L) => a + L.length * 18 + 12 + gp, 0) + (mineL ? mineL.length * 18 + 22 : 0) + sys.length * 26;
+        let gap = 26; if (y + need(gap) > 344) gap = 19;
+        if (y + need(gap) > 344 && tier === 3) sys = sys.filter(t => !/^방장 /.test(t));
+        for (let keep = Math.min(2, cd.sp.length - 1); y + need(gap) > 344 && keep >= 1 && cd.sp.length > keep; keep--) sys = [...cd.sp.slice(0, keep).map(x => `${x.n} ${x.c}마리가 나갔습니다`), `외 ${cd.sp.length - keep}종도 나갔습니다`];
+        conv.forEach(([w], i) => {
+          const L = bub[i], bw = Math.max(...L.map(l => K.tw(l, 14))) + 20, bh = L.length * 18 + 12;
+          K.box(14, y, 36, 36, 12, '#fff'); drawChar(g, w, w === 'gp' ? 21 : 18, y + 3, 30);
+          K.txt(w === 'gp' ? '갑오징어' : '쭈꾸미', 58, y + 10, 11, '#4E6476');
+          K.box(58, y + 15, bw, bh, 12, '#fff'); K.lines(L, 68, y + 34, 14, 18, INK);
+          y += bh + gap;
+        });
+        if (mineL) { const bw = Math.max(...mineL.map(l => K.tw(l, 14))) + 20, bh = mineL.length * 18 + 12; K.box(346 - bw, y - 6, bw, bh, 12, '#FFE14D'); K.lines(mineL, 356 - bw, y + 13, 14, 18, INK); y += bh + 10; }
         y = Math.max(y, 250 - sys.length * 24);
-        sys.forEach(s => { const w = K.tw(s, 12) + 24; K.box(180 - w / 2, y, w, 21, 10.5, 'rgba(255,255,255,.62)'); K.txt(s, 180, y + 15, 12, '#2F5F80', { al: 'center' }); y += 26; });
-        if (sh.rig && cd.egi.length && y < 330) { const n = Math.min(4, cd.egi.length), w = K.tw('오늘의 에기', 11) + 8 + n * 22; let x = 180 - w / 2; x += K.txt('오늘의 에기', x, y + 14, 11, '#4E6476') + 8; K.egis(cd.egi, x, y + 10, 9, 4, 4); }
+        sys.forEach(t => { const w = K.tw(t, 12) + 24; K.box(180 - w / 2, y, w, 21, 10.5, 'rgba(255,255,255,.62)'); K.txt(t, 180, y + 15, 12, '#2F5F80', { al: 'center' }); y += 26; });
+        if (sh.rig && cd.egi.length && y < 326) { const n = Math.min(4, cd.egi.length), w = K.tw('오늘의 에기', 11) + 8 + n * 22; let x = 180 - w / 2; x += K.txt('오늘의 에기', x, y + 14, 11, '#4E6476') + 8; K.egis(cd.egi, x, y + 10, 9, 4, 4); }
         K.brand(346, 352, '#4E7EA0', 'right');
       },
       diary(K, cd, o) {
@@ -4830,15 +4890,27 @@ const TideHarm = (() => {
         if (L[2]) drawChar(g, L[2].ch, 290, sea + 14, 28);
         K.brand(PX + 8, PY + 16, '#A0B4C0'); g.restore(); g.lineWidth = 1.5; g.strokeStyle = pk; g.strokeRect(PX, PY, PW, PH);
         // 원고지
-        let t = jokeOf([JOKE.diary[tier]], cd, 0); if (sh.memo && cd.memo) t += ' ' + cd.memo;
-        if (sh.rig && cd.egiTop && tier >= 2) t = t.replace(/(잡았다\.)/, `$1 ${egiName(cd.egiTop)} 에기가 최고였다.`);
-        const cells = []; for (const m of t.matchAll(/\d+|./g)) { const s = m[0]; if (/^\d+$/.test(s)) for (let i = 0; i < s.length; i += 2) cells.push(s.slice(i, i + 2)); else cells.push(s); }
-        const C = 12, cw = PW / C, rows = 6, max = C * rows;
+        const who = myWho(o), say = mySay(o);
+        const many = cd.sp.length > 3;   // 어종이 많으면 두 가지만 쓰고 '등 n마리'
+        let t0 = jokeOf(JOKE.diary[tier], many ? { ...cd, sp: cd.sp.slice(0, 2) } : cd, o.v);
+        if (many) t0 = t0.replace('마리를 잡았다', `마리 등 ${cd.tot}마리를 잡았다`);
+        if (who) { const L = whoList(who), last = L[L.length - 1]; t0 = t0.replace(/^오늘 /, `오늘 ${L.join(', ')}${josa(last, '과', '와')} 함께 `); }
+        const sen = t0.split(/(?<=[.!])\s+/), head = sen.shift(), tail = sen;
+        const egiS = sh.rig && cd.egiTop && tier >= 2 ? `${egiName(cd.egiTop)} 에기가 최고였다.` : '';
+        const end = say || (sh.memo && cd.memo ? cd.memo : '');
+        const cellsOf = x => { const c = []; for (const m of x.matchAll(/\d+|./g)) { const v = m[0]; if (/^\d+$/.test(v)) for (let i = 0; i < v.length; i += 2) c.push(v.slice(i, i + 2)); else c.push(v); } return c; };
+        const build = (e, tl) => [head, e, ...tl, end].filter(Boolean).join(' ');
+        let t = build(egiS, tail);
+        if (cellsOf(t).length > 78 && egiS) t = build('', tail);
+        for (let k = tail.length; cellsOf(t).length > 78 && k > 0; k--) t = build('', tail.slice(0, k - 1));
+        if (cellsOf(t).length > 78) t = [head.replace(/(에서|에) .*마리를 잡았다/, `$1 ${cd.tot}마리를 잡았다`), end].filter(Boolean).join(' ');   // 그래도 길면 어종 이름 대신 합계만
+        const cells = cellsOf(t);
+        const C = cells.length > 72 ? 13 : 12, cw = PW / C, rows = 6, max = C * rows;
         if (cells.length > max) { cells.length = max - 1; cells.push('…'); }
         for (let i = 0; i < max; i++) {
           const cx = PX + (i % C) * cw, cy = 176 + Math.floor(i / C) * cw;
           g.lineWidth = 1.2; g.strokeStyle = pk; g.strokeRect(cx, cy, cw, cw);
-          const ch = cells[i]; if (ch && ch !== ' ') K.txt(ch, cx + cw / 2, cy + cw * .74, ch.length > 1 ? 14 : 18, '#2B2BA8', { f: 'g', al: 'center', w: 700 });
+          const ch = cells[i]; if (ch && ch !== ' ') K.txt(ch, cx + cw / 2, cy + cw * .74, (ch.length > 1 ? 14 : 18) * (C > 12 ? .9 : 1), '#2B2BA8', { f: 'g', al: 'center', w: 700 });
         }
       }
     };
@@ -4850,13 +4922,15 @@ const TideHarm = (() => {
       return need;
     }
     // 이 카드를 글로: 카페 조황기에 붙여 넣기
-    function cardText(cd, sh) {
+    function cardText(cd, sh, my) {
       const L = [`[쭈갑이 물때] ${cd.m}월 ${cd.d}일(${cd.dow}) 출조`];
       const a = [cd.port ? `${cd.port} 출항` : '', sh.boat && cd.boat ? cd.boat : ''].filter(Boolean).join(' · '); if (a) L.push(a);
       const c = sh.cond ? [cd.mul ? `물때 ${cd.mul}` : '', wtT(cd), windT(cd)].filter(Boolean).join(' · ') : ''; if (c) L.push(c);
       L.push(`조과: ${cd.sp.length ? cd.sp.map(s => `${s.n} ${s.c}`).join(' · ') : '꽝'}`);
       if (sh.rig) { const r = [sinkTxt(cd.sink), egiTxt(cd.egi)].filter(Boolean).join(' · '); if (r) L.push(`채비: ${r}`); }
       if (sh.memo && cd.memo) L.push(`메모: ${cd.memo}`);
+      if (sh.my && my && my.who) L.push(`함께: ${whoJ(my.who, ', ')}`);
+      if (sh.my && my && my.say) L.push(`한마디: ${my.say}`);
       return L.join('\n');
     }
 
@@ -4902,7 +4976,7 @@ const TideHarm = (() => {
       cardFonts(); cardBuild();
       const st = loadJ(CARD_KEY, {}) || {};
       cardS = { cd, th: Math.max(0, Math.min(CARD_THEMES.length - 1, st.th | 0)), v: Math.floor(Math.random() * 12), photo: null, fk: '',
-        show: { boat: true, rig: true, memo: false, cond: true, ...(st.show || {}) } };
+        show: { boat: true, rig: true, memo: false, cond: true, my: true, ...(st.show || {}) }, my: (loadJ(CARD_MY_KEY, {}) || {})[k] || null };
       $('cv-sub').textContent = `${cd.m}월 ${cd.d}일 출조`;
       cardEl.hidden = false; document.documentElement.classList.add('cv-lock');
       if (useHist) { try { history.pushState({ cardv: 1 }, ''); } catch (_) {} }
@@ -4920,10 +4994,12 @@ const TideHarm = (() => {
       const s = cardS, cd = s.cd, T = CARD_THEMES[s.th];
       $('cv-ind').textContent = `${T.n} · ${s.th + 1} / ${CARD_THEMES.length}  옆으로 밀어서 바꾸기`;
       $('cv-chips').innerHTML = CARD_THEMES.map((t, i) => `<button type="button" role="tab" data-c="th-go" data-i="${i}" class="${i === s.th ? 'on' : ''}" aria-selected="${i === s.th}">${t.n}${t.ph ? '<i aria-hidden="true">📷</i>' : ''}</button>`).join('');
-      const tg = [['boat', '배 이름', !!cd.boat], ['rig', '에기·봉돌', !!(cd.egi.length || cd.sink.length)], ['memo', '메모', !!cd.memo], ['cond', '물때·수온', !!(cd.mul || cd.wt != null)]].filter(x => x[2]);
+      const hasMy = !!(s.my && (s.my.who || s.my.say));
+      const tg = [['my', '내 글', hasMy], ['boat', '배 이름', !!cd.boat], ['rig', '에기·봉돌', !!(cd.egi.length || cd.sink.length)], ['memo', '메모', !!cd.memo], ['cond', '물때·수온', !!(cd.mul || cd.wt != null)]].filter(x => x[2]);
       $('cv-tg').innerHTML = tg.length ? '<span>카드에 넣을 것</span>' + tg.map(([k, n]) => `<button type="button" data-c="tg" data-k="${k}" class="${s.show[k] ? 'on' : ''}" aria-pressed="${!!s.show[k]}"><i aria-hidden="true"></i>${n}</button>`).join('') : '';
       $('cv-row1').innerHTML = (s.photo ? '<button type="button" data-c="photo">사진 바꾸기</button><button type="button" class="sm" data-c="photo-rm" aria-label="사진 빼기">사진 빼기</button>' : '<button type="button" data-c="photo">사진 넣기</button>')
-        + '<button type="button" data-c="joke">다른 문구</button>';
+        + '<button type="button" data-c="joke">다른 문구</button>'
+        + `<button type="button" data-c="my">${hasMy ? '내 글 고치기' : '내 글 쓰기'}</button>`;
     }
     function cardPaint() {
       const s = cardS; if (!s) return;
@@ -4963,6 +5039,9 @@ const TideHarm = (() => {
       }
       if (c === 'photo-rm') { if (s.photoUrl) { try { URL.revokeObjectURL(s.photoUrl); } catch (_) {} } s.photo = null; s.photoUrl = null; cardUi(); return cardPaint(); }
       if (c === 'th') return cardThSheet();
+      if (c === 'my') return cardMySheet();
+      if (c === 'my-save') return cardMySave(false);
+      if (c === 'my-clear') return cardMySave(true);
       if (c === 'sh-x' || c === 'sh-back') return cardSheet(null);
       if (c === 'sh-reset') { saveJ(CARD_TH_KEY, {}); cardSheet(null); cvToast('문구 기준을 처음대로 돌렸어요'); return cardPaint(); }
       if (c === 'sh-save') return cardThSave();
@@ -4998,6 +5077,30 @@ const TideHarm = (() => {
         <p class="cv-sherr" id="cv-sherr" hidden></p>
         <div class="cv-shb"><button type="button" data-c="sh-reset">처음대로</button><button type="button" class="pri" data-c="sh-save">저장</button></div>`);
       $('cv-sback').onclick = () => cardSheet(null);
+    }
+    // 내 글 쓰기: 누구와 · 한마디 (그 출조에 저장)
+    function cardMySheet() {
+      const m = cardS.my || {};
+      cardSheet(`<div class="cv-shh"><b>내 글 쓰기</b><button type="button" data-c="sh-x" aria-label="닫기">×</button></div>
+        <p class="cv-shp">카드에 함께 넣을 글이에요. 날짜는 카드에 저절로 들어가요.</p>
+        <label class="cv-my"><span>누구와</span><input id="cv-who" maxlength="20" placeholder="예: 아빠, 민수" autocomplete="off" enterkeyhint="next"></label>
+        <label class="cv-my"><span>한마디</span><input id="cv-say" maxlength="30" placeholder="예: 첫 갑오징어 손맛!" autocomplete="off" enterkeyhint="done"></label>
+        <div class="cv-shb"><button type="button" data-c="my-clear">지우기</button><button type="button" class="pri" data-c="my-save">저장</button></div>`);
+      const w = $('cv-who'), y = $('cv-say'); w.value = m.who || ''; y.value = m.say || '';
+      w.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); y.focus(); } });
+      y.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); cardMySave(false); } });
+      $('cv-sback').onclick = () => cardSheet(null);
+      setTimeout(() => { try { (m.who ? y : w).focus(); } catch (_) {} }, 250);
+    }
+    function cardMySave(clear) {
+      const s = cardS; if (!s) return;
+      const who = clear ? '' : ($('cv-who').value || '').trim().slice(0, 20), say = clear ? '' : ($('cv-say').value || '').trim().slice(0, 30);
+      const all = loadJ(CARD_MY_KEY, {}) || {};
+      if (who || say) { all[s.cd.k] = { who, say, t: Date.now() }; s.my = all[s.cd.k]; s.show.my = true; } else { delete all[s.cd.k]; s.my = null; }
+      saveJ(CARD_MY_KEY, all); cardSaveSt();
+      try { document.activeElement && document.activeElement.blur(); } catch (_) {}
+      cardSheet(null); cardUi(); cardPaint();
+      cvToast(who || say ? '내 글을 카드에 넣었어요' : '내 글을 지웠어요');
     }
     function cardThSave() {
       const m = thAll(), err = $('cv-sherr'); let bad = '';
@@ -5042,7 +5145,7 @@ const TideHarm = (() => {
         cvToast(fromShare ? '이 브라우저는 바로 보내기가 안 돼서 사진으로 저장했어요' : '카드를 사진으로 저장했어요'); }, 'image/jpeg', .92);
     }
     async function cardCopy() {
-      const t = cardText(cardS.cd, cardS.show); let ok = false;
+      const t = cardText(cardS.cd, cardS.show, cardS.my); let ok = false;
       if (NAT && natV() >= 3) { try { NAT.copyText(t); ok = true; } catch (_) {} }
       if (!ok && navigator.clipboard && navigator.clipboard.writeText) { try { await navigator.clipboard.writeText(t); ok = true; } catch (_) {} }
       if (!ok) { try { const ta = document.createElement('textarea'); ta.value = t; ta.style.position = 'fixed'; ta.style.opacity = '0'; document.body.appendChild(ta); ta.select(); ok = document.execCommand('copy'); ta.remove(); } catch (_) {} }
@@ -6412,7 +6515,7 @@ const TideHarm = (() => {
 
 <script>
 if ('serviceWorker' in navigator) addEventListener('load', () => {
-  const sw = navigator.serviceWorker, VER = '39331de8'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
+  const sw = navigator.serviceWorker, VER = '4dfc2a19'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
   // 화면에 손을 대기 시작했는지 (쓰는 중에는 새로 열지 않으려고)
   ['pointerdown', 'keydown'].forEach(t => addEventListener(t, () => { touched = true; }, { capture: true, passive: true }));
   const reload = () => {
