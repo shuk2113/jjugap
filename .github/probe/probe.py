@@ -37,7 +37,7 @@ try:
         try: j = json.loads(raw)
         except Exception:
             L('주차장 API 응답(JSON 아님)', mask(raw[:400]).replace('\n', ' ')); break
-        head = j.get('response', {}).get('header', {}); body = j.get('response', {}).get('body', {})
+        R = j.get('response', j); head = R.get('header', {}) or {}; body = R.get('body', {}) or {}
         if str(head.get('resultCode', '00')) not in ('00', '0'):
             L('주차장 API 머리', head); break
         items = body.get('items') or []
