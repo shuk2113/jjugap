@@ -4826,11 +4826,33 @@ const TideHarm = (() => {
         R.slice(0, 5).forEach(([a, b, c]) => { K.txt(a, 38, y + rh * .66, 14.5, INK, { mw: 104 }); K.txt(b, 196, y + rh * .66, 14.5, INK, { al: 'center', mw: 96 }); K.txt(c, 300, y + rh * .7, 21, red, { al: 'center' }); y += rh; K.line(30, y, 330, y, 1, '#D9D0B4'); });
         K.line(152, 90, 152, y, .8, '#D9D0B4'); K.line(250, 90, 250, y, .8, '#D9D0B4');
         y += 26;
-        const stu = say || (sh.memo && cd.memo ? cd.memo : ''), room = Math.max(1, Math.floor((344 - y) / 20)), mm = stu && room >= 3 ? Math.min(2, room - 2) : 0;
-        const cm = K.wrap(`선생님 말씀: ${jokeOf(JOKE.report[tier], cd, o.v)}`, 17.5, 'g', 228, Math.max(1, Math.min(3, room - mm))); y = K.lines(cm, 30, y, 17.5, 20, INK, { f: 'g', w: 700 });
-        if (mm) K.lines(K.wrap(`학생 소감: ${stu}`, 15.5, 'g', 228, mm), 30, y + 2, 15.5, 18, '#5A5040', { f: 'g', w: 700 });
+        // 선생님 말씀 · 학생 소감: 도장 위쪽 줄은 넓게, 도장 옆 줄은 좁게 · 다 들어갈 때까지 글자를 조금씩 줄이고, 그래도 넘치면 선생님 말씀을 줄인다 (학생 소감은 끝까지)
+        const stu = say || (sh.memo && cd.memo ? cd.memo : ''), ct = `선생님 말씀: ${jokeOf(JOKE.report[tier], cd, o.v)}`, st = stu ? `학생 소감: ${stu}` : '';
+        const SY = 312, wAt = b => (b + 4 > SY - 38 ? 226 : 300), BOT = 338;
+        const lay = (txt, sz, lh, b0, max) => {
+          const L = []; let rest = txt.trim(), b = b0, cut = false;
+          while (rest) {
+            const w = wAt(b);
+            if (L.length === max - 1) { const one = K.wrap(rest, sz, 'g', w, 1)[0]; cut = one.endsWith('…') && one !== rest; L.push([one, b]); break; }
+            const first = K.wrap(rest, sz, 'g', w)[0] || rest; L.push([first, b]); b += lh;
+            const i = rest.indexOf(first); rest = (i >= 0 ? rest.slice(i + first.length) : '').trim();
+          }
+          return { L, last: L.length ? L[L.length - 1][1] : b0 - lh, cut, lh };
+        };
+        let best = null;
+        for (const [cs, ss] of [[17.5, 15.5], [16.5, 15], [15.5, 14.5]]) {
+          for (let cm = 3; cm >= 1 && !best; cm--) {
+            const C = lay(ct, cs, cs + 3, y, cm), S2 = st ? lay(st, ss, ss + 3, C.last + ss + 6, 3) : null;
+            const last = S2 ? S2.last : C.last;
+            if (last <= BOT && !(S2 && S2.cut) && (!C.cut || cs === 15.5)) best = { C, S2, cs, ss };
+          }
+          if (best) break;
+        }
+        if (!best) { const C = lay(ct, 15.5, 18.5, y, 1); best = { C, S2: st ? lay(st, 14.5, 17.5, C.last + 20, 2) : null, cs: 15.5, ss: 14.5 }; }
+        best.C.L.forEach(([t, b]) => K.txt(t, 30, b, best.cs, INK, { f: 'g', w: 700 }));
+        if (best.S2) best.S2.L.forEach(([t, b]) => K.txt(t, 30, b, best.ss, '#5A5040', { f: 'g', w: 700 }));
         const sw = tier >= 2 ? ['참 잘', '했어요'] : tier === 1 ? ['잘', '했어요'] : ['다음엔', '잘하자'];
-        K.rot(298, 300, -12, () => { K.circ(0, 0, 36, 'rgba(255,255,255,.3)', 3, '#E8432F'); K.circ(0, 0, 30, null, 1.4, '#E8432F');
+        K.rot(300, SY, -12, () => { K.circ(0, 0, 36, 'rgba(255,255,255,.3)', 3, '#E8432F'); K.circ(0, 0, 30, null, 1.4, '#E8432F');
           if (tier >= 2) for (let i = 0; i < 8; i++) { const a = i * Math.PI / 4; K.circ(Math.cos(a) * 33, Math.sin(a) * 33, 2.2, '#E8432F'); }
           K.txt(sw[0], 0, -3, 14, '#E8432F', { al: 'center', mw: 50 }); K.txt(sw[1], 0, 15, 14, '#E8432F', { al: 'center', mw: 50 }); });
         K.brand(24, 350, '#A89C80');
@@ -6515,7 +6537,7 @@ const TideHarm = (() => {
 
 <script>
 if ('serviceWorker' in navigator) addEventListener('load', () => {
-  const sw = navigator.serviceWorker, VER = '4dfc2a19'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
+  const sw = navigator.serviceWorker, VER = '85e8bfab'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
   // 화면에 손을 대기 시작했는지 (쓰는 중에는 새로 열지 않으려고)
   ['pointerdown', 'keydown'].forEach(t => addEventListener(t, () => { touched = true; }, { capture: true, passive: true }));
   const reload = () => {
