@@ -848,19 +848,6 @@ html.cv-lock, html.cv-lock body{overflow:hidden}
 .pv-src ul{margin:6px 0 0; padding-left:18px; line-height:1.7}
 .pv-src a{color:#2F7DF6; word-break:break-all}
 .pv-note{margin:14px 2px 6px; font-size:calc(11.5px * var(--k)); line-height:1.6; color:var(--ink-2)}
-.pv-ship{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:8px}
-.pv-ship li{display:flex; flex-direction:column; gap:3px; padding:10px 12px; border:1px solid var(--line); border-radius:14px; background:var(--card)}
-.pv-ship li.fl{border-color:rgba(255,122,61,.7)}
-.pv-ship b{display:flex; flex-wrap:wrap; align-items:center; gap:6px; font-size:calc(14px * var(--k))}
-.pv-ship b em{padding:0 6px; border:1px solid #FF7A3D; border-radius:8px; color:#FF7A3D; font-style:normal; font-size:calc(11px * var(--k)); font-weight:700}
-.pv-ship span{font-size:calc(13.5px * var(--k)); line-height:1.55}
-.pv-ship small{font-size:calc(12px * var(--k)); color:var(--ink-2)}
-.pv-ship a{color:#2F7DF6; font-weight:700; text-decoration:none}
-.pv-more{margin-top:8px} .pv-more summary{padding:4px 2px; font-size:calc(13px * var(--k)); font-weight:700; color:#2F7DF6; cursor:pointer} .pv-more .pv-ship{margin-top:6px}
-.pv-s24{width:100%; margin-top:10px; display:flex; align-items:center; justify-content:space-between; gap:8px; min-height:46px; padding:8px 14px; border:1px solid var(--line); border-radius:14px; background:var(--well); font:inherit; font-size:calc(13.5px * var(--k)); font-weight:700; color:var(--ink); text-align:left; -webkit-tap-highlight-color:transparent}
-.pv-s24 small{display:block; margin-top:1px; font-size:calc(11.5px * var(--k)); font-weight:500; color:var(--ink-2)}
-.pv-s24 i{flex:none; font-style:normal; font-size:22px; line-height:1; color:var(--ink-2)}
-.pv-s24:active{transform:scale(.98)}
 .pv-empty{margin:12px 2px; font-size:calc(13.5px * var(--k)); line-height:1.6; color:var(--ink-2)}
 .pv-apps{display:flex; flex-direction:column; gap:8px; margin-top:6px}
 .pv-apps button{height:48px; border:0; border-radius:12px; background:var(--well); font:inherit; font-size:calc(15px * var(--k)); font-weight:700; color:var(--ink)}
@@ -5400,20 +5387,13 @@ const TideHarm = (() => {
       };
       const src = (tp.src || []).map(x => `<li><a href="${esc(x[1])}" data-p="ext" data-u="${esc(x[1])}">${esc(x[0])}</a>${x[2] ? ` <span>${esc(x[2])}</span>` : ''}</li>`).join('');
       const pubRef = (d.pk || []).map(r => r.referenceDate).filter(Boolean).sort().pop();
-      // 선사 안내: 선상24에 선사가 올린 주차 공지를 사실만 짧게 (선사 이름·날짜·원문 링크)
-      const ships = tp.ship || [];
-      const shipLi = x => `<li${x.f ? ' class="fl"' : ''}><b>${esc(x.s)}${x.f ? '<em>선단 전용</em>' : ''}</b><span>${esc(x.t)}</span><small>${esc(x.d || '')}${x.u ? ` · <a href="${esc(x.u)}" data-p="ext" data-u="${esc(x.u)}">원문 보기</a>` : ''}</small></li>`;
-      const s24 = `<button type="button" class="pv-s24" data-p="ext" data-u="https://www.sunsang24.com/ship/list"><span>선상24에서 배 찾기<small>지역을 고르면 배마다 출항 위치·주차 공지를 볼 수 있어요</small></span><i aria-hidden="true">›</i></button>`;
       $('pv-body').innerHTML = (rec ? `<div class="pv-rec"><b>추천</b> ${esc(rec.t)}</div>` : '')
         + (warn ? `<div class="pv-warn">${esc(warn)}</div>` : '')
         + (tp.tips && tp.tips.length ? `<div class="pv-sec">주차 팁${tp.chk ? `<em>${esc(tp.chk)} 확인</em>` : ''}</div><ul class="pv-tips">${tp.tips.map(t => `<li>${esc(t)}</li>`).join('')}</ul>` : '')
-        + (ships.length ? `<div class="pv-sec">선사 안내<em>선상24 선사 공지 요약</em></div><ul class="pv-ship">${ships.slice(0, 3).map(shipLi).join('')}</ul>`
-          + (ships.length > 3 ? `<details class="pv-more"><summary>${ships.length - 3}건 더 보기</summary><ul class="pv-ship">${ships.slice(3).map(shipLi).join('')}</ul></details>` : '') + s24 : '')
         + `<div class="pv-sec">주차장<em>누르면 지도에서 보여요</em></div>`
         + (s.lots.length ? `<ul class="pv-lots">${s.lots.map(row).join('')}</ul>` : '<p class="pv-empty">이 항구 주변 주차장 자료가 아직 없어요.</p>')
-        + (ships.length ? '' : s24)
         + (src ? `<details class="pv-src"><summary>조사한 곳 (출처)</summary><ul>${src}</ul></details>` : '')
-        + `<p class="pv-note">걸어서 걸리는 시간은 대략이에요. 주차 사정은 바뀔 수 있으니 출항 전에 선사에 꼭 확인하세요.${ships.length ? '<br>선사 안내는 선상24에 올라온 각 선사 공지를 짧게 정리한 것이에요. 자세한 건 원문을 보세요.' : ''}<br>지도·항구 자료 © <a href="https://www.openstreetmap.org/copyright" data-p="ext" data-u="https://www.openstreetmap.org/copyright">OpenStreetMap 기여자</a> (ODbL)${(d.pk || []).length ? ` · 공영주차장: 공공데이터포털 전국주차장정보표준데이터${pubRef ? ` (${esc(pubRef)} 기준)` : ''}` : ''}</p>`;
+        + `<p class="pv-note">걸어서 걸리는 시간은 대략이에요. 주차 사정은 바뀔 수 있으니 출항 전에 선사에 꼭 확인하세요.<br>지도·항구 자료 © <a href="https://www.openstreetmap.org/copyright" data-p="ext" data-u="https://www.openstreetmap.org/copyright">OpenStreetMap 기여자</a> (ODbL)${(d.pk || []).length ? ` · 공영주차장: 공공데이터포털 전국주차장정보표준데이터${pubRef ? ` (${esc(pubRef)} 기준)` : ''}` : ''}</p>`;
     }
     // ---------- 항구 지도 그리기
     function portFit() {
@@ -6973,7 +6953,7 @@ const TideHarm = (() => {
 
 <script>
 if ('serviceWorker' in navigator) addEventListener('load', () => {
-  const sw = navigator.serviceWorker, VER = 'b4dd27c0'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
+  const sw = navigator.serviceWorker, VER = '8ced9f0c'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
   // 화면에 손을 대기 시작했는지 (쓰는 중에는 새로 열지 않으려고)
   ['pointerdown', 'keydown'].forEach(t => addEventListener(t, () => { touched = true; }, { capture: true, passive: true }));
   const reload = () => {
