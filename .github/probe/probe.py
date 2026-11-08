@@ -48,6 +48,8 @@ try:
         if not items or page * 1000 >= total: break
         page += 1; time.sleep(0.15)
     L('주차장 받음', len(parking), '/', total)
+    if not parking:   # 아직 허락 전이면 OSM은 다시 만들지 않고 끝 (지난 결과 그대로)
+        raise SystemExit('주차장 자료 없음 — OSM 다시 만들기는 건너뜀')
 
     # ---------- 2) OSM
     subprocess.run('sudo apt-get -qq update && sudo apt-get -qq install -y osmium-tool > /dev/null', shell=True)
@@ -230,6 +232,8 @@ try:
         o = json.load(open(f'{OUT}/p{i}.json'))
         L(i, o['n'], '도로', len(o['r']), '이름', len(o['rn']), '건물', len(o['b']), 'OSM주차', len(o['pa']), '공공주차', len(o['pk']), '부두', len(o['pr']), '시설', len(o['po']),
           [p.get('prkplceNm') for p in o['pk'][:4]], [x[0] + ':' + x[1] for x in o['po'][:6]])
+except SystemExit as e:
+    L(str(e))
 except Exception:
     L(mask(traceback.format_exc()))
 open(f'{OUT}/log.txt', 'w').write('\n'.join(log))
