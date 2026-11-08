@@ -5413,7 +5413,7 @@ const TideHarm = (() => {
         + (s.lots.length ? `<ul class="pv-lots">${s.lots.map(row).join('')}</ul>` : '<p class="pv-empty">이 항구 주변 주차장 자료가 아직 없어요.</p>')
         + (ships.length ? '' : s24)
         + (src ? `<details class="pv-src"><summary>조사한 곳 (출처)</summary><ul>${src}</ul></details>` : '')
-        + `<p class="pv-note">걸어서 걸리는 시간은 대략이에요. 주차 사정은 바뀔 수 있으니 출항 전에 선사에 꼭 확인하세요.${ships.length ? '<br>선사 안내는 선상24에 올라온 각 선사 공지를 짧게 정리한 것이에요. 자세한 건 원문을 보세요.' : ''}<br>지도 © OpenStreetMap 기여자${(d.pk || []).length ? ` · 공영주차장: 공공데이터포털 전국주차장정보표준데이터${pubRef ? ` (${esc(pubRef)} 기준)` : ''}` : ''}</p>`;
+        + `<p class="pv-note">걸어서 걸리는 시간은 대략이에요. 주차 사정은 바뀔 수 있으니 출항 전에 선사에 꼭 확인하세요.${ships.length ? '<br>선사 안내는 선상24에 올라온 각 선사 공지를 짧게 정리한 것이에요. 자세한 건 원문을 보세요.' : ''}<br>지도·항구 자료 © <a href="https://www.openstreetmap.org/copyright" data-p="ext" data-u="https://www.openstreetmap.org/copyright">OpenStreetMap 기여자</a> (ODbL)${(d.pk || []).length ? ` · 공영주차장: 공공데이터포털 전국주차장정보표준데이터${pubRef ? ` (${esc(pubRef)} 기준)` : ''}` : ''}</p>`;
     }
     // ---------- 항구 지도 그리기
     function portFit() {
@@ -6973,7 +6973,7 @@ const TideHarm = (() => {
 
 <script>
 if ('serviceWorker' in navigator) addEventListener('load', () => {
-  const sw = navigator.serviceWorker, VER = 'fb9a61dd'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
+  const sw = navigator.serviceWorker, VER = 'b4dd27c0'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
   // 화면에 손을 대기 시작했는지 (쓰는 중에는 새로 열지 않으려고)
   ['pointerdown', 'keydown'].forEach(t => addEventListener(t, () => { touched = true; }, { capture: true, passive: true }));
   const reload = () => {
