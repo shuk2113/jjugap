@@ -90,6 +90,16 @@ html:root[data-app="light"]{
   --map-sea:#A6C9D3; --map-shallow:rgba(255,240,228,.36); --map-land:#F2D9BF; --map-shade:rgba(150,90,60,.16); --map-coast:#D3A983; --map-flat:#DCCDB9; --map-isl:#8A6450; --map-bay:#3A7690; --map-lab:#553B2C; --map-cur:#1A6475;
   color-scheme:light;
 }
+/* 화면 색 (모드마다 기본 + 고를 수 있는 색) — 뜻이 있는 색(물살·바람·파도·들물/날물)은 그대로 둔다 */
+html:root[data-app="light"][data-pal="lighthouse"]{--paper:#F4F6F7; --card:#FFFFFF; --ink:#0F213B; --ink-2:#4B596E; --line:#D7DDE5; --well:#E7ECF2; --acc:#1D4E9E; --acc-ink:#FFFFFF; --logo-sea:#D8383A; --logo-bub:#F28A86; --logo-glass:#DCE7F6; --logo-glasshi:#FFFFFF; --logo-bolt:#66768C; --sea:#1E4A7C; --sea-deep:#0E2645; --acc-t:#1D4E9E; --acc-pin:#1D4E9E; --sky-day-a:#5FA3E0; --sky-day-b:#E3F0FA}  /* 등대 */
+html:root[data-app="light"][data-pal="watermelon"]{--paper:#ECF6EE; --card:#FBFEFB; --ink:#13301E; --ink-2:#4D6955; --line:#CDE2D1; --well:#DCEDDF; --acc:#E5406A; --acc-ink:#FFFFFF; --logo-sea:#E5406A; --logo-bub:#2FA35F; --logo-glass:#D3F0DA; --logo-glasshi:#FFFFFF; --logo-bolt:#5A7A63; --sea:#2B7A60; --sea-deep:#123D2F; --mud:#8E7A57; --acc-t:#E5406A; --acc-pin:#E5406A; --sky-day-a:#7CC6E8; --sky-day-b:#E8F8EE}  /* 수박 에기 */
+html:root[data-app="light"][data-pal="dawn"]{--paper:#ECEDF7; --card:#FAFAFF; --ink:#1A1E3A; --ink-2:#565B7D; --line:#D5D7EB; --well:#E1E3F3; --acc:#4A58D2; --acc-ink:#FFFFFF; --logo-sea:#4A58D2; --logo-bub:#E58BB0; --logo-glass:#DDE0FA; --logo-glasshi:#FFFFFF; --logo-bolt:#6E7398; --sea:#34507E; --sea-deep:#1A2A4A; --acc-t:#4A58D2; --acc-pin:#4A58D2; --sky-day-a:#8EA2E6; --sky-day-b:#F4E4EC}  /* 새벽 바다 */
+html:root[data-app="light"][data-pal="gull"]{--paper:#F1F3F4; --card:#FFFFFF; --ink:#202428; --ink-2:#5C636A; --line:#D9DDE0; --well:#E6E9EB; --acc:#F2B300; --acc-ink:#1E1A0A; --logo-sea:#3A4148; --logo-bub:#F2B300; --logo-glass:#E4E8EB; --logo-glasshi:#FFFFFF; --logo-bolt:#8A9096; --sea:#3D5D70; --sea-deep:#1D303C; --mud:#8B8578; --mud-deep:#66625A; --acc-t:#F2B300; --acc-pin:#F2B300; --sky-day-a:#9CC3DD; --sky-day-b:#F1F5F7}  /* 갈매기 */
+html:root[data-app="dark"][data-pal="lamp"]{--paper:#0B1220; --card:#121B2C; --ink:#F2ECDD; --ink-2:#A9A290; --line:#223049; --well:#1A2538; --acc:#FFB627; --acc-ink:#1C1300; --logo-sea:#FFB627; --logo-bub:#FFD98A; --logo-glass:#28334E; --logo-glasshi:#FFE6A8; --logo-bolt:#8F8A7C; --sea:#1C3D5E; --sea-deep:#07121E; --streak:rgba(255,206,120,.45); --moon-lit:#FFE3A3; --acc-t:#FFB627; --acc-pin:#FFB627; --sky-night-a:#050A14; --sky-night-b:#18243A}  /* 집어등 */
+html:root[data-app="dark"][data-pal="chart"]{--paper:#06182B; --card:#0B2238; --ink:#DCF2F4; --ink-2:#8CAFB7; --line:#17344F; --well:#102B45; --acc:#2BD4C3; --acc-ink:#03201C; --acc2:#E8509F; --logo-sea:#2BD4C3; --logo-bub:#E8509F; --logo-glass:#12405A; --logo-glasshi:#A8F5EE; --logo-bolt:#7FA3AD; --sea:#0E4A68; --sea-deep:#041422; --map-sea:#0C3550; --map-land:#3A4950; --map-flat:#123A4E; --acc-t:#2BD4C3; --acc-pin:#2BD4C3; --sky-night-a:#03101C; --sky-night-b:#0B2A40}  /* 해도 */
+html:root[data-app="dark"][data-pal="ink"]{--paper:#000000; --card:#0E0E0F; --ink:#EDEDED; --ink-2:#9A9A9D; --line:#242426; --well:#18181A; --acc:#EDEDED; --acc-ink:#000000; --logo-sea:#F2F2F2; --logo-bub:#8E8E92; --logo-glass:#2A2A2C; --logo-glasshi:#FFFFFF; --logo-bolt:#8A8A8A; --sea:#23323A; --sea-deep:#040607; --hull-line:#000000; --acc-t:#EDEDED; --acc-pin:#EDEDED; --sky-night-a:#000000; --sky-night-b:#0E1216}  /* 먹물 */
+html:root[data-app="dark"][data-pal="dusk"]{--paper:#160E1C; --card:#201626; --ink:#F6E8EE; --ink-2:#B39DAB; --line:#352638; --well:#2A1D30; --acc:#FF9A6B; --acc-ink:#2A1006; --logo-sea:#FF9A6B; --logo-bub:#FFC9A8; --logo-glass:#3A2440; --logo-glasshi:#FFD7BF; --logo-bolt:#9C8696; --sea:#3B2A55; --sea-deep:#140C22; --streak:rgba(255,180,150,.35); --moon-lit:#FFE0C8; --acc-t:#FF9A6B; --acc-pin:#FF9A6B; --sky-night-a:#120A1E; --sky-night-b:#3A1E3A}  /* 해 질 녘 */
+html:root[data-app="dark"][data-pal="pink"]{--paper:#0A0E18; --card:#111726; --ink:#ECEFF6; --ink-2:#9AA2B5; --line:#212A3D; --well:#192132; --acc:#FF4FA3; --acc-ink:#FFFFFF; --logo-sea:#FF4FA3; --logo-bub:#FFB2D6; --logo-glass:#22293F; --logo-glasshi:#FFC7E2; --logo-bolt:#8E95A8; --sea:#1E2E52; --sea-deep:#070B16; --streak:rgba(255,160,210,.3); --acc-t:#FF4FA3; --acc-pin:#FF4FA3; --sky-night-a:#060912; --sky-night-b:#141B2E}  /* 핑크 에기 */
 /* 폰 폭에 따라 전체를 알맞게 키운다 (좁은 폰은 그대로) */
 @media (min-width:350px){ :root{--k:1.06} }
 @media (min-width:375px){ :root{--k:1.1} }
@@ -122,15 +132,15 @@ button{font:inherit; color:inherit; cursor:pointer}
 @media (max-width:340px){ .brand-t .logo{height:1.34em} }
 /* 제목 아래 바다 표시: 고른 출항지의 바다와 물때 세는 방식 (출항지를 고르면 저절로 바뀜) */
 .sea-btn{display:inline-flex; align-items:center; gap:7px; margin-top:7px; min-height:30px; padding:4px 11px 4px 12px; border:0; border-radius:999px; background:var(--well); font:inherit; font-size:calc(12.5px * var(--k)); font-weight:700; color:var(--ink); letter-spacing:.02em; -webkit-tap-highlight-color:transparent; transition:transform .15s}
-.sea-btn b{color:#2F7DF6} :root[data-app="dark"] .sea-btn b{color:#5FA8FF}
+.sea-btn b{color:var(--acc-t, #2F7DF6)} :root[data-app="dark"] .sea-btn b{color:var(--acc-t, #5FA8FF)}
 .sea-btn em{font-style:normal; font-weight:500; color:var(--ink-2)}
 .top-right{display:flex; align-items:center; gap:8px; flex:none}
 .theme-btn{flex:none; width:38px; height:38px; display:grid; place-items:center; border:0; border-radius:50%; background:var(--well); color:var(--ink); -webkit-tap-highlight-color:transparent; transition:transform .15s}
 .theme-btn:active{transform:scale(.9)}
 /* 맨 윗줄 '내 기록' 단추 (지도 모양 + 포인트 수) */
-.rec-btn{position:relative; color:#2F7DF6}
+.rec-btn{position:relative; color:var(--acc, #2F7DF6)}
 .rec-btn svg{width:20px; height:20px}
-.rec-btn b{position:absolute; top:-4px; right:-6px; min-width:18px; height:18px; padding:0 5px; border-radius:9px; background:#2F7DF6; color:#fff; font-size:11px; font-weight:800; line-height:18px; text-align:center; font-variant-numeric:tabular-nums; box-shadow:0 0 0 2px var(--paper)}
+.rec-btn b{position:absolute; top:-4px; right:-6px; min-width:18px; height:18px; padding:0 5px; border-radius:9px; background:var(--acc2, var(--acc, #2F7DF6)); color:var(--acc2-ink, var(--acc-ink, #fff)); font-size:11px; font-weight:800; line-height:18px; text-align:center; font-variant-numeric:tabular-nums; box-shadow:0 0 0 2px var(--paper)}
 .rec-btn b[hidden]{display:none}
 .theme-btn svg{width:18px; height:18px}
 .theme-btn .i-sun{display:none}
@@ -210,7 +220,7 @@ h2{margin:0; font-size:calc(16px * var(--k)); font-weight:700; text-wrap:balance
 /* 출항지 버튼과 고르기 판 */
 .st-btn{align-self:flex-start; display:inline-flex; align-items:center; gap:7px; height:36px; padding:0 14px 0 11px; border:1px solid var(--line); border-radius:999px; background:var(--card); font:inherit; font-size:calc(14px * var(--k)); color:var(--ink); -webkit-tap-highlight-color:transparent; transition:transform .12s}
 .st-btn:active{transform:scale(.97)}
-.st-btn svg{width:17px; height:17px; color:var(--hi); flex:none}
+.st-btn svg{width:17px; height:17px; color:var(--acc-pin, var(--hi)); flex:none}
 .st-btn .st-lab{font-size:calc(12px * var(--k)); font-weight:500; color:var(--ink-2)}
 .st-btn #st-name{font-weight:700; min-width:0; overflow:hidden; text-overflow:ellipsis}
 .st-btn{white-space:nowrap; max-width:100%; min-width:0} .st-btn .st-lab{flex:none}
@@ -225,7 +235,7 @@ h2{margin:0; font-size:calc(16px * var(--k)); font-weight:700; text-wrap:balance
 .hold-tip::after{content:''; position:absolute; top:-5px; right:var(--ax, 24px); width:11px; height:11px; margin-right:-5.5px; background:inherit; transform:rotate(45deg); border-radius:2px}
 @keyframes holdTipIn{from{opacity:0; transform:translateY(-5px)}}
 @media (prefers-reduced-motion:reduce){ .hold-tip{animation:none} }
-.me-btn:active{transform:scale(.97)} .me-btn svg{width:17px; height:17px; color:#2F7DF6}
+.me-btn:active{transform:scale(.97)} .me-btn svg{width:17px; height:17px; color:var(--acc, #2F7DF6)}
 /* 선상 모드가 켜져 있는 동안: 파랗게 채우고 깜빡이는 점 · 오늘 포인트 수 */
 .me-btn .live{display:none; width:7px; height:7px; border-radius:50%; background:#fff; margin-left:1px; animation:livePulse 1.6s ease-in-out infinite}
 .me-btn .cnt{min-width:20px; height:20px; padding:0 6px; border-radius:999px; background:#fff; color:#2F7DF6; font-size:calc(11.5px * var(--k)); font-weight:800; line-height:20px; text-align:center; font-variant-numeric:tabular-nums}
@@ -800,7 +810,7 @@ html.cv-lock, html.cv-lock body{overflow:hidden}
 @media (prefers-reduced-motion: reduce){ .cardv, .cv-wrap canvas.in-r, .cv-wrap canvas.in-l{animation:none} }
 /* 항구 정보 · 주차 */
 .pk-btn{flex:none; display:inline-flex; align-items:center; gap:5px; height:36px; padding:0 11px 0 7px; border:1px solid var(--line); border-radius:999px; background:var(--card); font:inherit; font-size:calc(13.5px * var(--k)); font-weight:700; color:var(--ink); -webkit-tap-highlight-color:transparent; transition:transform .12s}
-.pk-btn i{width:20px; height:20px; border-radius:6px; background:#2F7DF6; color:#fff; font-style:normal; font-size:12px; font-weight:800; display:flex; align-items:center; justify-content:center}
+.pk-btn i{width:20px; height:20px; border-radius:6px; background:var(--acc, #2F7DF6); color:var(--acc-ink, #fff); font-style:normal; font-size:12px; font-weight:800; display:flex; align-items:center; justify-content:center}
 .pk-btn:active{transform:scale(.97)}
 .loc-row .st-btn{flex:0 1 auto}   /* 이름 길이만큼만 (짧으면 오른쪽 빈칸 없이), 길면 줄여서 … */
 /* 출항지 단추와 주차(P)를 점선 하나 사이에 두고 한 덩어리로: 이 출항지의 주차라는 게 보이게 */
@@ -851,11 +861,29 @@ html.cv-lock, html.cv-lock body{overflow:hidden}
 .portv.pv-nb .pv-legend span:last-child{display:none}   /* 배 타는 곳을 모르는 항구: 범례에서도 뺀다 */
 .pv-empty{margin:12px 2px; font-size:calc(13.5px * var(--k)); line-height:1.6; color:var(--ink-2)}
 .pv-apps{display:flex; flex-direction:column; gap:8px; margin-top:6px}
+.pal-sheet{position:fixed; inset:0; z-index:90; display:flex; align-items:flex-end; justify-content:center; background:rgba(0,0,0,.38); -webkit-tap-highlight-color:transparent}
+.pal-sheet[hidden]{display:none}
+.pal-in{width:100%; max-width:520px; max-height:86vh; overflow:auto; padding:10px 16px calc(18px + env(safe-area-inset-bottom)); border-radius:22px 22px 0 0; background:var(--card); color:var(--ink); box-shadow:0 -6px 24px rgba(0,0,0,.18)}
+.pal-in::before{content:""; display:block; width:40px; height:4px; margin:0 auto 12px; border-radius:2px; background:var(--line)}
+.pal-in h3{margin:0 0 12px; font-size:calc(16px * var(--k)); font-weight:700}
+.pal-mode{display:grid; grid-template-columns:1fr 1fr; gap:6px; padding:4px; border-radius:14px; background:var(--well)}
+.pal-mode button{height:40px; display:flex; align-items:center; justify-content:center; gap:7px; border:0; border-radius:10px; background:transparent; font:inherit; font-size:calc(14.5px * var(--k)); font-weight:700; color:var(--ink-2)}
+.pal-mode button svg{width:16px; height:16px}
+.pal-mode button[aria-pressed="true"]{background:var(--card); color:var(--ink); box-shadow:0 1px 3px rgba(0,0,0,.14)}
+.pal-list{display:grid; grid-template-columns:repeat(auto-fill, minmax(140px, 1fr)); gap:8px; margin-top:12px}
+.pal-list button{display:flex; align-items:center; gap:10px; min-height:58px; padding:8px 10px; border:2px solid var(--line); border-radius:14px; background:var(--paper); font:inherit; color:var(--ink); text-align:left}
+.pal-list button[aria-pressed="true"]{border-color:var(--ink)}
+.pal-sw{flex:none; position:relative; width:36px; height:36px; border-radius:50%; overflow:hidden; box-shadow:inset 0 0 0 1px rgba(127,127,127,.35)}
+.pal-sw i{position:absolute; inset:0}
+.pal-sw i:nth-child(2){clip-path:polygon(50% 0, 100% 0, 100% 100%, 50% 100%)}
+.pal-sw i:nth-child(3){inset:auto 0 0 0; height:42%}
+.pal-list b{display:block; font-size:calc(14px * var(--k)); font-weight:700}
+.pal-list small{display:block; margin-top:1px; font-size:calc(11.5px * var(--k)); color:var(--ink-2); line-height:1.35}
 .pv-apps button{height:48px; border:0; border-radius:12px; background:var(--well); font:inherit; font-size:calc(15px * var(--k)); font-weight:700; color:var(--ink)}
 </style>
 <script>
 // 저장된 화면 모드(없으면 다크)를 화면을 그리기 전에 먼저 적용해 깜빡임을 막는다
-(function () { var t = 'dark'; try { var s = localStorage.getItem('jjukgap-theme'); if (s === 'light' || s === 'dark') t = s; } catch (e) {} document.documentElement.setAttribute('data-app', t); var m = document.querySelector('meta[name="color-scheme"]'); if (m) m.content = t === 'light' ? 'only light' : 'dark'; })();
+(function () { var t = 'dark', p = ''; try { var s = localStorage.getItem('jjukgap-theme'); if (s === 'light' || s === 'dark') t = s; p = localStorage.getItem('jjukgap-pal-' + t) || ''; } catch (e) {} document.documentElement.setAttribute('data-app', t); if (/^[a-z]{1,16}$/.test(p)) document.documentElement.setAttribute('data-pal', p); var m = document.querySelector('meta[name="color-scheme"]'); if (m) m.content = t === 'light' ? 'only light' : 'dark'; })();
 </script>
 
 <div class="app">
@@ -872,7 +900,7 @@ html.cv-lock, html.cv-lock body{overflow:hidden}
     </div>
     <div class="top-right">
       <button class="theme-btn rec-btn" id="rec-btn" type="button" aria-label="내 기록 지도"><svg viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M3 6.5l5.5-2.5 7 2.5 5.5-2.5v13.5l-5.5 2.5-7-2.5L3 20z"/><path d="M8.5 4v13.5M15.5 6.5V20"/></g></svg><b hidden>0</b></button>
-      <button class="theme-btn" id="theme-btn" aria-label="라이트 모드로 바꾸기">
+      <button class="theme-btn" id="theme-btn" type="button" aria-label="화면 밝기와 색 고르기" aria-haspopup="dialog">
         <svg class="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4.2"></circle><path d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5.3 5.3l1.6 1.6M17.1 17.1l1.6 1.6M5.3 18.7l1.6-1.6M17.1 6.9l1.6-1.6"></path></svg>
         <svg class="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"></path></svg>
       </button>
@@ -2086,14 +2114,17 @@ const TideHarm = (() => {
     // 하늘색: 해 높이에 따라 밤 → 노을 → 낮
     const hex = c => [1, 3, 5].map(i => parseInt(c.slice(i, i + 2), 16));
     const mix = (a, b, t) => { const A = hex(a), B = hex(b); return `rgb(${A.map((v, i) => Math.round(v + (B[i] - v) * t)).join(',')})`; };
-    const SKY = { night: ['#0A1428', '#1A2A44'], dusk: ['#33457A', '#EE9F6E'], day: ['#79B6E2', '#D6EDF7'] };
+    const SKY0 = { night: ['#0A1428', '#1A2A44'], dusk: ['#33457A', '#EE9F6E'], day: ['#79B6E2', '#D6EDF7'] };
+    let SKY = SKY0;   // 화면 색(테마)이 하늘색을 정해 두면 그걸로 (readColors)
     function sky(a) {
       if (a <= -8) return SKY.night.map(c => mix(c, c, 0));
       if (a <= 0) { const t = (a + 8) / 8; return [mix(SKY.night[0], SKY.dusk[0], t), mix(SKY.night[1], SKY.dusk[1], t)]; }
       if (a <= 12) { const t = a / 12; return [mix(SKY.dusk[0], SKY.day[0], t), mix(SKY.dusk[1], SKY.day[1], t)]; }
       return SKY.day.map(c => mix(c, c, 0));
     }
-    function readColors() { const cs = getComputedStyle(document.documentElement); KEYS.forEach(k => { C[k] = cs.getPropertyValue('--' + k).trim(); }); C.font = getComputedStyle(document.body).fontFamily; }
+    function readColors() { const cs = getComputedStyle(document.documentElement); KEYS.forEach(k => { C[k] = cs.getPropertyValue('--' + k).trim(); }); C.font = getComputedStyle(document.body).fontFamily;
+      const sv = k => { const x = cs.getPropertyValue('--sky-' + k).trim(); return /^#[0-9a-fA-F]{6}$/.test(x) ? x : ''; };
+      SKY = { night: sv('night-a') && sv('night-b') ? [sv('night-a'), sv('night-b')] : SKY0.night, dusk: SKY0.dusk, day: sv('day-a') && sv('day-b') ? [sv('day-a'), sv('day-b')] : SKY0.day }; }
     function resize() {
       const r = cv.getBoundingClientRect(), dpr = Math.min(2, window.devicePixelRatio || 1), k = uiK();
       W = r.width / k; H = r.height / k; cv.width = Math.round(r.width * dpr); cv.height = Math.round(r.height * dpr);
@@ -2617,7 +2648,7 @@ const TideHarm = (() => {
     new ResizeObserver(resize).observe(cv);
     const recolor = () => { readColors(); if (!running) draw(0); };
     matchMedia('(prefers-color-scheme: dark)').addEventListener('change', recolor);
-    new MutationObserver(recolor).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme', 'data-app'] });
+    new MutationObserver(recolor).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme', 'data-app', 'data-pal'] });
     reduce.addEventListener('change', () => { running = false; start(); });
     return {
       set(s, a) { sTarget = s; age = a; if (sCur === null) sCur = s; start(); },
@@ -6622,7 +6653,7 @@ const TideHarm = (() => {
     addEventListener('popstate', () => { if (skipPop) { skipPop = false; return; } if (portS) { portClose(true); return; } if (cardS) { cardClose(true); return; } if (isOpen) close(true); });
     document.addEventListener('keydown', e => { if (e.key !== 'Escape') return; if (portS) portClose(); else if (cardS) cardClose(); else if (isOpen) close(); });
     // 안드로이드 앱의 뒤로 단추: 저절로 열린 판(출조 정리·카드 등)은 웹 화면의 '뒤로 가기'가 건너뛰어 앱이 꺼지므로, 앱이 먼저 물어본다
-    window.jjugapBack = () => { const s = history.state; if (s && (s.mapv || s.cardv || s.portv || s.stSheet || s.pcal)) { history.back(); return true; } return false; };
+    window.jjugapBack = () => { const s = history.state; if (s && (s.mapv || s.cardv || s.portv || s.stSheet || s.pcal || s.palv)) { history.back(); return true; } return false; };
     { const pb = $('pk-btn'); if (pb) pb.onclick = async () => portOpen(await portIdxFor(tideSt)); }
     // 바다 위(인터넷 약함)에서도 열리게: 지금 출항지의 항구 자료를 미리 받아 둔다 (sw.js 가 저장)
     let portWarmK = '';
@@ -6715,7 +6746,7 @@ const TideHarm = (() => {
     cv.addEventListener('pointerup', up); cv.addEventListener('pointercancel', up);
     cv.addEventListener('wheel', e => { e.preventDefault(); const r = cv.getBoundingClientRect(); follow = false; $('mv-me').classList.remove('on'); zoomAt(Math.exp(-e.deltaY * 0.0022), e.clientX - r.left, e.clientY - r.top); }, { passive: false });
     const recolor = () => { Cc = null; if (isOpen) draw(); };
-    new MutationObserver(recolor).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme', 'data-app'] });
+    new MutationObserver(recolor).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme', 'data-app', 'data-pal'] });
   })();
   // 날짜를 누르면 그 자리에서 작은 달력이 뜬다 (아래 큰 달력과 같은 칸을 힘을 뺀 모양으로)
   (() => {
@@ -6908,24 +6939,50 @@ const TideHarm = (() => {
   function autoRegion(k) { const S = TideHarm.STATIONS[k]; if (!S) return; const r = seaOfSt(S); if (r !== region) try { setRegion(r); } catch (_) {} }
   const SEAS = { west: { name: '서해', rule: '7물때 기준' }, south: { name: '남해', rule: '8물때 기준' } };
 
-  // 다크 / 라이트 모드 전환 (기본은 다크, 고른 모드는 이 폰에 기억)
+  // 화면: 다크 / 라이트 모드와 화면 색 (기본은 다크 · 고른 모드와 모드마다 고른 색은 이 폰에 기억)
   const themeBtn = $('theme-btn'), root = document.documentElement;
-  let themeT = 0;
-  const paintThemeBtn = () => themeBtn.setAttribute('aria-label', root.getAttribute('data-app') === 'light' ? '다크 모드로 바꾸기' : '라이트 모드로 바꾸기');
-  themeBtn.onclick = () => {
-    const next = root.getAttribute('data-app') === 'light' ? 'dark' : 'light';
-    if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      root.classList.add('theme-anim'); clearTimeout(themeT);
-      themeT = setTimeout(() => root.classList.remove('theme-anim'), 350);
-    }
-    root.setAttribute('data-app', next);
-    try { localStorage.setItem('jjukgap-theme', next); } catch (e) {}
-    const csMeta = document.querySelector('meta[name="color-scheme"]'); if (csMeta) csMeta.content = next === 'light' ? 'only light' : 'dark';
-    document.querySelectorAll('meta[name="theme-color"]').forEach(m => { m.content = next === 'light' ? '#EAF0EC' : '#0D1819'; });
-    paintThemeBtn();
-    themeBtn.classList.remove('spin'); void themeBtn.offsetWidth; themeBtn.classList.add('spin');
+  const PALS = {
+    light: [['', '바다 안개', '기본', ['#EAF0EC', '#2F7DF6', '#14917B']], ['lighthouse', '등대', '흰 바탕 · 남색 · 등대 빨강', ['#F4F6F7', '#1D4E9E', '#D8383A']],
+      ['watermelon', '수박 에기', '민트 · 수박 분홍', ['#ECF6EE', '#E5406A', '#2FA35F']], ['dawn', '새벽 바다', '라벤더 · 남보라', ['#ECEDF7', '#4A58D2', '#E58BB0']],
+      ['gull', '갈매기', '흰 깃털 · 부리 노랑', ['#F1F3F4', '#F2B300', '#3A4148']]],
+    dark: [['', '밤바다', '기본', ['#0D1819', '#2F7DF6', '#3CCDB0']], ['lamp', '집어등', '밤바다 남색 · 호박빛', ['#0B1220', '#FFB627', '#FFD98A']],
+      ['chart', '해도', '항해 화면 · 청록', ['#06182B', '#2BD4C3', '#E8509F']], ['ink', '먹물', '완전 검정 · 배터리 절약', ['#000000', '#EDEDED', '#5A5A5E']],
+      ['dusk', '해 질 녘', '자두빛 · 살구빛', ['#160E1C', '#FF9A6B', '#3B2A55']], ['pink', '핑크 에기', '검푸른 밤 · 야광 분홍', ['#0A0E18', '#FF4FA3', '#1E2E52']]]
   };
-  paintThemeBtn();
+  let themeT = 0, palOpen = false;
+  const modeNow = () => root.getAttribute('data-app') === 'light' ? 'light' : 'dark';
+  const palOf = m => { try { const p = localStorage.getItem('jjukgap-pal-' + m) || ''; return PALS[m].some(x => x[0] === p) ? p : ''; } catch (e) { return ''; } };
+  const anim = () => { if (matchMedia('(prefers-reduced-motion: reduce)').matches) return; root.classList.add('theme-anim'); clearTimeout(themeT); themeT = setTimeout(() => root.classList.remove('theme-anim'), 350); };
+  function applyLook(mode, pal) {
+    root.setAttribute('data-app', mode);
+    if (pal) root.setAttribute('data-pal', pal); else root.removeAttribute('data-pal');
+    const csMeta = document.querySelector('meta[name="color-scheme"]'); if (csMeta) csMeta.content = mode === 'light' ? 'only light' : 'dark';
+    const paper = getComputedStyle(root).getPropertyValue('--paper').trim() || (mode === 'light' ? '#EAF0EC' : '#0D1819');
+    document.querySelectorAll('meta[name="theme-color"]').forEach(m => { m.content = paper; });
+  }
+  const sunI = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5.3 5.3l1.6 1.6M17.1 17.1l1.6 1.6M5.3 18.7l1.6-1.6M17.1 6.9l1.6-1.6"/></svg>';
+  const moonI = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg>';
+  const palEl = document.createElement('div');
+  palEl.className = 'pal-sheet'; palEl.id = 'pal-sheet'; palEl.hidden = true; palEl.setAttribute('role', 'dialog'); palEl.setAttribute('aria-modal', 'true'); palEl.setAttribute('aria-label', '화면 밝기와 색');
+  palEl.innerHTML = `<div class="pal-in"><h3>화면</h3><div class="pal-mode"><button type="button" data-m="light">${sunI}라이트</button><button type="button" data-m="dark">${moonI}다크</button></div><div class="pal-list" id="pal-list"></div></div>`;
+  document.body.appendChild(palEl);
+  function palPaint() {
+    const mode = modeNow(), cur = palOf(mode);
+    palEl.querySelectorAll('.pal-mode button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.m === mode)));
+    $('pal-list').innerHTML = PALS[mode].map(([id, nm, sub, sw]) => `<button type="button" data-p="${id}" aria-pressed="${id === cur}"><span class="pal-sw" aria-hidden="true"><i style="background:${sw[0]}"></i><i style="background:${sw[1]}"></i><i style="background:${sw[2]}"></i></span><span><b>${nm}</b><small>${sub}</small></span></button>`).join('');
+  }
+  function palShow() { if (palOpen) return; palOpen = true; palPaint(); palEl.hidden = false; try { history.pushState({ ...(history.state || {}), palv: 1 }, ''); } catch (e) {} const f = palEl.querySelector('.pal-list [aria-pressed="true"]'); if (f) f.focus({ preventScroll: true }); }
+  function palClose(fromPop) { if (!palOpen) return; palOpen = false; palEl.hidden = true; if (!fromPop && history.state && history.state.palv) history.back(); themeBtn.focus({ preventScroll: true }); }
+  palEl.addEventListener('click', e => {
+    if (e.target === palEl) return palClose();
+    const mb = e.target.closest('.pal-mode button'), pb = e.target.closest('.pal-list button');
+    if (mb) { const m = mb.dataset.m; if (m === modeNow()) return; anim(); try { localStorage.setItem('jjukgap-theme', m); } catch (er) {} applyLook(m, palOf(m)); palPaint(); }
+    else if (pb) { const m = modeNow(), p = pb.dataset.p; anim(); try { localStorage.setItem('jjukgap-pal-' + m, p); } catch (er) {} applyLook(m, p); palPaint(); }
+  });
+  addEventListener('popstate', () => { if (palOpen) palClose(true); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape' && palOpen) { e.stopPropagation(); palClose(); } }, true);
+  themeBtn.onclick = () => { themeBtn.classList.remove('spin'); void themeBtn.offsetWidth; themeBtn.classList.add('spin'); palShow(); };
+  applyLook(modeNow(), palOf(modeNow()));
 
   // 안내 문장 길이가 바뀌어도 아래 화면이 흔들리지 않도록, 나올 수 있는 가장 긴 문장 높이만큼 자리를 미리 잡아 둔다
   {
@@ -6966,7 +7023,7 @@ const TideHarm = (() => {
 
 <script>
 if ('serviceWorker' in navigator) addEventListener('load', () => {
-  const sw = navigator.serviceWorker, VER = '89327779'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
+  const sw = navigator.serviceWorker, VER = '4707d9a7'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
   // 화면에 손을 대기 시작했는지 (쓰는 중에는 새로 열지 않으려고)
   ['pointerdown', 'keydown'].forEach(t => addEventListener(t, () => { touched = true; }, { capture: true, passive: true }));
   const reload = () => {
