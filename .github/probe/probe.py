@@ -33,6 +33,7 @@ try:
             except Exception as e:
                 L('주차장 API 다시', page, t, mask(repr(e))[:200]); time.sleep(3 + 5 * t)
         if not raw: L('주차장 API 실패', page); break
+        if page == 1: L('주차장 API 첫 응답', mask(raw[:600]).replace('\n', ' '))
         try: j = json.loads(raw)
         except Exception:
             L('주차장 API 응답(JSON 아님)', mask(raw[:400]).replace('\n', ' ')); break
