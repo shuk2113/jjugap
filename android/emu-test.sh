@@ -149,6 +149,7 @@ adb logcat -d | grep -E "FATAL|AndroidRuntime: java" | head -5 | tee -a "$OUT/ca
 adb shell am force-stop $P; sleep 2; adb logcat -c
 adb shell am start -n $P/.MainActivity; sleep 14; shot 22-main
 # 앞 시험에서 남은 '오늘 출조 정리' 판이 떠 있으면 뒤로 가기로 닫는다 (판이 주차 단추를 가림)
+adb shell uiautomator dump /sdcard/ui.xml >/dev/null 2>&1; sleep 2   # 웹 화면 글자를 읽을 수 있게 한 번 먼저
 for k in 1 2 3; do adb shell uiautomator dump /sdcard/ui.xml >/dev/null 2>&1; adb pull /sdcard/ui.xml "$OUT/ui-p21-$k.xml" >/dev/null 2>&1
   grep -q "오늘 출조 정리" "$OUT/ui-p21-$k.xml" || break; echo "sum panel open -> back" | tee -a "$OUT/port.txt"; adb shell input keyevent KEYCODE_BACK; sleep 4; done
 shot 22b-main
