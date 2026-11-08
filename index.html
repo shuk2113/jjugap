@@ -802,8 +802,12 @@ html.cv-lock, html.cv-lock body{overflow:hidden}
 .pk-btn{flex:none; display:inline-flex; align-items:center; gap:5px; height:36px; padding:0 11px 0 7px; border:1px solid var(--line); border-radius:999px; background:var(--card); font:inherit; font-size:calc(13.5px * var(--k)); font-weight:700; color:var(--ink); -webkit-tap-highlight-color:transparent; transition:transform .12s}
 .pk-btn i{width:20px; height:20px; border-radius:6px; background:#2F7DF6; color:#fff; font-style:normal; font-size:12px; font-weight:800; display:flex; align-items:center; justify-content:center}
 .pk-btn:active{transform:scale(.97)}
-.loc-row .st-btn{flex:0 1 auto; margin-right:auto}   /* 이름 길이만큼만 (짧으면 오른쪽 빈칸 없이), 길면 줄여서 … */
-@media (max-width:430px){ .loc-row{gap:6px} .loc-row .st-btn .st-lab{display:none} .pk-btn{padding:0 9px 0 6px; gap:4px} .loc-row .me-btn{padding:0 11px 0 9px} }
+.loc-row .st-btn{flex:0 1 auto}   /* 이름 길이만큼만 (짧으면 오른쪽 빈칸 없이), 길면 줄여서 … */
+/* 출항지 단추와 주차(P)를 점선 하나 사이에 두고 한 덩어리로: 이 출항지의 주차라는 게 보이게 */
+.loc-row .st-btn{border-right:0; border-radius:999px 0 0 999px; padding-right:10px}
+.loc-row .pk-btn{margin-left:-8px; margin-right:auto; border-left:1px dashed var(--line); border-radius:0 999px 999px 0; padding-left:8px}
+.loc-row .st-btn:active, .loc-row .pk-btn:active{transform:none; background:var(--line)}
+@media (max-width:430px){ .loc-row{gap:6px} .loc-row .st-btn .st-lab{display:none} .pk-btn{padding:0 9px 0 6px; gap:4px} .loc-row .pk-btn{margin-left:-6px; padding-left:8px} .loc-row .me-btn{padding:0 11px 0 9px} }
 @media (max-width:372px){ .pk-btn{padding:0 7px} .pk-btn span{display:none} }
 .pv-near{display:flex; gap:6px; overflow-x:auto; scrollbar-width:none; margin:0 0 8px; align-items:center}
 .pv-near::-webkit-scrollbar{display:none}
@@ -6949,7 +6953,7 @@ const TideHarm = (() => {
 
 <script>
 if ('serviceWorker' in navigator) addEventListener('load', () => {
-  const sw = navigator.serviceWorker, VER = '44d49169'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
+  const sw = navigator.serviceWorker, VER = '854c989a'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
   // 화면에 손을 대기 시작했는지 (쓰는 중에는 새로 열지 않으려고)
   ['pointerdown', 'keydown'].forEach(t => addEventListener(t, () => { touched = true; }, { capture: true, passive: true }));
   const reload = () => {
