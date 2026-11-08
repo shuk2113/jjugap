@@ -99,7 +99,7 @@ public class MainActivity extends Activity {
             public boolean shouldOverrideUrlLoading(WebView v, WebResourceRequest r) {
                 Uri u = r.getUrl();
                 if ("shuk2113.github.io".equals(u.getHost())) return false;
-                try { startActivity(new Intent(Intent.ACTION_VIEW, u)); } catch (Exception ignored) { }
+                openOutside(u.toString());
                 return true;
             }
         });
@@ -113,6 +113,35 @@ public class MainActivity extends Activity {
         if (stale) Log.i("jjugap", "launch from history: act ignored");
         getIntent().removeExtra("locon");   // 화면을 다시 만들 때 또 열리지 않게
         try { getSystemService(android.app.NotificationManager.class).cancel(TrackService.NID4); } catch (Exception ignored) { }   // 예전 판의 '위치를 꺼 주세요' 알림이 남아 있으면 지운다
+    }
+
+    /** 다른 앱으로 열기: 길안내(카카오맵·네이버지도·티맵)·로드뷰·전화·출처 글.
+     *  intent: 주소는 풀어서 열고, 그 앱이 없으면 플레이 스토어의 그 앱 쪽으로 (아무 일도 안 일어나는 일이 없게) */
+    void openOutside(String s) {
+        try {
+            if (s.startsWith("intent:")) {
+                Intent it = Intent.parseUri(s, Intent.URI_INTENT_SCHEME);
+                it.addCategory(Intent.CATEGORY_BROWSABLE); it.setComponent(null); it.setSelector(null);
+                try { startActivity(it); return; } catch (android.content.ActivityNotFoundException e) {
+                    String fb = it.getStringExtra("browser_fallback_url");
+                    if (fb != null && fb.startsWith("https://")) { startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(fb))); return; }
+                    if (it.getPackage() != null) { market(it.getPackage()); return; }
+                }
+                Toast.makeText(this, "열 수 있는 앱이 없어요", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            Uri u = Uri.parse(s);
+            try { startActivity(new Intent(Intent.ACTION_VIEW, u)); } catch (android.content.ActivityNotFoundException e) {
+                String sc = u.getScheme(), pk = "nmap".equals(sc) ? "com.nhn.android.nmap" : "tmap".equals(sc) ? "com.skt.tmap.ku" : "kakaomap".equals(sc) ? "net.daum.android.map" : null;
+                if (pk != null) market(pk); else Toast.makeText(this, "열 수 있는 앱이 없어요", Toast.LENGTH_SHORT).show();
+            }
+        } catch (Exception e) { Log.w("jjugap", "open outside", e); }
+    }
+
+    void market(String pk) {
+        Log.i("jjugap", "market " + pk);
+        try { startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=" + pk))); }
+        catch (Exception e) { try { startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?id=" + pk))); } catch (Exception ignored) { } }
     }
 
     @Override
@@ -301,7 +330,7 @@ public class MainActivity extends Activity {
 
     /** 웹 앱에서 부르는 것들 (window.JjugapNative) */
     class Bridge {
-        @JavascriptInterface public String version() { return "3"; }   // 3: 조과 카드 보내기·저장·글 복사·사진 넣기
+        @JavascriptInterface public String version() { return "4"; }   // 3: 조과 카드 보내기·저장·글 복사·사진 넣기 · 4: 길안내 앱(intent:) 열기, 없으면 플레이 스토어
         @JavascriptInterface public void shareImage(String b64, String name) { CardShare.share(MainActivity.this, b64, name); }
         @JavascriptInterface public String saveImage(String b64, String name) { return CardShare.save(MainActivity.this, b64, name); }
         @JavascriptInterface public void copyText(String t) { CardShare.copy(MainActivity.this, t); }

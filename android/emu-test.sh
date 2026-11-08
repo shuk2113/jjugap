@@ -145,6 +145,22 @@ adb shell input keyevent KEYCODE_BACK; sleep 2; adb shell input keyevent KEYCODE
 F=$(adb shell dumpsys activity activities | grep -E "topResumedActivity|mResumedActivity" | head -1); echo "after back: $F" | tee -a "$OUT/card.txt"
 adb logcat -d -s jjugap:I jjugap:W | grep -E "card|photo" | tee -a "$OUT/card.txt"
 adb logcat -d | grep -E "FATAL|AndroidRuntime: java" | head -5 | tee -a "$OUT/card.txt"
+# (19) 항구 정보: 주차 단추 → 길안내 앱 → 네이버지도(깔려 있지 않음) → 플레이 스토어 쪽으로 (아무 일도 안 일어나면 안 됨)
+adb shell am force-stop $P; sleep 2; adb logcat -c
+adb shell am start -n $P/.MainActivity; sleep 14; shot 22-main
+for k in 1 2 3; do tapText "\|pk-btn$" p22-$k && break; sleep 3; done
+sleep 7; shot 23-port
+for k in 1 2 3; do tapText "^길안내 앱\|" p23-$k && break; sleep 2; done
+sleep 3; shot 24-navpick
+for k in 1 2 3; do tapText "^네이버지도\|" p24-$k && break; sleep 2; done
+sleep 6; shot 25-after-naver
+F=$(adb shell dumpsys activity activities | grep -E "topResumedActivity|mResumedActivity" | head -1); echo "after naver: $F" | tee -a "$OUT/port.txt"
+adb logcat -d -s jjugap:I jjugap:W | grep -E "market|open outside" | tee -a "$OUT/port.txt"
+adb logcat -d -s jjugap:I | grep -q "market com.nhn.android.nmap" && echo "naver missing -> store (ok)" | tee -a "$OUT/port.txt" || echo "NAVER FALLBACK NOT SEEN" | tee -a "$OUT/port.txt"
+adb shell input keyevent KEYCODE_BACK; sleep 3
+adb shell am start -n $P/.MainActivity; sleep 5
+F=$(adb shell dumpsys activity activities | grep -E "topResumedActivity|mResumedActivity" | head -1); echo "back to app: $F" | tee -a "$OUT/port.txt"; shot 26-back
+adb logcat -d | grep -E "FATAL|AndroidRuntime: java" | head -5 | tee -a "$OUT/port.txt"
 # 앱 안에서 업데이트: 같은 파일을 받아 설치 화면을 여는지
 adb shell appops set $P REQUEST_INSTALL_PACKAGES allow
 adb shell am start -n $P/.MainActivity --es act update
