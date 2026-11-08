@@ -153,6 +153,8 @@ adb shell uiautomator dump /sdcard/ui.xml >/dev/null 2>&1; sleep 2   # 웹 화�
 for k in 1 2 3; do adb shell uiautomator dump /sdcard/ui.xml >/dev/null 2>&1; adb pull /sdcard/ui.xml "$OUT/ui-p21-$k.xml" >/dev/null 2>&1
   grep -q "오늘 출조 정리" "$OUT/ui-p21-$k.xml" || break; echo "sum panel open -> back" | tee -a "$OUT/port.txt"; adb shell input keyevent KEYCODE_BACK; sleep 4; done
 shot 22b-main
+F=$(adb shell dumpsys activity activities | grep -E "topResumedActivity|mResumedActivity" | head -1)
+echo "$F" | grep -q "jjugap/.MainActivity" && echo "back closes panel, app stays (ok)" | tee -a "$OUT/port.txt" || { echo "BACK LEFT THE APP: $F" | tee -a "$OUT/port.txt"; adb shell am start -n $P/.MainActivity; sleep 6; }
 for k in 1 2 3; do tapText "\|pk-btn$" p22-$k && break; sleep 3; done
 sleep 7; shot 23-port
 for k in 1 2 3; do tapText "^길안내 앱\|" p23-$k && break; sleep 2; done

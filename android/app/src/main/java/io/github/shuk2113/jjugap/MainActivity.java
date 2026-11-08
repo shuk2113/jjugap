@@ -182,8 +182,12 @@ public class MainActivity extends Activity {
     @Override
     public void onBackPressed() {
         // 지도·판은 웹 앱의 뒤로 가기로 닫고, 맨 처음 화면이면 앱을 끄지 않고 뒤로 보낸다 (지도 기록이 이어지게)
-        if (web != null && web.canGoBack()) web.goBack();
-        else moveTaskToBack(true);
+        // 저절로 열린 판(출조 정리·카드 등)은 웹 화면의 뒤로 가기 목록에서 건너뛰므로 웹 앱에 먼저 물어본다
+        if (web == null) { moveTaskToBack(true); return; }
+        web.evaluateJavascript("(window.jjugapBack && jjugapBack()) ? 1 : 0", v -> {
+            if ("1".equals(v)) return;
+            if (web.canGoBack()) web.goBack(); else moveTaskToBack(true);
+        });
     }
 
     // 화면이 잠겨 있어도 모아 둔 GPS를 웹 앱이 바로 처리하게 (웹 앱의 시계는 잠금 중에 느려질 수 있어서)
