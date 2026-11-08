@@ -1,3 +1,4 @@
 항구 1371
+주차장 API 첫 응답 {"header":{"resultCode":"00","resultMsg":"NORMAL SERVICE."},"body":{"items":{"item":[{"prkplceNo":"236-2-000066","prkplceNm":"하송우사거리 쌈지주차장","prkplceSe":"공영","prkplceType":"노외","rdnmadr":"","lnmadr":"경기도 포천시 소흘읍 송우리 76-24","prkcmprt":"18","feedingSe":"1","enforceSe":"미시행","operDay":"평일+토요일+공휴일","weekdayOperOpenHhmm":"00:00","weekdayOperColseHhmm":"23:59","satOperOperOpenHhmm":"00:00","satOperCloseHhmm":"23:59","holidayOperOpenHhmm":"00:00","holidayCloseOpenHhmm":"23:59","parkingchrgeInfo":"무료","basicTime":"30","basicCharge":"","addUnitTime":"","addUnitCharge":"","dayCmmtktAdjTime":"","dayCmmtkt
 주차장 받음 0 / 0
 주차장 자료 없음 — OSM 다시 만들기는 건너뜀
