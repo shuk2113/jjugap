@@ -1639,15 +1639,23 @@ const TideHarm = (() => {
   }
   // ---------- 지금 바다 수온 카드: 쭈꾸미·갑오징어 적정 수온 막대 위에 지금 수온, 48시간 흐름, 한 줄 해석
   const WT_SP = [{ name: '쭈꾸미', lo: 10, hi: 22 }, { name: '갑오징어', lo: 12, hi: 24 }];
-  const WT_MIN = 5, WT_MAX = 30, WT_X0 = 74, WT_X1 = 330;
+  const WT_MIN = 5, WT_MAX = 30, WT_X1 = 330;
+  let WT_X0 = 74, wtMeasure = null, wtStX = 44;   // 막대 시작 자리·상태 글자 자리: 글자 폭을 재서 정한다 (renderWt)
   const wtX = t => WT_X0 + (WT_X1 - WT_X0) * (Math.max(WT_MIN, Math.min(WT_MAX, t)) - WT_MIN) / (WT_MAX - WT_MIN);
   const wtStatus = (sp, t) => t == null ? ['none', '–'] : t < sp.lo ? ['low', '낮음'] : t > sp.hi ? ['high', '높음'] : (t < sp.lo + 1 || t > sp.hi - 1) ? ['edge', '끝자락'] : ['in', '적정'];
   let wtKey = '';
+  if (document.fonts) { const again = () => { wtKey = ''; try { renderWt(); } catch (_) {} }; document.fonts.ready.then(again); document.fonts.addEventListener && document.fonts.addEventListener('loadingdone', again); }   // 글꼴이 늦게 오면 폭을 다시 잰다
   function renderWt() {
     const st = typeof WX !== 'undefined' && WX && WX.stations && WX.stations[wxOf(tideSt)], o = st && st.obs;
     const at = o && o.t ? Date.parse(o.t.replace(' ', 'T') + ':00+09:00') : NaN, age = (Date.now() - at) / 3600000;
     const ok = !!(o && o.wtem > 0.5 && age <= 12);
-    const key = [tideSt, wxState, WX && WX.generated, ok].join('|'); if (key === wtKey) return; wtKey = key;
+    const rs = getComputedStyle(document.documentElement), k = parseFloat(rs.getPropertyValue('--k')) || 1;
+    const key = [tideSt, wxState, WX && WX.generated, ok, k].join('|'); if (key === wtKey) return; wtKey = key;
+    // 이름·상태(적정/끝자락…) 글자 폭을 재서, 막대가 글자와 겹치지 않게 막대 시작 자리를 정한다 (글자 크기는 폰 폭마다 다름)
+    { const fam = rs.getPropertyValue('--font-body') || 'sans-serif', c = wtMeasure || (wtMeasure = document.createElement('canvas').getContext('2d'));
+      const mw = (s, px) => { c.font = `700 ${px}px ${fam}`; return c.measureText(s).width; };
+      wtStX = Math.ceil(Math.max(...WT_SP.map(sp => mw(sp.name, 12 * k))) + 6);
+      WT_X0 = Math.max(74, Math.ceil(wtStX + Math.max(...['적정', '끝자락', '낮음', '높음'].map(w => mw(w, 10.5 * k))) + 10)); }
     const t = ok ? o.wtem : null, d = ok && o.wtem24 != null ? Math.round((o.wtem - o.wtem24) * 10) / 10 : null;
     // 숫자와 하루 변화
     $('wt-val').textContent = ok ? `${t.toFixed(1)}℃` : '–';
@@ -1668,7 +1676,7 @@ const TideHarm = (() => {
     let g = '';
     WT_SP.forEach((sp, i) => {
       const y = 22 + i * 28, [cls, word] = wtStatus(sp, t);
-      g += `<text class="wt-lab" x="0" y="${y}">${sp.name}</text><text class="wt-st ${cls}" x="${sp.name.length > 3 ? 52 : 44}" y="${y}">${ok ? word : ''}</text>`;
+      g += `<text class="wt-lab" x="0" y="${y}">${sp.name}</text><text class="wt-st ${cls}" x="${wtStX}" y="${y}">${ok ? word : ''}</text>`;
       g += `<rect class="wt-track" x="${WT_X0}" y="${y - 4}" width="${WT_X1 - WT_X0}" height="8" rx="4"></rect>`;
       g += `<rect class="wt-band" x="${wtX(sp.lo).toFixed(1)}" y="${y - 4}" width="${(wtX(sp.hi) - wtX(sp.lo)).toFixed(1)}" height="8" rx="4"></rect>`;
     });
@@ -6953,7 +6961,7 @@ const TideHarm = (() => {
 
 <script>
 if ('serviceWorker' in navigator) addEventListener('load', () => {
-  const sw = navigator.serviceWorker, VER = '8ced9f0c'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
+  const sw = navigator.serviceWorker, VER = 'f0389a22'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
   // 화면에 손을 대기 시작했는지 (쓰는 중에는 새로 열지 않으려고)
   ['pointerdown', 'keydown'].forEach(t => addEventListener(t, () => { touched = true; }, { capture: true, passive: true }));
   const reload = () => {
