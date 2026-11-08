@@ -741,8 +741,8 @@ a.mv-row-btn{text-decoration:none; gap:10px} .mv-row-btn span{font-size:calc(20p
 @media (prefers-reduced-motion: reduce){ .mpanel{animation:none} }
 /* 조과 카드 화면 */
 html.cv-lock, html.cv-lock body{overflow:hidden}
-.cardv{position:fixed; inset:0; z-index:80; overflow-y:auto; overscroll-behavior:contain; background:var(--paper); color:var(--ink); animation:mvIn .22s cubic-bezier(.2,.8,.2,1)}
-.cv-in{max-width:480px; margin:0 auto; padding:calc(6px + env(safe-area-inset-top, 0px)) 14px calc(18px + env(safe-area-inset-bottom, 0px))}
+.cardv{position:fixed; inset:0; z-index:80; overflow-x:hidden; overflow-y:auto; overscroll-behavior:contain; background:var(--paper); color:var(--ink); animation:mvIn .22s cubic-bezier(.2,.8,.2,1)}
+.cv-in{max-width:480px; margin:0 auto; overflow-x:clip; padding:calc(6px + env(safe-area-inset-top, 0px)) 14px calc(18px + env(safe-area-inset-bottom, 0px))}
 .cv-h{display:flex; align-items:center; gap:6px; height:48px}
 .cv-h b{font-size:calc(17px * var(--k)); font-weight:700}
 .cv-h span{flex:1; min-width:0; font-size:calc(12.5px * var(--k)); color:var(--ink-2); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
@@ -4907,7 +4907,7 @@ const TideHarm = (() => {
       cardEl.hidden = false; document.documentElement.classList.add('cv-lock');
       if (useHist) { try { history.pushState({ cardv: 1 }, ''); } catch (_) {} }
       cardUi(); cardPaint();
-      const c = $('cv-chips').querySelector('.on'); if (c) c.scrollIntoView({ block: 'nearest', inline: 'center' });
+      cardChip(false);
     }
     function cardClose(fromPop) {
       if (!cardS) return;
@@ -4939,7 +4939,14 @@ const TideHarm = (() => {
       s.th = (s.th + d + CARD_THEMES.length) % CARD_THEMES.length; cardSaveSt();
       const cv = $('cv-cv'); cv.classList.remove('in-l', 'in-r'); void cv.offsetWidth; cv.classList.add(d > 0 ? 'in-r' : 'in-l');
       cardUi(); cardPaint();
-      const c = $('cv-chips').querySelector('.on'); if (c) c.scrollIntoView({ block: 'nearest', inline: 'center', behavior: 'smooth' });
+      cardChip(true);
+    }
+    // 고른 테마 이름이 가운데 오게: 이름 줄만 옆으로 (화면 전체가 움직이지 않게)
+    function cardChip(smooth) {
+      const row = $('cv-chips'), c = row && row.querySelector('.on'); if (!c) return;
+      const rr = row.getBoundingClientRect(), cr = c.getBoundingClientRect();
+      const left = Math.max(0, Math.min(row.scrollWidth - row.clientWidth, row.scrollLeft + (cr.left - rr.left) - (row.clientWidth - cr.width) / 2));
+      try { row.scrollTo({ left, behavior: smooth ? 'smooth' : 'auto' }); } catch (_) { row.scrollLeft = left; }
     }
     function cvToast(t) { const el = $('cv-toast'); el.textContent = t; el.hidden = false; clearTimeout(cvToast.t); cvToast.t = setTimeout(() => { el.hidden = true; }, 2600); }
     function cardClick(e) {
@@ -6405,7 +6412,7 @@ const TideHarm = (() => {
 
 <script>
 if ('serviceWorker' in navigator) addEventListener('load', () => {
-  const sw = navigator.serviceWorker, VER = '599809f2'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
+  const sw = navigator.serviceWorker, VER = '39331de8'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
   // 화면에 손을 대기 시작했는지 (쓰는 중에는 새로 열지 않으려고)
   ['pointerdown', 'keydown'].forEach(t => addEventListener(t, () => { touched = true; }, { capture: true, passive: true }));
   const reload = () => {
