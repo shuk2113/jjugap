@@ -210,11 +210,11 @@ h2{margin:0; font-size:calc(16px * var(--k)); font-weight:700; text-wrap:balance
 /* 출항지 버튼과 고르기 판 */
 .st-btn{align-self:flex-start; display:inline-flex; align-items:center; gap:7px; height:36px; padding:0 14px 0 11px; border:1px solid var(--line); border-radius:999px; background:var(--card); font:inherit; font-size:calc(14px * var(--k)); color:var(--ink); -webkit-tap-highlight-color:transparent; transition:transform .12s}
 .st-btn:active{transform:scale(.97)}
-.st-btn svg{width:17px; height:17px; color:var(--hi)}
+.st-btn svg{width:17px; height:17px; color:var(--hi); flex:none}
 .st-btn .st-lab{font-size:calc(12px * var(--k)); font-weight:500; color:var(--ink-2)}
 .st-btn #st-name{font-weight:700; min-width:0; overflow:hidden; text-overflow:ellipsis}
 .st-btn{white-space:nowrap; max-width:100%; min-width:0} .st-btn .st-lab{flex:none}
-.st-btn .chev{width:6px; height:6px; margin-left:2px; border-right:2px solid var(--ink-2); border-bottom:2px solid var(--ink-2); transform:translateY(-2px) rotate(45deg)}
+.st-btn .chev{flex:none; width:6px; height:6px; margin-left:2px; border-right:2px solid var(--ink-2); border-bottom:2px solid var(--ink-2); transform:translateY(-2px) rotate(45deg)}
 .sheet-back{position:fixed; inset:0; z-index:40; background:rgba(0,0,0,.4); animation:fadeIn .22s ease}
 /* 출항지 줄: 출항지 버튼 + 선상 모드 버튼 */
 .loc-row{display:flex; align-items:center; justify-content:space-between; gap:8px}
@@ -802,7 +802,7 @@ html.cv-lock, html.cv-lock body{overflow:hidden}
 .pk-btn{flex:none; display:inline-flex; align-items:center; gap:5px; height:36px; padding:0 11px 0 7px; border:1px solid var(--line); border-radius:999px; background:var(--card); font:inherit; font-size:calc(13.5px * var(--k)); font-weight:700; color:var(--ink); -webkit-tap-highlight-color:transparent; transition:transform .12s}
 .pk-btn i{width:20px; height:20px; border-radius:6px; background:#2F7DF6; color:#fff; font-style:normal; font-size:12px; font-weight:800; display:flex; align-items:center; justify-content:center}
 .pk-btn:active{transform:scale(.97)}
-.loc-row .st-btn{flex:1 1 auto}
+.loc-row .st-btn{flex:0 1 auto; margin-right:auto}   /* 이름 길이만큼만 (짧으면 오른쪽 빈칸 없이), 길면 줄여서 … */
 @media (max-width:430px){ .loc-row{gap:6px} .loc-row .st-btn .st-lab{display:none} .pk-btn{padding:0 9px 0 6px; gap:4px} .loc-row .me-btn{padding:0 11px 0 9px} }
 @media (max-width:372px){ .pk-btn{padding:0 7px} .pk-btn span{display:none} }
 .pv-near{display:flex; gap:6px; overflow-x:auto; scrollbar-width:none; margin:0 0 8px; align-items:center}
@@ -6949,7 +6949,7 @@ const TideHarm = (() => {
 
 <script>
 if ('serviceWorker' in navigator) addEventListener('load', () => {
-  const sw = navigator.serviceWorker, VER = 'd0828b4e'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
+  const sw = navigator.serviceWorker, VER = '44d49169'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
   // 화면에 손을 대기 시작했는지 (쓰는 중에는 새로 열지 않으려고)
   ['pointerdown', 'keydown'].forEach(t => addEventListener(t, () => { touched = true; }, { capture: true, passive: true }));
   const reload = () => {
