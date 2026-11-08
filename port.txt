@@ -1,0 +1,5 @@
+sum panel open -> back
+back closes panel, app stays (ok)
+after naver:     topResumedActivity=ActivityRecord{6c8ff8d u0 com.android.chrome/org.chromium.chrome.browser.firstrun.FirstRunActivity t13}
+naver missing -> store (ok)
+back to app:     topResumedActivity=ActivityRecord{6f97b60 u0 io.github.shuk2113.jjugap/.MainActivity t12}

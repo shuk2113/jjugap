@@ -1,0 +1,27 @@
+off: location=0 false
+tapText 위치가 꺼져 기록이 멈췄어요 -> 587 730
+tapText ^(OK|Ok|확인|Turn on|TURN ON|사용)\| -> 842 1356
+after-ask: location=3 true
+tapText ^선상 모드 끄기\| -> 
+tapExpand 선상 모드 켜짐 -> 945 641
+tapText ^선상 모드 끄기\| -> 
+tapExpand 선상 모드 켜짐 -> 964 1048
+tapText ^선상 모드 끄기\| -> 541 1280
+end note none (ok)
+tapText ^(OK|Ok|확인|Turn on|TURN ON|사용)\| -> 842 1356
+after-ask2: location=3 true
+tapText \|mv-off$ -> 999 200
+end dialog none (ok)
+11-08 07:08:48.678 10190 10190 I jjugap  : loc off
+11-08 07:10:48.685 10190 10190 I jjugap  : loc off note
+11-08 07:11:43.177 10190 10190 I jjugap  : loc on by app
+11-08 07:11:48.797 10190 10190 I jjugap  : loc on
+11-08 07:12:44.633 10190 10190 I jjugap  : loc off
+11-08 07:13:02.577 10190 10190 I jjugap  : loc on by app
+11-08 07:13:14.739 10190 10190 I jjugap  : loc on
+recents reopen: board stays off (ok)
+recents reopen: no location dialog (ok)
+11-08 07:13:46.710 11364 11364 I jjugap  : launch from history: act ignored
+tapText \|pk-btn$ -> 675 480
+tapText ^길안내 앱\| -> 940 206
+tapText ^네이버지도\| -> 540 2087

@@ -1,0 +1,20 @@
+11-08 06:52:11.475  3591  3591 I jjugap  : gps rest (app on screen)
+11-08 06:52:11.475  3591  3591 I jjugap  : service started
+11-08 06:52:52.422  3591  3591 I jjugap  : gps slow 10s fused batch 30s
+11-08 06:52:53.243  3591  3591 I jjugap  : gps batch 1
+11-08 07:00:17.390 10190 10190 I jjugap  : gps rest (app on screen)
+11-08 07:00:17.390 10190 10190 I jjugap  : service started
+11-08 07:00:58.927 10190 10190 I jjugap  : gps slow 10s fused batch 30s
+11-08 07:00:59.197 10190 10190 I jjugap  : gps batch 1
+11-08 07:01:34.217 10190 10190 I jjugap  : gps batch 3
+11-08 07:02:09.220 10190 10190 I jjugap  : gps batch 3
+11-08 07:02:44.221 10190 10190 I jjugap  : gps batch 4
+11-08 07:02:44.222 10190 10190 I jjugap  : gps fast 30s fused batch 30s
+11-08 07:02:44.226 10190 10190 I jjugap  : gps batch 1
+11-08 07:02:48.704 10190 10190 I jjugap  : gps batch 1
+11-08 07:02:48.704 10190 10190 I jjugap  : gps slow 10s fused batch 30s
+11-08 07:02:48.712 10190 10190 I jjugap  : gps batch 1
+11-08 07:06:52.735 10190 10190 I jjugap  : gps batch 24
+11-08 07:06:52.772 10190 10190 I jjugap  : saved note 오후 4:06 · 5분 머문 곳을 포인트로 남겼어요
+11-08 07:08:13.625 10190 10190 I jjugap  : gps rest (app on screen)
+11-08 07:08:14.596 10190 10190 I jjugap  : gps batch 8

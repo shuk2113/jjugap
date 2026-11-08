@@ -1,0 +1,6 @@
+after share:     topResumedActivity=ActivityRecord{464bb2a u0 com.android.intentresolver/.ChooserActivity t11}
+card share sheet (ok)
+card in gallery (ok): Row: 0 _display_name=jjugap-20261108-sticker.jpg, relative_path=Pictures/쭈갑이 물때/
+after photo:     topResumedActivity=ActivityRecord{1336803 u0 com.google.android.providers.media.module/com.android.providers.media.photopicker.PhotoPickerGetContentActivity t11}
+photo picker (ok)
+after back:     topResumedActivity=ActivityRecord{9ebe8bc u0 io.github.shuk2113.jjugap/.MainActivity t11}
