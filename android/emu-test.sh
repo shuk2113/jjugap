@@ -132,17 +132,17 @@ adb logcat -d -s jjugap:I | grep -E "history|service started|locon" >> "$OUT/loc
 adb logcat -c
 adb shell am start -n $P/.MainActivity --es act card; sleep 12; shot 18-card
 adb shell input tap 231 1749; sleep 6; shot 19-share   # '보내기' (웹 화면 412×842 기준 자리)
-F=$(adb shell dumpsys window | grep -E "mCurrentFocus" | head -1); echo "after share: $F" | tee -a "$OUT/card.txt"
+F=$(adb shell dumpsys activity activities | grep -E "topResumedActivity|mResumedActivity" | head -1); echo "after share: $F" | tee -a "$OUT/card.txt"
 echo "$F" | grep -qiE "chooser|intentresolver|resolver" && echo "card share sheet (ok)" | tee -a "$OUT/card.txt" || echo "CARD SHARE SHEET NOT SEEN" | tee -a "$OUT/card.txt"
 adb shell input keyevent KEYCODE_BACK; sleep 3
 adb shell input tap 591 1749; sleep 5; shot 20-saved   # '저장'
 G=$(adb shell content query --uri content://media/external/images/media --projection _display_name:relative_path 2>/dev/null | grep -i jjugap)
 [ -n "$G" ] && echo "card in gallery (ok): $G" | tee -a "$OUT/card.txt" || echo "CARD NOT IN GALLERY" | tee -a "$OUT/card.txt"
 adb shell input tap 283 1608; sleep 6; shot 21-photo-pick   # '사진 넣기'
-F=$(adb shell dumpsys window | grep -E "mCurrentFocus" | head -1); echo "after photo: $F" | tee -a "$OUT/card.txt"
-echo "$F" | grep -qiE "documentsui|photopicker|chooser|resolver|media" && echo "photo picker (ok)" | tee -a "$OUT/card.txt" || echo "PHOTO PICKER NOT SEEN" | tee -a "$OUT/card.txt"
+F=$(adb shell dumpsys activity activities | grep -E "topResumedActivity|mResumedActivity" | head -1); echo "after photo: $F" | tee -a "$OUT/card.txt"
+echo "$F" | grep -qiE "documentsui|photopicker|chooser|resolver|providers.media" && echo "photo picker (ok)" | tee -a "$OUT/card.txt" || echo "PHOTO PICKER NOT SEEN" | tee -a "$OUT/card.txt"
 adb shell input keyevent KEYCODE_BACK; sleep 2; adb shell input keyevent KEYCODE_BACK; sleep 2
-F=$(adb shell dumpsys window | grep -E "mCurrentFocus" | head -1); echo "after back: $F" | tee -a "$OUT/card.txt"
+F=$(adb shell dumpsys activity activities | grep -E "topResumedActivity|mResumedActivity" | head -1); echo "after back: $F" | tee -a "$OUT/card.txt"
 adb logcat -d -s jjugap:I jjugap:W | grep -E "card|photo" | tee -a "$OUT/card.txt"
 adb logcat -d | grep -E "FATAL|AndroidRuntime: java" | head -5 | tee -a "$OUT/card.txt"
 # 앱 안에서 업데이트: 같은 파일을 받아 설치 화면을 여는지
