@@ -5408,6 +5408,7 @@ const TideHarm = (() => {
       const s = portS, c = s.d.c, cv = $('pv-cv'), W = cv.clientWidth || 360, H = cv.clientHeight || 300;
       const pts = [], bx = (s.board[1] - c[1]) * KX, by = -(s.board[0] - c[0]); pts.push([bx, by]);
       s.lots.slice(0, 3).forEach(l => { if (l.lat != null && l.d < 650) pts.push([(l.lon - c[1]) * KX, -(l.lat - c[0])]); });
+      { const r = s.rec && s.lots[s.rec.i]; if (r && r.lat != null && r.d < 1500) pts.push([(r.lon - c[1]) * KX, -(r.lat - c[0])]); }   // 추천 주차장까지 걷는 길은 늘 다 보이게
       let x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9; for (const [x, y] of pts) { x0 = Math.min(x0, x); x1 = Math.max(x1, x); y0 = Math.min(y0, y); y1 = Math.max(y1, y); }
       const m = 140 / 111320, sp = Math.max(x1 - x0 + 2 * m, (y1 - y0 + 2 * m) * W / H, 520 / 111320);
       s.v = { x: (x0 + x1) / 2, y: (y0 + y1) / 2, s: Math.min(400000, Math.max(9000, W / sp)) };
@@ -6961,7 +6962,7 @@ const TideHarm = (() => {
 
 <script>
 if ('serviceWorker' in navigator) addEventListener('load', () => {
-  const sw = navigator.serviceWorker, VER = 'f0389a22'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
+  const sw = navigator.serviceWorker, VER = 'edc6c80c'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
   // 화면에 손을 대기 시작했는지 (쓰는 중에는 새로 열지 않으려고)
   ['pointerdown', 'keydown'].forEach(t => addEventListener(t, () => { touched = true; }, { capture: true, passive: true }));
   const reload = () => {
