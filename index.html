@@ -739,6 +739,61 @@ a.mv-row-btn{text-decoration:none; gap:10px} .mv-row-btn span{font-size:calc(20p
 .mp-today:active{transform:scale(.96)}
 .mp-today i{width:6px; height:6px; border-radius:50%; background:var(--calm)}
 @media (prefers-reduced-motion: reduce){ .mpanel{animation:none} }
+/* 조과 카드 화면 */
+html.cv-lock, html.cv-lock body{overflow:hidden}
+.cardv{position:fixed; inset:0; z-index:80; overflow-y:auto; overscroll-behavior:contain; background:var(--paper); color:var(--ink); animation:mvIn .22s cubic-bezier(.2,.8,.2,1)}
+.cv-in{max-width:480px; margin:0 auto; padding:calc(6px + env(safe-area-inset-top, 0px)) 14px calc(18px + env(safe-area-inset-bottom, 0px))}
+.cv-h{display:flex; align-items:center; gap:6px; height:48px}
+.cv-h b{font-size:calc(17px * var(--k)); font-weight:700}
+.cv-h span{flex:1; min-width:0; font-size:calc(12.5px * var(--k)); color:var(--ink-2); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.cv-x{width:40px; height:40px; margin-left:-8px; display:flex; align-items:center; justify-content:center; border:0; border-radius:12px; background:none; color:var(--ink); -webkit-tap-highlight-color:transparent}
+.cv-x svg{width:24px; height:24px}
+.cv-thb{height:32px; padding:0 12px; border:1px solid var(--line); border-radius:999px; background:var(--card); font:inherit; font-size:calc(12.5px * var(--k)); font-weight:700; color:var(--ink); -webkit-tap-highlight-color:transparent}
+.cv-stage{position:relative; display:flex; align-items:center; gap:2px}
+.cv-wrap{flex:1; min-width:0; touch-action:pan-y; -webkit-user-select:none; user-select:none}
+.cv-wrap canvas{display:block; width:100%; height:auto; aspect-ratio:1; border-radius:18px; box-shadow:0 6px 22px rgba(0,0,0,.18); transition:transform .25s cubic-bezier(.2,.85,.25,1)}
+.cv-wrap canvas.in-r{animation:cvInR .28s cubic-bezier(.2,.85,.25,1)} .cv-wrap canvas.in-l{animation:cvInL .28s cubic-bezier(.2,.85,.25,1)}
+@keyframes cvInR{from{transform:translateX(36px) rotate(1.5deg); opacity:.3}} @keyframes cvInL{from{transform:translateX(-36px) rotate(-1.5deg); opacity:.3}}
+.cv-arr{flex:none; width:22px; height:60px; padding:0; border:0; background:none; font-size:28px; line-height:1; color:var(--ink-2); -webkit-tap-highlight-color:transparent}
+.cv-ind{margin:10px 0 6px; text-align:center; font-size:calc(12px * var(--k)); color:var(--ink-2); white-space:pre}
+.cv-chips{display:flex; gap:6px; overflow-x:auto; scrollbar-width:none; padding:2px 2px 4px; scroll-padding:0 30px}
+.cv-chips::-webkit-scrollbar{display:none}
+.cv-chips button{flex:none; height:32px; padding:0 12px; border:1px solid var(--line); border-radius:999px; background:var(--card); font:inherit; font-size:calc(13px * var(--k)); font-weight:700; color:var(--ink); white-space:nowrap; -webkit-tap-highlight-color:transparent}
+.cv-chips button i{font-style:normal; font-size:11px; margin-left:3px}
+.cv-chips button.on{background:#2F7DF6; border-color:#2F7DF6; color:#fff}
+.cv-tg{display:flex; flex-wrap:wrap; align-items:center; gap:6px; margin:10px 0 2px}
+.cv-tg span{width:100%; font-size:calc(12px * var(--k)); color:var(--ink-2)}
+.cv-tg button{display:inline-flex; align-items:center; gap:6px; height:32px; padding:0 12px 0 9px; border:1px solid var(--line); border-radius:999px; background:var(--card); font:inherit; font-size:calc(13px * var(--k)); font-weight:600; color:var(--ink-2); -webkit-tap-highlight-color:transparent}
+.cv-tg button i{width:14px; height:14px; border-radius:50%; border:2px solid var(--line); box-sizing:border-box}
+.cv-tg button.on{color:var(--ink); border-color:#2F7DF6}
+.cv-tg button.on i{border:0; background:#2F7DF6 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14 14'%3E%3Cpath d='M3.5 7.2l2.3 2.3 4.7-4.8' fill='none' stroke='%23fff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/100% no-repeat}
+.cv-row{display:flex; gap:8px; margin-top:10px}
+.cv-row button{flex:1; height:44px; border:0; border-radius:12px; background:var(--well); font:inherit; font-size:calc(14px * var(--k)); font-weight:700; color:var(--ink); -webkit-tap-highlight-color:transparent}
+.cv-row button.sm{flex:.7; color:var(--ink-2)}
+.cv-row button.pri{flex:1.4; background:#2F7DF6; color:#fff}
+.cv-row button:active, .cv-chips button:active, .cv-tg button:active{transform:scale(.97)}
+.cv-toast{position:fixed; left:50%; bottom:calc(84px + env(safe-area-inset-bottom, 0px)); z-index:3; transform:translateX(-50%); max-width:calc(100% - 40px); padding:9px 16px; border-radius:16px; background:rgba(8,20,24,.9); color:#fff; font-size:calc(13px * var(--k)); font-weight:600; line-height:1.4; text-align:center; pointer-events:none}
+.cv-sheet-back{position:fixed; inset:0; z-index:4; background:rgba(0,0,0,.3)}
+.cv-sheet{position:fixed; left:0; right:0; bottom:0; z-index:5; max-width:480px; max-height:80vh; overflow-y:auto; margin:0 auto; padding:6px 18px calc(16px + env(safe-area-inset-bottom, 0px)); border-radius:20px 20px 0 0; background:var(--card); box-shadow:0 -8px 24px rgba(0,0,0,.2); animation:sheetUp .25s cubic-bezier(.2,.8,.2,1)}
+.cv-shh{display:flex; align-items:center; justify-content:space-between; height:46px}
+.cv-shh b{font-size:calc(16px * var(--k))}
+.cv-shh button{width:36px; height:36px; border:0; background:none; font-size:24px; color:var(--ink-2)}
+.cv-shp{margin:0 0 8px; font-size:calc(12.5px * var(--k)); color:var(--ink-2); line-height:1.5}
+.cv-thr{display:flex; flex-wrap:wrap; align-items:center; gap:6px 12px; padding:10px 0; border-top:1px solid var(--line)}
+.cv-thr b{width:100%; font-size:calc(14px * var(--k))}
+.cv-thr label{display:flex; align-items:center; gap:5px; font-size:calc(13px * var(--k)); color:var(--ink-2)}
+.cv-thr input{width:58px; height:34px; padding:0 8px; border:1px solid var(--line); border-radius:10px; background:var(--paper); font:inherit; font-size:calc(15px * var(--k)); font-weight:700; color:var(--ink); text-align:center}
+.cv-sherr{margin:6px 0 0; font-size:calc(12.5px * var(--k)); color:var(--strong)}
+.cv-shb{display:flex; gap:8px; margin-top:12px}
+.cv-shb button{flex:1; height:44px; border:0; border-radius:12px; background:var(--well); font:inherit; font-size:calc(14px * var(--k)); font-weight:700; color:var(--ink)}
+.cv-shb button.pri{background:#2F7DF6; color:#fff}
+.cv-offer{position:fixed; left:12px; right:12px; bottom:calc(16px + env(safe-area-inset-bottom, 0px)); z-index:96; max-width:496px; margin:0 auto; display:flex; align-items:center; gap:8px; padding:7px 7px 7px 16px; border-radius:16px; background:rgba(8,20,24,.95); color:#fff; font-size:calc(13.5px * var(--k)); font-weight:700; box-shadow:0 6px 20px rgba(0,0,0,.3); animation:sheetUp .3s cubic-bezier(.2,.8,.2,1)}
+.cv-offer span{flex:1; min-width:0}
+.cv-offer button{flex:none; height:36px; padding:0 14px; border:0; border-radius:12px; background:#FFE14D; font:inherit; font-size:calc(13.5px * var(--k)); font-weight:700; color:#3A2A1A}
+.mv-sumli.card{display:flex; gap:6px} .mv-sumli.card .mv-sumbtn{flex:1; min-width:0}
+.mv-cardbtn{flex:none; width:56px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; border:1px solid var(--line); border-radius:12px; background:#FFE14D; font:inherit; font-size:calc(11px * var(--k)); font-weight:700; color:#3A2A1A; -webkit-tap-highlight-color:transparent}
+.mv-cardbtn svg{width:20px; height:20px}
+@media (prefers-reduced-motion: reduce){ .cardv, .cv-wrap canvas.in-r, .cv-wrap canvas.in-l{animation:none} }
 </style>
 <script>
 // 저장된 화면 모드(없으면 다크)를 화면을 그리기 전에 먼저 적용해 깜빡임을 막는다
@@ -4253,13 +4308,13 @@ const TideHarm = (() => {
       let ch = false; for (const p of tr.pts) { const g = f.good.has(p.id); if (!!p.good !== g) { if (g) p.good = 1; else delete p.good; ch = true; } }
       if (ch) savePts(); else tripCache = null;
       if (f.sink.length || f.egi.length) rigRemember(f.sink, f.egi);
-      sumExit(true);
+      sumExit(true, tr.key);
     }
-    function sumExit(saved) {
+    function sumExit(saved, k) {
       try { localStorage.removeItem(SUM_PEND); } catch (_) {}
       const back = sumBack; form = null; sumTr = null; mode = 'info'; selId = null;
-      if (back === 'close') { close(); if (saved) mainToast('출조 정리를 저장했어요'); return; }
-      if (saved) toast('출조 정리를 저장했어요');
+      if (back === 'close') { close(); if (saved) { if (k) cardOffer(k); else mainToast('출조 정리를 저장했어요'); } return; }
+      if (saved) { if (k) cardOffer(k); else toast('출조 정리를 저장했어요'); }
       showList(); draw();
     }
     // 선상 모드가 끝나면: 앱 화면이면 바로, 뒤에 있었으면 다음에 열 때 (18시간 안, 한 번)
@@ -4270,6 +4325,729 @@ const TideHarm = (() => {
       if (Date.now() - pd.at > 18 * 3600000 || !tr || (S && S.t > pd.at)) { try { localStorage.removeItem(SUM_PEND); } catch (_) {} return; }
       if (isOpen && mode === 'save') return;   // 포인트를 적는 중이면 다음에
       openSum(pd.k, !isOpen || viewMode);
+    }
+    // ---------- 조과 카드: 출조 하루를 사진 한 장으로 (카톡·밴드·카페에 자랑) · 포인트 위치는 어떤 카드에도 넣지 않는다
+    // 카드는 1080×1080 그림(캔버스)으로 그리고, 화면에는 줄여서 보여 준다. 그림 좌표는 360칸 기준 (×3)
+    const CARD_KEY = 'jjukgap-card', CARD_TH_KEY = 'jjukgap-card-th';
+    const CARD_THEMES = [
+      { id: 'sticker', n: '스티커' }, { id: 'ticket', n: '승선권' }, { id: 'news', n: '호외', ph: 1 }, { id: 'polaroid', n: '폴라로이드', ph: 1 },
+      { id: 'wanted', n: '현상수배', ph: 1 }, { id: 'quest', n: '퀘스트' }, { id: 'report', n: '통지표' }, { id: 'chat', n: '단톡방' }, { id: 'diary', n: '그림일기' }];
+    // 문구 기준: [대박 기준(이상), 아쉬움 기준(미만)] · 사용자가 어종마다 고칠 수 있다
+    const TH_DEF = { jj: [30, 10], gap: [10, 3], 낙지: [10, 3], 문어: [3, 1] };
+    const thAll = () => { const m = loadJ(CARD_TH_KEY, {}); return m && typeof m === 'object' ? m : {}; };
+    const thOf = k => { const v = thAll()[k] || TH_DEF[k] || [10, 3]; const hi = Math.max(2, v[0] | 0), lo = Math.max(1, Math.min(hi - 1, v[1] | 0)); return [hi, lo]; };
+    const CH_COL = { oc: '#FF7A59', gp: '#E9A15B', nak: '#C8A2E8', mun: '#D8504A', fish: '#5BB8F0' };
+    function cardSp(S, tr) {
+      const jj = S ? S.jj || 0 : tr.pts.reduce((a, p) => a + (p.jj || 0), 0), gap = S ? S.gap || 0 : tr.pts.reduce((a, p) => a + (p.gap || 0), 0);
+      const em = new Map();
+      for (const e of (S ? S.etc || [] : tr.pts.flatMap(p => p.etc || []))) if (e && e.c > 0) { const n = String(e.n || '').trim() || '기타'; em.set(n, (em.get(n) || 0) + e.c); }
+      const L = [];
+      if (jj) L.push({ k: 'jj', n: '쭈꾸미', s: '쭈', c: jj, ch: 'oc' });
+      if (gap) L.push({ k: 'gap', n: '갑오징어', s: '갑', c: gap, ch: 'gp' });
+      for (const [n, c] of [...em].sort((a, b) => b[1] - a[1]))
+        L.push({ k: n, n, s: n.slice(0, 1), c, ch: /낙지/.test(n) ? 'nak' : /문어/.test(n) ? 'mun' : /[쭈주]꾸미/.test(n) ? 'oc' : /갑오/.test(n) ? 'gp' : 'fish' });
+      return L;
+    }
+    function cardData(k) {
+      const tr = tripGroups().list.find(t => t.key === k); if (!tr) return null;
+      const S = sums()[k] || null, f = tr.pts[0], l = tr.pts[tr.pts.length - 1];
+      const dt = new Date(kstDay(f.t) * DAY);
+      const cnt = new Map(); for (const p of tr.pts) if (p.mul) cnt.set(p.mul, (cnt.get(p.mul) || 0) + 1);
+      const mul = [...cnt].sort((a, b) => b[1] - a[1]).map(x => x[0])[0] || '';
+      const avg = a => (a.length ? a.reduce((s, v) => s + v, 0) / a.length : null);
+      const wt = avg(tr.pts.map(p => p.wt).filter(v => typeof v === 'number')), wind = avg(tr.pts.map(p => p.wind).filter(v => typeof v === 'number'));
+      const pEgi = []; for (const p of tr.pts) for (const x of (p.egi || [])) { const o = pEgi.find(q => q.c === x.c); if (!o) pEgi.push({ ...x }); else if (x.s) o.s = 1; }
+      const egi = (S ? S.egi || [] : pEgi).filter(x => egiGet(x.c));
+      const sink = (S ? S.sink || [] : [...new Set(tr.pts.flatMap(p => p.sink || []))]).slice().sort((a, b) => a - b);
+      const sp = cardSp(S, tr), t0 = f.stayFrom || f.t, t1 = l.stayTo || l.t;
+      return { k, y: dt.getUTCFullYear(), m: dt.getUTCMonth() + 1, d: dt.getUTCDate(), dow: WD[dt.getUTCDay()],
+        port: (f.depName || '').trim(), boat: (f.boat || '').trim(), mul, wt: wt == null ? null : Math.round(wt * 10) / 10, wind: wind == null ? null : Math.round(wind),
+        sp, tot: sp.reduce((a, s) => a + s.c, 0), sink, egi, egiTop: egi.find(x => x.s) || egi[0] || null, memo: S && S.memo ? String(S.memo).trim() : '',
+        hrs: Math.max(0, (t1 - t0) / 3600000) };
+    }
+    const spLv = s => { const [hi, lo] = thOf(s.k); return s.c >= hi ? 3 : s.c >= lo ? 2 : s.c > 0 ? 1 : 0; };
+    const cardTier = cd => cd.sp.reduce((a, s) => Math.max(a, spLv(s)), 0);
+    const cardMain = cd => cd.sp.slice().sort((a, b) => spLv(b) - spLv(a) || b.c - a.c)[0] || null;
+    const pickV = (a, v) => a[((v % a.length) + a.length) % a.length];
+    // 문구에 넣는 말: {sea} 백사장항 앞바다 · {main} 쭈꾸미 · {mc} 32 · {egi} 고추장 · {tot} 43 · {spText} 쭈꾸미 32마리, 갑오징어 11마리 · {rest} 둘째 어종 한 줄
+    function cardFmt(s, cd) {
+      const mn = cardMain(cd), sec = cd.sp.filter(x => x !== mn)[0], eg = cd.egiTop ? egiName(cd.egiTop) : '';
+      return s.replace(/\{sea\}/g, cd.port ? `${cd.port} 앞바다` : '바닷속').replace(/\{port\}/g, cd.port || '바다')
+        .replace(/\{main\}/g, mn ? mn.n : '쭈갑이').replace(/\{mc\}/g, mn ? mn.c : 0).replace(/\{egi\}/g, eg).replace(/\{tot\}/g, cd.tot)
+        .replace(/\{spText\}/g, cd.sp.map(x => `${x.n} ${x.c}마리`).join(', '))
+        .replace(/\{rest\}/g, sec ? `${sec.n} ${sec.c}마리도 함께 사라져` : '목격자 증언 잇따라');
+    }
+    // 테마마다 마릿수 단계(0 꽝 · 1 아쉬움 · 2 손맛 · 3 대박)별 문구 (여러 개 → '다른 문구'로 바꾼다) · e: 에기 기록이 있어야 쓰는 문구
+    const JOKE = {
+      sticker: [['쭈꾸미들 오늘 휴가', '바다 구경 잘했다', '꽝도 추억!', '오늘은 바다랑 데이트'], ['손맛은 봤다', '그래도 몇 마리!', '다음엔 더 많이!', '시작이 반!'], ['손맛 제대로!', '오늘 좋았다!', '이 정도면 선방!', '쿨러가 웃는다'], ['오늘 대박!', '쿨러 꽉 찼다!', '손이 바빴다!', '만선이다!']],
+      ticket: [['꽝', '휴항?'], ['아쉽!', '재도전!'], ['손맛!', '굿!'], ['만선!', '대박!']],
+      news: [
+        [['{sea}\n쭈갑이 집단 결근', '낚시인 "바다 구경은 실컷 했다"'], ['오늘 바닷속\n전원 무사 귀가', '쭈갑이들 "오늘은 쉬는 날" 공식 발표']],
+        [['{sea}\n{main} {mc}마리만 출석', '나머지는 "오늘 휴가" 통보'], ['{main} 대부분\n무사히 탈출 성공', '낚시인 "다음엔 꼭" 재출조 다짐']],
+        [['{sea}\n{main} {mc}마리 연행', '"적당히 잡았다" … 낚시인 담담한 소감'], ['{main} {mc}마리\n오늘도 손맛 확인', '현장 "이 정도면 선방" 평가']],
+        [['{sea}\n{main} {mc}마리 실종 사건', '"범인은 {egi} 에기" … {rest}', 'e'], ['{sea}\n{main} 무더기 실종', '목격자 "손이 쉴 틈이 없었다" … {rest}'], ['속보! {main} {mc}마리\n한 사람에게 붙잡혀', '"{egi} 에기가 결정적" 증언 잇따라', 'e']]],
+      polaroid: [['바다 좋았다~', '꽝도 추억♥', '바다 구경 성공!'], ['그래도 즐거웠다', '다음엔 더!', '손맛 조금 ㅎㅎ'], ['손맛 굿!', '좋았다~', '{egi} 최고!|e'], ['오늘 최고!', '대박 났다!', '{egi} 최고!|e']],
+      wanted: [[['증거 불충분 · 쭈갑이 피해 없음', '현상금: 없음 (다음에 다시)']], [['{sea} 좀도둑', '현상금: 라면 한 그릇'], ['몇 마리만 슬쩍한 혐의', '현상금: 커피 한 잔']], [['{sea} 쭈갑이 납치범', '현상금: {egi} 에기 1개', 'e'], ['오늘도 손맛 본 상습범', '현상금: 짜장면 한 그릇']], [['{sea} 쭈갑이 연쇄 납치범', '현상금: {egi} 에기 1개', 'e'], ['바다의 무법자 · 손이 아주 빠름', '현상금: 소고기 한 근'], ['{sea} 최악의 쭈갑이 사냥꾼', '현상금: 쿨러 한 통']]],
+      quest: [['퀘스트 실패…', '이번 판은 졌다…'], ['퀘스트 완료… 겨우!', '아슬아슬 클리어!'], ['★ 퀘스트 완료! ★', '★ 클리어! ★'], ['★ 퀘스트 대성공! ★', '★ 완벽한 클리어! ★']],
+      report: [['바다를 사랑하는 마음이 큼. 다음엔 꼭 잡아 보자.', '끝까지 자리를 지킨 끈기를 칭찬함.'], ['끈기는 좋으나 조과는 조금 더 노력이 필요함.', '바다 공부를 열심히 하면 다음엔 더 잘할 것임.'], ['꾸준히 잘 잡음. 조금만 더 힘내자.', '손이 점점 빨라지고 있음. 칭찬합니다.', '{egi} 에기를 잘 골랐음. 다음엔 더 많이!|e'], ['{egi} 에기를 아주 잘 고름. 칭찬합니다.|e', '손이 아주 빠르고 집중력이 뛰어남.', '오늘 반에서 1등! 아주 잘했어요.']],
+      chat: [
+        [['oc', '오늘 배 왔던데?'], ['gp', '응 근데 우리 다 숨었지 ㅋㅋ'], ['oc', '에기 구경만 실컷 했다']],
+        [['gp', '아까 배 왔었지?'], ['oc', '응 근데 거의 못 잡고 갔어 ㅋㅋ'], ['gp', '다행이다 휴']],
+        [['oc', '오늘 배 한 척 왔다 갔대'], ['gp', '많이 잡혀갔어?'], ['oc', '좀 데려갔대.. 조심해 ㅠ']],
+        [['oc', '얘들아 오늘 밖에 나가지 마'], ['gp', '왜?? 무슨 일인데'], ['oc', '{egi} 에기 든 사람 떴대 ㅠㅠ|엄청 잘 잡는 사람 떴대 ㅠㅠ']]],
+      diary: ['오늘 {port}에 낚시를 갔다. 한 마리도 못 잡았지만 바다 구경은 실컷 했다.', '오늘 {port}에서 {spText}를 잡았다. 조금 아쉬웠지만 다음엔 더 잡을 거다.',
+        '오늘 {port}에서 {spText}를 잡았다. 손맛을 봐서 기분이 좋았다.', '오늘 {port}에서 {spText}를 잡았다. 정말 신나는 하루였다!']
+    };
+    // 에기 기록이 없으면 'e' 표시 문구는 건너뛴다
+    function jokeOf(list, cd, v) {
+      const hasE = !!cd.egiTop;
+      const ok = list.filter(x => (Array.isArray(x) ? x[2] !== 'e' : !/\|e$/.test(x)) || hasE);
+      const x = pickV(ok.length ? ok : list, v);
+      return Array.isArray(x) ? x.slice(0, 2).map(s => cardFmt(s, cd)) : cardFmt(String(x).replace(/\|e$/, ''), cd);
+    }
+
+    // ---------- 그리기 도구
+    const CF = { j: '"Jua","IBM Plex Sans KR",sans-serif', g: '"Gaegu","Jua",sans-serif', b: '"Black Han Sans","Jua",sans-serif' };
+    const INK = '#3A2A1A';
+    const P2 = {};
+    const p2 = s => P2[s] || (P2[s] = new Path2D(s));
+    const FIN = 'M33.5 17L34.2 19L34.1 21L33.4 22.2L32.5 23.1L32.6 24.6L32.3 26L31.7 27.1L30.7 27.8L29.5 28.3L29.2 29.7L28.5 30.9L27.6 31.6L26.4 31.9L25.2 31.8L24.4 32.9L23.4 33.7L22.3 33.9L21.1 33.6L20 33L18.9 33.6L17.7 33.9L16.6 33.7L15.6 32.9L14.8 31.8L13.6 31.9L12.4 31.6L11.5 30.9L10.8 29.7L10.5 28.3L9.3 27.8L8.3 27.1L7.7 26L7.4 24.6L7.5 23.1L6.6 22.2L5.9 21L5.8 19L6.5 17L5.8 15L5.9 13L6.6 11.8L7.5 10.9L7.4 9.4L7.7 8L8.3 6.9L9.3 6.2L10.5 5.7L10.8 4.3L11.5 3.1L12.4 2.4L13.6 2.1L14.8 2.2L15.6 1.1L16.6 0.3L17.7 0.1L18.9 0.4L20 1L21.1 0.4L22.3 0.1L23.4 0.3L24.4 1.1L25.2 2.2L26.4 2.1L27.6 2.4L28.5 3.1L29.2 4.3L29.5 5.7L30.7 6.2L31.7 6.9L32.3 8L32.6 9.4L32.5 10.9L33.4 11.8L34.1 13L34.2 15Z';
+    // 쭈갑이 캐릭터들: kind = oc 쭈꾸미 · gp 갑오징어 · nak 낙지 · mun 문어 · fish 그 밖의 물고기 / (x, y) 왼쪽 위, h 높이 → 그린 폭을 돌려준다
+    const CH_VB = { oc: [40, 40], gp: [40, 50], nak: [40, 52], mun: [46, 46], fish: [46, 30] };
+    function drawChar(g, kind, x, y, h, sad) {
+      const vb = CH_VB[kind] || CH_VB.oc, k = h / vb[1];
+      g.save(); g.translate(x, y); g.scale(k, k); g.lineJoin = 'round'; g.lineCap = 'round';
+      const fs = (p, f, lw) => { g.fillStyle = f; g.fill(p2(p)); if (lw) { g.lineWidth = lw; g.strokeStyle = INK; g.stroke(p2(p)); } };
+      const st = (p, c, lw) => { g.lineWidth = lw; g.strokeStyle = c; g.stroke(p2(p)); };
+      const dot = (cx, cy, r, f) => { g.beginPath(); g.arc(cx, cy, r, 0, 7); g.fillStyle = f; g.fill(); };
+      const ell = (cx, cy, rx, ry, f, lw) => { g.beginPath(); g.ellipse(cx, cy, rx, ry, 0, 0, 7); g.fillStyle = f; g.fill(); if (lw) { g.lineWidth = lw; g.strokeStyle = INK; g.stroke(); } };
+      const face = (lx, rx, ey, r, cy, mx, my) => {   // 눈 · 볼 · 입
+        dot(lx, ey, r, INK); dot(rx, ey, r, INK); ell(lx - 3, cy, 2.1, 1.25, '#FFB8A6'); ell(rx + 3, cy, 2.1, 1.25, '#FFB8A6');
+        st(sad ? `M${mx - 2.4} ${my + 1.6}Q${mx} ${my - .8} ${mx + 2.4} ${my + 1.6}` : `M${mx - 2.5} ${my}Q${mx} ${my + 2.5} ${mx + 2.5} ${my}`, INK, 1.6);
+      };
+      if (kind === 'gp') {
+        g.translate(0, 1);
+        const arms = 'M17 36Q13 40 12 45M19 37Q16 42 16 47M20.5 37Q20 43 20.5 48M22 37Q24 42 24 47M23.5 36Q27 40 28 45';
+        st(arms, INK, 5); st(arms, '#E9A15B', 2.6);
+        fs(FIN, '#FFE1B5', 1.6); ell(20, 17, 10.5, 13.5, '#E9A15B', 1.8);
+        st('M14.5 8Q16.5 7 18.3 8.2M21.7 8.2Q23.5 7 25.5 8M12.5 12.5Q15.5 11.2 18.3 12.7M21.7 12.7Q24.5 11.2 27.5 12.5M11.8 17Q15 15.7 18.3 17.2M21.7 17.2Q25 15.7 28.2 17M12.5 21.5Q15.5 20.2 18.3 21.7M21.7 21.7Q24.5 20.2 27.5 21.5', '#A8622C', 1.8);
+        ell(20, 32.5, 8.6, 5.6, '#E9A15B', 1.8);
+        ell(15.9, 31.8, 3.3, 3.3, '#fff', 1.4); ell(24.1, 31.8, 3.3, 3.3, '#fff', 1.4);
+        st('M14.1 31.4q.9 1.5 1.8 0q.9 1.5 1.8 0M22.3 31.4q.9 1.5 1.8 0q.9 1.5 1.8 0', INK, 1.4);
+        ell(12.6, 35, 1.7, 1, '#FF9E8A'); ell(27.4, 35, 1.7, 1, '#FF9E8A');
+        st(sad ? 'M18.7 36.3Q20 35.2 21.3 36.3' : 'M18.7 35.4Q20 36.6 21.3 35.4', INK, 1.3);
+      } else if (kind === 'nak') {
+        const arms = 'M15 28Q9 33 12 39T8 50M18 29Q15 36 17 42T14 51M20 29Q20 37 21 43T19 52M22 29Q25 36 23 42T26 51M25 28Q31 33 28 39T32 50';
+        st(arms, INK, 4.6); st(arms, '#C8A2E8', 2.4);
+        ell(20, 14, 8, 12.5, '#C8A2E8', 1.8); ell(20, 26, 7.2, 4.4, '#C8A2E8', 1.8);
+        st('M16 6Q18 4.6 20 5.2', '#fff', 1.4);
+        face(16.6, 23.4, 24.6, 2, 27.4, 20, 27.4);
+      } else if (kind === 'mun') {
+        const arms = 'M13 27Q4 30 5 37Q6 42 10 39M17 30Q12 37 15 42Q17 45 19 42M23 31Q23 39 25 43Q27 45 28 41M29 30Q34 37 32 42Q31 45 29 43M33 27Q42 30 41 37Q40 42 36 39';
+        st(arms, INK, 6); st(arms, '#D8504A', 3.6);
+        for (const [cx, cy] of [[6, 34], [8, 38.5], [15, 38], [17.5, 41.5], [24.4, 39], [26, 42.4], [31.7, 38], [30.8, 42], [40, 34], [38, 38.5]]) dot(cx, cy, .9, '#FFD2CC');
+        ell(23, 16, 14, 13, '#D8504A', 2);
+        st('M14 9Q17 6 21 6', '#F38A84', 2);
+        ell(17.5, 19, 3.4, 3.4, '#fff', 1.4); ell(28.5, 19, 3.4, 3.4, '#fff', 1.4); dot(18, 19.5, 1.8, INK); dot(28, 19.5, 1.8, INK);
+        ell(23, 25, 2.4, 2, '#F38A84', 1.4);
+        ell(13, 24, 2, 1.2, '#FFB8A6'); ell(33, 24, 2, 1.2, '#FFB8A6');
+      } else if (kind === 'fish') {
+        fs('M33 15L44 6L42 15L44 24Z', '#5BB8F0', 1.8);
+        ell(20, 15, 15, 10.5, '#5BB8F0', 1.8);
+        fs('M17 5.5Q22 1 27 6Z', '#3D9BD6', 1.4);
+        dot(12, 13, 2.3, INK); ell(10, 18, 2, 1.2, '#FFB8A6');
+        st(sad ? 'M14 21Q16.5 19.5 19 21' : 'M14 19.5Q16.5 22 19 19.5', INK, 1.5);
+        st('M24 10Q27 15 24 20', '#3D9BD6', 1.4);
+      } else {
+        fs('M7 21Q7 6 20 5Q33 6 33 21Q35 32 30 31Q28 36 25 32Q22 37 20 32Q17 37 15 32Q12 36 10 31Q5 32 7 21Z', '#FF7A59', 2);
+        dot(15, 18, 2.4, INK); dot(25, 18, 2.4, INK); ell(12, 22.5, 2.2, 1.3, '#FFC2B0'); ell(28, 22.5, 2.2, 1.3, '#FFC2B0');
+        st(sad ? 'M17.5 23.6Q20 21.6 22.5 23.6' : 'M17.5 22Q20 24.5 22.5 22', INK, 1.6);
+      }
+      g.restore();
+      return vb[0] * k;
+    }
+    // 에기 동그라미: 두 색은 고른 비율로 위·아래 · 레이저는 고른 색으로 반짝 · 틴셀은 아래쪽 가닥 · ★ 잘 먹힌 색
+    function drawEgi(g, cx, cy, r, x, lw) {
+      const e = egiGet(x.c); if (!e) return;
+      g.save(); g.beginPath(); g.arc(cx, cy, r, 0, 7); g.clip();
+      const top = cy - r, H = 2 * r;
+      if (e.c[0] === 'laser') {
+        const l = LASER_BY[x.lc || 'silver'] || LASERS[0];
+        const gr = g.createLinearGradient(cx - r, cy - r, cx + r, cy + r);
+        if (l.id === 'rainbow') ['#ff5a5a', '#ffb84d', '#fff176', '#69f0ae', '#4fc3f7', '#7c4dff'].forEach((c, i) => gr.addColorStop(i / 5, c));
+        else { gr.addColorStop(0, l.c); gr.addColorStop(.42, mixW(l.c, .78)); gr.addColorStop(.6, l.c); gr.addColorStop(1, mixW(l.c, .55)); }
+        g.fillStyle = gr; g.fillRect(cx - r, top, H, H);
+      } else if (e.c[0] === 'glow') {
+        const gr = g.createRadialGradient(cx, cy, 0, cx, cy, r); gr.addColorStop(0, '#F4FFB0'); gr.addColorStop(1, '#B9E86A'); g.fillStyle = gr; g.fillRect(cx - r, top, H, H);
+      } else if (e.c.length === 2) {
+        const rr = x.r != null ? x.r : 50; g.fillStyle = e.c[1]; g.fillRect(cx - r, top, H, H); g.fillStyle = e.c[0]; g.fillRect(cx - r, top, H, H * rr / 100);
+      } else e.c.forEach((c, i) => { g.fillStyle = c; g.fillRect(cx - r, top + H * i / e.c.length, H, H / e.c.length + .5); });
+      if (x.t) { const y0 = cy + r * .4; for (let i = 0, xx = cx - r; xx < cx + r; i++, xx += r * .16) { g.fillStyle = i % 2 ? '#F1F4F6' : '#FFE48A'; g.fillRect(xx, y0, r * .07, r * .6); } }
+      g.restore();
+      g.beginPath(); g.arc(cx, cy, r, 0, 7); g.lineWidth = lw || 1.8; g.strokeStyle = INK; g.stroke();
+      if (x.s) star(g, cx + r * .78, cy - r * .78, r * .42, '#FFC93C');
+    }
+    function star(g, cx, cy, r, f) {
+      g.beginPath(); for (let i = 0; i < 10; i++) { const a = -Math.PI / 2 + i * Math.PI / 5, rr = i % 2 ? r * .45 : r; g.lineTo(cx + rr * Math.cos(a), cy + rr * Math.sin(a)); }
+      g.closePath(); g.fillStyle = f; g.fill(); g.lineWidth = Math.max(.8, r * .18); g.strokeStyle = INK; g.stroke();
+    }
+    function cardKit(g, need) {
+      const font = (sz, f, w) => `${w ? w + ' ' : ''}${sz}px ${CF[f || 'j']}`;
+      const K = {
+        g,
+        rr(x, y, w, h, r) { g.beginPath(); if (g.roundRect) g.roundRect(x, y, w, h, r); else { g.moveTo(x + r, y); g.arcTo(x + w, y, x + w, y + h, r); g.arcTo(x + w, y + h, x, y + h, r); g.arcTo(x, y + h, x, y, r); g.arcTo(x, y, x + w, y, r); g.closePath(); } },
+        box(x, y, w, h, r, fill, lw, sc) { K.rr(x, y, w, h, r); if (fill) { g.fillStyle = fill; g.fill(); } if (lw) { g.lineWidth = lw; g.strokeStyle = sc || INK; g.stroke(); } },
+        circ(x, y, r, fill, lw, sc) { g.beginPath(); g.arc(x, y, r, 0, 7); if (fill) { g.fillStyle = fill; g.fill(); } if (lw) { g.lineWidth = lw; g.strokeStyle = sc || INK; g.stroke(); } },
+        line(x1, y1, x2, y2, lw, c, dash) { g.beginPath(); g.moveTo(x1, y1); g.lineTo(x2, y2); g.lineWidth = lw; g.strokeStyle = c || INK; g.setLineDash(dash || []); g.stroke(); g.setLineDash([]); },
+        // 글자: o = { f: 폰트(j·g·b), al: 정렬, bl: 기준선, mw: 이 폭을 넘으면 줄여서, w: 굵기, ls: 자간 } → 그린 폭
+        txt(s, x, y, sz, col, o) {
+          o = o || {}; s = String(s); if (!s) return 0;
+          need[o.f || 'j'] = (need[o.f || 'j'] || '') + s;
+          let z = sz; g.font = font(z, o.f, o.w);
+          const ls = o.ls != null ? o.ls : o.f === 'g' && s.length > 1 ? -1 : null; if (ls != null && 'letterSpacing' in g) g.letterSpacing = ls + 'px';
+          if (o.mw) { let w = g.measureText(s).width; while (w > o.mw && z > sz * .55) { z -= .5; g.font = font(z, o.f, o.w); w = g.measureText(s).width; }
+            if (w > o.mw) { while (s.length > 1 && g.measureText(s + '…').width > o.mw) s = s.slice(0, -1); s += '…'; } }
+          g.fillStyle = col || INK; g.textAlign = o.al || 'left'; g.textBaseline = o.bl || 'alphabetic';
+          if (o.sw) { g.lineWidth = o.sw; g.strokeStyle = o.sc || INK; g.lineJoin = 'round'; g.strokeText(s, x, y); }
+          g.fillText(s, x, y);
+          const w = g.measureText(s).width; if ('letterSpacing' in g) g.letterSpacing = '0px'; return w;
+        },
+        tw(s, sz, f, w) { g.font = font(sz, f, w); return g.measureText(String(s)).width; },
+        // 줄바꿈: 띄어쓰기 단위로, 한 단어가 너무 길면 글자 단위로 → 줄 목록
+        wrap(s, sz, f, w, max) {
+          g.font = font(sz, f); const out = [], fits = t => g.measureText(t).width <= w;
+          for (const para of String(s).split('\n')) {
+            let cur = '';
+            for (let word of para.split(/\s+/).filter(Boolean)) {
+              const t = cur ? cur + ' ' + word : word;
+              if (fits(t)) { cur = t; continue; }
+              if (cur) out.push(cur);
+              while (!fits(word) && word.length > 1) { let i = word.length - 1; while (i > 1 && !fits(word.slice(0, i))) i--; out.push(word.slice(0, i)); word = word.slice(i); }
+              cur = word;
+            }
+            if (cur) out.push(cur);
+          }
+          if (max && out.length > max) { out.length = max; let l = out[max - 1]; while (l.length > 1 && g.measureText(l + '…').width > w) l = l.slice(0, -1); out[max - 1] = l + '…'; }
+          return out;
+        },
+        lines(L, x, y, sz, lh, col, o) { L.forEach((s, i) => K.txt(s, x, y + i * lh, sz, col, o)); return y + L.length * lh; },
+        rot(cx, cy, deg, fn) { g.save(); g.translate(cx, cy); g.rotate(deg * Math.PI / 180); fn(); g.restore(); },
+        // 알약 모양 글자 (자동 폭) → 폭
+        pill(s, x, y, sz, fill, col, o) { o = o || {}; const w = K.tw(s, sz) + sz * 1.3, h = sz * 1.75; K.box(x, y, w, h, h / 2, fill, o.lw, o.sc); K.txt(s, x + w / 2, y + h / 2 + sz * .36, sz, col, { al: 'center' }); return w; },
+        cover(img, x, y, w, h, filter) {
+          const iw = img.naturalWidth || img.width, ih = img.naturalHeight || img.height, s = Math.max(w / iw, h / ih), sw = w / s, sh = h / s;
+          g.save(); g.beginPath(); g.rect(x, y, w, h); g.clip(); if (filter) g.filter = filter;
+          g.drawImage(img, (iw - sw) / 2, (ih - sh) / 2, sw, sh, x, y, w, h); g.restore();
+        },
+        brand(x, y, col, al) { K.txt('쭈갑이 물때', x, y, 9.5, col, { al: al || 'left' }); },
+        egis(L, x, y, r, gap, max) { const n = Math.min(L.length, max || 6); for (let i = 0; i < n; i++) drawEgi(g, x + r + i * (2 * r + gap), y, r, L[i]); return n ? n * (2 * r + gap) - gap : 0; }
+      };
+      return K;
+    }
+    const sinkT = cd => (cd.sink.length ? `봉돌 ${sinkTxt(cd.sink)}` : '');
+    const wtT = cd => (cd.wt == null ? '' : `수온 ${cd.wt.toFixed(1)}℃`);
+    const windT = cd => (cd.wind == null ? '' : `바람 ${cd.wind}m/s`);
+    const dayT = cd => `${cd.m}월 ${cd.d}일 ${cd.dow}요일`;
+    // 사진이 없을 때 쓰는 작은 바다 그림 (하늘·해·바다·잡은 어종들)
+    function miniSea(K, x, y, w, h, cd, sky) {
+      const g = K.g; g.save(); g.beginPath(); g.rect(x, y, w, h); g.clip();
+      g.fillStyle = sky || '#CFEFFF'; g.fillRect(x, y, w, h);
+      K.circ(x + w - 26, y + 24, 13, '#FFD23F', 2, '#F2A20C');
+      const sea = y + h * .52; g.beginPath(); g.moveTo(x, sea);
+      for (let i = 0; i <= 8; i++) g.quadraticCurveTo(x + (i + .5) * w / 8, sea + (i % 2 ? 5 : -5), x + (i + 1) * w / 8, sea);
+      g.lineTo(x + w, y + h); g.lineTo(x, y + h); g.closePath(); g.fillStyle = '#7FD0F5'; g.fill();
+      const L = (cd.sp.length ? cd.sp : [{ ch: 'oc' }]).slice(0, 3), ch = Math.min(h * .42, 46);
+      L.forEach((s, i) => drawChar(g, s.ch, x + w * (i + .5) / L.length - ch * .45, sea + (h - (sea - y)) * .5 - ch * .5 + (i % 2 ? 4 : -2), ch, !cd.sp.length));
+      g.restore();
+    }
+
+    // ---------- 테마별 그림
+    const CARD_DRAW = {
+      sticker(K, cd, o) {
+        const g = K.g, tier = cardTier(cd), sh = o.show;
+        K.box(0, 0, 360, 360, 0, '#FFE14D');
+        K.circ(342, 8, 58, '#FFEC8A'); K.circ(14, 252, 34, '#FFEC8A'); K.circ(318, 352, 30, '#FFEC8A');
+        K.txt(dayT(cd), 22, 42, 21, INK);
+        const L = cd.sp.slice(0, 3), n = L.length, cols = ['#FFFFFF', '#FFD1E3', '#C9F2C2'], rots = [-5, 4, -3];
+        if (!n) {
+          K.rot(118, 112, -4, () => { K.box(-92, -44, 184, 88, 20, '#fff', 3); drawChar(g, 'oc', -80, -32, 62, true); K.txt('오늘은', 28, -8, 15, INK, { al: 'center' }); K.txt('꽝!', 28, 30, 40, '#E8432F', { al: 'center' }); });
+        } else {
+          const W = n === 1 ? 200 : n === 2 ? 152 : 104, gap = n === 3 ? 8 : 14, x0 = (360 - n * W - (n - 1) * gap) / 2;
+          L.forEach((s, i) => {
+            const cx = x0 + i * (W + gap) + W / 2, cy = 112, H = n === 3 ? 96 : 88;
+            K.rot(cx, cy, rots[i], () => {
+              K.box(-W / 2, -H / 2, W, H, 20, cols[i], 3);
+              if (n === 3) { drawChar(g, s.ch, -W / 2 + 8, -H / 2 + 8, 30); K.txt(s.n, W / 2 - 10, -H / 2 + 26, 12, INK, { al: 'right', mw: W - 50 }); K.txt(s.c, 0, H / 2 - 14, 38, INK, { al: 'center', mw: W - 16 }); }
+              else { const cw = drawChar(g, s.ch, -W / 2 + 10, -26, 52); K.txt(s.n, -W / 2 + 18 + cw, -6, 13, INK, { mw: W - cw - 30 }); K.txt(s.c, -W / 2 + 18 + cw, 30, 42, INK, { mw: W - cw - 30 }); }
+            });
+          });
+        }
+        // 정보 스티커들
+        const tags = [];
+        if (cd.sp.length > 3) tags.push([`외 ${cd.sp.length - 3}종`, '#FFFFFF']);
+        if (sh.cond && cd.mul) tags.push([cd.mul, '#FFFFFF']);
+        if (cd.port) tags.push([cd.port, '#BDEBFF']);
+        if (sh.boat && cd.boat) tags.push([cd.boat, '#C9F2C2']);
+        if (sh.cond && cd.wt != null) tags.push([wtT(cd), '#FFD9B8']);
+        let tx = 22, ty = 176;
+        tags.forEach(([s, c], i) => { const w = K.tw(s, 14) + 22; if (tx + w > 340) { tx = 22; ty += 34; } K.rot(tx + w / 2, ty + 14, [-3, 2, 3, -2][i % 4], () => { K.box(-w / 2, -14, w, 28, 14, c, 2.5); K.txt(s, 0, 5, 14, INK, { al: 'center' }); }); tx += w + 8; });
+        let y = ty + 52;
+        if (sh.rig && (cd.egi.length || cd.sink.length)) {
+          let x = 22;
+          if (cd.egi.length) { x += K.txt('오늘의 에기', x, y + 5, 14, INK) + 8; x += K.egis(cd.egi, x, y, 11, 5, 5) + 10; }
+          if (cd.sink.length) K.txt(sinkT(cd), x, y + 5, 13, '#6B5A20', { mw: 340 - x });
+          y += 30;
+        }
+        if (!(sh.memo && cd.memo) && y + 36 <= 300) {
+          const by = Math.max(290, y + 40), seal = cd.sp.length >= 2 ? ['합계', `${cd.tot}마리`, '#FF7A59'] : cd.hrs >= 1 ? ['출조', `${Math.round(cd.hrs)}시간`, '#7FD9C4'] : null;
+          if (seal) K.rot(70, by, -8, () => { K.circ(0, 0, 40, seal[2], 3); K.circ(0, 0, 33, null, 1.5, 'rgba(255,255,255,.8)'); K.txt(seal[0], 0, -6, 13, '#fff', { al: 'center', sw: 3, sc: INK }); K.txt(seal[1], 0, 16, 18, '#fff', { al: 'center', mw: 62, sw: 3.5, sc: INK }); });
+        }
+        if (sh.memo && cd.memo) {
+          const L2 = K.wrap(cd.memo, 13, 'j', 190, 2);
+          K.rot(118, y + 8 + L2.length * 9, -2, () => { K.box(-104, -12 - L2.length * 9, 208, 20 + L2.length * 18, 8, '#FFFDF2', 2); K.box(-24, -18 - L2.length * 9, 48, 12, 2, 'rgba(126,227,201,.85)'); K.lines(L2, -94, 3 - L2.length * 9 + 9, 13, 18, INK); });
+        }
+        // 오른쪽 아래 쭈갑이 한마디
+        const mn = cardMain(cd), word = jokeOf(JOKE.sticker[tier], cd, o.v), bw = K.tw(word, 14) + 22;
+        const bx = Math.min(338 - bw, 300 - bw / 2);
+        K.box(bx, 262, bw, 28, 12, '#fff', 2.5); K.txt(word, bx + bw / 2, 281, 14, INK, { al: 'center' });
+        g.beginPath(); g.moveTo(bx + bw - 30, 289); g.lineTo(bx + bw - 22, 300); g.lineTo(bx + bw - 18, 289); g.fillStyle = '#fff'; g.fill(); g.lineWidth = 2.5; g.strokeStyle = INK; g.stroke();
+        g.fillStyle = '#fff'; g.fillRect(bx + bw - 29, 287, 10, 3);
+        drawChar(g, mn ? mn.ch : 'oc', 290, 296, 56, tier === 0);
+        K.brand(22, 348, '#7A6A2A');
+      },
+      ticket(K, cd, o) {
+        const g = K.g, tier = cardTier(cd), sh = o.show, bg = '#7FE3C9';
+        K.box(0, 0, 360, 360, 0, bg);
+        for (let i = 0; i < 6; i++) K.circ(20 + i * 66, 30 + (i % 2) * 10, 3, 'rgba(255,255,255,.6)');
+        K.txt(dayT(cd), 22, 48, 16, '#1F5C4E');
+        const X = 18, Y = 64, W = 324, H = 236, SX = X + W - 106;
+        K.box(X, Y, W, H, 16, '#fff', 3);
+        g.save(); K.rr(X, Y, W, H, 16); g.clip(); g.fillStyle = '#FFF3B0'; g.fillRect(SX, Y, X + W - SX, H); g.restore();
+        K.rr(X, Y, W, H, 16); g.lineWidth = 3; g.strokeStyle = INK; g.stroke();
+        K.line(SX, Y + 10, SX, Y + H - 10, 2.5, INK, [6, 5]);
+        for (const yy of [Y, Y + H]) { K.circ(SX, yy, 10, bg); g.beginPath(); g.arc(SX, yy, 10, yy === Y ? 0 : Math.PI, yy === Y ? Math.PI : 2 * Math.PI); g.lineWidth = 3; g.strokeStyle = INK; g.stroke(); }
+        K.pill('쭈갑이 출조 티켓', X + 14, Y + 14, 11, '#FF7A59', '#fff');
+        K.txt(cd.port ? `${cd.port} → 앞바다` : '바다로 출발!', X + 14, Y + 66, 22, INK, { mw: SX - X - 26 });
+        const F = [['날짜', `${cd.m}.${cd.d} ${cd.dow}`]];
+        if (sh.boat && cd.boat) F.push(['배', cd.boat]);
+        if (sh.cond && cd.mul) F.push(['물때', cd.mul]);
+        if (sh.cond && cd.wt != null) F.push(['수온', `${cd.wt.toFixed(1)}℃`]);
+        if (cd.hrs >= 1) F.push(['시간', `${Math.round(cd.hrs)}시간`]);
+        if (sh.cond && cd.wind != null) F.push(['바람', `${cd.wind}m/s`]);
+        F.slice(0, 6).forEach(([a, b], i) => { const cx = X + 14 + (i % 2) * 96, cy = Y + 98 + Math.floor(i / 2) * 26; const w = K.txt(a, cx, cy, 11.5, '#9A8B7A'); K.txt(b, cx + w + 5, cy, 13.5, INK, { mw: 88 - w }); });
+        let ey = Y + 98 + Math.ceil(Math.min(6, F.length) / 2) * 26 + 6;
+        if (sh.rig && (cd.egi.length || cd.sink.length)) {
+          let x = X + 14;
+          if (cd.egi.length) { x += K.txt('에기', x, ey + 4, 12, '#9A8B7A') + 6; x += K.egis(cd.egi, x, ey, 10, 4, 4) + 8; }
+          if (cd.sink.length) K.txt(sinkTxt(cd.sink), x, ey + 4, 12, INK, { mw: SX - 10 - x });
+          ey += 26;
+        }
+        for (let i = 0, bx = X + 14; i < 22 && bx < SX - 16; i++) { const w = [2, 4, 1, 3, 2, 5, 1, 3][i % 8]; g.fillStyle = INK; g.fillRect(bx, Y + H - 30, w, 16); bx += w + 2; }
+        // 떼는 칸: 합계
+        const cx = (SX + X + W) / 2;
+        K.txt('오늘 조과', cx, Y + 32, 12.5, INK, { al: 'center' });
+        K.txt(cd.tot, cx, Y + 94, cd.tot >= 100 ? 46 : 58, '#FF5A36', { al: 'center', mw: 90 });
+        K.txt('마리', cx, Y + 116, 12.5, INK, { al: 'center' });
+        cd.sp.slice(0, 3).forEach((s, i) => K.txt(`${s.n.length > 4 ? s.s : s.n} ${s.c}`, cx, Y + 136 + i * 16, 12, INK, { al: 'center', mw: 92 }));
+        K.rot(cx, Y + H - 32, -14, () => { K.circ(0, 0, 25, 'rgba(255,255,255,.4)', 2.5, '#E8432F'); K.circ(0, 0, 20, null, 1.2, '#E8432F'); K.txt(jokeOf(JOKE.ticket[tier], cd, o.v), 0, 5, 14, '#E8432F', { al: 'center', mw: 36 }); });
+        if (sh.memo && cd.memo) K.lines(K.wrap(cd.memo, 12.5, 'j', 320, 2), 22, Y + H + 22, 12.5, 16, '#1F5C4E');
+        K.brand(338, 352, '#1F5C4E', 'right');
+      },
+      news(K, cd, o) {
+        const g = K.g, tier = cardTier(cd), sh = o.show, J = jokeOf(JOKE.news[tier], cd, o.v);
+        K.box(0, 0, 360, 360, 0, '#FFF7E3');
+        g.fillStyle = '#E8432F'; g.fillRect(0, 0, 360, 34);
+        K.txt('쭈갑일보 · 호외', 16, 23, 15, '#fff'); K.txt(dayT(cd), 344, 22, 12, '#fff', { al: 'right' });
+        const HL = J[0].split('\n'); let y = 70;
+        HL.slice(0, 2).forEach(s => { K.txt(s, 16, y, 29, '#2A1C10', { f: 'b', mw: 328 }); y += 36; });
+        const sub = K.wrap(J[1], 13.5, 'j', 328, 2); y = K.lines(sub, 16, y + 2, 13.5, 18, '#6B5A48');
+        y += 4; K.line(16, y, 344, y, 1.5, '#2A1C10'); K.line(16, y + 4, 344, y + 4, .8, '#2A1C10');
+        const py = y + 12, ph = 334 - py, pw = 176;
+        if (o.photo) K.cover(o.photo, 16, py, pw, ph); else miniSea(K, 16, py, pw, ph, cd, '#E9DEC5');
+        g.lineWidth = 2; g.strokeStyle = INK; g.strokeRect(16, py, pw, ph);
+        K.box(20, py + ph - 22, K.tw('현장 사진', 10.5) + 12, 18, 3, 'rgba(255,255,255,.9)'); K.txt('현장 사진', 26, py + ph - 9, 10.5, '#6B5A48');
+        const rx = 206; K.line(rx - 8, py, rx - 8, 334, 1.5, '#2A1C10');
+        let ry = py + 18;
+        if (cd.sp.length) cd.sp.slice(0, 3).forEach(s => { K.txt(s.n, rx, ry, 13, '#6B5A48', { mw: 80 }); K.txt(s.c, 344, ry + 1, 20, '#C0392B', { al: 'right' }); ry += 25; });
+        else { K.txt('잡은 쭈갑이', rx, ry, 13, '#6B5A48'); K.txt('0', 344, ry + 1, 20, '#C0392B', { al: 'right' }); ry += 25; }
+        ry += 2; K.line(rx, ry - 12, 344, ry - 12, .8, '#B9A58C');
+        const info = [sh.cond && cd.mul ? `물때 ${cd.mul}` : '', sh.cond ? wtT(cd) : '', sh.cond ? windT(cd) : '', sh.boat && cd.boat ? `${cd.boat} 승선` : ''].filter(Boolean);
+        info.forEach(s => { if (ry < 300) { K.txt(s, rx, ry + 4, 13, INK, { mw: 344 - rx }); ry += 21; } });
+        if (sh.rig && cd.egi.length && ry < 312) { K.egis(cd.egi, rx, ry + 2, 9, 4, 5); ry += 24; }
+        if (sh.memo && cd.memo && ry < 322) K.lines(K.wrap(`"${cd.memo}"`, 11.5, 'j', 344 - rx, Math.max(1, Math.floor((330 - ry) / 15))), rx, ry + 6, 11.5, 15, '#6B5A48');
+        K.brand(344, 352, '#8A7A66', 'right');
+      },
+      polaroid(K, cd, o) {
+        const g = K.g, tier = cardTier(cd), sh = o.show;
+        K.box(0, 0, 360, 360, 0, '#FFE8F0');
+        for (let x = 18; x < 360; x += 18) K.line(x, 0, x, 360, .6, '#F7D3E0');
+        for (let y = 18; y < 360; y += 18) K.line(0, y, 360, y, .6, '#F7D3E0');
+        const capS = `${cd.m}.${cd.d} ${cd.port ? cd.port + ' ' : ''}${cd.sp.length ? cd.sp.slice(0, 2).map(s => `${s.s} ${s.c}`).join(' ') : '꽝'} ♥`;
+        K.rot(142, 176, -3, () => {
+          g.save(); g.shadowColor = 'rgba(160,70,100,.18)'; g.shadowBlur = 10; g.shadowOffsetY = 4; K.box(-112, -132, 224, 262, 3, '#fff'); g.restore();
+          K.box(-112, -132, 224, 262, 3, null, 1, '#F0C9D8');
+          if (o.photo) K.cover(o.photo, -100, -120, 200, 196); else miniSea(K, -100, -120, 200, 196, cd);
+          K.txt(capS, 0, 112, 21, INK, { f: 'g', al: 'center', mw: 204, w: 700 });
+        });
+        K.rot(150, 44, 4, () => K.box(-38, -10, 76, 20, 2, 'rgba(255,225,77,.78)'));
+        K.rot(306, 66, 12, () => { K.circ(0, 0, 33, 'rgba(255,255,255,.35)', 3, '#E8432F'); K.circ(0, 0, 27, null, 1.2, '#E8432F');
+          const a = sh.cond && cd.mul ? cd.mul : `${cd.m}/${cd.d}`; K.txt(a, 0, -2, 15, '#E8432F', { al: 'center', mw: 48 }); K.txt('출조', 0, 15, 12, '#E8432F', { al: 'center' }); });
+        const note = jokeOf(JOKE.polaroid[tier], cd, o.v);
+        K.rot(304, 236, 5, () => {
+          const L = K.wrap(note, 19, 'g', 96, 3); K.lines(L, 0, -6 - (L.length - 1) * 10, 19, 21, INK, { f: 'g', al: 'center', w: 700 });
+          if (sh.rig && cd.egi.length) { const n = Math.min(3, cd.egi.length), w = n * 24 - 4; K.egis(cd.egi, -w / 2, 26, 10, 4, 3); }
+        });
+        if (sh.memo && cd.memo) K.lines(K.wrap(cd.memo, 17, 'g', 230, 2), 26, 328, 17, 19, '#6B4A5A', { f: 'g', w: 700 });
+        else if (sh.boat && cd.boat) K.txt(`${cd.boat} 타고`, 30, 330, 17, '#6B4A5A', { f: 'g', w: 700 });
+        K.brand(346, 352, '#B07A90', 'right');
+      },
+      wanted(K, cd, o) {
+        const g = K.g, tier = cardTier(cd), sh = o.show, br = '#7A4A1E', J = jokeOf(JOKE.wanted[tier], cd, o.v);
+        K.box(0, 0, 360, 360, 0, '#F5DBA8');
+        g.fillStyle = 'rgba(160,110,50,.08)'; for (let i = 0; i < 26; i++) { g.beginPath(); g.arc((i * 137) % 360, (i * 89) % 360, 6 + (i % 5) * 3, 0, 7); g.fill(); }
+        K.box(12, 12, 336, 336, 8, null, 3, br); K.box(18, 18, 324, 324, 5, null, 1, br);
+        K.circ(180, 14, 7, '#E8432F', 2);
+        K.txt('현상수배', 180, 74, 50, '#6A3A12', { f: 'b', al: 'center', ls: 8 });
+        K.txt(J[0], 180, 100, 14.5, br, { al: 'center', mw: 300 });
+        const px = 32, py = 114, pw = 150, ph = 142;
+        if (o.photo) { K.cover(o.photo, px, py, pw, ph); g.save(); g.globalCompositeOperation = 'color'; g.fillStyle = 'rgba(150,100,50,.72)'; g.fillRect(px, py, pw, ph); g.restore(); }
+        else { K.box(px, py, pw, ph, 0, '#E8C98E'); g.fillStyle = '#C9A56A'; g.beginPath(); g.arc(px + pw / 2, py + 56, 28, 0, 7); g.fill(); K.rr(px + pw / 2 - 52, py + 92, 104, 70, 40); g.fill(); K.txt('?', px + pw / 2, py + 68, 34, '#F5DBA8', { al: 'center' }); }
+        g.lineWidth = 2.5; g.strokeStyle = br; g.strokeRect(px, py, pw, ph);
+        let ry = py + 20; const rx = 196;
+        if (cd.sp.length) cd.sp.slice(0, 3).forEach(s => { K.txt(`피해 ${s.n}`, rx, ry, 13, INK, { mw: 96 }); K.txt(s.c, 330, ry + 2, 24, '#C0392B', { al: 'right' }); ry += 30; });
+        else { K.txt('피해 쭈갑이', rx, ry, 13, INK); K.txt('0', 330, ry + 2, 24, '#C0392B', { al: 'right' }); ry += 30; }
+        K.txt(`${cd.m}월 ${cd.d}일${sh.cond && cd.mul ? ` · ${cd.mul}` : ''}에 목격`, rx, ry + 2, 12, br, { mw: 136 }); ry += 20;
+        if (sh.boat && cd.boat && ry < 250) { K.txt(`도주 수단: ${cd.boat}`, rx, ry + 2, 12, br, { mw: 136 }); ry += 20; }
+        if (sh.rig && cd.sink.length && ry < 250) { K.txt(`흉기: ${sinkTxt(cd.sink)} 봉돌`, rx, ry + 2, 12, br, { mw: 136 }); ry += 20; }
+        if (tier === 0) K.rot(250, 214, -14, () => { K.box(-70, -22, 140, 44, 6, 'rgba(255,255,255,.5)', 3, '#C0392B'); K.txt('무혐의 석방', 0, 9, 22, '#C0392B', { al: 'center' }); });
+        K.box(32, 270, 296, 32, 6, br);
+        const bt = J[1], egiB = /에기 1개/.test(bt) && cd.egiTop;
+        const bw = K.tw(bt, 15.5) + (egiB ? 26 : 0);
+        K.txt(bt, 180 - bw / 2, 292, 15.5, '#FFE9B8', { mw: 270 });
+        if (egiB) drawEgi(g, 180 + bw / 2 - 10, 286, 9, cd.egiTop, 1.6);
+        if (sh.memo && cd.memo) K.txt(`특이사항: ${cd.memo}`, 180, 320, 12, br, { al: 'center', mw: 290 });
+        K.brand(180, 336, br, 'center');
+      },
+      quest(K, cd, o) {
+        const g = K.g, tier = cardTier(cd), sh = o.show, mn = cardMain(cd);
+        K.box(0, 0, 360, 360, 0, '#5BC8FF');
+        for (const [x, y, w] of [[26, 18, 54], [292, 30, 50], [300, 330, 44]]) { K.box(x, y, w, 16, 8, 'rgba(255,255,255,.75)'); K.box(x + 10, y - 8, w * .5, 14, 7, 'rgba(255,255,255,.75)'); }
+        K.rot(180, 44, -2, () => { K.box(-128, -20, 256, 40, 12, '#FFC93C', 3); K.txt(jokeOf(JOKE.quest[tier], cd, o.v), 0, 8, 21, INK, { al: 'center', mw: 236 }); });
+        const X = 20, Y = 76, W = 320, H = 238; K.box(X, Y, W, H, 16, '#fff', 3);
+        const lv = sh.cond && cd.mul ? `Lv.${cd.mul}` : ''; let lw = 0;
+        if (lv) { lw = K.tw(lv, 13) + 16; K.box(X + W - 16 - lw, Y + 12, lw, 22, 8, '#7C5CFF'); K.txt(lv, X + W - 16 - lw / 2, Y + 28, 13, '#fff', { al: 'center' }); }
+        K.txt(`${cd.port ? cd.port + ' ' : '바다 '}던전 · ${cd.m}/${cd.d}`, X + 16, Y + 28, 14.5, INK, { mw: W - 40 - lw });
+        K.txt(`EXP +${cd.tot || 1}`, X + 16, Y + 70, 38, '#2E9E44');
+        if (!cd.tot) K.txt('(바다 구경)', X + 16 + K.tw('EXP +1', 38) + 8, Y + 68, 13, '#6B8A6B');
+        let y = Y + 92;
+        const rows = cd.sp.length ? cd.sp.slice(0, 3) : [{ n: '쭈갑이', c: 0, ch: 'oc', k: 'jj' }];
+        rows.forEach(s => {
+          const [hi] = thOf(s.k), r = s.c ? Math.min(1, s.c / Math.max(hi, s.c * 1.05)) : 0;
+          drawChar(g, s.ch, X + 14, y, 24, !s.c);
+          K.txt(s.n, X + 46, y + 17, 13, INK, { mw: 62 });
+          K.box(X + 112, y + 6, 160, 14, 7, '#F1F4F6', 2); if (r) { g.save(); K.rr(X + 112, y + 6, 160, 14, 7); g.clip(); g.fillStyle = CH_COL[s.ch] || '#FF7A59'; g.fillRect(X + 112, y + 6, 160 * r, 14); g.restore(); K.rr(X + 112, y + 6, 160, 14, 7); g.lineWidth = 2; g.strokeStyle = INK; g.stroke(); }
+          K.txt(s.c, X + W - 14, y + 18, 15, INK, { al: 'right' }); y += 30;
+        });
+        y += 6; let x = X + 16;
+        if (sh.rig && (cd.egi.length || cd.sink.length)) {
+          x += K.txt('획득 아이템', x, y + 14, 12.5, INK) + 8;
+          cd.egi.slice(0, 4).forEach(e => { K.box(x, y, 26, 26, 6, '#FFF6DA', 2); drawEgi(g, x + 13, y + 13, 9, e, 1.5); x += 30; });
+          if (cd.sink.length && x < X + W - 60) { const s = sinkTxt(cd.sink), w = Math.min(K.tw(s, 11) + 14, X + W - 16 - x); K.box(x, y, w, 26, 6, '#FFF6DA', 2); K.txt(s, x + w / 2, y + 17, 11, INK, { al: 'center', mw: w - 8 }); }
+          y += 34;
+        }
+        let nx = '다음 판 도전! ›';
+        if (mn) { const [hi] = thOf(mn.k); const t = mn.c < hi ? hi : Math.ceil((mn.c + 1) / 10) * 10; nx = `다음 퀘스트: ${mn.n} ${t}마리 ›`; }
+        K.txt(nx, X + W - 14, Y + H - 14, 12.5, '#7C5CFF', { al: 'right', mw: W - 28 });
+        if (sh.memo && cd.memo) K.txt(`모험 일지: ${cd.memo}`, 22, 336, 12.5, '#fff', { mw: 250 });
+        K.brand(340, 352, '#fff', 'right');
+      },
+      report(K, cd, o) {
+        const g = K.g, tier = cardTier(cd), sh = o.show, gr = '#2E7D32', red = '#C0392B';
+        K.box(0, 0, 360, 360, 0, '#FFFDF2');
+        K.txt('쭈갑초등학교 출조 통지표', 180, 42, 21, gr, { al: 'center', mw: 320 });
+        K.line(30, 52, 330, 52, 2, gr); K.line(30, 56, 330, 56, 1, gr);
+        K.txt([`${cd.m}월 ${cd.d}일`, cd.port, sh.cond ? cd.mul : '', sh.boat ? cd.boat : ''].filter(Boolean).join(' · '), 180, 76, 12, '#7A6E55', { al: 'center', mw: 320 });
+        const grade = s => { const [hi, lo] = thOf(s.k); return s.c >= hi ? '수' : s.c >= (hi + lo) / 2 ? '우' : s.c >= lo ? '미' : s.c > 0 ? '양' : '가'; };
+        const R = (cd.sp.length ? cd.sp.slice(0, 3) : [{ n: '쭈꾸미', c: 0, k: 'jj' }]).map(s => [s.n, `${s.c}마리`, grade(s)]);
+        if (sh.rig && cd.egiTop) R.push(['에기 고르기', egiName(cd.egiTop), ['양', '미', '우', '수'][tier]]);
+        if (cd.hrs >= 1) R.push(['끈기', `${Math.round(cd.hrs)}시간`, cd.hrs >= 6 ? '수' : cd.hrs >= 4 ? '우' : cd.hrs >= 2 ? '미' : '양']);
+        let y = 90; const rh = R.length > 4 ? 30 : 34;
+        K.line(30, y, 330, y, 1.2, '#CFC5A6');
+        R.slice(0, 5).forEach(([a, b, c]) => { K.txt(a, 38, y + rh * .66, 14.5, INK, { mw: 104 }); K.txt(b, 196, y + rh * .66, 14.5, INK, { al: 'center', mw: 96 }); K.txt(c, 300, y + rh * .7, 21, red, { al: 'center' }); y += rh; K.line(30, y, 330, y, 1, '#D9D0B4'); });
+        K.line(152, 90, 152, y, .8, '#D9D0B4'); K.line(250, 90, 250, y, .8, '#D9D0B4');
+        y += 26;
+        const room = Math.max(1, Math.floor((344 - y) / 20)), mm = sh.memo && cd.memo && room >= 3 ? Math.min(2, room - 2) : 0;
+        const cm = K.wrap(`선생님 말씀: ${jokeOf(JOKE.report[tier], cd, o.v)}`, 17.5, 'g', 228, Math.max(1, Math.min(3, room - mm))); y = K.lines(cm, 30, y, 17.5, 20, INK, { f: 'g', w: 700 });
+        if (mm) K.lines(K.wrap(`학생 소감: ${cd.memo}`, 15.5, 'g', 228, mm), 30, y + 2, 15.5, 18, '#5A5040', { f: 'g', w: 700 });
+        const sw = tier >= 2 ? ['참 잘', '했어요'] : tier === 1 ? ['잘', '했어요'] : ['다음엔', '잘하자'];
+        K.rot(298, 300, -12, () => { K.circ(0, 0, 36, 'rgba(255,255,255,.3)', 3, '#E8432F'); K.circ(0, 0, 30, null, 1.4, '#E8432F');
+          if (tier >= 2) for (let i = 0; i < 8; i++) { const a = i * Math.PI / 4; K.circ(Math.cos(a) * 33, Math.sin(a) * 33, 2.2, '#E8432F'); }
+          K.txt(sw[0], 0, -3, 14, '#E8432F', { al: 'center', mw: 50 }); K.txt(sw[1], 0, 15, 14, '#E8432F', { al: 'center', mw: 50 }); });
+        K.brand(24, 350, '#A89C80');
+      },
+      chat(K, cd, o) {
+        const g = K.g, tier = cardTier(cd), sh = o.show;
+        K.box(0, 0, 360, 360, 0, '#BFE6FF');
+        K.txt(`${cd.port ? cd.port + ' ' : ''}바닷속 친구들`, 16, 30, 16, INK, { mw: 270 }); if (sh.cond && cd.mul) K.txt(cd.mul, 344, 30, 13, '#5A6B7A', { al: 'right' });
+        K.line(0, 42, 360, 42, 1.5, '#9CCBE8');
+        const dt = `${cd.y}년 ${cd.m}월 ${cd.d}일 ${cd.dow}요일`, dw = K.tw(dt, 11) + 20; K.box(180 - dw / 2, 50, dw, 18, 9, '#9CCBE8'); K.txt(dt, 180, 63, 11, '#fff', { al: 'center' });
+        let y = 78;
+        const M = JOKE.chat[tier].map(([who, s]) => [who, s.includes('|') ? (cd.egiTop ? s.split('|')[0] : s.split('|')[1]) : s]);
+        M.forEach(([who, s]) => {
+          const t = cardFmt(s, cd), L = K.wrap(t, 14, 'j', 230, 2), bw = Math.max(...L.map(l => K.tw(l, 14))) + 20, bh = L.length * 18 + 12;
+          K.box(14, y, 36, 36, 12, '#fff'); drawChar(g, who, who === 'gp' ? 21 : 18, y + 3, 30);
+          K.txt(who === 'gp' ? '갑오징어' : '쭈꾸미', 58, y + 10, 11, '#4E6476');
+          K.box(58, y + 15, bw, bh, 12, '#fff'); K.lines(L, 68, y + 34, 14, 18, INK);
+          y += bh + 26;
+        });
+        if (sh.memo && cd.memo) { const L = K.wrap(cd.memo, 14, 'j', 220, 2), bw = Math.max(...L.map(l => K.tw(l, 14))) + 20, bh = L.length * 18 + 12; K.box(346 - bw, y - 6, bw, bh, 12, '#FFE14D'); K.lines(L, 356 - bw, y + 13, 14, 18, INK); y += bh + 10; }
+        const sys = cd.sp.length ? cd.sp.slice(0, 3).map(s => `${s.n} ${s.c}마리가 나갔습니다`) : ['오늘은 아무도 안 나갔습니다 ㅋㅋ'];
+        if (cd.sp.length > 3) sys.push(`외 ${cd.sp.length - 3}종도 나갔습니다`);
+        y = Math.max(y, 250 - sys.length * 24);
+        sys.forEach(s => { const w = K.tw(s, 12) + 24; K.box(180 - w / 2, y, w, 21, 10.5, 'rgba(255,255,255,.62)'); K.txt(s, 180, y + 15, 12, '#2F5F80', { al: 'center' }); y += 26; });
+        if (sh.rig && cd.egi.length && y < 330) { const n = Math.min(4, cd.egi.length), w = K.tw('오늘의 에기', 11) + 8 + n * 22; let x = 180 - w / 2; x += K.txt('오늘의 에기', x, y + 14, 11, '#4E6476') + 8; K.egis(cd.egi, x, y + 10, 9, 4, 4); }
+        K.brand(346, 352, '#4E7EA0', 'right');
+      },
+      diary(K, cd, o) {
+        const g = K.g, tier = cardTier(cd), sh = o.show, pk = '#E98C8C';
+        K.box(0, 0, 360, 360, 0, '#FFFDF6');
+        K.box(14, 14, 332, 28, 0, null, 1.5, pk);
+        K.txt(`${cd.y}년 ${cd.m}월 ${cd.d}일 ${cd.dow}요일`, 22, 33, 13.5, INK);
+        const r = [sh.cond ? cd.mul : '', sh.cond ? wtT(cd) : ''].filter(Boolean).join(' · '); if (r) K.txt(r, 338, 33, 12.5, INK, { al: 'right' });
+        const PX = 14, PY = 42, PW = 332, PH = 128;
+        K.box(PX, PY, PW, PH, 0, '#fff'); g.save(); g.beginPath(); g.rect(PX, PY, PW, PH); g.clip();
+        K.circ(PX + PW - 34, PY + 28, 16, '#FFD23F', 2.5, '#F2A20C');
+        for (let i = 0; i < 8; i++) { const a = i * Math.PI / 4; K.line(PX + PW - 34 + Math.cos(a) * 21, PY + 28 + Math.sin(a) * 21, PX + PW - 34 + Math.cos(a) * 27, PY + 28 + Math.sin(a) * 27, 2.2, '#F2A20C'); }
+        g.lineWidth = 2; g.strokeStyle = INK; g.beginPath(); g.moveTo(60, 70); g.quadraticCurveTo(66, 64, 72, 70); g.quadraticCurveTo(78, 64, 84, 70); g.stroke();
+        const sea = PY + 78; g.beginPath(); g.moveTo(PX, sea); for (let i = 0; i < 10; i++) g.quadraticCurveTo(PX + (i + .5) * PW / 10, sea + (i % 2 ? 6 : -6), PX + (i + 1) * PW / 10, sea); g.lineTo(PX + PW, PY + PH); g.lineTo(PX, PY + PH); g.closePath(); g.fillStyle = '#7FD0F5'; g.fill();
+        g.beginPath(); g.moveTo(108, sea - 18); g.lineTo(212, sea - 18); g.lineTo(200, sea + 2); g.lineTo(120, sea + 2); g.closePath(); g.fillStyle = '#fff'; g.fill(); g.lineWidth = 2.2; g.strokeStyle = INK; g.stroke();
+        g.beginPath(); g.moveTo(140, sea - 18); g.lineTo(140, sea - 44); g.lineTo(172, sea - 44); g.lineTo(184, sea - 18); g.closePath(); g.fillStyle = '#FF7A59'; g.fill(); g.stroke();
+        if (sh.boat && cd.boat) K.txt(cd.boat, 160, sea - 5, 11, '#2B2BA8', { f: 'g', al: 'center', mw: 80, w: 700 });
+        g.beginPath(); g.moveTo(206, sea - 16); g.quadraticCurveTo(236, sea - 30, 246, sea + 16); g.lineWidth = 1.4; g.stroke();
+        const L = (cd.sp.length ? cd.sp : [{ ch: 'oc' }]).slice(0, 3);
+        drawChar(g, L[0].ch, 232, sea + 12, 32, !cd.sp.length);
+        if (L[1]) drawChar(g, L[1].ch, 40, sea + 10, 34);
+        if (L[2]) drawChar(g, L[2].ch, 290, sea + 14, 28);
+        K.brand(PX + 8, PY + 16, '#A0B4C0'); g.restore(); g.lineWidth = 1.5; g.strokeStyle = pk; g.strokeRect(PX, PY, PW, PH);
+        // 원고지
+        let t = jokeOf([JOKE.diary[tier]], cd, 0); if (sh.memo && cd.memo) t += ' ' + cd.memo;
+        if (sh.rig && cd.egiTop && tier >= 2) t = t.replace(/(잡았다\.)/, `$1 ${egiName(cd.egiTop)} 에기가 최고였다.`);
+        const cells = []; for (const m of t.matchAll(/\d+|./g)) { const s = m[0]; if (/^\d+$/.test(s)) for (let i = 0; i < s.length; i += 2) cells.push(s.slice(i, i + 2)); else cells.push(s); }
+        const C = 12, cw = PW / C, rows = 6, max = C * rows;
+        if (cells.length > max) { cells.length = max - 1; cells.push('…'); }
+        for (let i = 0; i < max; i++) {
+          const cx = PX + (i % C) * cw, cy = 176 + Math.floor(i / C) * cw;
+          g.lineWidth = 1.2; g.strokeStyle = pk; g.strokeRect(cx, cy, cw, cw);
+          const ch = cells[i]; if (ch && ch !== ' ') K.txt(ch, cx + cw / 2, cy + cw * .74, ch.length > 1 ? 14 : 18, '#2B2BA8', { f: 'g', al: 'center', w: 700 });
+        }
+      }
+    };
+    function cardRender(cv, cd, o) {
+      const g = cv.getContext('2d'), need = {};
+      g.setTransform(cv.width / 360, 0, 0, cv.width / 360, 0, 0); g.clearRect(0, 0, 360, 360);
+      const K = cardKit(g, need);
+      try { CARD_DRAW[CARD_THEMES[o.th].id](K, cd, o); } catch (e) { console.warn('card', e); }
+      return need;
+    }
+    // 이 카드를 글로: 카페 조황기에 붙여 넣기
+    function cardText(cd, sh) {
+      const L = [`[쭈갑이 물때] ${cd.m}월 ${cd.d}일(${cd.dow}) 출조`];
+      const a = [cd.port ? `${cd.port} 출항` : '', sh.boat && cd.boat ? cd.boat : ''].filter(Boolean).join(' · '); if (a) L.push(a);
+      const c = sh.cond ? [cd.mul ? `물때 ${cd.mul}` : '', wtT(cd), windT(cd)].filter(Boolean).join(' · ') : ''; if (c) L.push(c);
+      L.push(`조과: ${cd.sp.length ? cd.sp.map(s => `${s.n} ${s.c}`).join(' · ') : '꽝'}`);
+      if (sh.rig) { const r = [sinkTxt(cd.sink), egiTxt(cd.egi)].filter(Boolean).join(' · '); if (r) L.push(`채비: ${r}`); }
+      if (sh.memo && cd.memo) L.push(`메모: ${cd.memo}`);
+      return L.join('\n');
+    }
+
+    // ---------- 조과 카드 화면
+    let cardS = null, cardEl = null, cardFontsAsked = false;
+    function cardFonts() {
+      if (cardFontsAsked) return; cardFontsAsked = true;
+      try { const l = document.createElement('link'); l.rel = 'stylesheet'; l.href = 'https://fonts.googleapis.com/css2?family=Jua&family=Gaegu:wght@700&display=swap'; l.onload = () => { if (cardS) cardPaint(); }; document.head.appendChild(l); } catch (_) {}
+    }
+    const natV = () => { try { return NAT ? +NAT.version() || 0 : 0; } catch (_) { return 0; } };
+    function cardBuild() {
+      if (cardEl) return cardEl;
+      const el = document.createElement('div'); el.className = 'cardv'; el.id = 'cardv'; el.hidden = true;
+      el.setAttribute('role', 'dialog'); el.setAttribute('aria-modal', 'true'); el.setAttribute('aria-label', '조과 카드');
+      el.innerHTML = `<div class="cv-in">
+        <div class="cv-h"><button type="button" class="cv-x" data-c="x" aria-label="닫기"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button><b>조과 카드</b><span id="cv-sub"></span><button type="button" class="cv-thb" data-c="th">문구 기준</button></div>
+        <div class="cv-stage"><button type="button" class="cv-arr" data-c="prev" aria-label="이전 테마">‹</button><div class="cv-wrap" id="cv-wrap"><canvas id="cv-cv" width="1080" height="1080" role="img" aria-label="조과 카드 미리보기"></canvas></div><button type="button" class="cv-arr" data-c="next" aria-label="다음 테마">›</button></div>
+        <div class="cv-ind" id="cv-ind"></div>
+        <div class="cv-chips" id="cv-chips" role="tablist" aria-label="카드 테마"></div>
+        <div class="cv-tg" id="cv-tg"></div>
+        <div class="cv-row" id="cv-row1"></div>
+        <div class="cv-row main"><button type="button" class="pri" data-c="share">보내기</button><button type="button" data-c="save">저장</button><button type="button" data-c="copy">글 복사</button></div>
+      </div>
+      <input type="file" accept="image/*" id="cv-file" hidden>
+      <div class="cv-sheet-back" id="cv-sback" hidden></div><div class="cv-sheet" id="cv-sheet" hidden></div>
+      <div class="cv-toast" id="cv-toast" hidden></div>`;
+      document.body.appendChild(el); cardEl = el;
+      el.addEventListener('click', cardClick);
+      $('cv-file').addEventListener('change', cardFile);
+      // 미리보기를 옆으로 밀어 테마 바꾸기
+      const wrap = $('cv-wrap'), cv = $('cv-cv'); let sw = null;
+      wrap.addEventListener('pointerdown', e => { sw = { x: e.clientX, y: e.clientY, id: e.pointerId, on: false }; });
+      wrap.addEventListener('pointermove', e => { if (!sw || e.pointerId !== sw.id) return; const dx = e.clientX - sw.x, dy = e.clientY - sw.y;
+        if (!sw.on && Math.abs(dx) > 8 && Math.abs(dx) > Math.abs(dy)) { sw.on = true; try { wrap.setPointerCapture(e.pointerId); } catch (_) {} }
+        if (sw.on) { cv.style.transition = 'none'; cv.style.transform = `translateX(${dx * .6}px) rotate(${dx * .02}deg)`; } });
+      const end = e => { if (!sw) return; const dx = e.clientX - sw.x, on = sw.on; sw = null; cv.style.transition = ''; cv.style.transform = '';
+        if (on && Math.abs(dx) > 50) cardGo(dx < 0 ? 1 : -1); };
+      wrap.addEventListener('pointerup', end); wrap.addEventListener('pointercancel', () => { sw = null; cv.style.transition = ''; cv.style.transform = ''; });
+      return el;
+    }
+    function cardOpen(k) {
+      const cd = cardData(k); if (!cd) return;
+      cardFonts(); cardBuild();
+      const st = loadJ(CARD_KEY, {}) || {};
+      cardS = { cd, th: Math.max(0, Math.min(CARD_THEMES.length - 1, st.th | 0)), v: Math.floor(Math.random() * 12), photo: null, fk: '',
+        show: { boat: true, rig: true, memo: false, cond: true, ...(st.show || {}) } };
+      $('cv-sub').textContent = `${cd.m}월 ${cd.d}일 출조`;
+      cardEl.hidden = false; document.documentElement.classList.add('cv-lock');
+      if (useHist) { try { history.pushState({ cardv: 1 }, ''); } catch (_) {} }
+      cardUi(); cardPaint();
+      const c = $('cv-chips').querySelector('.on'); if (c) c.scrollIntoView({ block: 'nearest', inline: 'center' });
+    }
+    function cardClose(fromPop) {
+      if (!cardS) return;
+      if (cardS.photoUrl) { try { URL.revokeObjectURL(cardS.photoUrl); } catch (_) {} }
+      cardS = null; cardEl.hidden = true; cardSheet(null); document.documentElement.classList.remove('cv-lock');
+      if (useHist && !fromPop && history.state && history.state.cardv) { skipPop = true; history.back(); }
+    }
+    function cardSaveSt() { if (cardS) saveJ(CARD_KEY, { th: cardS.th, show: cardS.show }); }
+    function cardUi() {
+      const s = cardS, cd = s.cd, T = CARD_THEMES[s.th];
+      $('cv-ind').textContent = `${T.n} · ${s.th + 1} / ${CARD_THEMES.length}  옆으로 밀어서 바꾸기`;
+      $('cv-chips').innerHTML = CARD_THEMES.map((t, i) => `<button type="button" role="tab" data-c="th-go" data-i="${i}" class="${i === s.th ? 'on' : ''}" aria-selected="${i === s.th}">${t.n}${t.ph ? '<i aria-hidden="true">📷</i>' : ''}</button>`).join('');
+      const tg = [['boat', '배 이름', !!cd.boat], ['rig', '에기·봉돌', !!(cd.egi.length || cd.sink.length)], ['memo', '메모', !!cd.memo], ['cond', '물때·수온', !!(cd.mul || cd.wt != null)]].filter(x => x[2]);
+      $('cv-tg').innerHTML = tg.length ? '<span>카드에 넣을 것</span>' + tg.map(([k, n]) => `<button type="button" data-c="tg" data-k="${k}" class="${s.show[k] ? 'on' : ''}" aria-pressed="${!!s.show[k]}"><i aria-hidden="true"></i>${n}</button>`).join('') : '';
+      $('cv-row1').innerHTML = (s.photo ? '<button type="button" data-c="photo">사진 바꾸기</button><button type="button" class="sm" data-c="photo-rm" aria-label="사진 빼기">사진 빼기</button>' : '<button type="button" data-c="photo">사진 넣기</button>')
+        + '<button type="button" data-c="joke">다른 문구</button>';
+    }
+    function cardPaint() {
+      const s = cardS; if (!s) return;
+      const need = cardRender($('cv-cv'), s.cd, s);
+      const fams = Object.entries(need), key = fams.map(([f, t]) => f + ':' + [...new Set(t)].sort().join('')).join('|');
+      if (key !== s.fk && document.fonts && document.fonts.load) {
+        s.fk = key;
+        Promise.all(fams.map(([f, t]) => document.fonts.load(`20px ${CF[f]}`, [...new Set(t)].join('')).catch(() => []))).then(r => { if (cardS === s && r.some(x => x && x.length)) cardRender($('cv-cv'), s.cd, s); });
+      }
+    }
+    function cardGo(d) {
+      const s = cardS; if (!s) return;
+      s.th = (s.th + d + CARD_THEMES.length) % CARD_THEMES.length; cardSaveSt();
+      const cv = $('cv-cv'); cv.classList.remove('in-l', 'in-r'); void cv.offsetWidth; cv.classList.add(d > 0 ? 'in-r' : 'in-l');
+      cardUi(); cardPaint();
+      const c = $('cv-chips').querySelector('.on'); if (c) c.scrollIntoView({ block: 'nearest', inline: 'center', behavior: 'smooth' });
+    }
+    function cvToast(t) { const el = $('cv-toast'); el.textContent = t; el.hidden = false; clearTimeout(cvToast.t); cvToast.t = setTimeout(() => { el.hidden = true; }, 2600); }
+    function cardClick(e) {
+      const b = e.target.closest('[data-c]'); if (!b || !cardS) return; const c = b.dataset.c, s = cardS;
+      if (c === 'x') return cardClose();
+      if (c === 'prev') return cardGo(-1);
+      if (c === 'next') return cardGo(1);
+      if (c === 'th-go') { const i = +b.dataset.i; if (i !== s.th) cardGo(i - s.th); return; }
+      if (c === 'tg') { s.show[b.dataset.k] = !s.show[b.dataset.k]; cardSaveSt(); cardUi(); return cardPaint(); }
+      if (c === 'joke') { s.v++; return cardPaint(); }
+      if (c === 'photo') {
+        if (NAT && natV() < 3) return cvToast('사진 넣기는 앱을 새 버전으로 업데이트하면 돼요');
+        const f = $('cv-file'); f.value = ''; return f.click();
+      }
+      if (c === 'photo-rm') { if (s.photoUrl) { try { URL.revokeObjectURL(s.photoUrl); } catch (_) {} } s.photo = null; s.photoUrl = null; cardUi(); return cardPaint(); }
+      if (c === 'th') return cardThSheet();
+      if (c === 'sh-x' || c === 'sh-back') return cardSheet(null);
+      if (c === 'sh-reset') { saveJ(CARD_TH_KEY, {}); cardSheet(null); cvToast('문구 기준을 처음대로 돌렸어요'); return cardPaint(); }
+      if (c === 'sh-save') return cardThSave();
+      if (c === 'share') return cardShare();
+      if (c === 'save') return cardSaveImg();
+      if (c === 'copy') return cardCopy();
+    }
+    function cardFile(e) {
+      const f = e.target.files && e.target.files[0]; if (!f || !cardS) return;
+      const s = cardS, url = URL.createObjectURL(f), img = new Image();
+      img.onload = () => {
+        if (cardS !== s) { URL.revokeObjectURL(url); return; }
+        if (s.photoUrl) { try { URL.revokeObjectURL(s.photoUrl); } catch (_) {} }
+        s.photo = img; s.photoUrl = url;
+        if (!CARD_THEMES[s.th].ph) { s.th = CARD_THEMES.findIndex(t => t.id === 'polaroid'); cardSaveSt(); cvToast('사진은 폴라로이드·호외·현상수배 카드에 들어가요'); }
+        cardUi(); cardPaint();
+      };
+      img.onerror = () => { URL.revokeObjectURL(url); cvToast('이 사진은 열 수 없어요'); };
+      img.src = url;
+    }
+    // 문구 기준 고치기 (어종마다 대박·아쉬움 마릿수)
+    function cardSheet(html) {
+      const sh = $('cv-sheet'), bk = $('cv-sback'); if (!sh) return;
+      if (html == null) { sh.hidden = true; bk.hidden = true; sh.innerHTML = ''; return; }
+      sh.innerHTML = html; sh.hidden = false; bk.hidden = false;
+    }
+    function cardThSheet() {
+      const cd = cardS.cd, keys = [['jj', '쭈꾸미'], ['gap', '갑오징어']];
+      for (const s of cd.sp) if (!keys.some(k => k[0] === s.k)) keys.push([s.k, s.n]);
+      cardSheet(`<div class="cv-shh"><b>문구 기준</b><button type="button" data-c="sh-x" aria-label="닫기">×</button></div>
+        <p class="cv-shp">카드의 웃긴 문구가 마릿수에 따라 바뀌어요. 어종마다 기준을 정해 주세요.</p>
+        ${keys.map(([k, n]) => { const [hi, lo] = thOf(k); return `<div class="cv-thr" data-k="${esc(k)}"><b>${esc(n)}</b><label>대박 <input type="number" inputmode="numeric" min="2" max="999" value="${hi}" data-f="hi" aria-label="${esc(n)} 대박 기준"> 마리부터</label><label>아쉬움 <input type="number" inputmode="numeric" min="1" max="998" value="${lo}" data-f="lo" aria-label="${esc(n)} 아쉬움 기준"> 마리 아래</label></div>`; }).join('')}
+        <p class="cv-sherr" id="cv-sherr" hidden></p>
+        <div class="cv-shb"><button type="button" data-c="sh-reset">처음대로</button><button type="button" class="pri" data-c="sh-save">저장</button></div>`);
+      $('cv-sback').onclick = () => cardSheet(null);
+    }
+    function cardThSave() {
+      const m = thAll(), err = $('cv-sherr'); let bad = '';
+      for (const row of $('cv-sheet').querySelectorAll('.cv-thr')) {
+        const hi = parseInt(row.querySelector('[data-f=hi]').value, 10), lo = parseInt(row.querySelector('[data-f=lo]').value, 10);
+        if (!(hi >= 2) || !(lo >= 1) || lo >= hi) { bad = `${row.querySelector('b').textContent}: '대박' 마릿수가 '아쉬움'보다 커야 해요`; break; }
+        m[row.dataset.k] = [Math.min(999, hi), lo];
+      }
+      if (bad) { err.textContent = bad; err.hidden = false; return; }
+      saveJ(CARD_TH_KEY, m); cardSheet(null); cvToast('문구 기준을 저장했어요'); cardPaint();
+    }
+    // 보내기 · 저장 · 글 복사
+    async function cardReady() {
+      const s = cardS; if (!s) return null;
+      try { if (document.fonts) { const need = cardRender($('cv-cv'), s.cd, s); await Promise.race([Promise.all(Object.entries(need).map(([f, t]) => document.fonts.load(`20px ${CF[f]}`, [...new Set(t)].join('')).catch(() => []))), new Promise(r => setTimeout(r, 2500))]); } } catch (_) {}
+      if (cardS !== s) return null;
+      cardRender($('cv-cv'), s.cd, s);
+      return $('cv-cv');
+    }
+    const cardName = cd => `jjugap-${cd.y}${String(cd.m).padStart(2, '0')}${String(cd.d).padStart(2, '0')}-${CARD_THEMES[cardS.th].id}.jpg`;
+    async function cardShare() {
+      const cv = await cardReady(); if (!cv) return; const cd = cardS.cd;
+      if (NAT) {
+        if (natV() < 3) return cvToast('바로 보내기는 앱을 새 버전으로 업데이트하면 돼요');
+        try { NAT.shareImage(cv.toDataURL('image/jpeg', .92).split(',')[1], cardName(cd)); } catch (_) { cvToast('보내기를 열지 못했어요'); }
+        return;
+      }
+      try {
+        const blob = await new Promise(r => cv.toBlob(r, 'image/jpeg', .92)), file = new File([blob], cardName(cd), { type: 'image/jpeg' });
+        if (navigator.canShare && navigator.canShare({ files: [file] })) { await navigator.share({ files: [file] }); return; }
+      } catch (e) { if (e && e.name === 'AbortError') return; }
+      cardSaveImg(true);
+    }
+    async function cardSaveImg(fromShare) {
+      const cv = await cardReady(); if (!cv) return; const cd = cardS.cd;
+      if (NAT) {
+        if (natV() < 3) return cvToast('사진 저장은 앱을 새 버전으로 업데이트하면 돼요');
+        let ok = ''; try { ok = NAT.saveImage(cv.toDataURL('image/jpeg', .92).split(',')[1], cardName(cd)); } catch (_) {}
+        return cvToast(ok ? '사진첩에 저장했어요' : '저장하지 못했어요');
+      }
+      cv.toBlob(b => { const u = URL.createObjectURL(b), a = document.createElement('a'); a.href = u; a.download = cardName(cd); document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(u), 4000);
+        cvToast(fromShare ? '이 브라우저는 바로 보내기가 안 돼서 사진으로 저장했어요' : '카드를 사진으로 저장했어요'); }, 'image/jpeg', .92);
+    }
+    async function cardCopy() {
+      const t = cardText(cardS.cd, cardS.show); let ok = false;
+      if (NAT && natV() >= 3) { try { NAT.copyText(t); ok = true; } catch (_) {} }
+      if (!ok && navigator.clipboard && navigator.clipboard.writeText) { try { await navigator.clipboard.writeText(t); ok = true; } catch (_) {} }
+      if (!ok) { try { const ta = document.createElement('textarea'); ta.value = t; ta.style.position = 'fixed'; ta.style.opacity = '0'; document.body.appendChild(ta); ta.select(); ok = document.execCommand('copy'); ta.remove(); } catch (_) {} }
+      cvToast(ok ? '카페에 붙여 넣을 글을 복사했어요' : '복사하지 못했어요');
+    }
+    // 출조 정리를 저장한 뒤: '조과 카드 만들기' 권하기 (8초)
+    function cardOffer(k) {
+      let el = $('cv-offer');
+      if (!el) { el = document.createElement('div'); el.id = 'cv-offer'; el.className = 'cv-offer'; document.body.appendChild(el); }
+      el.innerHTML = '<span>출조 정리를 저장했어요</span><button type="button">조과 카드 만들기</button>';
+      el.hidden = false; el.querySelector('button').onclick = () => { el.hidden = true; cardOpen(k); };
+      clearTimeout(cardOffer.t); cardOffer.t = setTimeout(() => { el.hidden = true; }, 8000);
     }
     document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') setTimeout(sumPendCheck, 700); });
     setTimeout(sumPendCheck, 1800);
@@ -4355,9 +5133,10 @@ const TideHarm = (() => {
       const SM = sums();
       const body = TL.map(tr => {
         const first = tr.pts[0], fold = folded.has(tr.key), S = SM[tr.key], tot = S ? sumTot(S) : tr.pts.reduce((a, q) => a + caughtOf(q), 0);
-        const sumLi = `<li class="mv-sumli"><button type="button" class="mv-sumbtn${S ? ' done' : ''}" data-act="sum" data-k="${esc(tr.key)}"><span>${S
+        const sumLi = `<li class="mv-sumli card"><button type="button" class="mv-sumbtn${S ? ' done' : ''}" data-act="sum" data-k="${esc(tr.key)}"><span>${S
           ? `출조 정리 · 합계 ${catchTxt({ jj: S.jj, gap: S.gap, etc: S.etc }) }<small>${esc(rigTxt(S) || '채비 기록 없음')}${S.memo ? ' · ' + esc(S.memo) : ''}</small>`
-          : '출조 정리하기<small>합계 마릿수·봉돌·에기 색을 한 번에 적어요</small>'}</span><i>›</i></button></li>`;
+          : '출조 정리하기<small>합계 마릿수·봉돌·에기 색을 한 번에 적어요</small>'}</span><i>›</i></button>`
+          + `<button type="button" class="mv-cardbtn" data-act="card" data-k="${esc(tr.key)}" aria-label="${md(kstDay(first.t))} 조과 카드 만들기"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="4.5" width="17" height="15" rx="3" fill="#fff" stroke="currentColor" stroke-width="1.8"/><circle cx="9" cy="10" r="2.2" fill="#FF7A59"/><path d="M6.5 16.5l4-3.5 2.6 2.2 2.4-2 2.5 2.3" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>카드</button></li>`;
         const items = tr.pts.slice().reverse().map(p => {
           const S = TideHarm.STATIONS[p.port] || TideHarm.STATIONS[nearest(p).k], ti = TG.by.get(p.id);
           return `<li class="mv-row" data-id="${p.id}"><button class="mv-trash" data-act="swdel" data-id="${p.id}" tabindex="-1" aria-label="이 포인트 지우기">${ICON_TRASH}</button>`
@@ -4549,6 +5328,7 @@ const TideHarm = (() => {
       if (a === 'swdel') return delPoint(b.dataset.id, b.closest('.mv-row'));
       if (rigTap(a, b)) return;
       if (a === 'sum') return openSum(b.dataset.k, false);
+      if (a === 'card') return cardOpen(b.dataset.k);
       if (a === 'good') { if (!form || !form.good) return; const id = b.dataset.id, on = !form.good.has(id); on ? form.good.add(id) : form.good.delete(id); b.classList.toggle('on', on); b.setAttribute('aria-pressed', on); return; }
       if (a === 'sum-pt') { const p = points.find(q => q.id === b.dataset.id); if (p) { selId = p.id; follow = false; $('mv-me').classList.remove('on'); placeAt(p.lon, p.lat, focusY()); draw(); } return; }
       if (a === 'sum-save') return sumSave();
@@ -5016,6 +5796,7 @@ const TideHarm = (() => {
     const natBubble = () => { try { return !!(NAT && NAT.bubbleOn()); } catch (_) { return false; } };
     // ---------- 바로가기로 열기: 홈 화면 '포인트 저장'(?act=save) · '바다 지도'(?act=map), 알림줄 단추
     function quickAct(a) {
+      if (a === 'card') { const tr = tripGroups().list[0]; if (tr) cardOpen(tr.key); else mainToast('아직 출조 기록이 없어요'); return; }
       if (mode === 'pick') return;
       open();
       if (a !== 'save') return;
@@ -5025,9 +5806,9 @@ const TideHarm = (() => {
     const act0 = new URLSearchParams(location.search).get('act');
     // 위치 기록 서비스는 돌고 있는데 선상 모드 기록이 없거나 너무 오래된 경우(하루 가까이 켜 둔 채 잊음): 이어서 켜지 말고 끈다
     if (NAT && !onBoard && !board) { try { if (NAT.isTracking()) { NAT.setMapOpen(false); setTimeout(() => mainToast('선상 모드가 너무 오래 켜져 있어서 껐어요'), 900); } } catch (_) {} }
-    if (act0 === 'save' || act0 === 'map') { try { history.replaceState(history.state, '', location.pathname + location.hash); } catch (_) {} setTimeout(() => quickAct(act0), 0); }
+    if (act0 === 'save' || act0 === 'map' || act0 === 'card') { try { history.replaceState(history.state, '', location.pathname + location.hash); } catch (_) {} setTimeout(() => quickAct(act0), 0); }
     if ('serviceWorker' in navigator) navigator.serviceWorker.addEventListener('message', e => { const a = e.data && e.data.jjugap; if (a === 'save' || a === 'map') quickAct(a); });
-    window.jjugapAct = a => { if (a === 'save' || a === 'map') quickAct(a); };
+    window.jjugapAct = a => { if (a === 'save' || a === 'map' || a === 'card') quickAct(a); };
     window.jjugapNatFixes = () => natFixes();   // 안드로이드 앱의 홈 화면 단추·알림에서 부른다
     // 화면 꺼짐 막기 (지원하는 폰에서만)
     // 화면 꺼짐 막기: 웹(브라우저)에서만. 안드로이드 앱은 화면이 꺼져도 기록하니 휴대폰 설정대로 꺼지게 (배터리)
@@ -5289,8 +6070,8 @@ const TideHarm = (() => {
     // 앱을 열면 조금 뒤 지도용 자료도 받아 둔다 (바다 위에서 인터넷이 끊겨도 저장해 둔 것으로 보이게)
     if (!inFrame) setTimeout(loadSpots, 3500);
     if (!inFrame) setTimeout(() => (window.requestIdleCallback || (f => setTimeout(f, 0)))(() => loadLand(), { timeout: 4000 }), 5000);
-    addEventListener('popstate', () => { if (skipPop) { skipPop = false; return; } if (isOpen) close(true); });
-    document.addEventListener('keydown', e => { if (e.key === 'Escape' && isOpen) close(); });
+    addEventListener('popstate', () => { if (skipPop) { skipPop = false; return; } if (cardS) { cardClose(true); return; } if (isOpen) close(true); });
+    document.addEventListener('keydown', e => { if (e.key !== 'Escape') return; if (cardS) cardClose(); else if (isOpen) close(); });
     new ResizeObserver(() => { if (isOpen) resize(); }).observe(box);
     setInterval(() => { if (isOpen && mode === 'info') paintPanel(true); }, 15000);
     setInterval(() => { if (isOpen && document.visibilityState === 'visible') draw(); }, 30000);   // 조류 화살표 등 시간에 따라 바뀌는 것 (지도는 바뀔 때만 그리니까)
@@ -5624,7 +6405,7 @@ const TideHarm = (() => {
 
 <script>
 if ('serviceWorker' in navigator) addEventListener('load', () => {
-  const sw = navigator.serviceWorker, VER = 'b9addf60'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
+  const sw = navigator.serviceWorker, VER = '599809f2'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
   // 화면에 손을 대기 시작했는지 (쓰는 중에는 새로 열지 않으려고)
   ['pointerdown', 'keydown'].forEach(t => addEventListener(t, () => { touched = true; }, { capture: true, passive: true }));
   const reload = () => {
