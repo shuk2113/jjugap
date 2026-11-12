@@ -3589,14 +3589,16 @@ const TideHarm = (() => {
           }
           ctx.textAlign = 'start'; ctx.textBaseline = 'alphabetic';
         }
-        // 출조 이름표: 첫 포인트 아래에 날짜 · 배
+        // 출조 이름표: 경로가 가리지 않게 그날 경로의 맨 위보다 위에 (가운데 맞춤) · 날짜 · 배 · 합계
         if (v.s > 1000 && A === 1) {
           // 출조 정리를 했으면 합계 마릿수도 (너무 길면 'N마리'로 줄여서)
           const t0 = `${md(kstDay(p0.p.t))} ${p0.p.boat || p0.p.depName || '출조'}`, SM0 = sums()[tr.key], n0 = SM0 ? sumTot(SM0) : 0;
           ctx.font = `700 10.5px ${font}`;
           let t = n0 ? `${t0} · ${catchTxt({ jj: SM0.jj, gap: SM0.gap, etc: SM0.etc })}` : t0;
           if (n0 && ctx.measureText(t).width > W - 48) t = `${t0} · ${n0}마리`;
-          const tw = ctx.measureText(t).width, lx = p0.x, ly = p0.y + p0.r + 13;
+          let x0 = Infinity, x1 = -Infinity, yTop = Infinity;   // 왕관·순서 번호·👍까지 포함한 맨 위
+          for (const o of xy) { x0 = Math.min(x0, o.x - o.r); x1 = Math.max(x1, o.x + o.r); yTop = Math.min(yTop, o.y - Math.max(o.r + (o.info.best ? 11 : 4), o.p.good ? o.r * 1.35 + 2 : 0)); }
+          const tw = ctx.measureText(t).width, lx = (x0 + x1) / 2, ly = yTop - 13;
           ctx.globalAlpha = 0.95; ctx.fillStyle = tr.color; ctx.beginPath(); ctx.roundRect ? ctx.roundRect(lx - tw / 2 - 7, ly - 9, tw + 14, 18, 9) : ctx.rect(lx - tw / 2 - 7, ly - 9, tw + 14, 18); ctx.fill();
           ctx.globalAlpha = 1; ctx.fillStyle = '#FFFFFF'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(t, lx, ly + 0.5); ctx.textAlign = 'start'; ctx.textBaseline = 'alphabetic';
         }
@@ -7029,7 +7031,7 @@ const TideHarm = (() => {
 
 <script>
 if ('serviceWorker' in navigator) addEventListener('load', () => {
-  const sw = navigator.serviceWorker, VER = '0bbd2fa7'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
+  const sw = navigator.serviceWorker, VER = '3e3109e8'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
   // 화면에 손을 대기 시작했는지 (쓰는 중에는 새로 열지 않으려고)
   ['pointerdown', 'keydown'].forEach(t => addEventListener(t, () => { touched = true; }, { capture: true, passive: true }));
   const reload = () => {
