@@ -407,7 +407,9 @@ h2{margin:0; font-size:calc(16px * var(--k)); font-weight:700; text-wrap:balance
 .mv-sug span{flex:none; font-size:calc(11.5px * var(--k)); font-weight:600; color:var(--ink-2)}
 .mv-hint{margin:6px 0 0; font-size:calc(11.5px * var(--k)); line-height:1.45; color:#2F7DF6; word-break:keep-all}
 .mv-tip{margin:-2px 0 8px; font-size:calc(11px * var(--k)); color:var(--ink-2); font-weight:500}
-.mv-btns + .mv-tip{margin-top:12px}   /* '전체 기록 보기' 단추 바로 아래면 조금 띄운다 */
+.mv-btns + .mv-tip{margin-top:12px}
+.mv-btns.mv-stick{position:sticky; bottom:calc(-12px - env(safe-area-inset-bottom, 0px)); z-index:2; margin:12px -14px calc(-12px - env(safe-area-inset-bottom, 0px)); padding:10px 14px calc(12px + env(safe-area-inset-bottom, 0px)); background:var(--card); border-top:1px solid var(--line)}   /* 출조 정리: 목록이 길어도 저장·닫기는 늘 아래에 */
+.mv-panel:has(.mv-stick){scroll-padding-bottom:84px}   /* 칸으로 옮겨 갈 때 아래 단추에 가리지 않게 */   /* '전체 기록 보기' 단추 바로 아래면 조금 띄운다 */
 .mv-tg + .mv-tg{margin-top:4px}
 .mv-grp{width:100%; display:flex; align-items:center; gap:7px; padding:7px 2px; border:0; background:none; font:inherit; font-size:calc(12.5px * var(--k)); font-weight:700; color:var(--ink-2); text-align:left; -webkit-tap-highlight-color:transparent; touch-action:manipulation}
 .mv-grp i{flex:none; width:9px; height:9px; border-radius:50%}
@@ -3589,8 +3591,12 @@ const TideHarm = (() => {
         }
         // 출조 이름표: 첫 포인트 아래에 날짜 · 배
         if (v.s > 1000 && A === 1) {
-          const t = `${md(kstDay(p0.p.t))} ${p0.p.boat || p0.p.depName || '출조'}`;
-          ctx.font = `700 10.5px ${font}`; const tw = ctx.measureText(t).width, lx = p0.x, ly = p0.y + p0.r + 13;
+          // 출조 정리를 했으면 합계 마릿수도 (너무 길면 'N마리'로 줄여서)
+          const t0 = `${md(kstDay(p0.p.t))} ${p0.p.boat || p0.p.depName || '출조'}`, SM0 = sums()[tr.key], n0 = SM0 ? sumTot(SM0) : 0;
+          ctx.font = `700 10.5px ${font}`;
+          let t = n0 ? `${t0} · ${catchTxt({ jj: SM0.jj, gap: SM0.gap, etc: SM0.etc })}` : t0;
+          if (n0 && ctx.measureText(t).width > W - 48) t = `${t0} · ${n0}마리`;
+          const tw = ctx.measureText(t).width, lx = p0.x, ly = p0.y + p0.r + 13;
           ctx.globalAlpha = 0.95; ctx.fillStyle = tr.color; ctx.beginPath(); ctx.roundRect ? ctx.roundRect(lx - tw / 2 - 7, ly - 9, tw + 14, 18, 9) : ctx.rect(lx - tw / 2 - 7, ly - 9, tw + 14, 18); ctx.fill();
           ctx.globalAlpha = 1; ctx.fillStyle = '#FFFFFF'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(t, lx, ly + 0.5); ctx.textAlign = 'start'; ctx.textBaseline = 'alphabetic';
         }
@@ -4393,10 +4399,10 @@ const TideHarm = (() => {
         ${catchRows(f)}
         <div class="mv-sec">채비<em>에기는 누르면 고르고, 한 번 더 누르면 빼요</em></div>
         ${rigRows(f, false)}
+        <input class="mv-memo" id="mv-memo" maxlength="120" placeholder="메모 (예: 오후 들물에 갑오징어 잘 나옴)" value="${esc(f.memo || '')}">
         <div class="mv-sec">머문 자리<em>잘 나온 곳만 톡 (안 해도 돼요)</em></div>
         <div class="mv-sumpts">${rows}</div>
-        <input class="mv-memo" id="mv-memo" maxlength="120" placeholder="메모 (예: 오후 들물에 갑오징어 잘 나옴)" value="${esc(f.memo || '')}">
-        <div class="mv-btns"><button class="pri" data-act="sum-save">저장</button><button data-act="sum-later">${f.had ? '닫기' : '나중에'}</button></div>`;
+        <div class="mv-btns mv-stick"><button class="pri" data-act="sum-save">저장</button><button data-act="sum-later">${f.had ? '닫기' : '나중에'}</button></div>`;
     }
     function sumSave() {
       const f = form, tr = sumTr; if (!f || !tr) return;
@@ -7023,7 +7029,7 @@ const TideHarm = (() => {
 
 <script>
 if ('serviceWorker' in navigator) addEventListener('load', () => {
-  const sw = navigator.serviceWorker, VER = '5171a0e9'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
+  const sw = navigator.serviceWorker, VER = '0bbd2fa7'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
   // 화면에 손을 대기 시작했는지 (쓰는 중에는 새로 열지 않으려고)
   ['pointerdown', 'keydown'].forEach(t => addEventListener(t, () => { touched = true; }, { capture: true, passive: true }));
   const reload = () => {
