@@ -346,6 +346,50 @@ h2{margin:0; font-size:calc(16px * var(--k)); font-weight:700; text-wrap:balance
 .mv-egis button.new i{display:grid; place-items:center; box-sizing:border-box; border:1.5px dashed var(--ink-2); box-shadow:none; background:none; font-style:normal; font-size:20px; font-weight:500; color:var(--ink-2)}
 .mv-egis button.new.cur i{border-color:#2F7DF6; color:#2F7DF6}
 .mv-egis button.cur i{box-shadow:0 0 0 2px var(--card), 0 0 0 4.5px #2F7DF6, 0 0 0 7px rgba(47,125,246,.25)}
+/* 오늘 채비 상자: 위 봉돌 칸 · 아래 에기 칸 · 아래 단추를 누르면 담기고, 담긴 칸을 누르면 제자리로 · 상자에 담긴 단추는 점선으로 비워 둔다 */
+.mv-rchips button.gone{border-style:dashed; color:var(--ink-2); opacity:.6}
+.mv-egis button.gone{color:var(--ink-2)} .mv-egis button.gone i{box-sizing:border-box; background:none !important; box-shadow:none; border:1.5px dashed var(--ink-2); opacity:.5}
+.mv-box{box-sizing:border-box; margin:4px 0 2px; padding:8px 10px 10px; border-radius:16px; background:var(--well); overflow:hidden}
+.mv-box .lbl{display:block; margin:0 0 6px 2px; font-size:calc(11.5px * var(--k)); font-weight:700; color:var(--ink-2)}
+.mv-box .cmp + .cmp{margin-top:10px; padding-top:9px; border-top:2px solid var(--line)}
+.mv-box .g{display:grid; gap:7px}
+.mv-box .g.s{grid-template-columns:repeat(6, minmax(0, 1fr))} .mv-box .g.e{grid-template-columns:repeat(4, minmax(0, 1fr))}
+.mv-box.sm .g.s{grid-template-columns:repeat(7, minmax(0, 1fr))} .mv-box.sm .g.e{grid-template-columns:repeat(5, minmax(0, 1fr))}
+.mv-box .h0{grid-column:1 / -1; margin:0; display:flex; align-items:center; justify-content:center; min-height:40px; font-size:calc(12px * var(--k)); font-weight:500; color:var(--ink-2); opacity:.85}
+.mv-box .g.e .h0{min-height:58px}
+.mv-cell{position:relative; box-sizing:border-box; aspect-ratio:1; min-width:0; padding:0; border:1px solid var(--line); border-radius:12px; background:var(--card); box-shadow:0 1px 3px rgba(0,0,0,.16); font:inherit; color:var(--ink); -webkit-tap-highlight-color:transparent; -webkit-touch-callout:none; -webkit-user-select:none; user-select:none; touch-action:manipulation}
+.mv-cell .in{position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px}
+.mv-cell b{max-width:92%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:calc(10.5px * var(--k)); font-weight:700; color:var(--ink-2)}
+.mv-cell.sk b{color:var(--ink)}
+.mv-cell .w{display:block; height:var(--wh); aspect-ratio:.7; border-radius:45% 45% 48% 48% / 38% 38% 62% 62%; background:linear-gradient(90deg,#6E7A82,#B8C2C9 48%,#7E8991); box-shadow:inset 0 -2px 0 rgba(0,0,0,.18)}
+.mv-cell .pic{display:block; height:56%} .mv-cell .pic svg{display:block; height:100%; width:auto}
+.mv-cell .st{position:absolute; right:4px; top:4px; width:15px; height:15px; border-radius:50%; background:#FFC93C; color:#5C3300; font-style:normal; font-size:9.5px; line-height:15px; text-align:center; display:none}
+.mv-cell.star .st{display:block}
+.mv-cell.press .in{transform:scale(1.08); transition:transform .15s}
+/* 에기 손질 판: 상자의 에기 칸을 꾹 누르면 (색 비율 · 레이저 색 · 틴셀 · 잘 먹힌 색 · 내 색 고치기·지우기) */
+.mv-rged{position:absolute; inset:0; z-index:20; display:flex; align-items:flex-end}
+.mv-rged[hidden]{display:none}
+.mv-rged .bd{position:absolute; inset:0; background:rgba(0,0,0,.45); animation:rgFade .2s}
+.mv-rged .pnl{position:relative; width:100%; box-sizing:border-box; padding:16px 16px calc(16px + env(safe-area-inset-bottom, 0px)); border-radius:20px 20px 0 0; background:var(--card); border-top:1px solid var(--line); animation:rgUp .28s cubic-bezier(.2,.9,.3,1)}
+@keyframes rgFade{from{opacity:0}} @keyframes rgUp{from{transform:translateY(40%); opacity:.4}}
+.mv-rged h3{margin:0 0 2px; font-size:calc(17px * var(--k))}
+.mv-rged .sub{margin:0 0 14px; font-size:calc(12.5px * var(--k)); font-weight:500; color:var(--ink-2)}
+.mv-rged .ed{display:flex; gap:44px; align-items:center}
+.mv-rged .big{position:relative; flex:none; width:80px; height:173px; touch-action:none}
+.mv-rged .big .pic, .mv-rged .big svg{display:block; width:80px; height:173px}
+.mv-rged .hd{position:absolute; left:-8px; right:-8px; height:0; border-top:1.5px dashed var(--ink); opacity:.85; pointer-events:none}
+.mv-rged .hd b{position:absolute; right:-30px; top:-19px; width:38px; height:38px; border-radius:50%; background:#2F7DF6; color:#fff; display:grid; place-items:center; font-size:17px; box-shadow:0 2px 6px rgba(0,0,0,.3); pointer-events:auto; touch-action:none}
+.mv-rged .hd b::after{content:''; position:absolute; inset:-10px}
+.mv-rged .big.drag .hd b{transform:scale(1.12); box-shadow:0 0 0 6px rgba(47,125,246,.25), 0 2px 6px rgba(0,0,0,.3)}
+.mv-rged .ctl{flex:1; min-width:0; display:flex; flex-direction:column; gap:9px}
+.mv-rged .ratio{font-size:calc(14px * var(--k)); font-weight:700} .mv-rged .ratio small{display:block; margin-top:2px; font-size:calc(12px * var(--k)); font-weight:500; color:var(--ink-2)}
+.mv-rged .tog{min-height:40px; padding:4px 10px; border-radius:12px; border:1px solid var(--line); background:none; font:inherit; font-size:calc(13.5px * var(--k)); font-weight:700; color:var(--ink); -webkit-tap-highlight-color:transparent}
+.mv-rged .tog.on{background:rgba(255,201,60,.14); border-color:#FFC93C}
+.mv-rged .tog.rm{color:var(--strong)} .mv-rged .mine{display:flex; gap:6px} .mv-rged .mine .tog{flex:1; min-width:0}
+.mv-rged .lcs{display:flex; flex-wrap:wrap; gap:7px}
+.mv-rged .lcs button{width:28px; height:28px; border-radius:50%; border:0; padding:0; box-shadow:0 0 0 2px var(--card), 0 0 0 3px var(--line)}
+.mv-rged .lcs button.on{box-shadow:0 0 0 2px var(--card), 0 0 0 4.5px #2F7DF6}
+.mv-rged .done{margin-top:16px; width:100%; height:46px; border:0; border-radius:14px; background:#2F7DF6; color:#fff; font:inherit; font-size:calc(15px * var(--k)); font-weight:700}
 .mv-egid{margin:6px 0 2px; padding:12px; border:1px solid var(--line); border-radius:14px; background:var(--paper)}
 .mv-egid .row{display:flex; gap:12px}
 .mv-egid .tabs{display:flex; gap:6px; margin:-2px -4px 10px; padding:0 4px 2px; overflow-x:auto; scrollbar-width:none}
@@ -4140,6 +4184,24 @@ const TideHarm = (() => {
       else base = `linear-gradient(180deg,${e.c.map((c, i) => `${c} ${(i * 100 / e.c.length).toFixed(1)}% ${((i + 1) * 100 / e.c.length).toFixed(1)}%`).join(',')})`;
       return x && x.t ? `${TINSEL},${base}` : base;
     }
+    // 에기 실루엣 그림 (상자 칸 · 손질 판): 몸통은 고른 비율로 위·아래 색 · 레이저는 고른 색 · 틴셀은 꼬리에 가닥
+    let egiG = 0;
+    function egiSvg(e, x) {
+      const g = 'eg' + (++egiG); let def;
+      if (e.c[0] === 'laser') {
+        const l = LASER_BY[(x && x.lc) || 'silver'] || LASERS[0];
+        def = l.id === 'rainbow' ? `<linearGradient id="${g}" x1="0" y1="0" x2="0" y2="1">${['#ff5a5a', '#ffb84d', '#fff176', '#69f0ae', '#4fc3f7', '#7c4dff'].map((c, i) => `<stop offset="${i / 5}" stop-color="${c}"/>`).join('')}</linearGradient>`
+          : `<linearGradient id="${g}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${l.c}"/><stop offset=".45" stop-color="${mixW(l.c, .78)}"/><stop offset=".62" stop-color="${l.c}"/><stop offset="1" stop-color="${mixW(l.c, .45)}"/></linearGradient>`;
+      } else if (e.c[0] === 'glow') def = `<radialGradient id="${g}"><stop offset="0" stop-color="#F4FFB0"/><stop offset="1" stop-color="#B9E86A"/></radialGradient>`;
+      else if (e.c.length === 2) { const r = (x && x.r != null ? x.r : 50) / 100; def = `<linearGradient id="${g}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${e.c[0]}"/><stop offset="${r}" stop-color="${e.c[0]}"/><stop offset="${r}" stop-color="${e.c[1]}"/><stop offset="1" stop-color="${e.c[1]}"/></linearGradient>`; }
+      else { const n = e.c.length; def = `<linearGradient id="${g}" x1="0" y1="0" x2="0" y2="1">${e.c.map((c, i) => `<stop offset="${i / n}" stop-color="${c}"/><stop offset="${(i + 1) / n}" stop-color="${c}"/>`).join('')}</linearGradient>`; }
+      const fin = e.c[0] === 'laser' ? '#9AA6B0' : e.c[0] === 'glow' ? '#A6D85A' : e.c[0];
+      const tin = x && x.t ? `<g stroke-width=".7" stroke-linecap="round">${[9, 10.6, 12.2, 13.8, 15.4].map((v, i) => `<path d="M${v} 35 L${v + (i - 2) * .8} 46" stroke="${i % 2 ? '#F1F4F6' : '#FFE48A'}"/>`).join('')}</g>` : '';
+      return `<svg viewBox="0 0 24 52" aria-hidden="true"><defs>${def}</defs><path d="M6.6 10.5 L2.4 15 L6.7 16.2 Z M17.4 10.5 L21.6 15 L17.3 16.2 Z" fill="${fin}"/>`
+        + `<path d="M12 1.5 C17.6 4 19.6 13.5 18.4 24.5 C17.7 30.5 16.3 35 14.7 38.5 L9.3 38.5 C7.7 35 6.3 30.5 5.6 24.5 C4.4 13.5 6.4 4 12 1.5 Z" fill="url(#${g})" stroke="rgba(0,0,0,.28)" stroke-width=".7"/>`
+        + `<circle cx="12" cy="7.6" r="1.35" fill="#15191C"/>${tin}<rect x="9.8" y="38.5" width="4.4" height="2.4" rx=".8" fill="#C3CCD2"/>`
+        + `<g fill="none" stroke="#C9D1D7" stroke-width=".8" stroke-linecap="round">${[5.5, 8.5, 11.5, 14.5, 17.5].map(v => `<path d="M12 41 Q${v} 45 ${v} 49.5"/>`).join('')}</g></svg>`;
+    }
     // 내 색: 위·아래 두 색을 색 고르기 판으로 골라 이름을 붙여 둔다 (이 폰에 · 지워도 예전 기록 글자는 남게 숨기기만)
     const MINE_KEY = 'jjukgap-egi-mine';
     let egiMine = loadJ(MINE_KEY, []); if (!Array.isArray(egiMine)) egiMine = [];
@@ -4162,16 +4224,64 @@ const TideHarm = (() => {
     // 오늘 고른 채비 (포인트 저장에 미리) · 봉돌은 날이 바뀌어도 지난번 것을 미리
     function rigToday() { const r = loadJ(RIG_KEY, null); return r && r.d === kstDay(Date.now()) ? r : null; }
     function rigRemember(sink, egi) { saveJ(RIG_KEY, { d: kstDay(Date.now()), sink: sink.slice(), egi: egi.map(x => ({ ...x })), last: sink.length ? sink.slice() : ((loadJ(RIG_KEY, null) || {}).last || []) }); }
+    // 채비: 위에 '오늘 채비' 상자 (봉돌 칸 · 에기 칸), 아래에 고르는 단추 · 누르면 상자에 쏙, 상자의 칸을 누르면 제자리로 · 에기 칸을 꾹 누르면 손질
     function rigRows(f, scroll) {
       const own = (f.sink || []).filter(n => !SINKS.includes(n));
-      const chips = [...SINKS, ...own].sort((a, b) => a - b).map(n => { const on = f.sink.includes(n); return `<button type="button" data-act="sink" data-n="${n}"${on ? ' class="on"' : ''} aria-pressed="${on}">${n}${on ? '호' : ''}</button>`; }).join('');
+      const chips = [...SINKS, ...own].sort((a, b) => a - b).map(n => sinkChip(n, f.sink.includes(n))).join('');
       const ownEl = f.sinkOwn ? '<input id="mv-sink-own" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="3" placeholder="호수" enterkeyhint="done" autocomplete="off" aria-label="봉돌 호수 직접 쓰기">'
         : '<button type="button" class="own" data-act="sink-own">직접</button>';
-      const egis = egiAll().map(e => { const x = f.egi.find(q => q.c === e.id), cur = x && f.egiCur === e.id;
-        return `<button type="button" data-act="egi" data-c="${e.id}" class="${x ? 'on' : ''}${x && x.s ? ' star' : ''}${cur ? ' cur' : ''}" aria-pressed="${!!x}" aria-label="${esc(x ? egiName(x) : e.n)}${x ? (x.s ? ' · 잘 먹힌 색' : ' · 고름 (다시 누르면 빼기)') : ''}"><i style="background:${egiBg(e, x)}"></i>${esc(e.n)}</button>`; }).join('')
+      const egis = egiAll().map(e => egiChip(e, f.egi.some(q => q.c === e.id))).join('')
         + `<button type="button" class="new${f.egiNew && !f.egiNew.edit ? ' cur' : ''}" data-act="egi-new" aria-label="내 색 만들기"><i>+</i>내 색</button>`;
-      return `<div class="mv-rig${scroll ? ' scroll' : ''}"><span>봉돌</span><div class="mv-rchips">${chips}${ownEl}</div></div>`
-        + `<div class="mv-rig egi${scroll ? ' scroll' : ''}"><span>에기</span><div class="mv-egis">${egis}</div></div>` + egiDetail(f);
+      return boxHtml(f, scroll)
+        + `<div class="mv-rig${scroll ? ' scroll' : ''}"><span>봉돌</span><div class="mv-rchips">${chips}${ownEl}</div></div>`
+        + `<div class="mv-rig egi${scroll ? ' scroll' : ''}"><span>에기</span><div class="mv-egis">${egis}</div></div>` + (f.egiNew ? egiEditor(f.egiNew) : '');
+    }
+    const sinkChip = (n, on) => `<button type="button" data-act="sink" data-n="${n}"${on ? ' class="gone"' : ''} aria-pressed="${on}" aria-label="봉돌 ${n}호${on ? ' · 상자에 담김 (누르면 빼기)' : ''}">${n}</button>`;
+    const egiChip = (e, on) => `<button type="button" data-act="egi" data-c="${e.id}"${on ? ' class="gone"' : ''} aria-pressed="${on}" aria-label="${esc(e.n)}${on ? ' · 상자에 담김 (누르면 빼기)' : ''}"><i style="background:${egiBg(e, null)}"></i>${esc(e.n)}</button>`;
+    function boxHtml(f, sm) {
+      const ks = (f.sink || []).slice().sort((a, b) => a - b), eg = (f.egi || []).filter(x => egiGet(x.c));
+      return `<div class="mv-box${sm ? ' sm' : ''}" id="mv-box"><div class="cmp"><span class="lbl">봉돌</span><div class="g s">${ks.length ? ks.map(sinkCell).join('') : '<p class="h0">봉돌을 고르면 여기에 담겨요</p>'}</div></div>`
+        + `<div class="cmp"><span class="lbl">에기</span><div class="g e">${eg.length ? eg.map(egiCell).join('') : '<p class="h0">에기를 고르면 여기에 담겨요</p>'}</div></div></div>`;
+    }
+    const sinkCell = n => `<button type="button" class="mv-cell sk" data-act="box-sink" data-n="${n}" data-k="s:${n}" aria-label="봉돌 ${n}호 (누르면 빼기)"><span class="in"><span class="w" style="--wh:${Math.min(60, 32 + Math.max(0, n - 10) * 1.1).toFixed(0)}%"></span><b>${n}호</b></span></button>`;
+    const egiCell = x => `<button type="button" class="mv-cell eg${x.s ? ' star' : ''}" data-act="box-egi" data-c="${x.c}" data-k="e:${x.c}" aria-label="${esc(egiName(x))}${x.s ? ' · 잘 먹힌 색' : ''} (누르면 빼기, 꾹 누르면 손질)"><span class="in"><span class="pic">${egiSvg(egiGet(x.c), x)}</span><b>${esc(egiName(x))}</b></span><i class="st" aria-hidden="true">★</i></button>`;
+    // 상자를 바꿀 때: 담기는 칸은 누른 단추 자리에서 동그라미→네모로 쓱, 빠지는 칸은 제자리 단추로 쓱, 나머지 칸은 미끄러져 자리를 맞춘다
+    const RMQ = matchMedia('(prefers-reduced-motion: reduce)');
+    const rigBuzz = () => { try { navigator.vibrate && navigator.vibrate(10); } catch (_) {} };
+    function trayStates() {
+      if (!form) return;
+      panel.querySelectorAll('.mv-rchips [data-act=sink][data-n]').forEach(b => { const n = +b.dataset.n, on = form.sink.includes(n); if (!on && !SINKS.includes(n)) { b.remove(); return; } b.classList.toggle('gone', on); b.setAttribute('aria-pressed', on); });
+      panel.querySelectorAll('.mv-egis [data-act=egi][data-c]').forEach(b => { const on = form.egi.some(q => q.c === b.dataset.c); b.classList.toggle('gone', on); b.setAttribute('aria-pressed', on); });
+    }
+    function boxChange(mut, o) {
+      const box = $('mv-box'); if (!box) { mut(); repaint(); return; }
+      const first = new Map(); box.querySelectorAll('.mv-cell').forEach(c => first.set(c.dataset.k, c.getBoundingClientRect()));
+      const h0 = box.offsetHeight, sr = o.src ? o.src.getBoundingClientRect() : null, dr = o.dst ? o.dst.getBoundingClientRect() : null;
+      let ghost = null;
+      if (o.rmKey && !RMQ.matches) { const c = box.querySelector(`.mv-cell[data-k="${o.rmKey}"]`); if (c) { const r = c.getBoundingClientRect(); ghost = c.cloneNode(true); ghost.removeAttribute('id');
+        Object.assign(ghost.style, { position: 'fixed', left: r.left + 'px', top: r.top + 'px', width: r.width + 'px', height: r.height + 'px', margin: '0', zIndex: '70', pointerEvents: 'none' }); document.body.appendChild(ghost); } }
+      mut();
+      const tmp = document.createElement('div'); tmp.innerHTML = boxHtml(form, box.classList.contains('sm')); const nb = tmp.firstElementChild; box.replaceWith(nb); trayStates();
+      if (RMQ.matches) return;
+      const h1 = nb.offsetHeight; if (h1 !== h0) nb.animate([{ height: h0 + 'px' }, { height: h1 + 'px' }], { duration: 320, easing: 'cubic-bezier(.3,1,.4,1)' });
+      nb.querySelectorAll('.mv-cell').forEach(c => {
+        const k = c.dataset.k, a = first.get(k), b = c.getBoundingClientRect();
+        if (a) { const dx = a.left - b.left, dy = a.top - b.top; if (dx || dy) c.animate([{ transform: `translate(${dx}px,${dy}px)` }, { transform: 'none' }], { duration: 380, easing: 'cubic-bezier(.3,1.2,.45,1)' }); }
+        else if (k === o.addKey && sr) {
+          const sc = Math.max(.2, Math.min(sr.width, sr.height) / b.width), dx = sr.left + sr.width / 2 - (b.left + b.width / 2), dy = sr.top + sr.height / 2 - (b.top + b.height / 2);
+          c.animate([{ transform: `translate(${dx}px,${dy}px) scale(${sc})`, borderRadius: '50%' }, { transform: 'none', borderRadius: '12px' }], { duration: 460, easing: 'cubic-bezier(.3,1.25,.45,1)' });
+          c.querySelector('.in').animate([{ opacity: 0 }, { opacity: 0, offset: .35 }, { opacity: 1 }], { duration: 460 }); setTimeout(rigBuzz, 420);
+        }
+      });
+      if (ghost) {
+        const g = ghost.getBoundingClientRect(), t = dr || g, sc = Math.max(.2, Math.min(t.width, t.height) / g.width), dx = t.left + t.width / 2 - (g.left + g.width / 2), dy = t.top + t.height / 2 - (g.top + g.height / 2);
+        ghost.querySelector('.in').animate([{ opacity: 1 }, { opacity: 0, offset: .5 }, { opacity: 0 }], { duration: 440, fill: 'forwards' });
+        ghost.animate([{ transform: 'none', borderRadius: '12px', opacity: 1 }, { transform: `translate(${dx}px,${dy}px) scale(${sc})`, borderRadius: '50%', opacity: .2 }], { duration: 440, easing: 'cubic-bezier(.45,.05,.35,1)', fill: 'forwards' }).onfinish = () => ghost.remove();
+      }
+    }
+    function cellPop(key) {   // 다시 그린 뒤 새로 담긴 칸을 톡
+      const c = panel.querySelector(`.mv-cell[data-k="${key}"]`); if (!c || RMQ.matches) return;
+      c.animate([{ transform: 'scale(.55)', opacity: 0 }, { transform: 'none', opacity: 1 }], { duration: 380, easing: 'cubic-bezier(.3,1.4,.5,1)' }); setTimeout(rigBuzz, 300);
     }
     function egiDetail(f) {
       if (f.egiNew) return egiEditor(f.egiNew);
@@ -4226,15 +4336,88 @@ const TideHarm = (() => {
       const rg = $('mv-egi-r'); if (rg) rg.style.setProperty('--r', r + '%');
     }
     // 채비 단추: 봉돌은 그 단추만 바꾸고, 에기는 고르기·빼기에 따라 세부 칸을 다시 그린다
+    // 에기 손질 판 (상자의 에기 칸을 꾹): 파란 단추를 끌어 색 비율 0~100 (10씩) · 레이저 색 · 틴셀 · 잘 먹힌 색 · 내 색은 고치기·지우기
+    let rgC = null, rgOpenT = 0, rgDrag = false, lpT = null, lpFired = false, lpXY = null;
+    const rgX = () => (form && rgC ? form.egi.find(q => q.c === rgC) : null);
+    function rgEl() {
+      let el = $('mv-rged'); if (el) return el;
+      el = document.createElement('div'); el.className = 'mv-rged'; el.id = 'mv-rged'; el.hidden = true; el.setAttribute('role', 'dialog'); el.setAttribute('aria-modal', 'true'); el.setAttribute('aria-label', '에기 손질');
+      view.appendChild(el);
+      el.addEventListener('click', e => {
+        const b = e.target.closest('[data-rg]'); if (!b) return; const a = b.dataset.rg, x = rgX();
+        if (a === 'close') { if (Date.now() - rgOpenT < 500) return; return rgEdClose(); }   // 꾹 누른 손을 뗄 때 바로 닫히지 않게
+        if (!x) return rgEdClose();
+        if (a === 'tin') { x.t = x.t ? 0 : 1; return rgEdSync(); }
+        if (a === 'star') { x.s = x.s ? 0 : 1; return rgEdSync(); }
+        if (a === 'lc') { x.lc = b.dataset.l; return rgEdSync(); }
+        if (a === 'edit') { const m = egiMine.find(q => q.id === x.c); rgEdClose(); if (m && form) { form.egiNew = { edit: m.id, n: m.n, c: m.c.slice(), slot: 0 }; repaint(); const ed = $('mv-egin'); ed && ed.scrollIntoView({ block: 'nearest' }); } return; }
+        if (a === 'del') {   // 두 번 눌러 지우기 (예전 기록 글자는 남게 숨기기만)
+          if (!b.classList.contains('ask')) { b.classList.add('ask'); b.textContent = '한 번 더 누르면 지워요'; setTimeout(() => { if (b.isConnected) { b.classList.remove('ask'); b.textContent = '내 색 지우기'; } }, 3000); return; }
+          const m = egiMine.find(q => q.id === x.c); if (m) m.hide = 1; saveJ(MINE_KEY, egiMine); form.egi = form.egi.filter(q => q !== x); rgEdClose(); repaint(); return;
+        }
+      });
+      el.addEventListener('pointerdown', e => { const bg = e.target.closest('.big'); if (!bg || !bg.querySelector('.hd')) return; e.preventDefault(); rgDrag = true; bg.classList.add('drag'); try { bg.setPointerCapture(e.pointerId); } catch (_) {} rgSetR(e); });
+      el.addEventListener('pointermove', e => { if (rgDrag) { e.preventDefault(); rgSetR(e); } });
+      const end = () => { rgDrag = false; const bg = el.querySelector('.big'); if (bg) bg.classList.remove('drag'); };
+      ['pointerup', 'pointercancel', 'lostpointercapture'].forEach(t => el.addEventListener(t, end));
+      return el;
+    }
+    function rgEdOpen(c) {
+      const x = form && form.egi.find(q => q.c === c), e = x && egiGet(c); if (!e) return;
+      rgC = c; rgOpenT = Date.now(); const el = rgEl(), two = e.c.length === 2, laser = e.c[0] === 'laser', mine = !EGI_BY[c];
+      el.innerHTML = `<div class="bd" data-rg="close"></div><div class="pnl"><h3 id="rg-nm"></h3><p class="sub">${two ? '파란 단추를 잡고 위아래로 끌어 색 비율을 맞춰요' : laser ? '레이저 색을 골라요' : '틴셀을 달거나 잘 먹힌 색으로 표시해요'}</p>`
+        + `<div class="ed"><div class="big" id="rg-big"><span class="pic"></span>${two ? '<div class="hd" id="rg-hd"><b role="slider" aria-label="색 비율">↕</b></div>' : ''}</div><div class="ctl">`
+        + (two ? '<div class="ratio" id="rg-rt"></div>' : '')
+        + (laser ? `<div class="lcs">${LASERS.map(l => `<button type="button" data-rg="lc" data-l="${l.id}" aria-label="${l.n} 레이저" style="background:${l.id === 'rainbow' ? 'conic-gradient(#ff5a5a,#ffb84d,#fff176,#69f0ae,#4fc3f7,#7c4dff,#ff5a5a)' : l.c}"></button>`).join('')}</div>` : '')
+        + '<button type="button" class="tog" data-rg="tin" id="rg-tin"></button><button type="button" class="tog" data-rg="star" id="rg-star"></button>'
+        + (mine ? '<div class="mine"><button type="button" class="tog" data-rg="edit">색 고치기</button><button type="button" class="tog rm" data-rg="del">내 색 지우기</button></div>' : '')
+        + '</div></div><button type="button" class="done" data-rg="close">다 됐어요</button></div>';
+      el.hidden = false; rgEdSync();
+    }
+    function rgEdSync() {
+      const el = $('mv-rged'), x = rgX(), e = x && egiGet(x.c); if (!el || !e) return rgEdClose();
+      el.querySelector('#rg-nm').textContent = egiName(x);
+      const big = el.querySelector('#rg-big'); big.querySelector('.pic').innerHTML = egiSvg(e, x);
+      const hd = el.querySelector('#rg-hd'); if (hd) { const r = x.r != null ? x.r : 50; hd.style.top = (big.offsetHeight * (1.5 + 37 * r / 100) / 52) + 'px'; hd.querySelector('b').setAttribute('aria-valuenow', r);
+        el.querySelector('#rg-rt').innerHTML = `위 ${r} : 아래 ${100 - r}<small>${r === 0 ? '아래 색만' : r === 100 ? '위 색만' : r < 40 ? '위쪽 색 적게' : r > 60 ? '위쪽 색 많이' : '반반'}</small>`; }
+      el.querySelectorAll('[data-rg=lc]').forEach(b => b.classList.toggle('on', b.dataset.l === (x.lc || 'silver')));
+      const t = el.querySelector('#rg-tin'); t.classList.toggle('on', !!x.t); t.textContent = x.t ? '✨ 틴셀 달림' : '✨ 틴셀 달기';
+      const s = el.querySelector('#rg-star'); s.classList.toggle('on', !!x.s); s.textContent = x.s ? '★ 잘 먹힌 색' : '☆ 잘 먹혔으면 톡';
+      const c = panel.querySelector(`.mv-cell[data-k="e:${x.c}"]`);   // 상자 칸도 바로 바꾼다
+      if (c) { c.querySelector('.pic').innerHTML = egiSvg(e, x); c.classList.toggle('star', !!x.s); c.querySelector('b').textContent = egiName(x); }
+    }
+    function rgSetR(ev) {
+      const x = rgX(), big = $('rg-big'); if (!x || !big) return;
+      const r = big.getBoundingClientRect(), y = (ev.clientY - r.top) / r.height * 52, v = Math.round(Math.max(0, Math.min(100, (y - 1.5) / 37 * 100)) / 10) * 10;
+      if (v !== x.r) { x.r = v; rgEdSync(); }
+    }
+    function rgEdClose() { const el = $('mv-rged'); if (el) { el.hidden = true; el.innerHTML = ''; } rgC = null; rgDrag = false; }
+    window.jjugapRigEd = () => { const el = $('mv-rged'); if (el && !el.hidden) { rgEdClose(); return true; } return false; };
+    function lpCancel() { if (lpT) { clearTimeout(lpT); lpT = null; } panel.querySelectorAll('.mv-cell.press').forEach(c => c.classList.remove('press')); }
+    panel.addEventListener('pointerdown', e => {
+      const c = e.target.closest && e.target.closest('.mv-cell.eg'); lpFired = false; if (!c || !form) return;
+      lpXY = [e.clientX, e.clientY]; c.classList.add('press');
+      lpT = setTimeout(() => { lpT = null; lpFired = true; c.classList.remove('press'); rigBuzz(); rgEdOpen(c.dataset.c); }, 480);
+    });
+    panel.addEventListener('pointermove', e => { if (lpT && lpXY && Math.hypot(e.clientX - lpXY[0], e.clientY - lpXY[1]) > 8) lpCancel(); });
+    for (const ev of ['pointerup', 'pointercancel']) panel.addEventListener(ev, lpCancel);
+    panel.addEventListener('contextmenu', e => { if (e.target.closest && e.target.closest('.mv-cell')) e.preventDefault(); });
     function rigTap(a, b) {
       if (!form) return false;
-      if (a === 'sink') { const n = +b.dataset.n, i = form.sink.indexOf(n); if (i >= 0) form.sink.splice(i, 1); else form.sink.push(n); const on = i < 0; b.classList.toggle('on', on); b.setAttribute('aria-pressed', on); b.textContent = n + (on ? '호' : ''); return true; }
+      if (a === 'sink' || a === 'box-sink') {
+        const n = +b.dataset.n, chip = panel.querySelector(`.mv-rchips [data-act=sink][data-n="${n}"]`) || panel.querySelector('[data-act=sink-own]');
+        if (form.sink.includes(n)) boxChange(() => { form.sink = form.sink.filter(v => v !== n); }, { rmKey: 's:' + n, dst: chip });
+        else boxChange(() => { form.sink.push(n); }, { addKey: 's:' + n, src: chip });
+        return true;
+      }
       if (a === 'sink-own') { form.sinkOwn = true; repaint(); const el = $('mv-sink-own'); el && el.focus(); return true; }
-      if (a === 'egi') {   // 누르면 고르고 세부가 열림 · 고른 것을 한 번 더 누르면 빼기
-        const c = b.dataset.c, i = form.egi.findIndex(q => q.c === c), e = egiGet(c); if (!e) return true;
-        if (i < 0) { form.egi.push({ c, s: 0, ...(e.c.length === 2 ? { r: 50 } : {}), ...(e.c[0] === 'laser' ? { lc: 'silver' } : {}) }); form.egiCur = c; }
-        else { form.egi.splice(i, 1); if (form.egiCur === c) form.egiCur = form.egi.length ? form.egi[form.egi.length - 1].c : null; }
-        form.egiNew = null; repaint(); return true;
+      if (a === 'egi' || a === 'box-egi') {   // 누르면 상자에 담기 · 담긴 것(아래 점선 단추나 상자 칸)을 누르면 빼기
+        if (a === 'box-egi' && lpFired) { lpFired = false; return true; }   // 꾹 눌러 손질 판을 연 뒤 손을 뗀 것
+        const c = b.dataset.c, e = egiGet(c); if (!e) return true;
+        const chip = panel.querySelector(`.mv-egis [data-act=egi][data-c="${c}"] i`) || panel.querySelector('.mv-egis [data-act=egi-new] i');
+        if (form.egi.some(q => q.c === c)) boxChange(() => { form.egi = form.egi.filter(q => q.c !== c); }, { rmKey: 'e:' + c, dst: chip });
+        else boxChange(() => { form.egi.push({ c, s: 0, ...(e.c.length === 2 ? { r: 50 } : {}), ...(e.c[0] === 'laser' ? { lc: 'silver' } : {}) }); }, { addKey: 'e:' + c, src: chip });
+        return true;
       }
       if (a === 'egi-cur') { form.egiCur = b.dataset.c; repaint(); return true; }
       if (a === 'egi-new') { form.egiNew = form.egiNew && !form.egiNew.edit ? null : { n: '', c: ['#E53935', '#FFFFFF'], slot: 0 }; repaint(); if (form.egiNew) { const el = $('mv-egin'); el && el.scrollIntoView({ block: 'nearest' }); } return true; }
@@ -4245,8 +4428,8 @@ const TideHarm = (() => {
         if (a === 'egin-save') {
           const name = ((($('mv-egin-n') || {}).value || n.n || '').trim().slice(0, 10)) || `내 색 ${egiMine.length + 1}`;
           if (n.edit) { const m = egiMine.find(q => q.id === n.edit); if (m) { m.n = name; m.c = n.c.slice(); } }
-          else { const id = 'm' + Date.now().toString(36); egiMine.push({ id, n: name, c: n.c.slice() }); form.egi.push({ c: id, s: 0, r: 50 }); form.egiCur = id; }
-          saveJ(MINE_KEY, egiMine); form.egiNew = null; repaint(); return true;
+          else { const id = 'm' + Date.now().toString(36); egiMine.push({ id, n: name, c: n.c.slice() }); form.egi.push({ c: id, s: 0, r: 50 }); form.egiCur = id; n.newId = id; }
+          saveJ(MINE_KEY, egiMine); form.egiNew = null; repaint(); if (n.newId) cellPop('e:' + n.newId); return true;
         }
       }
       const x = form.egiCur && form.egi.find(q => q.c === form.egiCur);
@@ -4265,8 +4448,8 @@ const TideHarm = (() => {
     function sinkOwnDone() {
       const el = $('mv-sink-own'); if (!el || !form) return;
       const n = Math.round(+el.value.replace(/\D/g, '')); form.sinkOwn = false;
-      if (n > 0 && n <= 200 && !form.sink.includes(n)) form.sink.push(n);
-      repaint();
+      const add = n > 0 && n <= 200 && !form.sink.includes(n); if (add) form.sink.push(n);
+      repaint(); if (add) cellPop('s:' + n);
     }
     function repaint() {
       const st = panel.scrollTop, keep = [...panel.querySelectorAll('.mv-rig.scroll .mv-rchips, .mv-rig.scroll .mv-egis')].map(el => el.scrollLeft);   // 옆으로 민 자리도 그대로
@@ -4399,7 +4582,7 @@ const TideHarm = (() => {
         <p class="mv-note">${tripTxt(first) || '배·출항지 기록 없음'} · 머문 자리 ${tr.pts.length}곳</p>
         <div class="mv-sec">잡은 것<em>합계만 적어도 돼요</em></div>
         ${catchRows(f)}
-        <div class="mv-sec">채비<em>에기는 누르면 고르고, 한 번 더 누르면 빼요</em></div>
+        <div class="mv-sec">채비<em>누르면 상자에 담겨요 · 에기 칸을 꾹 누르면 손질</em></div>
         ${rigRows(f, false)}
         <input class="mv-memo" id="mv-memo" maxlength="120" placeholder="메모 (예: 오후 들물에 갑오징어 잘 나옴)" value="${esc(f.memo || '')}">
         <div class="mv-sec">머문 자리<em>잘 나온 곳만 톡 (안 해도 돼요)</em></div>
@@ -6641,7 +6824,7 @@ const TideHarm = (() => {
     }
     // 지도만 닫는다: 선상 모드는 켜 둔 채 물때 화면으로 (GPS·자동 기록·홈 화면 단추·알림줄은 그대로)
     function close(fromPop) {
-      if (!isOpen) return;
+      if (!isOpen) return; rgEdClose();
       if (mode === 'sum') { try { localStorage.removeItem(SUM_PEND); } catch (_) {} form = null; sumTr = null; mode = 'info'; }
       natFixes(); isOpen = false; closeMenu(); view.hidden = true; wakeOff(); pendingSave = false;
       if (!onBoard) { stopGps(); endStay(); track = []; }
@@ -6661,7 +6844,7 @@ const TideHarm = (() => {
     addEventListener('popstate', () => { if (skipPop) { skipPop = false; return; } if (portS) { portClose(true); return; } if (cardS) { cardClose(true); return; } if (isOpen) close(true); });
     document.addEventListener('keydown', e => { if (e.key !== 'Escape') return; if (portS) portClose(); else if (cardS) cardClose(); else if (isOpen) close(); });
     // 안드로이드 앱의 뒤로 단추: 저절로 열린 판(출조 정리·카드 등)은 웹 화면의 '뒤로 가기'가 건너뛰어 앱이 꺼지므로, 앱이 먼저 물어본다
-    window.jjugapBack = () => { const s = history.state; if (s && (s.mapv || s.cardv || s.portv || s.stSheet || s.pcal || s.palv)) { history.back(); return true; } return false; };
+    window.jjugapBack = () => { if (window.jjugapRigEd && window.jjugapRigEd()) return true; const s = history.state; if (s && (s.mapv || s.cardv || s.portv || s.stSheet || s.pcal || s.palv)) { history.back(); return true; } return false; };
     { const pb = $('pk-btn'); if (pb) pb.onclick = async () => portOpen(await portIdxFor(tideSt)); }
     // 바다 위(인터넷 약함)에서도 열리게: 지금 출항지의 항구 자료를 미리 받아 둔다 (sw.js 가 저장)
     let portWarmK = '';
@@ -7031,7 +7214,7 @@ const TideHarm = (() => {
 
 <script>
 if ('serviceWorker' in navigator) addEventListener('load', () => {
-  const sw = navigator.serviceWorker, VER = 'c845bd44'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
+  const sw = navigator.serviceWorker, VER = 'a2b5a6c9'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
   // 화면에 손을 대기 시작했는지 (쓰는 중에는 새로 열지 않으려고)
   ['pointerdown', 'keydown'].forEach(t => addEventListener(t, () => { touched = true; }, { capture: true, passive: true }));
   const reload = () => {
