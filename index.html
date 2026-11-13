@@ -373,20 +373,16 @@ h2{margin:0; font-size:calc(16px * var(--k)); font-weight:700; text-wrap:balance
 .mv-cell .pic{display:block; height:56%} .mv-cell .pic svg{display:block; height:100%; width:auto}
 .mv-cell .st{position:absolute; right:4px; top:4px; width:15px; height:15px; border-radius:50%; background:#FFC93C; color:#5C3300; font-style:normal; font-size:9.5px; line-height:15px; text-align:center; display:none}
 .mv-cell.star .st{display:block}
-/* 메모 있는 칸: 왼쪽 위 귀퉁이가 접혀 있고, 귀퉁이를 톡 누르면 칸 위로 옅은 쪽지(점선)가 떠서 메모가 보인다 */
-.mv-cell .ear{position:absolute; left:0; top:0; z-index:1; width:28px; height:28px; display:none; font-style:normal} .mv-cell.sk .ear{width:22px; height:22px}
-.mv-cell.has-m .ear{display:block}
-.mv-cell .ear .f{position:absolute; left:-1px; top:-1px; width:18px; height:18px; border-radius:12px 0 0 0; overflow:hidden} .mv-cell.sk .ear .f{width:15px; height:15px}
-.mv-cell .ear .f::before{content:''; position:absolute; inset:0; background:linear-gradient(135deg, var(--well) 0 50%, transparent 50%)}
-.mv-cell .ear .f::after{content:''; position:absolute; inset:0; background:var(--ink-2); opacity:.55; clip-path:polygon(100% 0, 100% 100%, 0 100%)}
-.mv-box{position:relative} .mv-box.peeking{overflow:visible}
-.mv-cell.peek{border-style:dashed; border-color:var(--ink-2); border-color:color-mix(in srgb, var(--ink-2) 55%, transparent)}
-.mv-peek{position:absolute; z-index:8; width:224px; max-width:calc(100% - 4px); box-sizing:border-box; padding:9px 12px 10px; border-radius:10px;
-  background:var(--card); background:color-mix(in srgb, var(--card) 55%, var(--well)); border:1.5px dashed var(--ink-2); border-color:color-mix(in srgb, var(--ink-2) 55%, transparent);
-  font-size:calc(13px * var(--k)); font-weight:500; line-height:1.45; color:var(--ink); text-align:left; word-break:keep-all; overflow-wrap:anywhere; white-space:pre-line}
-.mv-peek small{display:flex; align-items:center; gap:5px; margin-bottom:3px; font-size:calc(11px * var(--k)); font-weight:700; color:var(--ink-2); white-space:normal}
-.mv-peek small svg{width:11px; height:11px; flex:none}
-.mv-peek .ln{position:absolute; top:100%; width:1.5px; height:8px; background:var(--ink-2); background:color-mix(in srgb, var(--ink-2) 55%, transparent)}
+/* 메모 있는 칸: 왼쪽 위에 ①②③ 번호 · 상자 맨 아래에 번호별 메모 (접으면 첫 메모 한 줄 + '외 N개', 펴면 모두) */
+.mv-cell .nb, .mv-fn .nb{width:15px; height:15px; box-sizing:border-box; border-radius:50%; border:1.3px solid var(--ink-2); display:grid; place-items:center; font-style:normal; font-size:calc(9px * var(--k)); font-weight:700; line-height:1; color:var(--ink)}
+.mv-cell .nb{position:absolute; left:4px; top:4px} .mv-cell.sk .nb{width:13px; height:13px; left:3px; top:3px; font-size:calc(8px * var(--k))}
+.mv-fn{margin-top:10px; border-top:1px dashed var(--line); border-top-color:color-mix(in srgb, var(--ink-2) 45%, transparent)}
+.mv-fn .hd{width:100%; display:flex; align-items:center; gap:7px; min-height:40px; padding:0 2px; border:0; background:none; font:inherit; font-size:calc(12.5px * var(--k)); font-weight:700; color:var(--ink); text-align:left; -webkit-tap-highlight-color:transparent}
+.mv-fn .hd .pv{flex:1; min-width:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; font-weight:500; color:var(--ink-2)} .mv-fn .hd .pv b{margin-right:5px; font-weight:700; color:var(--ink)}
+.mv-fn .hd .mo{flex:none; color:var(--ink-2)} .mv-fn .hd .mi{width:12px; height:12px; flex:none; color:var(--ink-2)}
+.mv-fn .hd .cv{width:14px; height:14px; flex:none; margin-left:auto; color:var(--ink-2); transition:transform .2s} .mv-fn.open .hd .cv{transform:rotate(180deg)}
+.mv-fn .ln{display:flex; align-items:baseline; gap:8px; padding:6px 2px; border-top:1px solid var(--line); font-size:calc(12.5px * var(--k)); line-height:1.45; color:var(--ink); word-break:keep-all; overflow-wrap:anywhere}
+.mv-fn.one .ln{border-top:0; padding:9px 2px 4px} .mv-fn .ln .nb{flex:none; transform:translateY(2px)} .mv-fn .ln b{flex:none} .mv-fn .ln span{font-weight:500; color:var(--ink-2)}
 .mv-egis button{-webkit-touch-callout:none; -webkit-user-select:none; user-select:none}
 .mv-egis button.press i{transform:scale(1.1); transition:transform .15s}
 .mv-cell.press .in{transform:scale(1.08); transition:transform .15s}
@@ -4363,11 +4359,26 @@ const TideHarm = (() => {
     const egiChip = (e, on) => `<button type="button" data-act="egi" data-c="${e.id}"${on ? ' class="gone"' : ''} aria-pressed="${on}" aria-label="${esc(e.n)}${on ? ' · 상자에 담김 (누르면 빼기)' : ''}"><i style="background:${egiBg(e, null)}"></i>${esc(e.n)}</button>`;
     function boxHtml(f, sm) {
       const ks = (f.sink || []).slice().sort((a, b) => a - b), eg = (f.egi || []).filter(x => egiGet(x.c));
-      return `<div class="mv-box${sm ? ' sm' : ''}" id="mv-box"><div class="cmp"><span class="lbl">봉돌</span><div class="g s">${ks.length ? ks.map(n => sinkCell(n, f.sinkM && f.sinkM[n])).join('') : '<p class="h0">봉돌을 고르면 여기에 담겨요</p>'}</div></div>`
-        + `<div class="cmp"><span class="lbl">에기</span><div class="g e">${eg.length ? eg.map(egiCell).join('') : '<p class="h0">에기를 고르면 여기에 담겨요</p>'}</div></div></div>`;
+      const L = [];   // 메모 번호: 상자에 놓인 차례대로 (봉돌 먼저, 다음 에기)
+      ks.forEach(n => { const m = ((f.sinkM || {})[n] || '').trim(); if (m) L.push({ k: 's:' + n, name: n + '호', memo: m }); });
+      eg.forEach(x => { const m = (x.m || '').trim(); if (m) L.push({ k: 'e:' + x.c, name: egiName(x), memo: m }); });
+      const no = k => { const i = L.findIndex(q => q.k === k); return i < 0 ? 0 : i + 1; };
+      return `<div class="mv-box${sm ? ' sm' : ''}" id="mv-box"><div class="cmp"><span class="lbl">봉돌</span><div class="g s">${ks.length ? ks.map(n => sinkCell(n, f.sinkM && f.sinkM[n], no('s:' + n))).join('') : '<p class="h0">봉돌을 고르면 여기에 담겨요</p>'}</div></div>`
+        + `<div class="cmp"><span class="lbl">에기</span><div class="g e">${eg.length ? eg.map(x => egiCell(x, no('e:' + x.c))).join('') : '<p class="h0">에기를 고르면 여기에 담겨요</p>'}</div></div>${fnHtml(L)}</div>`;
     }
-    const sinkCell = (n, m) => `<button type="button" class="mv-cell sk${(m || '').trim() ? ' has-m' : ''}" data-act="box-sink" data-n="${n}" data-k="s:${n}" aria-label="봉돌 ${n}호${m ? ' · 메모 있음 (왼쪽 위 귀퉁이를 누르면 메모)' : ''} (누르면 빼기, 꾹 누르면 메모)"><i class="ear" data-act="peek" role="button" aria-label="메모 보기"><i class="f"></i></i><span class="in"><span class="w" style="--wh:${Math.min(60, 32 + Math.max(0, n - 10) * 1.1).toFixed(0)}%"></span><b>${n}호</b></span></button>`;
-    const egiCell = x => `<button type="button" class="mv-cell eg${x.s ? ' star' : ''}${(x.m || '').trim() ? ' has-m' : ''}" data-act="box-egi" data-c="${x.c}" data-k="e:${x.c}" aria-label="${esc(egiName(x))}${x.s ? ' · 잘 먹힌 색' : ''} (누르면 빼기, 꾹 누르면 손질)"><i class="ear" data-act="peek" role="button" aria-label="메모 보기"><i class="f"></i></i><span class="in"><span class="pic">${egiSvg(egiGet(x.c), x)}</span><b>${esc(egiName(x))}</b></span><i class="st" aria-hidden="true">★</i></button>`;
+    // 상자 맨 아래 메모 줄: 하나면 그대로 다 보이고, 여럿이면 접었을 때 첫 메모 한 줄 + '외 N개', 펴면 번호별로 모두
+    const FN_KEY = 'jjukgap-memo-open';
+    let fnOpen = false; try { fnOpen = localStorage.getItem(FN_KEY) === '1'; } catch (_) {}
+    const FN_CV = '<svg class="cv" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 6l4 4 4-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+    function fnHtml(L) {
+      if (!L.length) return '';
+      const ln = (q, i) => `<div class="ln"><i class="nb">${i + 1}</i><b>${esc(q.name)}</b><span>${esc(q.memo)}</span></div>`;
+      if (L.length === 1) return `<div class="mv-fn one">${ln(L[0], 0)}</div>`;
+      if (!fnOpen) return `<div class="mv-fn"><button type="button" class="hd" data-act="fn-tog" aria-expanded="false" aria-label="메모 ${L.length}개 모두 보기"><i class="nb">1</i><span class="pv"><b>${esc(L[0].name)}</b>${esc(L[0].memo)}</span><span class="mo">외 ${L.length - 1}개</span>${FN_CV}</button></div>`;
+      return `<div class="mv-fn open"><button type="button" class="hd" data-act="fn-tog" aria-expanded="true" aria-label="메모 접기"><span class="mi">${MEMO_IC}</span>메모 ${L.length}개${FN_CV}</button>${L.map(ln).join('')}</div>`;
+    }
+    const sinkCell = (n, m, no) => `<button type="button" class="mv-cell sk${(m || '').trim() ? ' has-m' : ''}" data-act="box-sink" data-n="${n}" data-k="s:${n}" aria-label="봉돌 ${n}호${no ? ` · 메모 ${no}번` : ''} (누르면 빼기, 꾹 누르면 메모)">${no ? `<i class="nb" aria-hidden="true">${no}</i>` : ''}<span class="in"><span class="w" style="--wh:${Math.min(60, 32 + Math.max(0, n - 10) * 1.1).toFixed(0)}%"></span><b>${n}호</b></span></button>`;
+    const egiCell = (x, no) => `<button type="button" class="mv-cell eg${x.s ? ' star' : ''}${(x.m || '').trim() ? ' has-m' : ''}" data-act="box-egi" data-c="${x.c}" data-k="e:${x.c}" aria-label="${esc(egiName(x))}${x.s ? ' · 잘 먹힌 색' : ''}${no ? ` · 메모 ${no}번` : ''} (누르면 빼기, 꾹 누르면 손질)">${no ? `<i class="nb" aria-hidden="true">${no}</i>` : ''}<span class="in"><span class="pic">${egiSvg(egiGet(x.c), x)}</span><b>${esc(egiName(x))}</b></span><i class="st" aria-hidden="true">★</i></button>`;
     // 상자를 바꿀 때: 담기는 칸은 누른 단추 자리에서 동그라미→네모로 쓱, 빠지는 칸은 제자리 단추로 쓱, 나머지 칸은 미끄러져 자리를 맞춘다
     const RMQ = matchMedia('(prefers-reduced-motion: reduce)');
     const rigBuzz = () => { try { navigator.vibrate && navigator.vibrate(10); } catch (_) {} };
@@ -4376,37 +4387,8 @@ const TideHarm = (() => {
       panel.querySelectorAll('.mv-rchips [data-act=sink][data-n]').forEach(b => { const n = +b.dataset.n, on = form.sink.includes(n); if (!on && !SINKS.includes(n)) { b.remove(); return; } b.classList.toggle('gone', on); b.setAttribute('aria-pressed', on); });
       panel.querySelectorAll('.mv-egis [data-act=egi][data-c]').forEach(b => { const on = form.egi.some(q => q.c === b.dataset.c); b.classList.toggle('gone', on); b.setAttribute('aria-pressed', on); });
     }
-    // 메모 쪽지: 귀퉁이를 톡 → 칸 위로 쪽지 · 다른 곳을 누르거나 뒤로 가기면 닫힘 (상자 안을 눌러 닫을 때는 그 누름이 칸을 빼지 않게)
     const MEMO_IC = '<svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 3.5h7M2.5 6h7M2.5 8.5h4.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" fill="none"/></svg>';
-    let peekK = null, peekSw = 0;
-    function peekClose() {
-      const el = $('mv-peek'); if (el) el.remove(); peekK = null;
-      panel.querySelectorAll('.mv-cell.peek').forEach(c => c.classList.remove('peek')); const bx = $('mv-box'); if (bx) bx.classList.remove('peeking');
-    }
-    function peekOpen(cell) {
-      const k = cell.dataset.k, same = peekK === k && $('mv-peek'); peekClose(); if (same || !form) return;
-      let name, memo;
-      if (k[0] === 'e') { const x = (form.egi || []).find(q => 'e:' + q.c === k); if (!x) return; name = egiName(x); memo = (x.m || '').trim(); }
-      else { const n = +cell.dataset.n; name = n + '호'; memo = (((form.sinkM || {})[n]) || '').trim(); }
-      const box = $('mv-box'); if (!memo || !box) return;
-      const el = document.createElement('div'); el.id = 'mv-peek'; el.className = 'mv-peek'; el.setAttribute('role', 'note');
-      el.innerHTML = `<small>${MEMO_IC}${esc(name)} 메모</small>${esc(memo)}<i class="ln"></i>`;
-      box.classList.add('peeking'); cell.classList.add('peek'); box.appendChild(el); peekK = k;
-      const br = box.getBoundingClientRect(), cr = cell.getBoundingClientRect(), w = el.offsetWidth, cx = cr.left - br.left;
-      const left = Math.max(2, Math.min(cx, br.width - w - 2));
-      el.style.left = left + 'px'; el.style.top = (cr.top - br.top - el.offsetHeight - 8) + 'px';
-      el.querySelector('.ln').style.left = Math.max(10, Math.min(w - 12, cx - left + 15)) + 'px';
-      const pr = panel.getBoundingClientRect(), er = el.getBoundingClientRect();   // 쪽지 윗부분이 판 위로 잘리면 그만큼만 내려 보여 준다
-      if (er.top < pr.top + 6) panel.scrollBy({ top: er.top - pr.top - 10, behavior: 'smooth' });
-    }
-    document.addEventListener('pointerdown', e => {
-      if (!peekK || !e.target.closest) return;
-      if (e.target.closest('#mv-peek') || (e.target.closest('.ear') && e.target.closest('.mv-cell.peek'))) return;
-      const inBox = !!e.target.closest('#mv-box') && !e.target.closest('.ear'); peekClose(); if (inBox) peekSw = Date.now() + 700;
-    }, true);
-    document.addEventListener('click', e => { if (peekSw && Date.now() < peekSw) { peekSw = 0; e.preventDefault(); e.stopPropagation(); } }, true);
     function boxChange(mut, o) {
-      peekClose();
       const box = $('mv-box'); if (!box) { mut(); repaint(); return; }
       const first = new Map(); box.querySelectorAll('.mv-cell').forEach(c => first.set(c.dataset.k, c.getBoundingClientRect()));
       const h0 = box.offsetHeight, sr = o.src ? o.src.getBoundingClientRect() : null, dr = o.dst ? o.dst.getBoundingClientRect() : null;
@@ -4586,15 +4568,16 @@ const TideHarm = (() => {
         + (n.edit ? `<div class="bts">${ovr && Object.keys(ovr).some(k => k !== 'hide') ? '<button type="button" data-act="egin-reset">처음대로</button>' : ''}<button type="button" class="rm" data-act="egin-del">목록에서 지우기</button></div>` : '')
       ); eginSync(false);
     }
-    function rgShow(html) { peekClose(); const el = rgEl(); $('mv-rged-p').innerHTML = html; el.setAttribute('aria-hidden', 'false'); el.classList.add('on'); }
+    function rgShow(html) { const el = rgEl(); $('mv-rged-p').innerHTML = html; el.setAttribute('aria-hidden', 'false'); el.classList.add('on'); }
     const rgOpen = () => { const el = $('mv-rged'); return !!(el && el.classList.contains('on')); };
-    function rgEdClose() { const el = $('mv-rged'); if (el) { const a = document.activeElement; if (a && el.contains(a)) a.blur(); el.classList.remove('on'); el.setAttribute('aria-hidden', 'true'); } if (rgMode === 'mk' && form) form.egiNew = null; rgC = null; rgN = null; rgMode = ''; rgDrag = false; pickDrag = null; }
+    function rgEdClose() { const el = $('mv-rged'); if (el) { const a = document.activeElement; if (a && el.contains(a)) a.blur(); el.classList.remove('on'); el.setAttribute('aria-hidden', 'true'); }
+      if (form && (rgMode === 'ed' || rgMode === 'sk')) { const bx = $('mv-box'); if (bx) { const t = document.createElement('div'); t.innerHTML = boxHtml(form, bx.classList.contains('sm')); bx.replaceWith(t.firstElementChild); } } if (rgMode === 'mk' && form) form.egiNew = null; rgC = null; rgN = null; rgMode = ''; rgDrag = false; pickDrag = null; }
     function rgSetR(ev) {
       const x = rgX(), big = $('rg-big'); if (!x || !big) return;
       const r = big.getBoundingClientRect(), y = (ev.clientY - r.top) / r.height * 52, v = Math.round(Math.max(0, Math.min(100, (y - 1.5) / 37 * 100)) / 10) * 10;
       if (v !== x.r) { x.r = v; rgEdSync(); }
     }
-    window.jjugapRigEd = () => { if (rgOpen()) { rgEdClose(); return true; } if (peekK && $('mv-peek')) { peekClose(); return true; } if (mode === 'set') { showList(); return true; } return false; };
+    window.jjugapRigEd = () => { if (rgOpen()) { rgEdClose(); return true; } if (mode === 'set') { showList(); return true; } return false; };
     rgEl();   // 판 틀은 미리 만들어 둔다 (처음 꾹 누를 때도 깜빡이지 않게)
     function lpCancel() { if (lpT) { clearTimeout(lpT); lpT = null; } document.querySelectorAll('.mv-cell.press, .mv-egis button.press').forEach(c => c.classList.remove('press')); }
     panel.addEventListener('pointerdown', e => {   // 꾹 누르기: 상자의 에기 칸 → 손질 · 봉돌 칸 → 메모 · 아래 에기 단추 → 고치기
@@ -4612,7 +4595,7 @@ const TideHarm = (() => {
     panel.addEventListener('contextmenu', e => { if (e.target.closest && e.target.closest('.mv-cell, .mv-egis button')) e.preventDefault(); });
     function rigTap(a, b) {
       if (!form) return false;
-      if (a === 'peek') { if (lpFired) { lpFired = false; return true; } const c = b.closest('.mv-cell'); if (c) peekOpen(c); return true; }
+      if (a === 'fn-tog') { boxChange(() => { fnOpen = !fnOpen; try { localStorage.setItem(FN_KEY, fnOpen ? '1' : '0'); } catch (_) {} }, {}); return true; }
       if (a === 'sink' || a === 'box-sink') {
         if (lpFired) { lpFired = false; return true; }
         const n = +b.dataset.n, chip = panel.querySelector(`.mv-rchips [data-act=sink][data-n="${n}"]`) || panel.querySelector('[data-act=sink-own]');
@@ -7552,7 +7535,7 @@ const TideHarm = (() => {
 
 <script>
 if ('serviceWorker' in navigator) addEventListener('load', () => {
-  const sw = navigator.serviceWorker, VER = '7add6e31'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
+  const sw = navigator.serviceWorker, VER = '05cc8c16'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
   // 화면에 손을 대기 시작했는지 (쓰는 중에는 새로 열지 않으려고)
   ['pointerdown', 'keydown'].forEach(t => addEventListener(t, () => { touched = true; }, { capture: true, passive: true }));
   const reload = () => {
