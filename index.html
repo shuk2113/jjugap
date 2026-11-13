@@ -354,7 +354,7 @@ h2{margin:0; font-size:calc(16px * var(--k)); font-weight:700; text-wrap:balance
 .mv-egis button.new i{display:grid; place-items:center; box-sizing:border-box; border:1.5px dashed var(--ink-2); box-shadow:none; background:none; font-style:normal; font-size:20px; font-weight:500; color:var(--ink-2)}
 .mv-egis button.new.cur i{border-color:#2F7DF6; color:#2F7DF6}
 .mv-egis button.cur i{box-shadow:0 0 0 2px var(--card), 0 0 0 4.5px #2F7DF6, 0 0 0 7px rgba(47,125,246,.25)}
-/* 오늘 채비 상자: 위 봉돌 칸 · 아래 에기 칸 · 아래 단추를 누르면 담기고, 담긴 칸을 누르면 제자리로 · 상자에 담긴 단추는 점선으로 비워 둔다 */
+/* 오늘 채비 상자: 위 봉돌 칸 · 아래 에기 칸 · 아래 단추를 누르면 담기고, 상자 칸의 − 로 빼면 제자리로 · 상자에 담긴 단추는 점선으로 비워 둔다 (눌러도 반응 없음) */
 .mv-rchips button.gone{border-style:dashed; color:var(--ink-2); opacity:.6}
 .mv-egis button.gone{color:var(--ink-2)} .mv-egis button.gone i{box-sizing:border-box; background:none !important; box-shadow:none; border:1.5px dashed var(--ink-2); opacity:.5}
 .mv-box{box-sizing:border-box; margin:4px 0 2px; padding:8px 10px 10px; border-radius:16px; background:var(--well); overflow:hidden}
@@ -373,6 +373,27 @@ h2{margin:0; font-size:calc(16px * var(--k)); font-weight:700; text-wrap:balance
 .mv-cell .pic{display:block; height:56%} .mv-cell .pic svg{display:block; height:100%; width:auto}
 .mv-cell .st{position:absolute; right:4px; top:4px; width:15px; height:15px; border-radius:50%; background:#FFC93C; color:#5C3300; font-style:normal; font-size:9.5px; line-height:15px; text-align:center; display:none}
 .mv-cell.star .st{display:block}
+/* 메모 있는 칸: 왼쪽 위 ≡ 표시 · 톡 하면 칸이 한 바퀴 돌고 말풍선으로 메모 · 빼기는 오른쪽 위 작은 − (누르면 '정말 뺄까요?') · ★는 왼쪽 위로 */
+.mv-cell .mm{position:absolute; left:5px; top:5px; width:14px; height:14px; color:var(--ink-2); display:none} .mv-cell .mm svg{display:block; width:100%; height:100%}
+.mv-cell.has-m .mm{display:block} .mv-cell.sk .mm{left:3px; top:3px; width:11px; height:11px}
+.mv-cell .st{right:auto; left:4px} .mv-cell.has-m .st{left:21px}
+.mv-cell .mx{position:absolute; top:-6px; right:-6px; width:19px; height:19px; box-sizing:border-box; border-radius:50%; background:var(--ink-2); box-shadow:0 0 0 2px var(--well); display:grid; place-items:center; z-index:2}
+.mv-cell .mx::before{content:''; width:8px; height:1.8px; border-radius:1px; background:var(--card)}
+.mv-cell .mx::after{content:''; position:absolute; inset:-9px -6px -9px -9px}   /* 보이는 건 작게, 눌리는 곳은 손가락 크기로 */
+.mv-cell.sk .mx{width:17px; height:17px; top:-5px; right:-5px} .mv-cell.sk .mx::before{width:7px} .mv-cell.sk .mx::after{inset:-7px -5px -7px -7px}
+.mv-cell.on2{outline:2.5px solid var(--ink); outline-offset:1px}
+.mv-bub{position:absolute; z-index:19; box-sizing:border-box; width:min(220px, calc(100% - 24px)); border-radius:14px; background:var(--ink); color:var(--card); padding:10px 13px; box-shadow:0 8px 22px rgba(0,0,0,.35)}
+.mv-bub::after{content:''; position:absolute; left:var(--tx); width:14px; height:14px; background:var(--ink); border-radius:2px; transform:translateX(-50%) rotate(45deg)}
+.mv-bub.up::after{bottom:-6px} .mv-bub.dn::after{top:-6px}
+.mv-bub b{display:block; font-size:calc(11px * var(--k)); font-weight:700; opacity:.7} .mv-bub p{margin:3px 0 0; font-size:calc(13.5px * var(--k)); line-height:1.42; font-weight:600; word-break:keep-all; overflow-wrap:anywhere}
+.mv-askbd{position:absolute; inset:0; z-index:20; background:rgba(0,0,0,.18)}
+.mv-ask{position:absolute; z-index:21; box-sizing:border-box; width:212px; padding:12px 12px 10px; border-radius:14px; background:var(--card); border:1px solid var(--line); box-shadow:0 10px 28px rgba(0,0,0,.35)}
+.mv-ask::after{content:''; position:absolute; left:var(--tx); width:12px; height:12px; background:var(--card); transform:translateX(-50%) rotate(45deg)}
+.mv-ask.dn::after{top:-7px; border-left:1px solid var(--line); border-top:1px solid var(--line)} .mv-ask.up::after{bottom:-7px; border-right:1px solid var(--line); border-bottom:1px solid var(--line)}
+.mv-ask b{display:block; font-size:calc(13.5px * var(--k)); font-weight:700; color:var(--ink); word-break:keep-all}
+.mv-ask small{display:block; margin-top:3px; font-size:calc(11.5px * var(--k)); font-weight:500; color:var(--ink-2); word-break:keep-all}
+.mv-ask .bts{display:flex; gap:6px; margin-top:10px} .mv-ask .bts button{flex:1; height:36px; border-radius:10px; border:1px solid var(--line); background:none; font:inherit; font-size:calc(13px * var(--k)); font-weight:700; color:var(--ink-2); -webkit-tap-highlight-color:transparent}
+.mv-ask .bts .rm{border-color:var(--strong); background:var(--strong); color:#fff}
 /* 메모 있는 칸: 왼쪽 위에 ①②③ 번호 · 상자 맨 아래에 번호별 메모 (접으면 첫 메모 한 줄 + '외 N개', 펴면 모두) */
 .mv-cell .nb, .mv-fn .nb{width:15px; height:15px; box-sizing:border-box; border-radius:50%; border:1.3px solid var(--ink-2); display:grid; place-items:center; font-style:normal; font-size:calc(9px * var(--k)); font-weight:700; line-height:1; color:var(--ink)}
 .mv-cell .nb{position:absolute; left:4px; top:4px} .mv-cell.sk .nb{width:13px; height:13px; left:3px; top:3px; font-size:calc(8px * var(--k))}
@@ -4480,16 +4501,16 @@ const TideHarm = (() => {
         + `<div class="mv-rig${scroll ? ' scroll' : ''}"><span>봉돌</span><div class="mv-rchips">${chips}${ownEl}</div></div>`
         + `<div class="mv-rig egi${scroll ? ' scroll' : ''}"><span>에기</span><div class="mv-egis">${egis}</div></div>`;
     }
-    const sinkChip = (n, on) => `<button type="button" data-act="sink" data-n="${n}"${on ? ' class="gone"' : ''} aria-pressed="${on}" aria-label="봉돌 ${n}호${on ? ' · 상자에 담김 (누르면 빼기)' : ''}">${n}</button>`;
-    const egiChip = (e, on) => `<button type="button" data-act="egi" data-c="${e.id}"${on ? ' class="gone"' : ''} aria-pressed="${on}" aria-label="${esc(e.n)}${on ? ' · 상자에 담김 (누르면 빼기)' : ''}"><i style="background:${egiBg(e, null)}"></i>${esc(e.n)}</button>`;
+    const sinkChip = (n, on) => `<button type="button" data-act="sink" data-n="${n}"${on ? ' class="gone"' : ''} aria-pressed="${on}" aria-label="봉돌 ${n}호${on ? ' · 상자에 담김 (빼려면 상자 칸의 −)' : ''}">${n}</button>`;
+    const egiChip = (e, on) => `<button type="button" data-act="egi" data-c="${e.id}"${on ? ' class="gone"' : ''} aria-pressed="${on}" aria-label="${esc(e.n)}${on ? ' · 상자에 담김 (빼려면 상자 칸의 −)' : ''}"><i style="background:${egiBg(e, null)}"></i>${esc(e.n)}</button>`;
     function boxHtml(f, sm) {
       const ks = (f.sink || []).slice().sort((a, b) => a - b), eg = (f.egi || []).filter(x => egiGet(x.c));
       const L = [];   // 메모 번호: 상자에 놓인 차례대로 (봉돌 먼저, 다음 에기)
       ks.forEach(n => { const m = ((f.sinkM || {})[n] || '').trim(); if (m) L.push({ k: 's:' + n, name: n + '호', memo: m }); });
       eg.forEach(x => { const m = (x.m || '').trim(); if (m) L.push({ k: 'e:' + x.c, name: egiName(x), memo: m }); });
-      const no = k => { const i = L.findIndex(q => q.k === k); return i < 0 ? 0 : i + 1; };
+      const no = () => 0; flipOff(false); askOff(false);   // 번호 대신 ≡ 표시 · 다시 그리면 말풍선·물어보는 창은 닫는다
       return `<div class="mv-box${sm ? ' sm' : ''}" id="mv-box"><div class="cmp"><span class="lbl">봉돌</span><div class="g s">${ks.length ? ks.map(n => sinkCell(n, f.sinkM && f.sinkM[n], no('s:' + n))).join('') : '<p class="h0">봉돌을 고르면 여기에 담겨요</p>'}</div></div>`
-        + `<div class="cmp"><span class="lbl">에기</span><div class="g e">${eg.length ? eg.map(x => egiCell(x, no('e:' + x.c))).join('') : '<p class="h0">에기를 고르면 여기에 담겨요</p>'}</div></div>${fnHtml(L)}</div>`;
+        + `<div class="cmp"><span class="lbl">에기</span><div class="g e">${eg.length ? eg.map(x => egiCell(x, no('e:' + x.c))).join('') : '<p class="h0">에기를 고르면 여기에 담겨요</p>'}</div></div></div>`;
     }
     // 상자 맨 아래 메모 줄: 하나면 그대로 다 보이고, 여럿이면 접었을 때 첫 메모 한 줄 + '외 N개', 펴면 번호별로 모두
     const FN_KEY = 'jjukgap-memo-open';
@@ -4502,8 +4523,8 @@ const TideHarm = (() => {
       if (!fnOpen) return `<div class="mv-fn"><button type="button" class="hd" data-act="fn-tog" aria-expanded="false" aria-label="메모 ${L.length}개 모두 보기"><i class="nb">1</i><span class="pv"><b>${esc(L[0].name)}</b>${esc(L[0].memo)}</span><span class="mo">외 ${L.length - 1}개</span>${FN_CV}</button></div>`;
       return `<div class="mv-fn open"><button type="button" class="hd" data-act="fn-tog" aria-expanded="true" aria-label="메모 접기"><span class="mi">${MEMO_IC}</span>메모 ${L.length}개${FN_CV}</button>${L.map(ln).join('')}</div>`;
     }
-    const sinkCell = (n, m, no) => `<button type="button" class="mv-cell sk${(m || '').trim() ? ' has-m' : ''}" data-act="box-sink" data-n="${n}" data-k="s:${n}" aria-label="봉돌 ${n}호${no ? ` · 메모 ${no}번` : ''} (누르면 빼기, 꾹 누르면 메모)">${no ? `<i class="nb" aria-hidden="true">${no}</i>` : ''}<span class="in"><span class="w" style="--wh:${Math.min(60, 32 + Math.max(0, n - 10) * 1.1).toFixed(0)}%"></span><b>${n}호</b></span></button>`;
-    const egiCell = (x, no) => `<button type="button" class="mv-cell eg${x.s ? ' star' : ''}${(x.m || '').trim() ? ' has-m' : ''}" data-act="box-egi" data-c="${x.c}" data-k="e:${x.c}" aria-label="${esc(egiName(x))}${x.s ? ' · 잘 먹힌 색' : ''}${no ? ` · 메모 ${no}번` : ''} (누르면 빼기, 꾹 누르면 손질)">${no ? `<i class="nb" aria-hidden="true">${no}</i>` : ''}<span class="in"><span class="pic">${egiSvg(egiGet(x.c), x)}</span><b>${esc(egiName(x))}</b></span><i class="st" aria-hidden="true">★</i></button>`;
+    const sinkCell = (n, m, no) => `<button type="button" class="mv-cell sk${(m || '').trim() ? ' has-m' : ''}" data-act="box-sink" data-n="${n}" data-k="s:${n}" aria-label="봉돌 ${n}호${(m || '').trim() ? ' · 메모 있음 (누르면 보기)' : ''} (꾹 누르면 메모)"><i class="mm" aria-hidden="true">${MEMO_IC}</i><span class="mx" data-act="cell-rm" role="button" aria-label="봉돌 ${n}호 빼기"></span><span class="in"><span class="w" style="--wh:${Math.min(60, 32 + Math.max(0, n - 10) * 1.1).toFixed(0)}%"></span><b>${n}호</b></span></button>`;
+    const egiCell = (x, no) => `<button type="button" class="mv-cell eg${x.s ? ' star' : ''}${(x.m || '').trim() ? ' has-m' : ''}" data-act="box-egi" data-c="${x.c}" data-k="e:${x.c}" aria-label="${esc(egiName(x))}${x.s ? ' · 잘 먹힌 색' : ''}${(x.m || '').trim() ? ' · 메모 있음 (누르면 보기)' : ''} (꾹 누르면 손질)"><span class="in"><span class="pic">${egiSvg(egiGet(x.c), x)}</span><b>${esc(egiName(x))}</b></span><i class="mm" aria-hidden="true">${MEMO_IC}</i><i class="st" aria-hidden="true">★</i><span class="mx" data-act="cell-rm" role="button" aria-label="${esc(egiName(x))} 빼기"></span></button>`;
     // 상자를 바꿀 때: 담기는 칸은 누른 단추 자리에서 동그라미→네모로 쓱, 빠지는 칸은 제자리 단추로 쓱, 나머지 칸은 미끄러져 자리를 맞춘다
     const RMQ = matchMedia('(prefers-reduced-motion: reduce)');
     const rigBuzz = () => { try { navigator.vibrate && navigator.vibrate(10); } catch (_) {} };
@@ -4511,6 +4532,76 @@ const TideHarm = (() => {
       if (!form) return;
       panel.querySelectorAll('.mv-rchips [data-act=sink][data-n]').forEach(b => { const n = +b.dataset.n, on = form.sink.includes(n); if (!on && !SINKS.includes(n)) { b.remove(); return; } b.classList.toggle('gone', on); b.setAttribute('aria-pressed', on); });
       panel.querySelectorAll('.mv-egis [data-act=egi][data-c]').forEach(b => { const on = form.egi.some(q => q.c === b.dataset.c); b.classList.toggle('gone', on); b.setAttribute('aria-pressed', on); });
+    }
+    // ---------- 메모 보기: 메모 있는 칸을 톡 → 칸이 한 바퀴 돌고 말풍선 (한 번에 하나 · 아무 데나 누르면 닫힘) · 메모 없는 칸은 반응 없음
+    var flipK = null, flipEl = null, flipOv = null, askEl = null;
+    const cellInfo = k => {
+      if (!form || !k) return null;
+      if (k[0] === 's') { const n = +k.slice(2); return { s: 1, n, name: `${n}호 봉돌`, memo: ((form.sinkM || {})[n] || '').trim() }; }
+      const x = form.egi.find(q => q.c === k.slice(2)), e = x && egiGet(x.c); if (!e) return null;
+      return { x, e, name: egiName(x), memo: (x.m || '').trim() };
+    };
+    const vRect = () => view.getBoundingClientRect();
+    function flipOn(c) {
+      const k = c.dataset.k, I = cellInfo(k); if (!I || !I.memo) return;
+      flipK = k; flipEl = c; rigBuzz();
+      const vr = vRect(), cr = c.getBoundingClientRect();
+      c.classList.add('on2');
+      if (!RMQ.matches && c.animate) c.animate([{ transform: 'perspective(420px) rotateY(0deg)' }, { transform: 'perspective(420px) rotateY(360deg)' }], { duration: 260, easing: 'cubic-bezier(.25,.8,.35,1)' });
+      const d = document.createElement('div'); d.className = 'mv-bub'; d.setAttribute('role', 'status'); d.innerHTML = `<b>${esc(I.name)} 메모</b><p>${esc(I.memo)}</p>`; view.appendChild(d);
+      const W = d.offsetWidth, H = d.offsetHeight, cx = cr.left + cr.width / 2 - vr.left;
+      const left = Math.max(12, Math.min(vr.width - 12 - W, cx - W / 2)); let top = cr.top - vr.top - H - 11, up = true;
+      if (top < 10) { top = cr.bottom - vr.top + 11; up = false; }   // 위에 자리가 없으면 아래로
+      d.classList.add(up ? 'up' : 'dn'); d.style.left = left + 'px'; d.style.top = top + 'px'; d.style.setProperty('--tx', Math.max(16, Math.min(W - 16, cx - left)) + 'px');
+      d.style.transformOrigin = `${cx - left}px ${up ? H + 6 : -6}px`;
+      if (!RMQ.matches && d.animate) d.animate([{ transform: 'scale(.3)', opacity: 0 }, { transform: 'none', opacity: 1 }], { duration: 200, delay: 30, easing: 'cubic-bezier(.3,1.35,.5,1)', fill: 'backwards' });
+      flipOv = [d];
+    }
+    function flipOff(anim) {
+      if (!flipK) return false;
+      const c = flipEl, ov = flipOv || []; flipK = null; flipEl = null; flipOv = null;
+      if (c) c.classList.remove('on2');
+      const quick = !anim || RMQ.matches;
+      ov.forEach(x => { if (quick || !x.animate) x.remove(); else x.animate([{ transform: 'none', opacity: 1 }, { transform: 'scale(.6)', opacity: 0 }], { duration: 110, easing: 'ease-in' }).onfinish = () => x.remove(); });
+      return true;
+    }
+    function flipTog(c) { const k = c.dataset.k; if (flipK === k) { flipOff(true); return; } flipOff(false); flipOn(c); }
+    // 말풍선이 떠 있는 동안 아무 데나 누르면 닫힌다 (그 칸을 다시 누르면 톡에서 닫기)
+    document.addEventListener('pointerdown', e => { if (!flipK) return; if (flipEl && flipEl.contains(e.target)) return; flipOff(true); }, true);
+    // ---------- 빼기: 상자 칸 오른쪽 위 작은 − → '정말 뺄까요?' 작은 창
+    function askOff(anim) {
+      if (!askEl) return false; const ov = askEl; askEl = null;
+      if (anim && !RMQ.matches && ov[1].animate) { ov[0].animate([{ opacity: 1 }, { opacity: 0 }], { duration: 120, fill: 'forwards' }); ov[1].animate([{ opacity: 1 }, { opacity: 0, transform: 'scale(.92)' }], { duration: 120, fill: 'forwards' }).onfinish = () => ov.forEach(x => x.remove()); }
+      else ov.forEach(x => x.remove());
+      return true;
+    }
+    function cellRemove(k) {
+      if (!form) return;
+      if (k[0] === 's') { const n = +k.slice(2), chip = panel.querySelector(`.mv-rchips [data-act=sink][data-n="${n}"]`) || panel.querySelector('[data-act=sink-own]');
+        boxChange(() => { form.sink = form.sink.filter(v => v !== n); if (form.sinkM) delete form.sinkM[n]; }, { rmKey: k, dst: chip }); return; }
+      const c = k.slice(2), chip = panel.querySelector(`.mv-egis [data-act=egi][data-c="${c}"] i`) || panel.querySelector('.mv-egis [data-act=egi-new] i');
+      boxChange(() => { form.egi = form.egi.filter(q => q.c !== c); }, { rmKey: k, dst: chip });
+    }
+    function rmAsk(c) {
+      flipOff(false); askOff(false);
+      const k = c.dataset.k, I = cellInfo(k); if (!I) return;
+      const lost = [];
+      if (I.memo) lost.push('메모');
+      if (!I.s) { const x = I.x, e = I.e; if ((!!x.t !== !!e.tin) || (sbOf(e, x) !== !!e.sb) || x.b || x.s || (x.r != null && x.r !== 50) || (x.lc && x.lc !== 'silver')) lost.push('손질'); }
+      const bd = document.createElement('div'); bd.className = 'mv-askbd';
+      const d = document.createElement('div'); d.className = 'mv-ask'; d.setAttribute('role', 'alertdialog'); d.setAttribute('aria-label', `${I.name} 뺄까요?`);
+      d.innerHTML = `<b>${esc(I.name)} 뺄까요?</b><small>${lost.length ? `${lost.join('·')}도 같이 지워져요` : '다시 고르면 언제든 넣을 수 있어요'}</small><div class="bts"><button type="button" data-a="no">취소</button><button type="button" class="rm" data-a="yes">빼기</button></div>`;
+      view.append(bd, d); askEl = [bd, d];
+      const vr = vRect(), mx = (c.querySelector('.mx') || c).getBoundingClientRect(), W = d.offsetWidth, H = d.offsetHeight, ax = mx.left + mx.width / 2 - vr.left;
+      const left = Math.max(12, Math.min(vr.width - 12 - W, ax - W + 22)); let top = mx.bottom - vr.top + 10, dn = true;
+      if (top + H > vr.height - 12) { top = mx.top - vr.top - H - 10; dn = false; }
+      d.classList.add(dn ? 'dn' : 'up'); d.style.left = left + 'px'; d.style.top = top + 'px'; d.style.setProperty('--tx', Math.max(14, Math.min(W - 14, ax - left)) + 'px');
+      d.style.transformOrigin = `${ax - left}px ${dn ? 0 : H}px`;
+      if (!RMQ.matches && d.animate) { d.animate([{ transform: 'scale(.8)', opacity: 0 }, { transform: 'none', opacity: 1 }], { duration: 180, easing: 'cubic-bezier(.3,1.3,.5,1)' }); bd.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 150 }); }
+      rigBuzz();
+      bd.addEventListener('click', () => askOff(true));
+      d.addEventListener('click', e => { const b = e.target.closest('[data-a]'); if (!b) return; askOff(b.dataset.a !== 'yes'); if (b.dataset.a === 'yes') cellRemove(k); });
+      const y = d.querySelector('[data-a=no]'); try { y.focus({ preventScroll: true }); } catch (_) {}
     }
     const MEMO_IC = '<svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 3.5h7M2.5 6h7M2.5 8.5h4.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" fill="none"/></svg>';
     function boxChange(mut, o) {
@@ -4590,7 +4681,7 @@ const TideHarm = (() => {
       const r = x.r != null ? x.r : 50, bg = egiBg(e, x);
       const pv = $('mv-egid-pv'); if (pv) pv.style.background = bg;
       for (const sel of [`[data-act=egi][data-c="${x.c}"]`, `[data-act=egi-cur][data-c="${x.c}"]`]) { const btn = panel.querySelector(sel); if (btn) btn.querySelector('i').style.background = bg; }
-      const btn = panel.querySelector(`[data-act=egi][data-c="${x.c}"]`); if (btn) { btn.classList.toggle('star', !!x.s); btn.setAttribute('aria-label', egiName(x) + (x.s ? ' · 잘 먹힌 색' : ' · 고름 (다시 누르면 빼기)')); }
+      const btn = panel.querySelector(`[data-act=egi][data-c="${x.c}"]`); if (btn) { btn.classList.toggle('star', !!x.s); btn.setAttribute('aria-label', egiName(x) + (x.s ? ' · 잘 먹힌 색' : '') + ' · 상자에 담김 (빼려면 상자 칸의 −)'); }
       const nm = $('mv-egid-nm'); if (nm) nm.textContent = egiName(x);
       const sub = $('mv-egid-sub'); if (sub) sub.textContent = egiSub(e, x);
       const rg = $('mv-egi-r'); if (rg) rg.style.setProperty('--r', r + '%');
@@ -4702,11 +4793,11 @@ const TideHarm = (() => {
       const r = big.getBoundingClientRect(), y = (ev.clientY - r.top) / r.height * 52, v = Math.round(Math.max(0, Math.min(100, (y - 1.5) / 37 * 100)) / 10) * 10;
       if (v !== x.r) { x.r = v; rgEdSync(); }
     }
-    window.jjugapRigEd = () => { if (rgOpen()) { rgEdClose(); return true; } if (mode === 'set') { showList(); return true; } return false; };
+    window.jjugapRigEd = () => { if (askOff(true)) return true; if (flipOff(true)) return true; if (rgOpen()) { rgEdClose(); return true; } if (mode === 'set') { showList(); return true; } return false; };
     rgEl();   // 판 틀은 미리 만들어 둔다 (처음 꾹 누를 때도 깜빡이지 않게)
     function lpCancel() { if (lpT) { clearTimeout(lpT); lpT = null; } document.querySelectorAll('.mv-cell.press, .mv-egis button.press').forEach(c => c.classList.remove('press')); }
     panel.addEventListener('pointerdown', e => {   // 꾹 누르기: 상자의 에기 칸 → 손질 · 봉돌 칸 → 메모 · 아래 에기 단추 → 고치기
-      const c = e.target.closest && e.target.closest('.mv-cell.eg, .mv-cell.sk, .mv-egis [data-act=egi]'); lpFired = false; if (!c || !form) return;
+      const c = e.target.closest && !e.target.closest('.mx') && e.target.closest('.mv-cell.eg, .mv-cell.sk, .mv-egis [data-act=egi]'); lpFired = false; if (!c || !form) return;
       lpXY = [e.clientX, e.clientY]; c.classList.add('press');
       lpT = setTimeout(() => { lpT = null; lpFired = true; lpSwallow = true; c.classList.remove('press'); rigBuzz(); try { getSelection().removeAllRanges(); } catch (_) {}
         if (c.classList.contains('sk')) rgSinkOpen(+c.dataset.n); else if (c.classList.contains('eg')) rgEdOpen(c.dataset.c); else openMaker(c.dataset.c); }, 480);
@@ -4722,21 +4813,23 @@ const TideHarm = (() => {
       if (!form) return false;
       if (a === 'lbl-sel') { lblSet(b.dataset.v); return true; }
       if (a === 'lbl-next') { const i = LBLS.findIndex(o => o[0] === form.lbl); lblSet(LBLS[(i + 1) % LBLS.length][0]); return true; }
+      if (a === 'cell-rm') { const c = b.closest('.mv-cell'); if (c) rmAsk(c); return true; }
+      if (a === 'box-sink' || a === 'box-egi') { if (lpFired) { lpFired = false; return true; } if (b.classList.contains('has-m')) flipTog(b); return true; }   // 상자 칸: 메모 있으면 말풍선, 없으면 그대로 (빼기는 − 로만)
       if (a === 'fn-tog') { boxChange(() => { fnOpen = !fnOpen; try { localStorage.setItem(FN_KEY, fnOpen ? '1' : '0'); } catch (_) {} }, {}); return true; }
-      if (a === 'sink' || a === 'box-sink') {
+      if (a === 'sink') {   // 누르면 상자에 담기 · 이미 담긴(점선) 단추는 반응 없음 (빼기는 상자 칸의 −)
         if (lpFired) { lpFired = false; return true; }
         const n = +b.dataset.n, chip = panel.querySelector(`.mv-rchips [data-act=sink][data-n="${n}"]`) || panel.querySelector('[data-act=sink-own]');
-        if (form.sink.includes(n)) boxChange(() => { form.sink = form.sink.filter(v => v !== n); }, { rmKey: 's:' + n, dst: chip });
-        else boxChange(() => { form.sink.push(n); }, { addKey: 's:' + n, src: chip });
+        if (form.sink.includes(n)) return true;
+        boxChange(() => { form.sink.push(n); }, { addKey: 's:' + n, src: chip });
         return true;
       }
       if (a === 'sink-own') { form.sinkOwn = true; repaint(); const el = $('mv-sink-own'); el && el.focus(); return true; }
-      if (a === 'egi' || a === 'box-egi') {   // 누르면 상자에 담기 · 담긴 것(아래 점선 단추나 상자 칸)을 누르면 빼기
+      if (a === 'egi') {   // 누르면 상자에 담기 · 이미 담긴(점선) 단추는 반응 없음 (빼기는 상자 칸의 −)
         if (lpFired) { lpFired = false; return true; }   // 꾹 눌러 판을 연 뒤 손을 뗀 것
         const c = b.dataset.c, e = egiGet(c); if (!e) return true;
         const chip = panel.querySelector(`.mv-egis [data-act=egi][data-c="${c}"] i`) || panel.querySelector('.mv-egis [data-act=egi-new] i');
-        if (form.egi.some(q => q.c === c)) boxChange(() => { form.egi = form.egi.filter(q => q.c !== c); }, { rmKey: 'e:' + c, dst: chip });
-        else boxChange(() => { form.egi.push({ c, s: 0, ...(e.c.length === 2 ? { r: 50 } : {}), ...(e.c[0] === 'laser' ? { lc: 'silver' } : {}), ...(e.tin ? { t: 1 } : {}), sb: e.sb ? 1 : 0 }); }, { addKey: 'e:' + c, src: chip });
+        if (form.egi.some(q => q.c === c)) return true;
+        boxChange(() => { form.egi.push({ c, s: 0, ...(e.c.length === 2 ? { r: 50 } : {}), ...(e.c[0] === 'laser' ? { lc: 'silver' } : {}), ...(e.tin ? { t: 1 } : {}), sb: e.sb ? 1 : 0 }); }, { addKey: 'e:' + c, src: chip });
         return true;
       }
       if (a === 'egi-cur') { form.egiCur = b.dataset.c; repaint(); return true; }
@@ -4965,7 +5058,7 @@ const TideHarm = (() => {
           <div class="r"><span class="tm">${ampm(kstMin(t0))}~${ampm(kstMin(t1))}</span><button type="button" class="mv-lblchip" id="mv-lblrow" data-act="lbl-open" aria-label="지도 이름표 고르기 · 지금 ${esc(lblShort(f.lbl))}">${LBL_IC}이름표 <em>${esc(lblShort(f.lbl))}</em><i aria-hidden="true">›</i></button></div></div>
         <div class="mv-sec">잡은 것<em>${f.party.length ? '일행 것도 같이 적어요 · 모두는 저절로' : '합계만 적어도 돼요'}</em></div>
         ${f.party.length ? partyRows(f) + partyAddRow(f) + catchRows(f, true) : catchRows(f) + partyAddRow(f)}
-        <div class="mv-sec">채비<em>누르면 상자에 담겨요 · 에기 칸을 꾹 누르면 손질</em></div>
+        <div class="mv-sec">채비<em>누르면 상자에 담겨요 · 칸을 꾹 누르면 손질 · −로 빼기</em></div>
         ${rigRows(f, false)}
         <input class="mv-memo" id="mv-memo" maxlength="120" placeholder="메모 (예: 오후 들물에 갑오징어 잘 나옴)" value="${esc(f.memo || '')}">
         <div class="mv-sec">머문 자리<em>잘 나온 곳만 톡 (안 해도 돼요)</em></div>
@@ -7702,7 +7795,7 @@ const TideHarm = (() => {
 
 <script>
 if ('serviceWorker' in navigator) addEventListener('load', () => {
-  const sw = navigator.serviceWorker, VER = '337a5ff9'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
+  const sw = navigator.serviceWorker, VER = 'd1dfbac9'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
   // 화면에 손을 대기 시작했는지 (쓰는 중에는 새로 열지 않으려고)
   ['pointerdown', 'keydown'].forEach(t => addEventListener(t, () => { touched = true; }, { capture: true, passive: true }));
   const reload = () => {
