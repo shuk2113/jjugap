@@ -521,7 +521,7 @@ h2{margin:0; font-size:calc(16px * var(--k)); font-weight:700; text-wrap:balance
 .mv-hint{margin:6px 0 0; font-size:calc(11.5px * var(--k)); line-height:1.45; color:#2F7DF6; word-break:keep-all}
 .mv-tip{margin:-2px 0 8px; font-size:calc(11px * var(--k)); color:var(--ink-2); font-weight:500}
 .mv-btns + .mv-tip{margin-top:12px}
-.mv-btns.mv-stick{position:sticky; bottom:calc(-12px - env(safe-area-inset-bottom, 0px)); z-index:2; margin:12px -14px calc(-12px - env(safe-area-inset-bottom, 0px)); padding:10px 14px calc(12px + env(safe-area-inset-bottom, 0px)); background:var(--card); border-top:1px solid var(--line)}   /* 출조 정리: 목록이 길어도 저장·닫기는 늘 아래에 */
+.mv-btns.mv-stick{will-change:transform; position:sticky; bottom:calc(-12px - env(safe-area-inset-bottom, 0px)); z-index:2; margin:12px -14px calc(-12px - env(safe-area-inset-bottom, 0px)); padding:10px 14px calc(12px + env(safe-area-inset-bottom, 0px)); background:var(--card); border-top:1px solid var(--line)}   /* 출조 정리: 목록이 길어도 저장·닫기는 늘 아래에 */
 .mv-panel:has(.mv-stick){scroll-padding-bottom:84px}   /* 칸으로 옮겨 갈 때 아래 단추에 가리지 않게 */   /* '전체 기록 보기' 단추 바로 아래면 조금 띄운다 */
 .mv-tg + .mv-tg{margin-top:4px}
 .mv-grp{width:100%; display:flex; align-items:center; gap:7px; padding:7px 2px; border:0; background:none; font:inherit; font-size:calc(12.5px * var(--k)); font-weight:700; color:var(--ink-2); text-align:left; -webkit-tap-highlight-color:transparent; touch-action:manipulation}
@@ -6897,7 +6897,18 @@ const TideHarm = (() => {
       return { peek, open: Math.max(peek, Math.min(most, contentH())) };
     }
     const setBox = h => { if (h !== boxH) { boxH = h; panel.classList.add('sized'); panel.style.height = h + 'px'; } };
-    const setY = (y, anim) => { sheet.style.transition = anim ? EASE : 'none'; sheet.style.transform = y ? `translate3d(0,${y}px,0)` : ''; };
+    const setY = (y, anim) => { sheet.style.transition = anim ? EASE : 'none'; sheet.style.transform = y ? `translate3d(0,${y}px,0)` : ''; stickY(y, anim); };
+    // 저장·닫기 줄(판 바닥에 붙어 다니는 줄)은 판이 움직이는 동안에도 화면 바닥에 가만히 있게: 판이 내려간 만큼 같은 움직임으로 거꾸로 올린다
+    let stickD = 0;
+    function stickY(y, anim) {
+      const b = panel.lastElementChild; if (!b || !b.classList.contains('mv-stick')) return;
+      if (!anim) {
+        b.style.transition = 'none'; b.style.transform = '';
+        if (!y) return;   // 멈춰 있을 때는 원래대로 판 바닥에 붙어 있다
+        stickD = panel.getBoundingClientRect().bottom - b.getBoundingClientRect().bottom;   // 판 높이를 바꾼 뒤 이 줄이 판 바닥에서 떨어진 거리
+      }
+      b.style.transition = anim ? EASE : 'none'; b.style.transform = `translate3d(0,${stickD - y}px,0)`;   // 판과 똑같은 값(반올림 없이)으로 움직여야 1px도 흔들리지 않는다
+    }
     const setCover = (h, anim) => { shownH = h; view.classList.toggle('mv-drag', !anim); view.style.setProperty('--sheet-h', Math.round(h + grab.offsetHeight) + 'px'); placeFab(anim); };
     // 지금 화면에 실제로 보이는 판 높이 (움직이는 도중이어도)
     function visH() {
@@ -6911,9 +6922,9 @@ const TideHarm = (() => {
       clearTimeout(animT); h = Math.round(h);
       if (!anim || !boxH) { setY(0, false); setBox(h); setCover(h, false); return; }
       const cur = visH(), top = Math.max(boxH, h, Math.ceil(cur));
-      setY(top - cur, false); setBox(top); void sheet.offsetHeight;   // 지금 모습 그대로 높이만 넉넉히
+      setBox(top); setY(top - cur, false); void sheet.offsetHeight;   // 지금 모습 그대로 높이만 넉넉히
       setY(top - h, true); setCover(h, true);
-      const done = () => { clearTimeout(animT); sheet.removeEventListener('transitionend', done); if (shownH !== h || drag) return; setY(0, false); setBox(h); };
+      const done = () => { clearTimeout(animT); sheet.removeEventListener('transitionend', done); if (shownH !== h || drag) return; setBox(h); setY(0, false); };
       sheet.addEventListener('transitionend', done); animT = setTimeout(done, 400);
     }
     function applySheet(anim) {
@@ -6933,7 +6944,7 @@ const TideHarm = (() => {
       const vis = visH(); clearTimeout(animT);
       const hs = sheetHeights(), now = performance.now(), big = Math.max(hs.open, vis) + 24;
       // 끄는 동안 판 높이는 넉넉히 두고 위치만 옮긴다 (움직이던 중이면 그 자리에서 멈춰 잡는다)
-      setY(big - vis, false); setBox(big); setCover(vis, false);
+      setBox(big); setY(big - vis, false); setCover(vis, false);
       drag = { id: e.pointerId, y0: e.clientY, h0: vis, y: e.clientY, t: now, v: 0, moved: false, tap, hs, big };
       try { e.currentTarget.setPointerCapture(e.pointerId); } catch (_) {}
     }
@@ -7501,7 +7512,7 @@ const TideHarm = (() => {
 
 <script>
 if ('serviceWorker' in navigator) addEventListener('load', () => {
-  const sw = navigator.serviceWorker, VER = '821475c2'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
+  const sw = navigator.serviceWorker, VER = 'd6fe8649'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
   // 화면에 손을 대기 시작했는지 (쓰는 중에는 새로 열지 않으려고)
   ['pointerdown', 'keydown'].forEach(t => addEventListener(t, () => { touched = true; }, { capture: true, passive: true }));
   const reload = () => {
