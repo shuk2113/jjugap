@@ -323,6 +323,14 @@ h2{margin:0; font-size:calc(16px * var(--k)); font-weight:700; text-wrap:balance
 .mv-etc-h{display:flex; align-items:center; justify-content:space-between; gap:8px; padding:10px 0 2px}
 .mv-etc-h > span{font-size:calc(14px * var(--k)); font-weight:700}
 .mv-chips{display:flex; flex:none; gap:5px}
+/* 기타 어종: 위에 낙지·문어·다른 어종 단추 한 줄, 아래 어종 줄은 모두 같은 모양 (이름 · −/숫자/+ · ×) */
+.mv-fishpk{display:flex; flex-wrap:wrap; gap:6px; margin:6px 0 4px}
+.mv-fishpk button{height:34px; padding:0 13px; border:1px solid var(--line); border-radius:999px; background:var(--card); font:inherit; font-size:calc(13.5px * var(--k)); font-weight:700; color:var(--ink-2); -webkit-tap-highlight-color:transparent}
+.mv-fishpk button.on{border-color:#2F7DF6; background:#2F7DF6; color:#fff}
+.mv-fishpk button.add{border-style:dashed; border-color:var(--ink-2); background:none; color:var(--ink)}
+.mv-step.etc{display:grid; grid-template-columns:minmax(0, 1fr) auto 30px; align-items:center; gap:8px; border-bottom:0; border-top:1px solid var(--line)}
+.mv-step.etc .fnm{padding-left:2px; font-size:calc(15px * var(--k)); font-weight:700}
+.mv-rmsp{width:30px}
 .mv-chips button{height:34px; padding:0 10px; border:1px solid var(--line); border-radius:999px; background:var(--card); font:inherit; font-size:calc(13.5px * var(--k)); font-weight:700; color:var(--ink); -webkit-tap-highlight-color:transparent; touch-action:manipulation}
 .mv-chips button:active{background:var(--well)} .mv-chips button.on{border-color:#2F7DF6; background:rgba(47,125,246,.14); color:#2F7DF6}
 .mv-add{display:block; margin:6px 0 0; padding:6px 2px; border:0; background:none; font:inherit; font-size:calc(13px * var(--k)); font-weight:700; color:#2F7DF6; -webkit-tap-highlight-color:transparent}
@@ -365,6 +373,9 @@ h2{margin:0; font-size:calc(16px * var(--k)); font-weight:700; text-wrap:balance
 .mv-cell .pic{display:block; height:56%} .mv-cell .pic svg{display:block; height:100%; width:auto}
 .mv-cell .st{position:absolute; right:4px; top:4px; width:15px; height:15px; border-radius:50%; background:#FFC93C; color:#5C3300; font-style:normal; font-size:9.5px; line-height:15px; text-align:center; display:none}
 .mv-cell.star .st{display:block}
+.mv-cell .mm{position:absolute; left:4px; top:3px; font-style:normal; font-size:10px; line-height:1; display:none} .mv-cell.has-m .mm{display:block}
+.mv-egis button{-webkit-touch-callout:none; -webkit-user-select:none; user-select:none}
+.mv-egis button.press i{transform:scale(1.1); transition:transform .15s}
 .mv-cell.press .in{transform:scale(1.08); transition:transform .15s}
 /* 에기 손질 판: 상자의 에기 칸을 꾹 누르면 (색 비율 · 레이저 색 · 틴셀 · 잘 먹힌 색 · 내 색 고치기·지우기) */
 .mv-rged{position:absolute; inset:0; z-index:20; display:flex; align-items:flex-end}
@@ -389,6 +400,31 @@ h2{margin:0; font-size:calc(16px * var(--k)); font-weight:700; text-wrap:balance
 .mv-rged .lcs{display:flex; flex-wrap:wrap; gap:7px}
 .mv-rged .lcs button{width:28px; height:28px; border-radius:50%; border:0; padding:0; box-shadow:0 0 0 2px var(--card), 0 0 0 3px var(--line)}
 .mv-rged .lcs button.on{box-shadow:0 0 0 2px var(--card), 0 0 0 4.5px #2F7DF6}
+.mv-rged .memo{width:100%; box-sizing:border-box; height:40px; margin-top:12px; padding:0 12px; border:1px solid var(--line); border-radius:10px; background:var(--paper); font:inherit; font-size:calc(14px * var(--k)); color:var(--ink)}
+.mv-rged .memo:focus{outline:none; border-color:#2F7DF6}
+.mv-rged .mk-top{display:flex; gap:12px; align-items:center; margin-bottom:10px}
+.mv-rged .mk-top .pv{flex:none; width:34px; height:74px} .mv-rged .mk-top .pv svg{width:34px; height:74px; display:block}
+.mv-rged .nmi{flex:1; min-width:0; height:40px; padding:0 12px; border:1px solid var(--line); border-radius:10px; background:var(--paper); font:inherit; font-size:calc(15px * var(--k)); color:var(--ink)}
+.mv-rged .nmi:focus{outline:none; border-color:#2F7DF6}
+.mv-rged .lbl{margin:4px 0 6px; font-size:calc(11.5px * var(--k)); font-weight:700; color:var(--ink-2)}
+.mv-rged .seg{display:flex; gap:4px; padding:4px; border-radius:12px; background:var(--well); margin-bottom:10px}
+.mv-rged .seg button{flex:1; height:34px; border:0; border-radius:9px; background:none; font:inherit; font-size:calc(13px * var(--k)); font-weight:700; color:var(--ink-2)}
+.mv-rged .seg button.on{background:var(--card); color:var(--ink); box-shadow:0 1px 4px rgba(0,0,0,.22)}
+.mv-rged .slots{display:flex; flex-wrap:wrap; gap:6px; margin-bottom:10px}
+.mv-rged .slots button{display:inline-flex; align-items:center; gap:6px; height:32px; padding:0 10px 0 6px; border:1px solid var(--line); border-radius:999px; background:none; font:inherit; font-size:calc(12.5px * var(--k)); font-weight:700; color:var(--ink-2)}
+.mv-rged .slots button.on{border-color:#2F7DF6; color:var(--ink); box-shadow:0 0 0 1px #2F7DF6} .mv-rged .slots i{width:20px; height:20px; border-radius:50%; box-shadow:inset 0 0 0 1px rgba(0,0,0,.2)}
+.mv-rged .pick{display:flex; gap:10px; margin-bottom:10px}
+.mv-rged .sv{position:relative; flex:1; height:120px; border-radius:10px; touch-action:none}
+.mv-rged .hue{position:relative; flex:none; width:30px; height:120px; border-radius:8px; touch-action:none; background:linear-gradient(#f00,#ff0,#0f0,#0ff,#00f,#f0f,#f00)}
+.mv-rged .sv .th{position:absolute; width:20px; height:20px; margin:-13px 0 0 -13px; border:3px solid #fff; border-radius:50%; box-shadow:0 0 0 1px rgba(0,0,0,.35); pointer-events:none}
+.mv-rged .hue .th{position:absolute; left:-4px; right:-4px; height:10px; margin-top:-8px; border:3px solid #fff; border-radius:6px; box-shadow:0 0 0 1px rgba(0,0,0,.35); pointer-events:none}
+.mv-rged .tgs{display:flex; gap:6px; margin-bottom:10px} .mv-rged .tgs .tog{flex:1; min-width:0}
+.mv-rged .unh{display:flex; flex-wrap:wrap; gap:6px; margin-bottom:10px}
+.mv-rged .unh button{display:inline-flex; align-items:center; gap:6px; height:32px; padding:0 10px 0 6px; border:1px dashed var(--ink-2); border-radius:999px; background:none; font:inherit; font-size:calc(12.5px * var(--k)); font-weight:700; color:var(--ink)}
+.mv-rged .unh i{width:18px; height:18px; border-radius:50%}
+.mv-rged .bts{display:flex; gap:6px; margin-top:6px} .mv-rged .bts button{flex:1; min-width:0; height:44px; border:1px solid var(--line); border-radius:13px; background:none; font:inherit; font-size:calc(14px * var(--k)); font-weight:700; color:var(--ink)}
+.mv-rged .bts .pri{border-color:#2F7DF6; background:#2F7DF6; color:#fff} .mv-rged .bts .rm{color:var(--strong)}
+.mv-rged .pnl{max-height:92%; overflow-y:auto; overscroll-behavior:contain}
 .mv-rged .done{margin-top:16px; width:100%; height:46px; border:0; border-radius:14px; background:#2F7DF6; color:#fff; font:inherit; font-size:calc(15px * var(--k)); font-weight:700}
 .mv-egid{margin:6px 0 2px; padding:12px; border:1px solid var(--line); border-radius:14px; background:var(--paper)}
 .mv-egid .row{display:flex; gap:12px}
@@ -4181,7 +4217,7 @@ const TideHarm = (() => {
     const EGI = [
       { id: 'gcj', n: '고추장', c: ['#D32F2F', '#FFFFFF'] }, { id: 'wm', n: '수박', c: ['#2E7D32', '#E53935'] },
       { id: 'sd', n: '색동', c: ['#E53935', '#FDD835', '#43A047', '#1E88E5'] }, { id: 'army', n: '국방', c: ['#556B2F', '#A39A6B'] },
-      { id: 'pink', n: '핑크', c: ['#F06292', '#FCE4EC'] }, { id: 'blue', n: '블루', c: ['#1E88E5', '#E3F2FD'] },
+      { id: 'pink', n: '핑크', c: ['#F06292'] }, { id: 'blue', n: '블루', c: ['#1E88E5'] },
       { id: 'laser', n: '레이저', c: ['laser'] }, { id: 'shrimp', n: '닭새우', c: ['#FF7043', '#FFCCBC'] }, { id: 'glow', n: '야광', c: ['glow'] }];
     const EGI_BY = Object.fromEntries(EGI.map(e => [e.id, e]));
     // 레이저 에기의 색 (반짝이는 띠 색)
@@ -4201,7 +4237,7 @@ const TideHarm = (() => {
       } else if (e.c[0] === 'glow') base = 'radial-gradient(circle,#F4FFB0,#B9E86A)';
       else if (e.c.length === 2) { const r = x && x.r != null ? x.r : 50; base = `linear-gradient(180deg,${e.c[0]} 0 ${r}%,${e.c[1]} ${r}% 100%)`; }
       else base = `linear-gradient(180deg,${e.c.map((c, i) => `${c} ${(i * 100 / e.c.length).toFixed(1)}% ${((i + 1) * 100 / e.c.length).toFixed(1)}%`).join(',')})`;
-      return x && x.t ? `${TINSEL},${base}` : base;
+      return (x ? x.t : e.tin) ? `${TINSEL},${base}` : base;
     }
     // 에기 실루엣 그림 (상자 칸 · 손질 판): 몸통은 고른 비율로 위·아래 색 · 레이저는 고른 색 · 틴셀은 꼬리에 가닥
     let egiG = 0;
@@ -4215,17 +4251,21 @@ const TideHarm = (() => {
       else if (e.c.length === 2) { const r = (x && x.r != null ? x.r : 50) / 100; def = `<linearGradient id="${g}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${e.c[0]}"/><stop offset="${r}" stop-color="${e.c[0]}"/><stop offset="${r}" stop-color="${e.c[1]}"/><stop offset="1" stop-color="${e.c[1]}"/></linearGradient>`; }
       else { const n = e.c.length; def = `<linearGradient id="${g}" x1="0" y1="0" x2="0" y2="1">${e.c.map((c, i) => `<stop offset="${i / n}" stop-color="${c}"/><stop offset="${(i + 1) / n}" stop-color="${c}"/>`).join('')}</linearGradient>`; }
       const fin = e.c[0] === 'laser' ? '#9AA6B0' : e.c[0] === 'glow' ? '#A6D85A' : e.c[0];
+      const bait = x && x.b && e.sb ? `<defs><linearGradient id="${g}b" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#86A9C0"/><stop offset=".5" stop-color="#F2F7FA"/><stop offset="1" stop-color="#93B6CB"/></linearGradient></defs><path d="M12 5 C14.7 11.5 15.1 23 13.8 33.6 L10.2 33.6 C8.9 23 9.3 11.5 12 5 Z" fill="url(#${g}b)" stroke="rgba(40,70,90,.45)" stroke-width=".5"/><path d="M12 9 L12 31" stroke="rgba(60,95,120,.5)" stroke-width=".5"/>` : '';
       const tin = x && x.t ? `<g stroke-width=".7" stroke-linecap="round">${[9, 10.6, 12.2, 13.8, 15.4].map((v, i) => `<path d="M${v} 35 L${v + (i - 2) * .8} 46" stroke="${i % 2 ? '#F1F4F6' : '#FFE48A'}"/>`).join('')}</g>` : '';
       return `<svg viewBox="0 0 24 52" aria-hidden="true"><defs>${def}</defs><path d="M6.6 10.5 L2.4 15 L6.7 16.2 Z M17.4 10.5 L21.6 15 L17.3 16.2 Z" fill="${fin}"/>`
         + `<path d="M12 1.5 C17.6 4 19.6 13.5 18.4 24.5 C17.7 30.5 16.3 35 14.7 38.5 L9.3 38.5 C7.7 35 6.3 30.5 5.6 24.5 C4.4 13.5 6.4 4 12 1.5 Z" fill="url(#${g})" stroke="rgba(0,0,0,.28)" stroke-width=".7"/>`
-        + `<circle cx="12" cy="7.6" r="1.35" fill="#15191C"/>${tin}<rect x="9.8" y="38.5" width="4.4" height="2.4" rx=".8" fill="#C3CCD2"/>`
+        + `${bait}<circle cx="12" cy="7.6" r="1.35" fill="#15191C"/>${tin}<rect x="9.8" y="38.5" width="4.4" height="2.4" rx=".8" fill="#C3CCD2"/>`
         + `<g fill="none" stroke="#C9D1D7" stroke-width=".8" stroke-linecap="round">${[5.5, 8.5, 11.5, 14.5, 17.5].map(v => `<path d="M12 41 Q${v} 45 ${v} 49.5"/>`).join('')}</g></svg>`;
     }
     // 내 색: 위·아래 두 색을 색 고르기 판으로 골라 이름을 붙여 둔다 (이 폰에 · 지워도 예전 기록 글자는 남게 숨기기만)
     const MINE_KEY = 'jjukgap-egi-mine';
     let egiMine = loadJ(MINE_KEY, []); if (!Array.isArray(egiMine)) egiMine = [];
-    const egiGet = id => EGI_BY[id] || egiMine.find(m => m.id === id) || null;
-    const egiAll = () => [...EGI, ...egiMine.filter(m => !m.hide)];
+    // 기본 에기를 고친 것 (이름·색·틴셀·삼봉·목록에서 지움)은 따로 · '처음대로'면 지운다
+    const OVR_KEY = 'jjukgap-egi-ovr';
+    let egiOvr = loadJ(OVR_KEY, {}); if (!egiOvr || typeof egiOvr !== 'object' || Array.isArray(egiOvr)) egiOvr = {};
+    const egiGet = id => { const b = EGI_BY[id]; if (b) { const o = egiOvr[id]; return o ? { ...b, ...o, id } : b; } return egiMine.find(m => m.id === id) || null; };
+    const egiAll = () => [...EGI.map(e => egiGet(e.id)).filter(e => !e.hide), ...egiMine.filter(m => !m.hide)];
     const hsv2hex = (h, s, v) => { const f = n => { const k = (n + h / 60) % 6; return v - v * s * Math.max(0, Math.min(k, 4 - k, 1)); }; return '#' + [f(5), f(3), f(1)].map(x => Math.round(x * 255).toString(16).padStart(2, '0')).join(''); };
     const hex2hsv = hex => { const n = parseInt(String(hex).slice(1), 16) || 0, r = (n >> 16) / 255, g = ((n >> 8) & 255) / 255, b = (n & 255) / 255, mx = Math.max(r, g, b), mn = Math.min(r, g, b), d = mx - mn;
       let h = 0; if (d) h = mx === r ? ((g - b) / d) % 6 : mx === g ? (b - r) / d + 2 : (r - g) / d + 4; return { h: (h * 60 + 360) % 360, s: mx ? d / mx : 0, v: mx }; };
@@ -4233,7 +4273,7 @@ const TideHarm = (() => {
     const sinkTxt = a => (a && a.length ? a.slice().sort((x, y) => x - y).join('·') + '호' : '');
     const egiTxt = a => (a || []).filter(x => egiGet(x.c)).map(x => {
       const e = egiGet(x.c), r = x.r != null ? x.r : 50;
-      return egiName(x) + (e.c.length === 2 && r !== 50 ? `(${r}:${100 - r})` : '') + (x.t ? '·틴셀' : '') + (x.s ? '★' : '');
+      return egiName(x) + (e.c.length === 2 && r !== 50 ? `(${r}:${100 - r})` : '') + (x.t ? '·틴셀' : '') + (e.sb ? (x.b ? '·학꽁치포' : '·삼봉') : '') + (x.s ? '★' : '');
     }).join(' ');
     const rigTxt = o => [sinkTxt(o.sink), egiTxt(o.egi)].filter(Boolean).join(' · ');
     const durTxt = m => (m >= 60 ? `${Math.floor(m / 60)}시간${m % 60 ? ` ${m % 60}분` : ''}` : `${m}분`);
@@ -4242,7 +4282,10 @@ const TideHarm = (() => {
     const sumTot = S => (S.jj || 0) + (S.gap || 0) + (S.etc || []).reduce((a, e) => a + (e.c || 0), 0);
     // 오늘 고른 채비 (포인트 저장에 미리) · 봉돌은 날이 바뀌어도 지난번 것을 미리
     function rigToday() { const r = loadJ(RIG_KEY, null); return r && r.d === kstDay(Date.now()) ? r : null; }
-    function rigRemember(sink, egi) { saveJ(RIG_KEY, { d: kstDay(Date.now()), sink: sink.slice(), egi: egi.map(x => ({ ...x })), last: sink.length ? sink.slice() : ((loadJ(RIG_KEY, null) || {}).last || []) }); }
+    function rigRemember(sink, egi, sinkM) { saveJ(RIG_KEY, { d: kstDay(Date.now()), sink: sink.slice(), egi: egi.map(x => ({ ...x })), sinkM: sinkMOf(sink, sinkM), last: sink.length ? sink.slice() : ((loadJ(RIG_KEY, null) || {}).last || []) }); }
+    // 봉돌 메모: 상자에 있는 봉돌 것만, 빈 것은 빼고
+    const sinkMOf = (sink, m) => { const o = {}; for (const n of sink || []) { const t = m && String(m[n] || '').trim(); if (t) o[n] = t.slice(0, 30); } return o; };
+    const egiClean = a => (a || []).map(x => { const y = { ...x }; if (y.m != null) { y.m = String(y.m).trim().slice(0, 30); if (!y.m) delete y.m; } return y; });
     // 채비: 위에 '오늘 채비' 상자 (봉돌 칸 · 에기 칸), 아래에 고르는 단추 · 누르면 상자에 쏙, 상자의 칸을 누르면 제자리로 · 에기 칸을 꾹 누르면 손질
     function rigRows(f, scroll) {
       const own = (f.sink || []).filter(n => !SINKS.includes(n));
@@ -4250,20 +4293,20 @@ const TideHarm = (() => {
       const ownEl = f.sinkOwn ? '<input id="mv-sink-own" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="3" placeholder="호수" enterkeyhint="done" autocomplete="off" aria-label="봉돌 호수 직접 쓰기">'
         : '<button type="button" class="own" data-act="sink-own">직접</button>';
       const egis = egiAll().map(e => egiChip(e, f.egi.some(q => q.c === e.id))).join('')
-        + `<button type="button" class="new${f.egiNew && !f.egiNew.edit ? ' cur' : ''}" data-act="egi-new" aria-label="내 색 만들기"><i>+</i>내 색</button>`;
+        + '<button type="button" class="new" data-act="egi-new" aria-label="내 에기 만들기"><i>+</i>내 에기</button>';
       return boxHtml(f, scroll)
         + `<div class="mv-rig${scroll ? ' scroll' : ''}"><span>봉돌</span><div class="mv-rchips">${chips}${ownEl}</div></div>`
-        + `<div class="mv-rig egi${scroll ? ' scroll' : ''}"><span>에기</span><div class="mv-egis">${egis}</div></div>` + (f.egiNew ? egiEditor(f.egiNew) : '');
+        + `<div class="mv-rig egi${scroll ? ' scroll' : ''}"><span>에기</span><div class="mv-egis">${egis}</div></div>`;
     }
     const sinkChip = (n, on) => `<button type="button" data-act="sink" data-n="${n}"${on ? ' class="gone"' : ''} aria-pressed="${on}" aria-label="봉돌 ${n}호${on ? ' · 상자에 담김 (누르면 빼기)' : ''}">${n}</button>`;
     const egiChip = (e, on) => `<button type="button" data-act="egi" data-c="${e.id}"${on ? ' class="gone"' : ''} aria-pressed="${on}" aria-label="${esc(e.n)}${on ? ' · 상자에 담김 (누르면 빼기)' : ''}"><i style="background:${egiBg(e, null)}"></i>${esc(e.n)}</button>`;
     function boxHtml(f, sm) {
       const ks = (f.sink || []).slice().sort((a, b) => a - b), eg = (f.egi || []).filter(x => egiGet(x.c));
-      return `<div class="mv-box${sm ? ' sm' : ''}" id="mv-box"><div class="cmp"><span class="lbl">봉돌</span><div class="g s">${ks.length ? ks.map(sinkCell).join('') : '<p class="h0">봉돌을 고르면 여기에 담겨요</p>'}</div></div>`
+      return `<div class="mv-box${sm ? ' sm' : ''}" id="mv-box"><div class="cmp"><span class="lbl">봉돌</span><div class="g s">${ks.length ? ks.map(n => sinkCell(n, f.sinkM && f.sinkM[n])).join('') : '<p class="h0">봉돌을 고르면 여기에 담겨요</p>'}</div></div>`
         + `<div class="cmp"><span class="lbl">에기</span><div class="g e">${eg.length ? eg.map(egiCell).join('') : '<p class="h0">에기를 고르면 여기에 담겨요</p>'}</div></div></div>`;
     }
-    const sinkCell = n => `<button type="button" class="mv-cell sk" data-act="box-sink" data-n="${n}" data-k="s:${n}" aria-label="봉돌 ${n}호 (누르면 빼기)"><span class="in"><span class="w" style="--wh:${Math.min(60, 32 + Math.max(0, n - 10) * 1.1).toFixed(0)}%"></span><b>${n}호</b></span></button>`;
-    const egiCell = x => `<button type="button" class="mv-cell eg${x.s ? ' star' : ''}" data-act="box-egi" data-c="${x.c}" data-k="e:${x.c}" aria-label="${esc(egiName(x))}${x.s ? ' · 잘 먹힌 색' : ''} (누르면 빼기, 꾹 누르면 손질)"><span class="in"><span class="pic">${egiSvg(egiGet(x.c), x)}</span><b>${esc(egiName(x))}</b></span><i class="st" aria-hidden="true">★</i></button>`;
+    const sinkCell = (n, m) => `<button type="button" class="mv-cell sk${m ? ' has-m' : ''}" data-act="box-sink" data-n="${n}" data-k="s:${n}" aria-label="봉돌 ${n}호${m ? ' · 메모 있음' : ''} (누르면 빼기, 꾹 누르면 메모)"><i class="mm" aria-hidden="true">📝</i><span class="in"><span class="w" style="--wh:${Math.min(60, 32 + Math.max(0, n - 10) * 1.1).toFixed(0)}%"></span><b>${n}호</b></span></button>`;
+    const egiCell = x => `<button type="button" class="mv-cell eg${x.s ? ' star' : ''}${x.m ? ' has-m' : ''}" data-act="box-egi" data-c="${x.c}" data-k="e:${x.c}" aria-label="${esc(egiName(x))}${x.s ? ' · 잘 먹힌 색' : ''} (누르면 빼기, 꾹 누르면 손질)"><i class="mm" aria-hidden="true">📝</i><span class="in"><span class="pic">${egiSvg(egiGet(x.c), x)}</span><b>${esc(egiName(x))}</b></span><i class="st" aria-hidden="true">★</i></button>`;
     // 상자를 바꿀 때: 담기는 칸은 누른 단추 자리에서 동그라미→네모로 쓱, 빠지는 칸은 제자리 단추로 쓱, 나머지 칸은 미끄러져 자리를 맞춘다
     const RMQ = matchMedia('(prefers-reduced-motion: reduce)');
     const rigBuzz = () => { try { navigator.vibrate && navigator.vibrate(10); } catch (_) {} };
@@ -4328,13 +4371,13 @@ const TideHarm = (() => {
     }
     function eginSync(fromPick) {
       const n = form && form.egiNew; if (!n) return;
-      if (!fromPick) Object.assign(n, hex2hsv(n.c[n.slot]));
+      const pv = $('mv-egin-pv'); if (pv) { const e = n.edit && n.special ? egiGet(n.edit) : { c: n.c.slice(0, n.k) }; pv.innerHTML = egiSvg(e, { r: 50, t: n.tin ? 1 : 0 }); }
+      for (let i = 0; i < 4; i++) { const el = $('mv-egin-s' + i); if (el) el.style.background = n.c[i]; }
       const sv = $('mv-egin-sv'); if (!sv) return;
+      if (!fromPick) Object.assign(n, hex2hsv(n.c[n.slot]));
       sv.style.background = `linear-gradient(to top,#000,rgba(0,0,0,0)),linear-gradient(to right,#fff,hsl(${Math.round(n.h)},100%,50%))`;
       const st = $('mv-egin-svt'); st.style.left = (n.s * 100).toFixed(1) + '%'; st.style.top = ((1 - n.v) * 100).toFixed(1) + '%'; st.style.background = n.c[n.slot];
       $('mv-egin-ht').style.top = (n.h / 360 * 100).toFixed(1) + '%';
-      for (const i of [0, 1]) { const el = $('mv-egin-s' + i); if (el) el.style.background = n.c[i]; }
-      const pv = $('mv-egin-pv'); if (pv) pv.style.background = `linear-gradient(180deg,${n.c[0]} 0 50%,${n.c[1]} 50% 100%)`;
     }
     let pickDrag = null;
     function pickAt(e) {
@@ -4355,75 +4398,123 @@ const TideHarm = (() => {
       const rg = $('mv-egi-r'); if (rg) rg.style.setProperty('--r', r + '%');
     }
     // 채비 단추: 봉돌은 그 단추만 바꾸고, 에기는 고르기·빼기에 따라 세부 칸을 다시 그린다
-    // 에기 손질 판 (상자의 에기 칸을 꾹): 파란 단추를 끌어 색 비율 0~100 (10씩) · 레이저 색 · 틴셀 · 잘 먹힌 색 · 내 색은 고치기·지우기
-    let rgC = null, rgOpenT = 0, rgDrag = false, lpT = null, lpFired = false, lpXY = null;
+    // 판 하나로 세 가지: 'ed' 에기 손질 (상자의 에기 칸을 꾹) · 'sk' 봉돌 메모 (상자의 봉돌 칸을 꾹) · 'mk' 내 에기 만들기 / 에기 고치기 (아래 에기 단추를 꾹)
+    let rgC = null, rgN = null, rgMode = '', rgOpenT = 0, rgDrag = false, lpT = null, lpFired = false, lpXY = null;
     const rgX = () => (form && rgC ? form.egi.find(q => q.c === rgC) : null);
     function rgEl() {
       let el = $('mv-rged'); if (el) return el;
       el = document.createElement('div'); el.className = 'mv-rged'; el.id = 'mv-rged'; el.hidden = true; el.setAttribute('role', 'dialog'); el.setAttribute('aria-modal', 'true'); el.setAttribute('aria-label', '에기 손질');
       view.appendChild(el);
       el.addEventListener('click', e => {
+        const t = e.target.closest('[data-act]'); if (t && t.closest('#mv-rged')) { rigTap(t.dataset.act, t); return; }   // 내 에기 만들기 판의 단추
         const b = e.target.closest('[data-rg]'); if (!b) return; const a = b.dataset.rg, x = rgX();
         if (a === 'close') { if (Date.now() - rgOpenT < 500) return; return rgEdClose(); }   // 꾹 누른 손을 뗄 때 바로 닫히지 않게
         if (!x) return rgEdClose();
         if (a === 'tin') { x.t = x.t ? 0 : 1; return rgEdSync(); }
         if (a === 'star') { x.s = x.s ? 0 : 1; return rgEdSync(); }
+        if (a === 'bait') { x.b = x.b ? 0 : 1; return rgEdSync(); }
         if (a === 'lc') { x.lc = b.dataset.l; return rgEdSync(); }
-        if (a === 'edit') { const m = egiMine.find(q => q.id === x.c); rgEdClose(); if (m && form) { form.egiNew = { edit: m.id, n: m.n, c: m.c.slice(), slot: 0 }; repaint(); const ed = $('mv-egin'); ed && ed.scrollIntoView({ block: 'nearest' }); } return; }
-        if (a === 'del') {   // 두 번 눌러 지우기 (예전 기록 글자는 남게 숨기기만)
-          if (!b.classList.contains('ask')) { b.classList.add('ask'); b.textContent = '한 번 더 누르면 지워요'; setTimeout(() => { if (b.isConnected) { b.classList.remove('ask'); b.textContent = '내 색 지우기'; } }, 3000); return; }
-          const m = egiMine.find(q => q.id === x.c); if (m) m.hide = 1; saveJ(MINE_KEY, egiMine); form.egi = form.egi.filter(q => q !== x); rgEdClose(); repaint(); return;
-        }
+        if (a === 'edit') { const id = x.c; rgEdClose(); openMaker(id); }
       });
-      el.addEventListener('pointerdown', e => { const bg = e.target.closest('.big'); if (!bg || !bg.querySelector('.hd')) return; e.preventDefault(); rgDrag = true; bg.classList.add('drag'); try { bg.setPointerCapture(e.pointerId); } catch (_) {} rgSetR(e); });
-      el.addEventListener('pointermove', e => { if (rgDrag) { e.preventDefault(); rgSetR(e); } });
-      const end = () => { rgDrag = false; const bg = el.querySelector('.big'); if (bg) bg.classList.remove('drag'); };
+      el.addEventListener('input', e => {
+        const t = e.target;
+        if (t.id === 'rg-memo') { const x = rgX(); if (x) { x.m = t.value; const c = panel.querySelector(`.mv-cell[data-k="e:${x.c}"]`); if (c) c.classList.toggle('has-m', !!t.value.trim()); } }
+        if (t.id === 'rg-smemo' && form && rgN != null) { form.sinkM = form.sinkM || {}; form.sinkM[rgN] = t.value; const c = panel.querySelector(`.mv-cell[data-k="s:${rgN}"]`); if (c) c.classList.toggle('has-m', !!t.value.trim()); }
+        if (t.id === 'mv-egin-n' && form && form.egiNew) form.egiNew.n = t.value;
+      });
+      el.addEventListener('keydown', e => { if (e.key === 'Enter' && (e.target.id === 'rg-memo' || e.target.id === 'rg-smemo' || e.target.id === 'mv-egin-n')) e.target.blur(); });
+      el.addEventListener('pointerdown', e => {
+        const pk = e.target.closest('#mv-egin-sv, #mv-egin-hue');   // 색 고르기 판
+        if (pk && form && form.egiNew) { e.preventDefault(); pickDrag = { el: pk, id: e.pointerId }; try { pk.setPointerCapture(e.pointerId); } catch (_) {} pickAt(e); return; }
+        const bg = e.target.closest('.big'); if (!bg || !bg.querySelector('.hd')) return; e.preventDefault(); rgDrag = true; bg.classList.add('drag'); try { bg.setPointerCapture(e.pointerId); } catch (_) {} rgSetR(e);
+      });
+      el.addEventListener('pointermove', e => { if (pickDrag && e.pointerId === pickDrag.id) { e.preventDefault(); pickAt(e); return; } if (rgDrag) { e.preventDefault(); rgSetR(e); } });
+      const end = e => { if (pickDrag && (!e || e.pointerId === pickDrag.id)) pickDrag = null; rgDrag = false; const bg = el.querySelector('.big'); if (bg) bg.classList.remove('drag'); };
       ['pointerup', 'pointercancel', 'lostpointercapture'].forEach(t => el.addEventListener(t, end));
       return el;
     }
     function rgEdOpen(c) {
       const x = form && form.egi.find(q => q.c === c), e = x && egiGet(c); if (!e) return;
-      rgC = c; rgOpenT = Date.now(); const el = rgEl(), two = e.c.length === 2, laser = e.c[0] === 'laser', mine = !EGI_BY[c];
+      rgMode = 'ed'; rgC = c; rgN = null; rgOpenT = Date.now(); const el = rgEl(), two = e.c.length === 2, laser = e.c[0] === 'laser';
       el.innerHTML = `<div class="bd" data-rg="close"></div><div class="pnl"><h3 id="rg-nm"></h3><p class="sub">${two ? '파란 단추를 잡고 위아래로 끌어 색 비율을 맞춰요' : laser ? '레이저 색을 골라요' : '틴셀을 달거나 잘 먹힌 색으로 표시해요'}</p>`
         + `<div class="ed"><div class="big" id="rg-big"><span class="pic"></span>${two ? '<div class="hd" id="rg-hd"><b role="slider" aria-label="색 비율">↕</b></div>' : ''}</div><div class="ctl">`
         + (two ? '<div class="ratio" id="rg-rt"></div>' : '')
         + (laser ? `<div class="lcs">${LASERS.map(l => `<button type="button" data-rg="lc" data-l="${l.id}" aria-label="${l.n} 레이저" style="background:${l.id === 'rainbow' ? 'conic-gradient(#ff5a5a,#ffb84d,#fff176,#69f0ae,#4fc3f7,#7c4dff,#ff5a5a)' : l.c}"></button>`).join('')}</div>` : '')
-        + '<button type="button" class="tog" data-rg="tin" id="rg-tin"></button><button type="button" class="tog" data-rg="star" id="rg-star"></button>'
-        + (mine ? '<div class="mine"><button type="button" class="tog" data-rg="edit">색 고치기</button><button type="button" class="tog rm" data-rg="del">내 색 지우기</button></div>' : '')
-        + '</div></div><button type="button" class="done" data-rg="close">다 됐어요</button></div>';
+        + '<button type="button" class="tog" data-rg="tin" id="rg-tin"></button>' + (e.sb ? '<button type="button" class="tog" data-rg="bait" id="rg-bait"></button>' : '') + '<button type="button" class="tog" data-rg="star" id="rg-star"></button>'
+        + '<button type="button" class="tog" data-rg="edit">에기 고치기</button>'
+        + `</div></div><input class="memo" id="rg-memo" maxlength="30" placeholder="메모 (예: 3.5호, 오후 들물에 잘 먹음)" enterkeyhint="done" autocomplete="off" value="${esc(x.m || '')}">`
+        + '<button type="button" class="done" data-rg="close">다 됐어요</button></div>';
       el.hidden = false; rgEdSync();
     }
     function rgEdSync() {
-      const el = $('mv-rged'), x = rgX(), e = x && egiGet(x.c); if (!el || !e) return rgEdClose();
+      const el = $('mv-rged'), x = rgX(), e = x && egiGet(x.c); if (!el || !e || rgMode !== 'ed') return rgEdClose();
       el.querySelector('#rg-nm').textContent = egiName(x);
       const big = el.querySelector('#rg-big'); big.querySelector('.pic').innerHTML = egiSvg(e, x);
       const hd = el.querySelector('#rg-hd'); if (hd) { const r = x.r != null ? x.r : 50; hd.style.top = (big.offsetHeight * (1.5 + 37 * r / 100) / 52) + 'px'; hd.querySelector('b').setAttribute('aria-valuenow', r);
         el.querySelector('#rg-rt').innerHTML = `위 ${r} : 아래 ${100 - r}<small>${r === 0 ? '아래 색만' : r === 100 ? '위 색만' : r < 40 ? '위쪽 색 적게' : r > 60 ? '위쪽 색 많이' : '반반'}</small>`; }
       el.querySelectorAll('[data-rg=lc]').forEach(b => b.classList.toggle('on', b.dataset.l === (x.lc || 'silver')));
       const t = el.querySelector('#rg-tin'); t.classList.toggle('on', !!x.t); t.textContent = x.t ? '✨ 틴셀 달림' : '✨ 틴셀 달기';
+      const bt = el.querySelector('#rg-bait'); if (bt) { bt.classList.toggle('on', !!x.b); bt.textContent = x.b ? '🐟 학꽁치포 달았음' : '🐟 학꽁치포 달기'; }
       const s = el.querySelector('#rg-star'); s.classList.toggle('on', !!x.s); s.textContent = x.s ? '★ 잘 먹힌 색' : '☆ 잘 먹혔으면 톡';
       const c = panel.querySelector(`.mv-cell[data-k="e:${x.c}"]`);   // 상자 칸도 바로 바꾼다
       if (c) { c.querySelector('.pic').innerHTML = egiSvg(e, x); c.classList.toggle('star', !!x.s); c.querySelector('b').textContent = egiName(x); }
     }
+    function rgSinkOpen(n) {
+      if (!form) return; form.sinkM = form.sinkM || {};
+      rgMode = 'sk'; rgC = null; rgN = n; rgOpenT = Date.now(); const el = rgEl();
+      el.innerHTML = `<div class="bd" data-rg="close"></div><div class="pnl"><h3>봉돌 ${n}호</h3><p class="sub">이 봉돌에 대해 짧게 적어 둘 수 있어요</p>`
+        + `<input class="memo" id="rg-smemo" maxlength="30" placeholder="메모 (예: 구멍봉돌, 물살 셀 때 바꿈)" enterkeyhint="done" autocomplete="off" value="${esc(form.sinkM[n] || '')}">`
+        + '<button type="button" class="done" data-rg="close">다 됐어요</button></div>';
+      el.hidden = false;
+    }
+    // 내 에기 만들기 / 에기 고치기: 이름 · 색 개수(한~네 색) · 색 · 틴셀 달린 에기 · 삼봉에기 · (고치기) 처음대로 · 목록에서 지우기
+    const MK_DEF = ['#E53935', '#FFFFFF', '#FDD835', '#1E88E5'];
+    function openMaker(id) {
+      if (!form) return;
+      const e = id ? egiGet(id) : null, special = !!(e && (e.c[0] === 'laser' || e.c[0] === 'glow'));
+      const c = e && !special ? e.c.slice() : MK_DEF.slice(0, 2);
+      form.egiNew = { edit: id || null, n: e ? e.n : '', c: [...c, ...MK_DEF.slice(c.length)].slice(0, 4), k: special ? 1 : c.length, slot: 0, tin: !!(e && e.tin), sb: !!(e && e.sb), special };
+      rgMode = 'mk'; rgC = null; rgN = null; rgOpenT = Date.now(); makerPaint();
+    }
+    function makerPaint() {
+      const n = form && form.egiNew; if (!n) return; const el = rgEl();
+      const e = n.edit ? egiGet(n.edit) : null, builtin = !!(n.edit && EGI_BY[n.edit]), ovr = builtin ? egiOvr[n.edit] : null;
+      const hid = n.edit ? [] : [...EGI.map(q => egiGet(q.id)).filter(q => q.hide), ...egiMine.filter(m => m.hide)];
+      const SL = { 1: ['색'], 2: ['위 색', '아래 색'], 3: ['위 색', '가운데', '아래 색'], 4: ['맨 위', '위', '아래', '맨 아래'] }[n.k] || ['색'];
+      el.innerHTML = `<div class="bd" data-rg="close"></div><div class="pnl"><h3>${n.edit ? `${esc(e ? e.n : '')} 고치기` : '내 에기 만들기'}</h3>`
+        + `<p class="sub">${n.edit ? (builtin ? '기본 에기도 이름·색을 바꾸거나 목록에서 지울 수 있어요' : '이름·색을 바꾸거나 목록에서 지울 수 있어요') : '색을 고르고 이름을 붙여 저장해요'}</p>`
+        + `<div class="mk-top"><span class="pv" id="mv-egin-pv"></span><input class="nmi" id="mv-egin-n" maxlength="10" placeholder="이름 (예: 퍼플 틴셀)" value="${esc(n.n || '')}" autocomplete="off" enterkeyhint="done" aria-label="에기 이름"></div>`
+        + (n.special ? '' : `<p class="lbl">색 개수</p><div class="seg" role="group" aria-label="색 개수">${[1, 2, 3, 4].map(k => `<button type="button" data-act="egin-k" data-k="${k}" class="${n.k === k ? 'on' : ''}" aria-pressed="${n.k === k}">${['한', '두', '세', '네'][k - 1]} 색</button>`).join('')}</div>`
+          + `<div class="slots">${SL.map((t, i) => `<button type="button" data-act="egin-slot" data-i="${i}"${n.slot === i ? ' class="on"' : ''}><i id="mv-egin-s${i}"></i>${t}</button>`).join('')}</div>`
+          + '<div class="pick"><div class="sv" id="mv-egin-sv" aria-label="밝기·진하기"><span class="th" id="mv-egin-svt"></span></div><div class="hue" id="mv-egin-hue" aria-label="색"><span class="th" id="mv-egin-ht"></span></div></div>')
+        + `<div class="tgs"><button type="button" class="tog${n.tin ? ' on' : ''}" data-act="egin-tin">✨ 틴셀 달린 에기</button><button type="button" class="tog${n.sb ? ' on' : ''}" data-act="egin-sb">🐟 삼봉에기</button></div>`
+        + (hid.length ? `<p class="lbl">지운 에기 되돌리기</p><div class="unh">${hid.map(h => `<button type="button" data-act="egi-unhide" data-c="${h.id}"><i style="background:${egiBg(h, null)}"></i>${esc(h.n)}</button>`).join('')}</div>` : '')
+        + `<div class="bts"><button type="button" class="pri" data-act="egin-save">저장</button><button type="button" data-act="egin-cancel">취소</button></div>`
+        + (n.edit ? `<div class="bts">${ovr && Object.keys(ovr).some(k => k !== 'hide') ? '<button type="button" data-act="egin-reset">처음대로</button>' : ''}<button type="button" class="rm" data-act="egin-del">목록에서 지우기</button></div>` : '')
+        + '</div>';
+      el.hidden = false; eginSync(false);
+    }
+    function rgEdClose() { const el = $('mv-rged'); if (el) { el.hidden = true; el.innerHTML = ''; } if (rgMode === 'mk' && form) form.egiNew = null; rgC = null; rgN = null; rgMode = ''; rgDrag = false; pickDrag = null; }
     function rgSetR(ev) {
       const x = rgX(), big = $('rg-big'); if (!x || !big) return;
       const r = big.getBoundingClientRect(), y = (ev.clientY - r.top) / r.height * 52, v = Math.round(Math.max(0, Math.min(100, (y - 1.5) / 37 * 100)) / 10) * 10;
       if (v !== x.r) { x.r = v; rgEdSync(); }
     }
-    function rgEdClose() { const el = $('mv-rged'); if (el) { el.hidden = true; el.innerHTML = ''; } rgC = null; rgDrag = false; }
     window.jjugapRigEd = () => { const el = $('mv-rged'); if (el && !el.hidden) { rgEdClose(); return true; } return false; };
-    function lpCancel() { if (lpT) { clearTimeout(lpT); lpT = null; } panel.querySelectorAll('.mv-cell.press').forEach(c => c.classList.remove('press')); }
-    panel.addEventListener('pointerdown', e => {
-      const c = e.target.closest && e.target.closest('.mv-cell.eg'); lpFired = false; if (!c || !form) return;
+    function lpCancel() { if (lpT) { clearTimeout(lpT); lpT = null; } document.querySelectorAll('.mv-cell.press, .mv-egis button.press').forEach(c => c.classList.remove('press')); }
+    panel.addEventListener('pointerdown', e => {   // 꾹 누르기: 상자의 에기 칸 → 손질 · 봉돌 칸 → 메모 · 아래 에기 단추 → 고치기
+      const c = e.target.closest && e.target.closest('.mv-cell.eg, .mv-cell.sk, .mv-egis [data-act=egi]'); lpFired = false; if (!c || !form) return;
       lpXY = [e.clientX, e.clientY]; c.classList.add('press');
-      lpT = setTimeout(() => { lpT = null; lpFired = true; c.classList.remove('press'); rigBuzz(); rgEdOpen(c.dataset.c); }, 480);
+      lpT = setTimeout(() => { lpT = null; lpFired = true; c.classList.remove('press'); rigBuzz();
+        if (c.classList.contains('sk')) rgSinkOpen(+c.dataset.n); else if (c.classList.contains('eg')) rgEdOpen(c.dataset.c); else openMaker(c.dataset.c); }, 480);
     });
     panel.addEventListener('pointermove', e => { if (lpT && lpXY && Math.hypot(e.clientX - lpXY[0], e.clientY - lpXY[1]) > 8) lpCancel(); });
     for (const ev of ['pointerup', 'pointercancel']) panel.addEventListener(ev, lpCancel);
-    panel.addEventListener('contextmenu', e => { if (e.target.closest && e.target.closest('.mv-cell')) e.preventDefault(); });
+    panel.addEventListener('contextmenu', e => { if (e.target.closest && e.target.closest('.mv-cell, .mv-egis button')) e.preventDefault(); });
     function rigTap(a, b) {
       if (!form) return false;
       if (a === 'sink' || a === 'box-sink') {
+        if (lpFired) { lpFired = false; return true; }
         const n = +b.dataset.n, chip = panel.querySelector(`.mv-rchips [data-act=sink][data-n="${n}"]`) || panel.querySelector('[data-act=sink-own]');
         if (form.sink.includes(n)) boxChange(() => { form.sink = form.sink.filter(v => v !== n); }, { rmKey: 's:' + n, dst: chip });
         else boxChange(() => { form.sink.push(n); }, { addKey: 's:' + n, src: chip });
@@ -4431,24 +4522,50 @@ const TideHarm = (() => {
       }
       if (a === 'sink-own') { form.sinkOwn = true; repaint(); const el = $('mv-sink-own'); el && el.focus(); return true; }
       if (a === 'egi' || a === 'box-egi') {   // 누르면 상자에 담기 · 담긴 것(아래 점선 단추나 상자 칸)을 누르면 빼기
-        if (a === 'box-egi' && lpFired) { lpFired = false; return true; }   // 꾹 눌러 손질 판을 연 뒤 손을 뗀 것
+        if (lpFired) { lpFired = false; return true; }   // 꾹 눌러 판을 연 뒤 손을 뗀 것
         const c = b.dataset.c, e = egiGet(c); if (!e) return true;
         const chip = panel.querySelector(`.mv-egis [data-act=egi][data-c="${c}"] i`) || panel.querySelector('.mv-egis [data-act=egi-new] i');
         if (form.egi.some(q => q.c === c)) boxChange(() => { form.egi = form.egi.filter(q => q.c !== c); }, { rmKey: 'e:' + c, dst: chip });
-        else boxChange(() => { form.egi.push({ c, s: 0, ...(e.c.length === 2 ? { r: 50 } : {}), ...(e.c[0] === 'laser' ? { lc: 'silver' } : {}) }); }, { addKey: 'e:' + c, src: chip });
+        else boxChange(() => { form.egi.push({ c, s: 0, ...(e.c.length === 2 ? { r: 50 } : {}), ...(e.c[0] === 'laser' ? { lc: 'silver' } : {}), ...(e.tin ? { t: 1 } : {}) }); }, { addKey: 'e:' + c, src: chip });
         return true;
       }
       if (a === 'egi-cur') { form.egiCur = b.dataset.c; repaint(); return true; }
-      if (a === 'egi-new') { form.egiNew = form.egiNew && !form.egiNew.edit ? null : { n: '', c: ['#E53935', '#FFFFFF'], slot: 0 }; repaint(); if (form.egiNew) { const el = $('mv-egin'); el && el.scrollIntoView({ block: 'nearest' }); } return true; }
+      if (a === 'egi-new') { openMaker(null); return true; }
       if (form.egiNew) {
         const n = form.egiNew;
-        if (a === 'egin-slot') { n.slot = +b.dataset.i; panel.querySelectorAll('[data-act=egin-slot]').forEach(el => el.classList.toggle('on', el === b)); eginSync(false); return true; }
-        if (a === 'egin-cancel') { form.egiNew = null; repaint(); return true; }
+        if (a === 'egin-slot') { n.slot = +b.dataset.i; document.querySelectorAll('[data-act=egin-slot]').forEach(el => el.classList.toggle('on', el === b)); eginSync(false); return true; }
+        if (a === 'egin-k') { n.n = (($('mv-egin-n') || {}).value || n.n); n.k = +b.dataset.k; n.slot = Math.min(n.slot, n.k - 1); makerPaint(); return true; }
+        if (a === 'egin-tin') { n.tin = !n.tin; b.classList.toggle('on', n.tin); eginSync(false); return true; }
+        if (a === 'egin-sb') { n.sb = !n.sb; b.classList.toggle('on', n.sb); return true; }
+        if (a === 'egin-cancel') { rgEdClose(); return true; }
         if (a === 'egin-save') {
-          const name = ((($('mv-egin-n') || {}).value || n.n || '').trim().slice(0, 10)) || `내 색 ${egiMine.length + 1}`;
-          if (n.edit) { const m = egiMine.find(q => q.id === n.edit); if (m) { m.n = name; m.c = n.c.slice(); } }
-          else { const id = 'm' + Date.now().toString(36); egiMine.push({ id, n: name, c: n.c.slice() }); form.egi.push({ c: id, s: 0, r: 50 }); form.egiCur = id; n.newId = id; }
-          saveJ(MINE_KEY, egiMine); form.egiNew = null; repaint(); if (n.newId) cellPop('e:' + n.newId); return true;
+          const base = n.edit ? egiGet(n.edit) : null;
+          const name = ((($('mv-egin-n') || {}).value || '').trim().slice(0, 10)) || (base ? base.n : `내 에기 ${egiMine.length + 1}`);
+          const colors = n.special ? null : n.c.slice(0, n.k);
+          if (n.edit && EGI_BY[n.edit]) {   // 기본 에기: 바뀐 것만 따로 (숨김은 그대로)
+            const d = EGI_BY[n.edit], o = {}; if (name !== d.n) o.n = name; if (colors && colors.join() !== d.c.join()) o.c = colors;
+            if (!!n.tin !== !!d.tin) o.tin = n.tin ? 1 : 0; if (!!n.sb !== !!d.sb) o.sb = n.sb ? 1 : 0;
+            if (Object.keys(o).length) egiOvr[n.edit] = o; else delete egiOvr[n.edit]; saveJ(OVR_KEY, egiOvr);
+          } else if (n.edit) {
+            const m = egiMine.find(q => q.id === n.edit); if (m) { m.n = name; if (colors) m.c = colors; if (n.tin) m.tin = 1; else delete m.tin; if (n.sb) m.sb = 1; else delete m.sb; } saveJ(MINE_KEY, egiMine);
+          } else {
+            const id = 'm' + Date.now().toString(36); egiMine.push({ id, n: name, c: colors, ...(n.tin ? { tin: 1 } : {}), ...(n.sb ? { sb: 1 } : {}) }); saveJ(MINE_KEY, egiMine);
+            form.egi.push({ c: id, s: 0, ...(colors.length === 2 ? { r: 50 } : {}), ...(n.tin ? { t: 1 } : {}) }); n.newId = id;
+          }
+          rgEdClose(); repaint(); if (n.newId) cellPop('e:' + n.newId); return true;
+        }
+        if (a === 'egin-reset' && n.edit) { delete egiOvr[n.edit]; saveJ(OVR_KEY, egiOvr); rgEdClose(); repaint(); return true; }
+        if (a === 'egin-del' && n.edit) {   // 두 번 눌러 지우기 · 목록에서만 숨기고 예전 기록 글자는 남는다
+          if (!b.classList.contains('ask')) { b.classList.add('ask'); b.textContent = '한 번 더 누르면 지워요'; setTimeout(() => { if (b.isConnected) { b.classList.remove('ask'); b.textContent = '목록에서 지우기'; } }, 3000); return true; }
+          if (EGI_BY[n.edit]) { egiOvr[n.edit] = { ...(egiOvr[n.edit] || {}), hide: 1 }; saveJ(OVR_KEY, egiOvr); }
+          else { const m = egiMine.find(q => q.id === n.edit); if (m) m.hide = 1; saveJ(MINE_KEY, egiMine); }
+          const id = n.edit; form.egi = form.egi.filter(q => q.c !== id); rgEdClose(); repaint(); return true;
+        }
+        if (a === 'egi-unhide') {   // 지운 에기 되돌리기
+          const id = b.dataset.c;
+          if (EGI_BY[id]) { const o = { ...(egiOvr[id] || {}) }; delete o.hide; if (Object.keys(o).length) egiOvr[id] = o; else delete egiOvr[id]; saveJ(OVR_KEY, egiOvr); }
+          else { const m = egiMine.find(q => q.id === id); if (m) delete m.hide; saveJ(MINE_KEY, egiMine); }
+          n.n = (($('mv-egin-n') || {}).value || n.n); makerPaint(); repaint(); return true;
         }
       }
       const x = form.egiCur && form.egi.find(q => q.c === form.egiCur);
@@ -4514,8 +4631,10 @@ const TideHarm = (() => {
     function catchRows(f, etcOnly) {
       return `${etcOnly ? '' : `<div class="mv-step"><span>쭈꾸미</span>${stepper('jj', f.jj, '쭈꾸미')}</div>
         <div class="mv-step"><span>갑오징어</span>${stepper('gap', f.gap, '갑오징어')}</div>`}
-        ${f.etc.map((e, j) => `<div class="mv-step etc">${j ? '' : `<div class="mv-chips" role="group" aria-label="자주 잡히는 어종 넣기">${ETC_PICKS.map(n => `<button type="button" data-act="fish" data-n="${n}"${f.etc.some(x => x.n.trim() === n) ? ' class="on"' : ''}>${n}</button>`).join('')}</div>`}<input class="mv-sp" data-j="${j}" maxlength="10" placeholder="${j ? '다른 어종' : '기타'}" value="${esc(e.n)}" aria-label="기타 어종 이름" autocomplete="off">${stepper('e' + j, e.c, e.n || '기타 어종')}${j ? `<button type="button" class="mv-rm" data-act="rmfish" data-j="${j}" aria-label="이 어종 줄 빼기">×</button>` : ''}</div>`).join('')}
-        ${f.etc.length < 4 ? '<button type="button" class="mv-add" data-act="addfish">+ 다른 어종 줄 더하기</button>' : ''}`;
+        <p class="mv-pcap">${f.party && f.party.length ? '기타 어종 (나)' : '기타 어종'}</p>
+        <div class="mv-fishpk" role="group" aria-label="기타 어종 넣기">${ETC_PICKS.map(n => { const on = f.etc.some(x => x.n.trim() === n); return `<button type="button" data-act="fish" data-n="${n}"${on ? ' class="on"' : ''} aria-pressed="${on}">${n}${on ? ' ✓' : ''}</button>`; }).join('')}${f.etc.length < 4 ? '<button type="button" class="add" data-act="addfish">+ 다른 어종</button>' : ''}</div>
+        ${f.etc.map((e, j) => { const pk = ETC_PICKS.includes(e.n.trim());   // 낙지·문어 줄은 이름만 (빼기는 위 단추를 다시 누르기)
+          return `<div class="mv-step etc">${pk ? `<span class="fnm">${esc(e.n.trim())}</span>` : `<input class="mv-sp" data-j="${j}" maxlength="10" placeholder="어종 이름" value="${esc(e.n)}" aria-label="기타 어종 이름" autocomplete="off">`}${stepper('e' + j, e.c, e.n || '기타 어종')}${pk ? '<span class="mv-rmsp"></span>' : `<button type="button" class="mv-rm" data-act="rmfish" data-j="${j}" aria-label="이 어종 줄 빼기">×</button>`}</div>`; }).join('')}`;
     }
     // 숫자 칸 열쇠: jj · gap · e0(기타) · p0j / p0g (일행 0번의 쭈꾸미 / 갑오징어)
     const pKey = k => /^p\d+[jg]$/.test(k) ? [+k.slice(1, -1), k.slice(-1) === 'j' ? 'jj' : 'gap'] : null;
@@ -4554,17 +4673,17 @@ const TideHarm = (() => {
       sheetAtLeast('open');
       if (!me) return;
       const i = infoAt(me), at = Date.now(), rg = rigToday();
-      form = { jj: 0, gap: 0, etc: [{ n: '', c: 0 }], memo: '', i, at, lat: me.lat, lon: me.lon, acc: me.acc || 0, virtual: !!me.virtual, ...tripFor(at),
-        sink: rg ? rg.sink.slice() : [], egi: rg ? rg.egi.map(x => ({ ...x })) : [] };
+      form = { jj: 0, gap: 0, etc: [], memo: '', i, at, lat: me.lat, lon: me.lon, acc: me.acc || 0, virtual: !!me.virtual, ...tripFor(at),
+        sink: rg ? rg.sink.slice() : [], egi: rg ? rg.egi.map(x => ({ ...x })) : [], sinkM: rg && rg.sinkM ? { ...rg.sinkM } : {} };
       mode = 'save'; paintForm(); requestAnimationFrame(rigScrollInit);
     }
     function showEdit(id) {
       const p = points.find(q => q.id === id); if (!p) return;
       sheetAtLeast('open');
       const S = TideHarm.STATIONS[p.port] || TideHarm.STATIONS[nearest(p).k];
-      form = { edit: id, boat: p.boat || '', depName: p.depName || depLabel(p.dep), depPos: p.depLat != null ? { n: p.depName, lat: p.depLat, lon: p.depLon } : null, hint: '', jj: p.jj || 0, gap: p.gap || 0, etc: (p.etc && p.etc.length ? p.etc : [{ n: '', c: 0 }]).map(e => ({ n: e.n || '', c: e.c || 0 })), memo: p.memo || '', at: p.t,
+      form = { edit: id, boat: p.boat || '', depName: p.depName || depLabel(p.dep), depPos: p.depLat != null ? { n: p.depName, lat: p.depLat, lon: p.depLon } : null, hint: '', jj: p.jj || 0, gap: p.gap || 0, etc: (p.etc || []).map(e => ({ n: e.n || '', c: e.c || 0 })), memo: p.memo || '', at: p.t,
         where: whereTxt(p, TideHarm.STATIONS[p.port] ? p.port : nearest(p).k), cond: `${p.mul} · ${p.stand ? p.stand.replace(' · ', ' ') : (p.rising ? '들물' : '날물')} ${meters(p.h)}` };
-      form.sink = (p.sink || []).slice(); form.egi = (p.egi || []).map(x => ({ ...x }));
+      form.sink = (p.sink || []).slice(); form.egi = (p.egi || []).map(x => ({ ...x })); form.sinkM = { ...(p.sinkM || {}) };
       mode = 'save'; selId = id; paintForm(); requestAnimationFrame(rigScrollInit); draw();
     }
     // 저장할 때 함께 남기는 그때의 물때·물 높이·조류·바람·수온
@@ -4583,14 +4702,15 @@ const TideHarm = (() => {
       if (f.edit) {
         const p = points.find(q => q.id === f.edit);
         if (p) { Object.assign(p, tripOf(f, p)); p.jj = clampN(f.jj); p.gap = clampN(f.gap); p.etc = etc; p.memo = memo; p.edited = Date.now();
-          if (f.sink.length) p.sink = f.sink.slice(); else delete p.sink; if (f.egi.length) p.egi = f.egi.map(x => ({ ...x })); else delete p.egi; depCache.clear(); savePts(); if (kstDay(p.t) === kstDay(Date.now())) rememberTrip(p.t, p.boat, p.depName, p); }
+          if (f.sink.length) p.sink = f.sink.slice(); else delete p.sink; if (f.egi.length) p.egi = egiClean(f.egi); else delete p.egi;
+          const sm = sinkMOf(f.sink, f.sinkM); if (Object.keys(sm).length) p.sinkM = sm; else delete p.sinkM; depCache.clear(); savePts(); if (kstDay(p.t) === kstDay(Date.now())) rememberTrip(p.t, p.boat, p.depName, p); }
         form = null; toast('고친 내용을 저장했어요'); showDetail(f.edit); draw(); return;
       }
       points.unshift({ id: String(f.at), t: f.at, lat: +f.lat.toFixed(6), lon: +f.lon.toFixed(6), acc: Math.round(f.acc), virtual: f.virtual,
         ...tripOf(f), ...condOf(f.i), jj: clampN(f.jj), gap: clampN(f.gap), etc, memo,
-        ...(f.sink.length ? { sink: f.sink.slice() } : {}), ...(f.egi.length ? { egi: f.egi.map(x => ({ ...x })) } : {}) });
+        ...(f.sink.length ? { sink: f.sink.slice() } : {}), ...(f.egi.length ? { egi: egiClean(f.egi) } : {}), ...(Object.keys(sinkMOf(f.sink, f.sinkM)).length ? { sinkM: sinkMOf(f.sink, f.sinkM) } : {}) });
       rememberTrip(f.at, points[0].boat, points[0].depName, points[0]);
-      if (f.sink.length || f.egi.length) rigRemember(f.sink, f.egi);
+      if (f.sink.length || f.egi.length) rigRemember(f.sink, egiClean(f.egi), f.sinkM);
       if (!f.virtual) absorbAuto(points[0]);
       savePts(); form = null; mode = 'info'; sheetDown(); toast('포인트를 저장했어요'); paintPanel(true); draw();
     }
@@ -4612,10 +4732,9 @@ const TideHarm = (() => {
         jj: S ? S.jj || 0 : tr.pts.reduce((a, p) => a + (p.jj || 0), 0), gap: S ? S.gap || 0 : tr.pts.reduce((a, p) => a + (p.gap || 0), 0),
         etc: S ? (S.etc || []).map(e => ({ n: e.n || '', c: e.c || 0 })) : [...em].map(([n, c]) => ({ n, c })),
         sink: S ? (S.sink || []).slice() : pSink.length ? pSink : (rg.last || rg.sink || []).slice(),   // 봉돌은 지난번 쓴 것을 미리
-        egi: S ? (S.egi || []).map(x => ({ ...x })) : pEgi,
+        egi: S ? (S.egi || []).map(x => ({ ...x })) : pEgi, sinkM: S && S.sinkM ? { ...S.sinkM } : {},
         memo: S ? S.memo || '' : '', good: new Set(tr.pts.filter(p => p.good).map(p => p.id)), had: !!S,
         party: S && Array.isArray(S.party) ? S.party.filter(q => q && q.n).map(q => ({ n: String(q.n), jj: q.jj || 0, gap: q.gap || 0 })) : [], partyNew: false };
-      if (!form.etc.length) form.etc.push({ n: '', c: 0 });
       sumTr = tr; mode = 'sum'; selId = null; closeMenu(); sheetAtLeast('open'); paintSum(); panel.scrollTop = 0; draw();
     }
     function paintSum() {
@@ -4632,7 +4751,7 @@ const TideHarm = (() => {
         <div class="mv-h"><b>${isToday ? '오늘' : md(kstDay(first.t))} 출조 정리</b><span>${ampm(kstMin(t0))}~${ampm(kstMin(t1))}</span></div>
         <p class="mv-note">${tripTxt(first) || '배·출항지 기록 없음'} · 머문 자리 ${tr.pts.length}곳</p>
         <div class="mv-sec">잡은 것<em>${f.party.length ? '일행 것도 같이 적어요 · 모두는 저절로' : '합계만 적어도 돼요'}</em></div>
-        ${f.party.length ? partyRows(f) + partyAddRow(f) + '<p class="mv-pcap">기타 어종 (나)</p>' + catchRows(f, true) : catchRows(f) + partyAddRow(f)}
+        ${f.party.length ? partyRows(f) + partyAddRow(f) + catchRows(f, true) : catchRows(f) + partyAddRow(f)}
         <div class="mv-sec">채비<em>누르면 상자에 담겨요 · 에기 칸을 꾹 누르면 손질</em></div>
         ${rigRows(f, false)}
         <input class="mv-memo" id="mv-memo" maxlength="120" placeholder="메모 (예: 오후 들물에 갑오징어 잘 나옴)" value="${esc(f.memo || '')}">
@@ -4645,12 +4764,13 @@ const TideHarm = (() => {
       const memo = (($('mv-memo') || {}).value || '').trim();
       const all = sums();
       const party = (f.party || []).filter(q => q.n).map(q => ({ n: q.n, jj: clampN(q.jj), gap: clampN(q.gap) }));
-      all[tr.key] = { jj: clampN(f.jj), gap: clampN(f.gap), etc: f.etc.map(e => ({ n: e.n.trim(), c: clampN(e.c) })).filter(e => e.c > 0), sink: f.sink.slice(), egi: f.egi.map(x => ({ ...x })), memo, ...(party.length ? { party } : {}), t: Date.now() };
+      const sinkM = sinkMOf(f.sink, f.sinkM);
+      all[tr.key] = { jj: clampN(f.jj), gap: clampN(f.gap), etc: f.etc.map(e => ({ n: e.n.trim(), c: clampN(e.c) })).filter(e => e.c > 0), sink: f.sink.slice(), egi: egiClean(f.egi), ...(Object.keys(sinkM).length ? { sinkM } : {}), memo, ...(party.length ? { party } : {}), t: Date.now() };
       if (party.length) { const names = party.map(q => q.n), rec = loadJ(PARTY_KEY, []) || []; saveJ(PARTY_KEY, [...names, ...rec.filter(n => !names.includes(n))].slice(0, 8)); }
       saveJ(SUM_KEY, all);
       let ch = false; for (const p of tr.pts) { const g = f.good.has(p.id); if (!!p.good !== g) { if (g) p.good = 1; else delete p.good; ch = true; } }
       if (ch) savePts(); else tripCache = null;
-      if (f.sink.length || f.egi.length) rigRemember(f.sink, f.egi);
+      if (f.sink.length || f.egi.length) rigRemember(f.sink, egiClean(f.egi), f.sinkM);
       sumExit(true, tr.key);
     }
     function sumExit(saved, k) {
@@ -4702,14 +4822,14 @@ const TideHarm = (() => {
       const pEgi = []; for (const p of tr.pts) for (const x of (p.egi || [])) { const o = pEgi.find(q => q.c === x.c); if (!o) pEgi.push({ ...x }); else if (x.s) o.s = 1; }
       const egi = (S ? S.egi || [] : pEgi).filter(x => egiGet(x.c));
       const sink = (S ? S.sink || [] : [...new Set(tr.pts.flatMap(p => p.sink || []))]).slice().sort((a, b) => a - b);
-      const sp = cardSp(S, tr), t0 = f.stayFrom || f.t, t1 = l.stayTo || l.t;
+      const sp = cardSp(S, tr), t0 = f.stayFrom || f.t, t1 = l.stayTo || l.t, sinkM = S ? S.sinkM || {} : {};
       const P = S && Array.isArray(S.party) ? S.party.filter(q => q && q.n) : [];
       const spAll = P.length ? cardSp({ ...S, jj: partyTot(S, 'jj'), gap: partyTot(S, 'gap') }, tr) : null;
       const party = P.length ? { n: P.length + 1, names: P.map(q => q.n), sp: spAll, tot: spAll.reduce((a, x) => a + x.c, 0),
         people: [{ n: '나', c: (S.jj || 0) + (S.gap || 0) }, ...P.map(q => ({ n: q.n, c: (q.jj || 0) + (q.gap || 0) }))] } : null;
       return { k, y: dt.getUTCFullYear(), m: dt.getUTCMonth() + 1, d: dt.getUTCDate(), dow: WD[dt.getUTCDay()],
         port: (f.depName || '').trim(), boat: (f.boat || '').trim(), mul, wt: wt == null ? null : Math.round(wt * 10) / 10, wind: wind == null ? null : Math.round(wind),
-        sp, tot: sp.reduce((a, s) => a + s.c, 0), party, sink, egi, egiTop: egi.find(x => x.s) || egi[0] || null, memo: S && S.memo ? String(S.memo).trim() : '',
+        sp, tot: sp.reduce((a, s) => a + s.c, 0), party, sink, sinkM, egi, egiTop: egi.find(x => x.s) || egi[0] || null, memo: S && S.memo ? String(S.memo).trim() : '',
         hrs: Math.max(0, (t1 - t0) / 3600000) };
     }
     const spLv = s => { const [hi, lo] = thOf(s.k); return s.c >= hi ? 3 : s.c >= lo ? 2 : s.c > 0 ? 1 : 0; };
@@ -5299,7 +5419,8 @@ const TideHarm = (() => {
       const c = sh.cond ? [cd.mul ? `물때 ${cd.mul}` : '', wtT(cd), windT(cd)].filter(Boolean).join(' · ') : ''; if (c) L.push(c);
       L.push(`조과${all && cd.party ? `(일행 포함 ${cd.party.n}명)` : ''}: ${cd.sp.length ? cd.sp.map(s => `${s.n} ${s.c}`).join(' · ') : '꽝'}`);
       if (all && cd.party) L.push(`사람별: ${cd.party.people.map(q => `${q.n} ${q.c}`).join(' · ')}`);
-      if (sh.rig) { const r = [sinkTxt(cd.sink), egiTxt(cd.egi)].filter(Boolean).join(' · '); if (r) L.push(`채비: ${r}`); }
+      if (sh.rig) { const r = [sinkTxt(cd.sink), egiTxt(cd.egi)].filter(Boolean).join(' · '); if (r) L.push(`채비: ${r}`);
+        const mm = [...cd.sink.filter(n => cd.sinkM && cd.sinkM[n]).map(n => `${n}호 ${cd.sinkM[n]}`), ...cd.egi.filter(x => x.m).map(x => `${egiName(x)} ${x.m}`)]; if (mm.length) L.push(`채비 메모: ${mm.join(' / ')}`); }
       if (sh.memo && cd.memo) L.push(`메모: ${cd.memo}`);
       if (sh.my && my && my.who) L.push(`함께: ${whoJ(my.who, ', ')}`);
       if (sh.my && my && my.say) L.push(`한마디: ${my.say}`);
@@ -6016,7 +6137,7 @@ const TideHarm = (() => {
         <div class="mv-btns"><button class="pri" data-act="move-in">가져오기</button><button data-act="list">목록으로</button></div>`;
     }
     async function moveCopy() {
-      const t = MOVE_HEAD + JSON.stringify({ v: 1, points, boats: boatsMem(), trip: loadJ(TRIP_KEY, null), sums: sums(), egiMine, ports: customPorts, defs: customPorts.length ? spotDefs : null });
+      const t = MOVE_HEAD + JSON.stringify({ v: 1, points, boats: boatsMem(), trip: loadJ(TRIP_KEY, null), sums: sums(), egiMine, egiOvr, ports: customPorts, defs: customPorts.length ? spotDefs : null });
       let ok = false;
       try { await navigator.clipboard.writeText(t); ok = true; } catch (_) {}
       if (!ok) { const ta = $('mv-paste'); if (ta) { ta.value = t; ta.select(); try { ok = document.execCommand('copy'); } catch (_) {} ta.value = ''; ta.blur(); } }
@@ -6031,6 +6152,7 @@ const TideHarm = (() => {
       points.sort((a, b) => b.t - a.t); savePts();
       if (Array.isArray(d.boats)) { const mine = boatsMem(); saveJ(BOAT_KEY, [...mine, ...d.boats.filter(b => b && b.n && !mine.some(x => x.n === b.n))].slice(0, 10)); }
       if (Array.isArray(d.egiMine)) { for (const m of d.egiMine) if (m && m.id && !egiMine.some(q => q.id === m.id)) egiMine.push(m); saveJ(MINE_KEY, egiMine); }
+      if (d.egiOvr && typeof d.egiOvr === 'object' && !Array.isArray(d.egiOvr)) { for (const k of Object.keys(d.egiOvr)) if (EGI_BY[k] && !egiOvr[k]) egiOvr[k] = d.egiOvr[k]; saveJ(OVR_KEY, egiOvr); }
       if (d.sums && typeof d.sums === 'object') { const mine = sums(); for (const k of Object.keys(d.sums)) if (!mine[k]) mine[k] = d.sums[k]; saveJ(SUM_KEY, mine); }
       if (d.defs && !spotDefs) { spotDefs = d.defs; try { localStorage.setItem(DEFS_KEY, JSON.stringify(spotDefs)); } catch (_) {} }
       let np = 0; if (Array.isArray(d.ports)) for (const c of d.ports) if (c && c.k && !customPorts.some(x => x.k === c.k) && registerCustom(c)) { customPorts.push(c); np++; }
@@ -6179,16 +6301,13 @@ const TideHarm = (() => {
       if (a === 'sum-later') return sumExit(false);
       if (a === 'save') showSave();
       else if (a === 'inc' || a === 'dec') { const k = b.dataset.k, el = $('mv-n-' + k); const n = setN(k, getN(k) + (a === 'inc' ? 1 : -1)); if (el) el.value = n; }
-      else if (a === 'fish') {   // 자주 잡히는 어종: 빈 줄에 이름을 넣고 한 마리로 (빈 줄이 없으면 줄을 더한다)
+      else if (a === 'fish') {   // 낙지·문어: 누르면 줄이 생기고 (한 마리), 한 번 더 누르면 그 줄이 없어진다
         const n = b.dataset.n, had = form.etc.findIndex(e => e.n.trim() === n);
-        if (had >= 0) { form.etc[had].c = clampN(form.etc[had].c + 1); repaint(); return; }
-        let j = form.etc.findIndex(e => !e.n.trim());
-        if (j < 0 && form.etc.length < 4) { form.etc.push({ n: '', c: 0 }); j = form.etc.length - 1; }
-        if (j < 0) j = form.etc.length - 1;
-        form.etc[j].n = n; if (!form.etc[j].c) form.etc[j].c = 1; repaint();
+        if (had >= 0) form.etc.splice(had, 1); else if (form.etc.length < 4) form.etc.push({ n, c: 1 });
+        repaint();
       }
       else if (a === 'addfish') { if (form.etc.length < 4) { form.etc.push({ n: '', c: 0 }); repaint(); const el = panel.querySelectorAll('.mv-sp'); el.length && el[el.length - 1].focus(); } }
-      else if (a === 'rmfish') { form.etc.splice(+b.dataset.j, 1); if (!form.etc.length) form.etc.push({ n: '', c: 0 }); repaint(); }
+      else if (a === 'rmfish') { form.etc.splice(+b.dataset.j, 1); repaint(); }
       else if (a === 'edit') showEdit(b.dataset.id);
       else if (a === 'commit') commit();
       else if (a === 'cancel' && form && form.edit) { const id = form.edit; form = null; showDetail(id); }
@@ -7287,7 +7406,7 @@ const TideHarm = (() => {
 
 <script>
 if ('serviceWorker' in navigator) addEventListener('load', () => {
-  const sw = navigator.serviceWorker, VER = '532f4b92'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
+  const sw = navigator.serviceWorker, VER = 'eb7bc725'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
   // 화면에 손을 대기 시작했는지 (쓰는 중에는 새로 열지 않으려고)
   ['pointerdown', 'keydown'].forEach(t => addEventListener(t, () => { touched = true; }, { capture: true, passive: true }));
   const reload = () => {
