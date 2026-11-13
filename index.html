@@ -571,6 +571,19 @@ a.mv-row-btn{text-decoration:none; gap:10px} .mv-row-btn span{font-size:calc(20p
 .mv-moretx{margin:0 2px 12px; font-size:calc(11.5px * var(--k)); line-height:1.55; color:var(--ink-2); font-weight:500; word-break:keep-all}
 .mv-setc > .mv-moretx{margin-top:-4px}
 .mv-set + .mv-btns, .mv-setc + .mv-btns{margin-top:14px}
+.mv-sumtop{display:flex; align-items:flex-start; gap:10px} .mv-sumtop .l{flex:1; min-width:0} .mv-sumtop .l .mv-h{margin-bottom:6px}
+.mv-sumtop .r{flex:none; display:flex; flex-direction:column; align-items:flex-end; gap:7px} .mv-sumtop .tm{padding-top:3px; font-size:calc(11.5px * var(--k)); font-weight:500; color:var(--ink-2); white-space:nowrap}
+.mv-lblchip{display:inline-flex; align-items:center; gap:5px; height:32px; padding:0 10px 0 9px; border-radius:999px; border:1px solid var(--line); background:var(--card); font:inherit; font-size:calc(12px * var(--k)); font-weight:700; color:var(--ink); white-space:nowrap; -webkit-tap-highlight-color:transparent}
+.mv-lblchip svg{width:15px; height:15px; color:var(--ink-2)} .mv-lblchip em{font-style:normal; font-weight:500; color:var(--ink-2)} .mv-lblchip i{font-style:normal; font-size:calc(15px * var(--k)); color:var(--ink-2)}
+.mv-lblrow{width:100%; display:flex; align-items:center; gap:12px; margin:2px 0 12px; padding:11px 12px; border:1px solid var(--line); border-radius:14px; background:none; font:inherit; color:var(--ink); text-align:left; -webkit-tap-highlight-color:transparent}
+.mv-lblrow .ic{flex:none; width:20px; height:20px; color:var(--ink-2); font-style:normal} .mv-lblrow .ic svg{width:20px; height:20px; display:block}
+.mv-lblrow .t{flex:1; min-width:0; display:flex; flex-direction:column; gap:2px; font-style:normal} .mv-lblrow .t b{font-size:calc(14px * var(--k))} .mv-lblrow .t small{font-size:calc(11.5px * var(--k)); font-weight:500; color:var(--ink-2)}
+.mv-lblrow > span{font-size:calc(20px * var(--k)); line-height:1; color:var(--ink-2)}
+.mv-rged .lpv{display:block; width:100%; height:146px; border-radius:14px; border:1px solid var(--line); cursor:pointer; -webkit-tap-highlight-color:transparent}
+.mv-lblgrid{display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:6px; margin-top:10px}
+.mv-lblgrid button{min-height:36px; padding:3px 4px; border-radius:10px; border:1px solid var(--line); background:none; font:inherit; font-size:calc(12px * var(--k)); line-height:1.25; font-weight:700; color:var(--ink-2); word-break:keep-all; -webkit-tap-highlight-color:transparent}
+.mv-lblgrid button.on{background:var(--ink); border-color:var(--ink); color:var(--card)}
+
 .mv-list b .mv-autot{display:inline-block; margin-left:6px; padding:1px 7px; border-radius:999px; border:1px solid var(--line); color:var(--ink-2); font-style:normal; font-size:calc(10.5px * var(--k)); font-weight:700; vertical-align:1px}
 .upd-bar{position:fixed; left:12px; right:12px; bottom:calc(14px + env(safe-area-inset-bottom, 0px)); z-index:95; max-width:496px; margin:0 auto; display:flex; align-items:center; gap:8px; padding:7px 6px 7px 16px; border-radius:16px; background:rgba(8,20,24,.95); color:#fff; font-size:calc(13.5px * var(--k)); font-weight:700; box-shadow:0 6px 20px rgba(0,0,0,.3); animation:sheetUp .3s cubic-bezier(.2,.8,.2,1)}
 .upd-bar span{flex:1; min-width:0}
@@ -3548,6 +3561,116 @@ const TideHarm = (() => {
       levelSets.set(L, set); return set;
     }
     // 이름표 그리기 (매 장면). 나타나거나 사라지는 중이면 true
+    // ---------- 출조 이름표: 기본(날짜·배·마릿수 한 줄) + 쭈꾸미 한마디 열 가지 · 기록 설정 > 출조 이름표에서 고른다
+    const LBL_KEY = 'jjukgap-lbl';
+    const LBLS = [
+      ['base', '기본', '날짜·배·마릿수를 한 줄로 깔끔하게', '기본'],
+      ['F1', '서해 사투리', '"손맛 지대로여!" 마릿수 따라 사투리 한마디', '사투리'],
+      ['F2', '잡힌 녀석의 하소연', '"우리 41마리 끌려감 ㅠㅠ" 쭈꾸미 쪽에서 본 그날', '하소연'],
+      ['F3', '뉴스 속보', '"루피호, 쭈꾸미 41마리 낚아"', '속보'],
+      ['F4', '만화 효과음', '"쭈우욱!!" 많이 잡을수록 소리가 커져요', '효과음'],
+      ['F5', '쭈갑 리그 전광판', '쭈꾸미 : 갑오징어 경기 결과', '전광판'],
+      ['F6', '그림일기', '"참 재미있었다. 또 가고 싶다."', '그림일기'],
+      ['F7', '선장 무전', '"치직— 여기는 루피호, 오버!"', '무전'],
+      ['F8', '레벨업 칭호', '새내기 쭈꾼 → 만선의 전설', '레벨업'],
+      ['F9', '상장', '"위 사람은… 이 상장을 드립니다"', '상장'],
+      ['F10', '영수증', '합계: 행복 ♥', '영수증'],
+      ['mix', '그날그날 바꿔 가며', '출조마다 열 가지 중 하나가 정해져요 (같은 날은 늘 같은 모양)', '맡기기'],
+    ];
+    const lblPick = () => { let v = 'base'; try { v = localStorage.getItem(LBL_KEY) || 'base'; } catch (_) {} return LBLS.some(o => o[0] === v) ? v : 'base'; };
+    const lblStyle = (key, v0) => { const v = v0 && LBLS.some(o => o[0] === v0) ? v0 : lblPick(); if (v !== 'mix') return v; let h = 0; for (const ch of String(key)) h = (h * 31 + ch.charCodeAt(0)) >>> 0; return 'F' + (h % 10 + 1); };
+    function drawTripLbl(ctx, V, d, lx, yTop, font) {
+      ctx.save();
+      const { t0: T, jj, gp, tot: ON, col, boat, mm, dd } = d, tot = ON, cream = '#FFFDF7', ink = '#3A2A1A';
+      const rr = (x, y, w, h, r) => { ctx.beginPath(); ctx.roundRect ? ctx.roundRect(x, y, w, h, r) : ctx.rect(x, y, w, h); };
+      const txt = (s0, x, y, f, c, al = 'left') => { ctx.font = f; ctx.fillStyle = c; ctx.textAlign = al; ctx.textBaseline = 'middle'; ctx.fillText(s0, x, y); };
+      const tw = (s0, f) => { ctx.font = f; return ctx.measureText(s0).width; };
+      const tail = (fill, stroke, lw, y0) => { ctx.beginPath(); ctx.moveTo(lx - 6, y0 - 1); ctx.lineTo(lx, y0 + 9); ctx.lineTo(lx + 6, y0 - 1); ctx.closePath(); ctx.fillStyle = fill; ctx.fill(); if (stroke) { ctx.strokeStyle = stroke; ctx.lineWidth = lw; ctx.beginPath(); ctx.moveTo(lx - 6, y0); ctx.lineTo(lx, y0 + 9); ctx.lineTo(lx + 6, y0); ctx.stroke(); ctx.fillStyle = fill; ctx.fillRect(lx - 5, y0 - lw - 0.6, 10, lw + 1.2); } };
+      const shadow = (x, y, w, h, r) => { ctx.fillStyle = 'rgba(0,0,0,.28)'; rr(x + 1, y + 2.5, w, h, r); ctx.fill(); };
+      const info = ON ? `${T} · 쭈꾸미 ${jj}${gp ? ` · 갑오징어 ${gp}` : ''}` : T;
+      const tier = a6 => a6[tot >= 100 ? 5 : tot >= 60 ? 4 : tot >= 30 ? 3 : tot >= 10 ? 2 : tot >= 1 ? 1 : 0];
+      const F1 = `800 13px ${font}`, F2 = `600 10px ${font}`;
+      const speech = (title, l2, opt = {}) => {
+        const w = Math.max(tw(title, F1), tw(l2, F2)) + 30, h = 40, y = yTop - 12 - h, x = lx - w / 2 + 10;
+        shadow(x, y, w, h, 12); ctx.fillStyle = cream; ctx.strokeStyle = col; ctx.lineWidth = 2; rr(x, y, w, h, 12); ctx.fill(); ctx.stroke(); tail(cream, col, 2, y + h);
+        txt(title, x + 16, y + 14, F1, col); txt(l2, x + 16, y + 29, F2, '#4A3A2A');
+        drawChar(ctx, 'oc', x - 18, y + h - 22, 30, !!opt.sad); return { x, y, w, h };
+      };
+      if (V === 'base' || !d.has) {   // 기본: 날짜·배(·마릿수) 한 줄 (출조 정리 전이라 마릿수를 모르면 열 가지 모양도 이렇게)
+        ctx.font = `700 10.5px ${font}`; let t = d.txt; const W0 = ctx.canvas.clientWidth || 360; if (ctx.measureText(t).width > W0 - 48 && ON) t = `${T} · ${ON}마리`;
+        const w = ctx.measureText(t).width, ly = yTop - 13;
+        ctx.globalAlpha = 0.95; ctx.fillStyle = col; rr(lx - w / 2 - 7, ly - 9, w + 14, 18, 9); ctx.fill();
+        ctx.globalAlpha = 1; txt(t, lx, ly + 0.5, `700 10.5px ${font}`, '#FFFFFF', 'center');
+      } else if (V === 'F1') {
+        speech(tier(['오늘은 공쳤슈…', '그려도 손맛은 봤슈~', '쏠쏠했구먼유!', '손맛 지대로여!', '워메, 대박이여!', '만선이유! 배 가라앉겄슈~']), info, { sad: !ON });
+      } else if (V === 'F2') {
+        const r = speech(ON ? `우리 ${jj}마리 끌려감 ㅠㅠ` : '오늘은 다 도망쳤지롱~', ON ? `${T}${gp ? ` · 갑오징어 ${gp}도 같이…` : ''}` : `${T} · 약 오르지?`, { sad: !!ON });
+        if (ON) { ctx.fillStyle = '#7CC8FF'; ctx.beginPath(); ctx.ellipse(r.x - 12, r.y + r.h - 6, 1.6, 2.4, 0, 0, 7); ctx.fill(); }
+      } else if (V === 'F3') {
+        const head = ON ? `${boat}, 쭈꾸미 ${jj}마리 낚아` : `${boat}, 오늘은 빈손 귀가`, sub = ON ? `${+mm}월 ${+dd}일 서해 앞바다${gp ? ` · 갑오징어 ${gp}` : ''}` : `${+mm}월 ${+dd}일 · 바다가 허락하지 않았다`;
+        const fh = `800 12.5px ${font}`, w = Math.max(tw(head, fh) + 52, tw(sub, F2) + 16), h = 42, y = yTop - 12 - h, x = lx - w / 2;
+        shadow(x, y, w, h, 6); ctx.fillStyle = '#FFFFFF'; rr(x, y, w, h, 6); ctx.fill(); tail('#FFFFFF', null, 0, y + h);
+        ctx.fillStyle = '#D7262E'; rr(x + 6, y + 6, 34, 17, 4); ctx.fill(); txt('속보', x + 23, y + 15, `800 10.5px ${font}`, '#FFFFFF', 'center');
+        txt(head, x + 46, y + 15, fh, '#111111');
+        ctx.fillStyle = '#1F3A5F'; rr(x, y + 27, w, 15, [0, 0, 6, 6]); ctx.fill(); txt(sub, x + 8, y + 35, `600 9.5px ${font}`, '#FFFFFF');
+      } else if (V === 'F4') {
+        const sfx = tier(['휘잉~', '톡!', '쭈욱!', '쭈우욱!!', '콰광!!', '만선 펑!!']), fs = `900 17px ${font}`, s1 = sfx + (ON ? ' ' + tot : ''), w = tw(s1, fs) + 34, h = 46, cx = lx, cy = yTop - 14 - h / 2 - 10;
+        ctx.beginPath(); const N = 22; for (let i = 0; i < N; i++) { const a = i / N * 2 * Math.PI, k = i % 2 ? 0.78 : 1.06, x = cx + Math.cos(a) * w / 2 * k, y = cy + Math.sin(a) * h / 2 * k; i ? ctx.lineTo(x, y) : ctx.moveTo(x, y); } ctx.closePath();
+        ctx.fillStyle = 'rgba(0,0,0,.3)'; ctx.save(); ctx.translate(2, 3); ctx.fill(); ctx.restore(); ctx.fillStyle = '#FFE14D'; ctx.fill(); ctx.lineWidth = 2.4; ctx.strokeStyle = ink; ctx.lineJoin = 'round'; ctx.stroke();
+        ctx.save(); ctx.translate(cx, cy); ctx.rotate(-0.06); ctx.font = fs; ctx.lineWidth = 3.2; ctx.strokeStyle = '#FFFFFF'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.strokeText(s1, 0, 1); ctx.fillStyle = '#E8452C'; ctx.fillText(s1, 0, 1); ctx.restore();
+        ctx.font = `700 9.5px ${font}`; const iw = ctx.measureText(info).width + 12; ctx.fillStyle = col; rr(cx - iw / 2, yTop - 12, iw, 15, 7.5); ctx.fill(); txt(info, cx, yTop - 4.5, `700 9.5px ${font}`, '#FFFFFF', 'center');
+      } else if (V === 'F5') {
+        const w = 132, h = 50, y = yTop - 12 - h, x = lx - w / 2;
+        shadow(x, y, w, h, 8); ctx.fillStyle = '#1A1F24'; rr(x, y, w, h, 8); ctx.fill(); ctx.lineWidth = 2; ctx.strokeStyle = '#3A444E'; ctx.stroke(); tail('#1A1F24', null, 0, y + h);
+        txt(`${T} 경기 결과`, x + w / 2, y + 10, `700 8.5px ${font}`, '#9FB3C2', 'center');
+        txt(String(jj), x + 30, y + 31, `900 20px ${font}`, '#FFB833', 'center'); txt(':', x + w / 2, y + 30, `900 16px ${font}`, '#FFB833', 'center'); txt(String(gp), x + w - 30, y + 31, `900 20px ${font}`, '#FFB833', 'center');
+        txt('쭈꾸미', x + 30, y + 44, `700 8px ${font}`, '#C9D6DF', 'center'); txt('갑오징어', x + w - 30, y + 44, `700 8px ${font}`, '#C9D6DF', 'center');
+        for (let i = 0; i < 9; i++) { ctx.fillStyle = i % 2 ? '#FF5A5A' : '#FFD54A'; ctx.beginPath(); ctx.arc(x + 10 + i * (w - 20) / 8, y + 2.5, 1.3, 0, 7); ctx.fill(); }
+      } else if (V === 'F6') {
+        const l1 = `${+mm}월 ${+dd}일 · 날씨: 맑음`, l2 = ON ? `${boat} 타고 쭈꾸미 ${jj}마리 잡았다.` : `${boat} 타고 나갔는데 한 마리도 못 잡았다.`, l3 = ON ? '참 재미있었다. 또 가고 싶다.' : '그래도 바다는 좋았다.';
+        const fz = `600 10.5px ${font}`, w = Math.max(tw(l1, `700 9.5px ${font}`), tw(l2, fz), tw(l3, fz)) + 28, h = 54, y = yTop - 12 - h, x = lx - w / 2;
+        ctx.save(); ctx.translate(lx, y + h / 2); ctx.rotate(-0.025); ctx.translate(-lx, -(y + h / 2));
+        shadow(x, y, w, h, 3); ctx.fillStyle = '#FFFBEA'; rr(x, y, w, h, 3); ctx.fill();
+        ctx.strokeStyle = '#E9D7A4'; ctx.lineWidth = 0.8; for (let i = 1; i < 4; i++) { ctx.beginPath(); ctx.moveTo(x + 6, y + 14 + i * 13); ctx.lineTo(x + w - 6, y + 14 + i * 13); ctx.stroke(); }
+        ctx.strokeStyle = '#F28B82'; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(x + 14, y); ctx.lineTo(x + 14, y + h); ctx.stroke();
+        txt(l1, x + 20, y + 9, `700 9.5px ${font}`, '#8A6D3B'); txt(l2, x + 20, y + 22, fz, '#3B4A7A'); txt(l3, x + 20, y + 35, fz, '#3B4A7A');
+        ctx.fillStyle = 'rgba(255,214,102,.7)'; ctx.save(); ctx.translate(x + w / 2, y - 1); ctx.rotate(0.05); ctx.fillRect(-16, -5, 32, 10); ctx.restore();
+        ctx.restore(); drawChar(ctx, 'oc', x + w - 18, y + h - 20, 24, !ON);
+      } else if (V === 'F7') {
+        const l1 = `치직— 여기는 ${boat}`, l2 = ON ? `쭈꾸미 ${jj}${gp ? `, 갑오징어 ${gp}` : ''} 확보! 오버!` : '오늘은 빈 통이다… 오버.', f1 = `800 11.5px ${font}`, f2 = `700 10.5px ${font}`;
+        const w = Math.max(tw(l1, f1) + tw(`${+mm}/${+dd}`, `700 8px ${font}`) + 12, tw(l2, f2)) + 46, h = 40, y = yTop - 12 - h, x = lx - w / 2;
+        shadow(x, y, w, h, 10); ctx.fillStyle = '#23402F'; rr(x, y, w, h, 10); ctx.fill(); ctx.lineWidth = 1.5; ctx.strokeStyle = '#5FD38D'; ctx.stroke(); tail('#23402F', null, 0, y + h);
+        ctx.fillStyle = '#5FD38D'; rr(x + 9, y + 12, 12, 19, 3); ctx.fill(); ctx.fillRect(x + 11, y + 5, 2, 8); ctx.fillStyle = '#23402F'; ctx.fillRect(x + 11, y + 22, 8, 1.4); ctx.fillRect(x + 11, y + 25.5, 8, 1.4);
+        ctx.strokeStyle = '#5FD38D'; ctx.lineWidth = 1.2; for (const r0 of [4, 7]) { ctx.beginPath(); ctx.arc(x + 12, y + 5, r0, -1.2, -0.3); ctx.stroke(); }
+        txt(l1, x + 30, y + 13, f1, '#B9F5CF'); txt(l2, x + 30, y + 28, f2, '#FFFFFF'); txt(`${+mm}/${+dd}`, x + w - 8, y + 9, `700 8px ${font}`, '#7FBF97', 'right');
+      } else if (V === 'F8') {
+        const title = tier(['견습 낚시꾼', '새내기 쭈꾼', '쭈꾸미 사냥꾼', '손맛 장인', '바다의 해결사', '만선의 전설']), l1 = `${title}  Lv.${tot}`, f1 = `900 12.5px ${font}`;
+        const w = Math.max(tw(l1, f1), tw(info, `600 9px ${font}`)) + 26, h = 56, y = yTop - 12 - h, x = lx - w / 2;
+        shadow(x, y, w, h, 10); const g = ctx.createLinearGradient(x, y, x + w, y + h); g.addColorStop(0, '#5B3CC4'); g.addColorStop(1, '#2F7DF6'); ctx.fillStyle = g; rr(x, y, w, h, 10); ctx.fill(); ctx.lineWidth = 1.5; ctx.strokeStyle = '#FFE14D'; ctx.stroke(); tail('#3E5CDB', null, 0, y + h);
+        txt('LEVEL UP!', x + 11, y + 10, `900 8.5px ${font}`, '#FFE14D'); txt(l1, x + 11, y + 24, f1, '#FFFFFF');
+        ctx.fillStyle = 'rgba(255,255,255,.25)'; rr(x + 11, y + 35, w - 22, 5, 2.5); ctx.fill(); ctx.fillStyle = '#7CFFB2'; rr(x + 11, y + 35, (w - 22) * Math.min(1, (tot % 50) / 50 + 0.08), 5, 2.5); ctx.fill();
+        txt(info, x + 11, y + 47, `600 8.5px ${font}`, '#DDE6FF');
+        for (const [sx, sy] of [[x - 4, y + 6], [x + w + 3, y + 12], [x + w - 6, y - 4]]) { ctx.fillStyle = '#FFE14D'; ctx.beginPath(); for (let i = 0; i < 8; i++) { const a = i / 8 * 2 * Math.PI, r0 = i % 2 ? 1.3 : 3.6; i ? ctx.lineTo(sx + Math.cos(a) * r0, sy + Math.sin(a) * r0) : ctx.moveTo(sx + Math.cos(a) * r0, sy + Math.sin(a) * r0); } ctx.closePath(); ctx.fill(); }
+      } else if (V === 'F9') {
+        const l2 = `위 사람은 ${+mm}월 ${+dd}일 ${boat}에서`, l3 = ON ? `쭈꾸미 ${jj}마리${gp ? `·갑오징어 ${gp}마리` : ''}를 낚았기에` : '빈손에도 끝까지 웃었기에', l4 = '이 상장을 드립니다.';
+        const fz = `600 9.5px ${font}`, w = Math.max(tw(l2, fz), tw(l3, fz)) + 52, h = 66, y = yTop - 12 - h, x = lx - w / 2;
+        shadow(x, y, w, h, 4); ctx.fillStyle = '#FFFBF0'; rr(x, y, w, h, 4); ctx.fill(); tail('#FFFBF0', null, 0, y + h);
+        ctx.strokeStyle = '#C9A23A'; ctx.lineWidth = 2; rr(x + 3, y + 3, w - 6, h - 6, 3); ctx.stroke(); ctx.lineWidth = 0.8; rr(x + 6, y + 6, w - 12, h - 12, 2); ctx.stroke();
+        txt('상  장', lx, y + 16, `900 13px ${font}`, '#5A3E12', 'center'); txt(l2, lx, y + 31, fz, ink, 'center'); txt(l3, lx, y + 43, fz, ink, 'center'); txt(l4, lx, y + 55, fz, ink, 'center');
+        ctx.fillStyle = 'rgba(214,48,49,.85)'; ctx.beginPath(); ctx.arc(x + w - 15, y + h - 15, 7.5, 0, 7); ctx.fill(); txt('쭈', x + w - 15, y + h - 14.5, `900 8.5px ${font}`, '#FFFFFF', 'center');
+      } else if (V === 'F10') {
+        const rows = ON ? [['쭈꾸미', `×${jj}`], ...(gp ? [['갑오징어', `×${gp}`]] : []), ['손맛', '무한']] : [['쭈꾸미', '×0'], ['바다 구경', '1회']];
+        const fz = `600 9.5px ${font}`, w = 128, h = 28 + rows.length * 12 + 18, y = yTop - 14 - h, x = lx - w / 2;
+        ctx.fillStyle = 'rgba(0,0,0,.25)'; ctx.fillRect(x + 1.5, y + 2.5, w, h);
+        ctx.fillStyle = '#FFFFFF'; ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x + w, y); ctx.lineTo(x + w, y + h); for (let i = 0; i <= 16; i++) ctx.lineTo(x + w - i * w / 16, y + h + (i % 2 ? 0 : -4)); ctx.closePath(); ctx.fill();
+        txt(`${boat} 영수증`, lx, y + 9, `800 10px ${font}`, '#222222', 'center'); txt(`${+mm}/${+dd} · 서해 앞바다점`, lx, y + 20, `600 8px ${font}`, '#777777', 'center');
+        ctx.setLineDash([2, 2]); ctx.strokeStyle = '#999999'; ctx.lineWidth = 0.8; ctx.beginPath(); ctx.moveTo(x + 8, y + 26); ctx.lineTo(x + w - 8, y + 26); ctx.stroke();
+        rows.forEach(([k, v], i) => { txt(k, x + 10, y + 33 + i * 12, fz, '#333333'); txt(v, x + w - 10, y + 33 + i * 12, `700 9.5px ${font}`, '#333333', 'right'); });
+        const ty = y + 30 + rows.length * 12; ctx.beginPath(); ctx.moveTo(x + 8, ty); ctx.lineTo(x + w - 8, ty); ctx.stroke(); ctx.setLineDash([]);
+        txt('합계', x + 10, ty + 8, `800 10px ${font}`, '#111111'); txt(ON ? '행복 ♥' : '다음 기회', x + w - 10, ty + 8, `800 10px ${font}`, col, 'right');
+      }
+      ctx.restore();
+    }
     function drawLabels(C, font) {
       const now = performance.now(), step = Math.min(64, Math.max(0, now - (labT || now))) / 170; labT = now;
       const sk = [dpr, font, C.sea, C.land, C.card, C.ink, C.isl, C.bay, C.port, C.cur].join('|'); if (sk !== sprKey) { spr = new Map(); sprKey = sk; }
@@ -3726,9 +3849,11 @@ const TideHarm = (() => {
           if (n0 && ctx.measureText(t).width > W - 48) t = `${t0} · ${n0}마리`;
           let x0 = Infinity, x1 = -Infinity, yTop = Infinity;   // 왕관·순서 번호·👍까지 포함한 맨 위
           for (const o of xy) { x0 = Math.min(x0, o.x - o.r); x1 = Math.max(x1, o.x + o.r); yTop = Math.min(yTop, o.y - Math.max(o.r + (o.info.best ? 11 : 4), o.p.good ? o.r * 1.35 + 2 : 0)); }
-          const tw = ctx.measureText(t).width, lx = (x0 + x1) / 2, ly = yTop - 13;
-          ctx.globalAlpha = 0.95; ctx.fillStyle = tr.color; ctx.beginPath(); ctx.roundRect ? ctx.roundRect(lx - tw / 2 - 7, ly - 9, tw + 14, 18, 9) : ctx.rect(lx - tw / 2 - 7, ly - 9, tw + 14, 18); ctx.fill();
-          ctx.globalAlpha = 1; ctx.fillStyle = '#FFFFFF'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(t, lx, ly + 0.5); ctx.textAlign = 'start'; ctx.textBaseline = 'alphabetic';
+          const lx = (x0 + x1) / 2, pj = tr.pts.reduce((a, q) => a + (q.jj || 0), 0), pg = tr.pts.reduce((a, q) => a + (q.gap || 0), 0);
+          let jj = SM0 ? SM0.jj || 0 : pj, gp = SM0 ? SM0.gap || 0 : pg; const [mm, dd] = md(kstDay(p0.p.t)).split('/');
+          const ed = mode === 'sum' && form && sumTr && sumTr.key === tr.key;   // 출조 정리 중이면 고르는 모양·적는 마릿수 그대로
+          if (ed) { jj = clampN(form.jj); gp = clampN(form.gap); }
+          drawTripLbl(ctx, lblStyle(tr.key, ed ? form.lbl : SM0 && SM0.lbl), { t0, txt: ed ? (jj + gp ? `${t0} · ${catchTxt({ jj, gap: gp, etc: [] })}` : t0) : t, jj, gp, tot: jj + gp, has: ed || !!SM0 || pj + pg > 0, col: tr.color, boat: p0.p.boat || p0.p.depName || '출조', mm, dd }, lx, yTop, font);
         }
         ctx.restore();
       }
@@ -4595,6 +4720,8 @@ const TideHarm = (() => {
     panel.addEventListener('contextmenu', e => { if (e.target.closest && e.target.closest('.mv-cell, .mv-egis button')) e.preventDefault(); });
     function rigTap(a, b) {
       if (!form) return false;
+      if (a === 'lbl-sel') { lblSet(b.dataset.v); return true; }
+      if (a === 'lbl-next') { const i = LBLS.findIndex(o => o[0] === form.lbl); lblSet(LBLS[(i + 1) % LBLS.length][0]); return true; }
       if (a === 'fn-tog') { boxChange(() => { fnOpen = !fnOpen; try { localStorage.setItem(FN_KEY, fnOpen ? '1' : '0'); } catch (_) {} }, {}); return true; }
       if (a === 'sink' || a === 'box-sink') {
         if (lpFired) { lpFired = false; return true; }
@@ -4724,7 +4851,7 @@ const TideHarm = (() => {
     const pKey = k => /^p\d+[jg]$/.test(k) ? [+k.slice(1, -1), k.slice(-1) === 'j' ? 'jj' : 'gap'] : null;
     const getN = k => { const pk = pKey(k); if (pk) return (form.party[pk[0]] || {})[pk[1]] || 0; return k[0] === 'e' && k !== 'etc' ? form.etc[+k.slice(1)].c : form[k]; };
     const setN = (k, n) => { n = clampN(n); const pk = pKey(k); if (pk) { if (form.party[pk[0]]) form.party[pk[0]][pk[1]] = n; } else if (k[0] === 'e') form.etc[+k.slice(1)].c = n; else form[k] = n;
-      const el = $('mv-n-' + k); if (el && document.activeElement !== el) el.value = n; partySum(); return n; };
+      const el = $('mv-n-' + k); if (el && document.activeElement !== el) el.value = n; partySum(); if (k === 'jj' || k === 'gap') { lblLiveSoon(); draw(); } return n; };
     // 일행 조과표: 나 + 일행 (이름 · 쭈꾸미 · 갑오징어), 맨 아래 '모두'는 저절로 · 기타 어종은 나만
     const partyTot = (f, k) => (f[k] || 0) + (f.party || []).reduce((a, q) => a + (q[k] || 0), 0);
     function partyRows(f) {
@@ -4818,7 +4945,8 @@ const TideHarm = (() => {
         sink: S ? (S.sink || []).slice() : pSink.length ? pSink : (rg.last || rg.sink || []).slice(),   // 봉돌은 지난번 쓴 것을 미리
         egi: S ? (S.egi || []).map(x => ({ ...x })) : pEgi, sinkM: S && S.sinkM ? { ...S.sinkM } : {},
         memo: S ? S.memo || '' : '', good: new Set(tr.pts.filter(p => p.good).map(p => p.id)), had: !!S,
-        party: S && Array.isArray(S.party) ? S.party.filter(q => q && q.n).map(q => ({ n: String(q.n), jj: q.jj || 0, gap: q.gap || 0 })) : [], partyNew: false };
+        party: S && Array.isArray(S.party) ? S.party.filter(q => q && q.n).map(q => ({ n: String(q.n), jj: q.jj || 0, gap: q.gap || 0 })) : [], partyNew: false,
+        lbl: S && S.lbl && LBLS.some(o => o[0] === S.lbl) ? S.lbl : lblPick() };   // 이름표: 이 출조에 고른 것, 없으면 지난번에 고른 것
       sumTr = tr; mode = 'sum'; selId = null; closeMenu(); sheetAtLeast('open'); paintSum(); panel.scrollTop = 0; draw();
     }
     function paintSum() {
@@ -4832,8 +4960,9 @@ const TideHarm = (() => {
           + `<button type="button" class="mv-good${on ? ' on' : ''}" data-act="good" data-id="${p.id}" aria-pressed="${on}">👍 잘 나옴</button></div>`;
       }).join('');
       panel.innerHTML = `
-        <div class="mv-h"><b>${isToday ? '오늘' : md(kstDay(first.t))} 출조 정리</b><span>${ampm(kstMin(t0))}~${ampm(kstMin(t1))}</span></div>
-        <p class="mv-note">${tripTxt(first) || '배·출항지 기록 없음'} · 머문 자리 ${tr.pts.length}곳</p>
+        <div class="mv-sumtop"><div class="l"><div class="mv-h"><b>${isToday ? '오늘' : md(kstDay(first.t))} 출조 정리</b></div>
+          <p class="mv-note">${tripTxt(first) || '배·출항지 기록 없음'} · 머문 자리 ${tr.pts.length}곳</p></div>
+          <div class="r"><span class="tm">${ampm(kstMin(t0))}~${ampm(kstMin(t1))}</span><button type="button" class="mv-lblchip" id="mv-lblrow" data-act="lbl-open" aria-label="지도 이름표 고르기 · 지금 ${esc(lblShort(f.lbl))}">${LBL_IC}이름표 <em>${esc(lblShort(f.lbl))}</em><i aria-hidden="true">›</i></button></div></div>
         <div class="mv-sec">잡은 것<em>${f.party.length ? '일행 것도 같이 적어요 · 모두는 저절로' : '합계만 적어도 돼요'}</em></div>
         ${f.party.length ? partyRows(f) + partyAddRow(f) + catchRows(f, true) : catchRows(f) + partyAddRow(f)}
         <div class="mv-sec">채비<em>누르면 상자에 담겨요 · 에기 칸을 꾹 누르면 손질</em></div>
@@ -4842,6 +4971,7 @@ const TideHarm = (() => {
         <div class="mv-sec">머문 자리<em>잘 나온 곳만 톡 (안 해도 돼요)</em></div>
         <div class="mv-sumpts">${rows}</div>
         <div class="mv-btns mv-stick"><button class="pri" data-act="sum-save">저장</button><button data-act="sum-later">${f.had ? '닫기' : '나중에'}</button></div>`;
+      requestAnimationFrame(lblLive);
     }
     function sumSave() {
       const f = form, tr = sumTr; if (!f || !tr) return;
@@ -4849,7 +4979,8 @@ const TideHarm = (() => {
       const all = sums();
       const party = (f.party || []).filter(q => q.n).map(q => ({ n: q.n, jj: clampN(q.jj), gap: clampN(q.gap) }));
       const sinkM = sinkMOf(f.sink, f.sinkM);
-      all[tr.key] = { jj: clampN(f.jj), gap: clampN(f.gap), etc: f.etc.map(e => ({ n: e.n.trim(), c: clampN(e.c) })).filter(e => e.c > 0), sink: f.sink.slice(), egi: egiClean(f.egi), ...(Object.keys(sinkM).length ? { sinkM } : {}), memo, ...(party.length ? { party } : {}), t: Date.now() };
+      all[tr.key] = { jj: clampN(f.jj), gap: clampN(f.gap), etc: f.etc.map(e => ({ n: e.n.trim(), c: clampN(e.c) })).filter(e => e.c > 0), sink: f.sink.slice(), egi: egiClean(f.egi), ...(Object.keys(sinkM).length ? { sinkM } : {}), memo, ...(party.length ? { party } : {}), lbl: f.lbl || 'base', t: Date.now() };
+      try { localStorage.setItem(LBL_KEY, f.lbl || 'base'); } catch (_) {}   // 다음 출조 정리는 이 모양으로 시작
       if (party.length) { const names = party.map(q => q.n), rec = loadJ(PARTY_KEY, []) || []; saveJ(PARTY_KEY, [...names, ...rec.filter(n => !names.includes(n))].slice(0, 8)); }
       saveJ(SUM_KEY, all);
       let ch = false; for (const p of tr.pts) { const g = f.good.has(p.id); if (!!p.good !== g) { if (g) p.good = 1; else delete p.good; ch = true; } }
@@ -6231,6 +6362,41 @@ const TideHarm = (() => {
         + `<div class="mv-btns"><button data-act="set-back">닫기</button></div>`;
       panel.scrollTop = keepTop;
     }
+    // 출조 정리의 이름표 미리 보기: 이 출조의 날짜·배와 지금 적은 '나' 마릿수로 그린다
+    let lblRaf = 0;
+    const lblLiveSoon = () => { if (!lblRaf) lblRaf = requestAnimationFrame(() => { lblRaf = 0; lblLive(); }); };
+    function lblLive() {
+      const cv = $('mv-lblpv'), f = form, tr = sumTr; if (!cv || !f || !tr || mode !== 'sum') return;
+      const w = cv.clientWidth, h = cv.clientHeight; if (!w) return;
+      const C = mapColors(), font = getComputedStyle(document.body).fontFamily, r2 = Math.min(3, window.devicePixelRatio || 1);
+      cv.width = Math.round(w * r2); cv.height = Math.round(h * r2); const g = cv.getContext('2d'); g.setTransform(r2, 0, 0, r2, 0, 0);
+      g.fillStyle = C.sea; g.fillRect(0, 0, w, h);
+      const p = tr.pts[0], [mm, dd] = md(kstDay(p.t)).split('/'), boat = p.boat || p.depName || '출조', t0 = `${md(kstDay(p.t))} ${boat}`, col = tr.color;
+      const jj = clampN(f.jj), gp = clampN(f.gap), d = { t0, txt: jj + gp ? `${t0} · ${catchTxt({ jj, gap: gp, etc: [] })}` : t0, jj, gp, tot: jj + gp, has: true, col, boat, mm, dd };
+      const cx = w / 2, by = h - 18;
+      g.setLineDash([3, 3]); g.strokeStyle = col; g.lineWidth = 2; g.beginPath(); g.moveTo(cx - 34, h + 6); g.lineTo(cx, by); g.lineTo(cx + 30, h + 8); g.stroke(); g.setLineDash([]);
+      for (const [x, y] of [[cx - 34, h + 2], [cx + 30, h + 4]]) { g.fillStyle = col; g.beginPath(); g.arc(x, y, 10, 0, 7); g.fill(); g.lineWidth = 1.8; g.strokeStyle = '#FFFFFF'; g.stroke(); }
+      const gr = g.createRadialGradient(cx - 3, by - 4, 2, cx, by, 13); gr.addColorStop(0, '#FFE58A'); gr.addColorStop(1, '#FFAA1D'); g.fillStyle = gr; g.beginPath(); g.arc(cx, by, 12.5, 0, 7); g.fill(); g.lineWidth = 2.4; g.strokeStyle = '#FFFFFF'; g.stroke();
+      const best = Math.max(0, ...tr.pts.map(q => caughtOf(q))); if (best) { g.fillStyle = '#5C3300'; g.font = `800 ${best >= 100 ? 9 : 11}px ${font}`; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(String(best), cx, by + 0.5); }
+      const cy = by - 15; g.beginPath(); g.moveTo(cx - 6.4, cy); g.lineTo(cx - 7.2, cy - 6.8); g.lineTo(cx - 3, cy - 3.4); g.lineTo(cx, cy - 8.5); g.lineTo(cx + 3, cy - 3.4); g.lineTo(cx + 7.2, cy - 6.8); g.lineTo(cx + 6.4, cy); g.closePath(); g.fillStyle = '#FFC93C'; g.fill(); g.lineWidth = 1.4; g.strokeStyle = '#FFFFFF'; g.lineJoin = 'round'; g.stroke();
+      drawTripLbl(g, lblStyle(tr.key, f.lbl), d, cx, cy - 11, font);
+    }
+    const LBL_IC = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 6.5A2.5 2.5 0 0 1 7 4h10a2.5 2.5 0 0 1 2.5 2.5v6A2.5 2.5 0 0 1 17 15h-5.2l-4.3 3.6V15H7a2.5 2.5 0 0 1-2.5-2.5z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M8.5 8.6h7M8.5 11.2h4.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>';
+    const lblShort = v => (LBLS.find(q => q[0] === v) || LBLS[0])[3];
+    function lblOpen() {   // '지도 이름표' 단추 → 작은 판: 미리 보기 + 고르기
+      if (!form) return; rgMode = 'lb'; rgC = null; rgN = null; rgOpenT = 0; rgEl();
+      rgShow(`<h3>지도 이름표</h3><p class="sub">지도에서 이 출조 경로 위에 붙어요 · 그림을 톡 하면 다음 모양</p>`
+        + `<canvas id="mv-lblpv" class="lpv" data-act="lbl-next" role="img" aria-label="이름표 미리 보기 (누르면 다음 모양)"></canvas>`
+        + `<div class="mv-lblgrid" id="mv-lblch">${LBLS.map(([v, n]) => `<button type="button" data-act="lbl-sel" data-v="${v}" class="${v === form.lbl ? 'on' : ''}" aria-pressed="${v === form.lbl}">${v === 'mix' ? '🎲 맡기기' : esc(n)}</button>`).join('')}</div>`
+        + '<button type="button" class="done" data-rg="close">다 됐어요</button>');
+      requestAnimationFrame(lblLive);
+    }
+    function lblSet(v) {
+      if (!form) return; form.lbl = v;
+      const ch = $('mv-lblch'); if (ch) ch.querySelectorAll('button').forEach(b => { const on = b.dataset.v === v; b.classList.toggle('on', on); b.setAttribute('aria-pressed', on); if (on) { const r = b.getBoundingClientRect(), cr = ch.getBoundingClientRect(); if (r.left < cr.left || r.right > cr.right) ch.scrollBy({ left: r.left - cr.left - (cr.width - r.width) / 2, behavior: 'smooth' }); } });
+      const row = $('mv-lblrow'); if (row) { row.querySelector('em').textContent = lblShort(v); row.setAttribute('aria-label', `지도 이름표 고르기 · 지금 ${lblShort(v)}`); }
+      lblLive(); draw();   // 뒤 지도의 이 출조 이름표도 바로
+    }
     const refreshList = () => { if (mode === 'list') showList(); else if (mode === 'set') showSet(); };
     // ---------- 포인트 옮기기: 크롬에 설치한 앱 ↔ 안드로이드 앱, 다른 폰. 기록을 글자 묶음으로 복사해서 새 쪽에 붙여넣는다
     const MOVE_HEAD = '쭈갑물때-기록:';
@@ -6387,6 +6553,7 @@ const TideHarm = (() => {
       if (a === 'fold') return toggleFold(b);
       if (a === 'auto-tog') return setAuto(!autoOn);
       if (a === 'set-open') return showSet();
+      if (a === 'lbl-open') return lblOpen();
       if (a === 'set-back') return showList();
       if (a === 'set-more') { const k = b.dataset.k; if (setMore.has(k)) setMore.delete(k); else setMore.add(k); return showSet(); }
       if (a === 'rec-all') { dayFilter = null; const all = points.slice(); if (all.length) fitPts(all); if (mode === 'list') showList(); else paintPanel(true); return draw(); }
@@ -7535,7 +7702,7 @@ const TideHarm = (() => {
 
 <script>
 if ('serviceWorker' in navigator) addEventListener('load', () => {
-  const sw = navigator.serviceWorker, VER = '05cc8c16'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
+  const sw = navigator.serviceWorker, VER = '337a5ff9'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
   // 화면에 손을 대기 시작했는지 (쓰는 중에는 새로 열지 않으려고)
   ['pointerdown', 'keydown'].forEach(t => addEventListener(t, () => { touched = true; }, { capture: true, passive: true }));
   const reload = () => {
