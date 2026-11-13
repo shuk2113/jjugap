@@ -382,7 +382,10 @@ h2{margin:0; font-size:calc(16px * var(--k)); font-weight:700; text-wrap:balance
 .mv-rged[hidden]{display:none}
 .mv-rged .bd{position:absolute; inset:0; background:rgba(0,0,0,.45); animation:rgFade .2s}
 .mv-rged .pnl{position:relative; width:100%; box-sizing:border-box; padding:16px 16px calc(16px + env(safe-area-inset-bottom, 0px)); border-radius:20px 20px 0 0; background:var(--card); border-top:1px solid var(--line); animation:rgUp .28s cubic-bezier(.2,.9,.3,1)}
-@keyframes rgFade{from{opacity:0}} @keyframes rgUp{from{transform:translateY(40%); opacity:.4}}
+@keyframes rgFade{from{opacity:0}} @keyframes rgUp{from{transform:translateY(100%)}}   /* 판은 처음부터 불투명하게 아래에서 올라온다 (뒤 화면이 비치지 않게) */
+/* 꾹 누를 때 글자가 선택되지 않게 (입력 칸만 예외) */
+.mv-rged, .mv-box, .mv-rig{-webkit-user-select:none; user-select:none; -webkit-touch-callout:none}
+.mv-rged input, .mv-rig input{-webkit-user-select:text; user-select:text; -webkit-touch-callout:default}
 .mv-rged h3{margin:0 0 2px; font-size:calc(17px * var(--k))}
 .mv-rged .sub{margin:0 0 14px; font-size:calc(12.5px * var(--k)); font-weight:500; color:var(--ink-2)}
 .mv-rged .ed{display:flex; gap:44px; align-items:center}
@@ -4505,10 +4508,14 @@ const TideHarm = (() => {
     panel.addEventListener('pointerdown', e => {   // 꾹 누르기: 상자의 에기 칸 → 손질 · 봉돌 칸 → 메모 · 아래 에기 단추 → 고치기
       const c = e.target.closest && e.target.closest('.mv-cell.eg, .mv-cell.sk, .mv-egis [data-act=egi]'); lpFired = false; if (!c || !form) return;
       lpXY = [e.clientX, e.clientY]; c.classList.add('press');
-      lpT = setTimeout(() => { lpT = null; lpFired = true; c.classList.remove('press'); rigBuzz();
+      lpT = setTimeout(() => { lpT = null; lpFired = true; lpSwallow = true; c.classList.remove('press'); rigBuzz(); try { getSelection().removeAllRanges(); } catch (_) {}
         if (c.classList.contains('sk')) rgSinkOpen(+c.dataset.n); else if (c.classList.contains('eg')) rgEdOpen(c.dataset.c); else openMaker(c.dataset.c); }, 480);
     });
     panel.addEventListener('pointermove', e => { if (lpT && lpXY && Math.hypot(e.clientX - lpXY[0], e.clientY - lpXY[1]) > 8) lpCancel(); });
+    // 꾹 눌러 판이 뜬 뒤 손을 떼면, 그 '누름'이 새로 뜬 판의 단추를 누르지 않게 한 번 버린다
+    let lpSwallow = false, lpUntil = 0;
+    document.addEventListener('pointerup', () => { if (lpSwallow) { lpSwallow = false; lpFired = false; lpUntil = Date.now() + 450; try { getSelection().removeAllRanges(); } catch (_) {} } }, true);
+    document.addEventListener('click', e => { if (Date.now() < lpUntil) { lpUntil = 0; e.preventDefault(); e.stopPropagation(); } }, true);
     for (const ev of ['pointerup', 'pointercancel']) panel.addEventListener(ev, lpCancel);
     panel.addEventListener('contextmenu', e => { if (e.target.closest && e.target.closest('.mv-cell, .mv-egis button')) e.preventDefault(); });
     function rigTap(a, b) {
@@ -7406,7 +7413,7 @@ const TideHarm = (() => {
 
 <script>
 if ('serviceWorker' in navigator) addEventListener('load', () => {
-  const sw = navigator.serviceWorker, VER = 'eb7bc725'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
+  const sw = navigator.serviceWorker, VER = 'f4a4d9c7'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
   // 화면에 손을 대기 시작했는지 (쓰는 중에는 새로 열지 않으려고)
   ['pointerdown', 'keydown'].forEach(t => addEventListener(t, () => { touched = true; }, { capture: true, passive: true }));
   const reload = () => {
