@@ -378,11 +378,12 @@ h2{margin:0; font-size:calc(16px * var(--k)); font-weight:700; text-wrap:balance
 .mv-egis button.press i{transform:scale(1.1); transition:transform .15s}
 .mv-cell.press .in{transform:scale(1.08); transition:transform .15s}
 /* 에기 손질 판: 상자의 에기 칸을 꾹 누르면 (색 비율 · 레이저 색 · 틴셀 · 잘 먹힌 색 · 내 색 고치기·지우기) */
-.mv-rged{position:absolute; inset:0; z-index:20; display:flex; align-items:flex-end}
-.mv-rged[hidden]{display:none}
-.mv-rged .bd{position:absolute; inset:0; background:rgba(0,0,0,.45); animation:rgFade .2s}
-.mv-rged .pnl{position:relative; width:100%; box-sizing:border-box; padding:16px 16px calc(16px + env(safe-area-inset-bottom, 0px)); border-radius:20px 20px 0 0; background:var(--card); border-top:1px solid var(--line); animation:rgUp .28s cubic-bezier(.2,.9,.3,1)}
-@keyframes rgFade{from{opacity:0}} @keyframes rgUp{from{transform:translateY(100%)}}   /* 판은 처음부터 불투명하게 아래에서 올라온다 (뒤 화면이 비치지 않게) */
+.mv-rged{position:absolute; inset:0; z-index:20; display:flex; align-items:flex-end; visibility:hidden; pointer-events:none; transition:visibility 0s linear .27s}
+.mv-rged.on{visibility:visible; pointer-events:auto; transition:none}
+.mv-rged .bd{position:absolute; inset:0; background:rgba(0,0,0,0); transition:background-color .2s}
+.mv-rged.on .bd{background:rgba(0,0,0,.45)}
+.mv-rged .pnl{position:relative; width:100%; box-sizing:border-box; padding:16px 16px calc(16px + env(safe-area-inset-bottom, 0px)); border-radius:20px 20px 0 0; background:var(--card); border-top:1px solid var(--line); transform:translateY(105%); transition:transform .26s cubic-bezier(.2,.9,.3,1)}
+.mv-rged.on .pnl{transform:none}
 /* 꾹 누를 때 글자가 선택되지 않게 (입력 칸만 예외) */
 .mv-rged, .mv-box, .mv-rig{-webkit-user-select:none; user-select:none; -webkit-touch-callout:none}
 .mv-rged input, .mv-rig input{-webkit-user-select:text; user-select:text; -webkit-touch-callout:default}
@@ -4406,7 +4407,8 @@ const TideHarm = (() => {
     const rgX = () => (form && rgC ? form.egi.find(q => q.c === rgC) : null);
     function rgEl() {
       let el = $('mv-rged'); if (el) return el;
-      el = document.createElement('div'); el.className = 'mv-rged'; el.id = 'mv-rged'; el.hidden = true; el.setAttribute('role', 'dialog'); el.setAttribute('aria-modal', 'true'); el.setAttribute('aria-label', '에기 손질');
+      el = document.createElement('div'); el.className = 'mv-rged'; el.id = 'mv-rged'; el.setAttribute('role', 'dialog'); el.setAttribute('aria-modal', 'true'); el.setAttribute('aria-label', '에기 손질'); el.setAttribute('aria-hidden', 'true');
+      el.innerHTML = '<div class="bd" data-rg="close"></div><div class="pnl" id="mv-rged-p"></div>';
       view.appendChild(el);
       el.addEventListener('click', e => {
         const t = e.target.closest('[data-act]'); if (t && t.closest('#mv-rged')) { rigTap(t.dataset.act, t); return; }   // 내 에기 만들기 판의 단추
@@ -4439,15 +4441,14 @@ const TideHarm = (() => {
     function rgEdOpen(c) {
       const x = form && form.egi.find(q => q.c === c), e = x && egiGet(c); if (!e) return;
       rgMode = 'ed'; rgC = c; rgN = null; rgOpenT = Date.now(); const el = rgEl(), two = e.c.length === 2, laser = e.c[0] === 'laser';
-      el.innerHTML = `<div class="bd" data-rg="close"></div><div class="pnl"><h3 id="rg-nm"></h3><p class="sub">${two ? '파란 단추를 잡고 위아래로 끌어 색 비율을 맞춰요' : laser ? '레이저 색을 골라요' : '틴셀을 달거나 잘 먹힌 색으로 표시해요'}</p>`
+      rgShow(`<h3 id="rg-nm"></h3><p class="sub">${two ? '파란 단추를 잡고 위아래로 끌어 색 비율을 맞춰요' : laser ? '레이저 색을 골라요' : '틴셀을 달거나 잘 먹힌 색으로 표시해요'}</p>`
         + `<div class="ed"><div class="big" id="rg-big"><span class="pic"></span>${two ? '<div class="hd" id="rg-hd"><b role="slider" aria-label="색 비율">↕</b></div>' : ''}</div><div class="ctl">`
         + (two ? '<div class="ratio" id="rg-rt"></div>' : '')
         + (laser ? `<div class="lcs">${LASERS.map(l => `<button type="button" data-rg="lc" data-l="${l.id}" aria-label="${l.n} 레이저" style="background:${l.id === 'rainbow' ? 'conic-gradient(#ff5a5a,#ffb84d,#fff176,#69f0ae,#4fc3f7,#7c4dff,#ff5a5a)' : l.c}"></button>`).join('')}</div>` : '')
         + '<button type="button" class="tog" data-rg="tin" id="rg-tin"></button>' + (e.sb ? '<button type="button" class="tog" data-rg="bait" id="rg-bait"></button>' : '') + '<button type="button" class="tog" data-rg="star" id="rg-star"></button>'
         + '<button type="button" class="tog" data-rg="edit">에기 고치기</button>'
         + `</div></div><input class="memo" id="rg-memo" maxlength="30" placeholder="메모 (예: 3.5호, 오후 들물에 잘 먹음)" enterkeyhint="done" autocomplete="off" value="${esc(x.m || '')}">`
-        + '<button type="button" class="done" data-rg="close">다 됐어요</button></div>';
-      el.hidden = false; rgEdSync();
+        + '<button type="button" class="done" data-rg="close">다 됐어요</button>'); rgEdSync();
     }
     function rgEdSync() {
       const el = $('mv-rged'), x = rgX(), e = x && egiGet(x.c); if (!el || !e || rgMode !== 'ed') return rgEdClose();
@@ -4465,10 +4466,9 @@ const TideHarm = (() => {
     function rgSinkOpen(n) {
       if (!form) return; form.sinkM = form.sinkM || {};
       rgMode = 'sk'; rgC = null; rgN = n; rgOpenT = Date.now(); const el = rgEl();
-      el.innerHTML = `<div class="bd" data-rg="close"></div><div class="pnl"><h3>봉돌 ${n}호</h3><p class="sub">이 봉돌에 대해 짧게 적어 둘 수 있어요</p>`
+      rgShow(`<h3>봉돌 ${n}호</h3><p class="sub">이 봉돌에 대해 짧게 적어 둘 수 있어요</p>`
         + `<input class="memo" id="rg-smemo" maxlength="30" placeholder="메모 (예: 구멍봉돌, 물살 셀 때 바꿈)" enterkeyhint="done" autocomplete="off" value="${esc(form.sinkM[n] || '')}">`
-        + '<button type="button" class="done" data-rg="close">다 됐어요</button></div>';
-      el.hidden = false;
+        + '<button type="button" class="done" data-rg="close">다 됐어요</button>');
     }
     // 내 에기 만들기 / 에기 고치기: 이름 · 색 개수(한~네 색) · 색 · 틴셀 달린 에기 · 삼봉에기 · (고치기) 처음대로 · 목록에서 지우기
     const MK_DEF = ['#E53935', '#FFFFFF', '#FDD835', '#1E88E5'];
@@ -4484,7 +4484,7 @@ const TideHarm = (() => {
       const e = n.edit ? egiGet(n.edit) : null, builtin = !!(n.edit && EGI_BY[n.edit]), ovr = builtin ? egiOvr[n.edit] : null;
       const hid = n.edit ? [] : [...EGI.map(q => egiGet(q.id)).filter(q => q.hide), ...egiMine.filter(m => m.hide)];
       const SL = { 1: ['색'], 2: ['위 색', '아래 색'], 3: ['위 색', '가운데', '아래 색'], 4: ['맨 위', '위', '아래', '맨 아래'] }[n.k] || ['색'];
-      el.innerHTML = `<div class="bd" data-rg="close"></div><div class="pnl"><h3>${n.edit ? `${esc(e ? e.n : '')} 고치기` : '내 에기 만들기'}</h3>`
+      rgShow(`<h3>${n.edit ? `${esc(e ? e.n : '')} 고치기` : '내 에기 만들기'}</h3>`
         + `<p class="sub">${n.edit ? (builtin ? '기본 에기도 이름·색을 바꾸거나 목록에서 지울 수 있어요' : '이름·색을 바꾸거나 목록에서 지울 수 있어요') : '색을 고르고 이름을 붙여 저장해요'}</p>`
         + `<div class="mk-top"><span class="pv" id="mv-egin-pv"></span><input class="nmi" id="mv-egin-n" maxlength="10" placeholder="이름 (예: 퍼플 틴셀)" value="${esc(n.n || '')}" autocomplete="off" enterkeyhint="done" aria-label="에기 이름"></div>`
         + (n.special ? '' : `<p class="lbl">색 개수</p><div class="seg" role="group" aria-label="색 개수">${[1, 2, 3, 4].map(k => `<button type="button" data-act="egin-k" data-k="${k}" class="${n.k === k ? 'on' : ''}" aria-pressed="${n.k === k}">${['한', '두', '세', '네'][k - 1]} 색</button>`).join('')}</div>`
@@ -4494,16 +4494,18 @@ const TideHarm = (() => {
         + (hid.length ? `<p class="lbl">지운 에기 되돌리기</p><div class="unh">${hid.map(h => `<button type="button" data-act="egi-unhide" data-c="${h.id}"><i style="background:${egiBg(h, null)}"></i>${esc(h.n)}</button>`).join('')}</div>` : '')
         + `<div class="bts"><button type="button" class="pri" data-act="egin-save">저장</button><button type="button" data-act="egin-cancel">취소</button></div>`
         + (n.edit ? `<div class="bts">${ovr && Object.keys(ovr).some(k => k !== 'hide') ? '<button type="button" data-act="egin-reset">처음대로</button>' : ''}<button type="button" class="rm" data-act="egin-del">목록에서 지우기</button></div>` : '')
-        + '</div>';
-      el.hidden = false; eginSync(false);
+      ); eginSync(false);
     }
-    function rgEdClose() { const el = $('mv-rged'); if (el) { el.hidden = true; el.innerHTML = ''; } if (rgMode === 'mk' && form) form.egiNew = null; rgC = null; rgN = null; rgMode = ''; rgDrag = false; pickDrag = null; }
+    function rgShow(html) { const el = rgEl(); $('mv-rged-p').innerHTML = html; el.setAttribute('aria-hidden', 'false'); el.classList.add('on'); }
+    const rgOpen = () => { const el = $('mv-rged'); return !!(el && el.classList.contains('on')); };
+    function rgEdClose() { const el = $('mv-rged'); if (el) { const a = document.activeElement; if (a && el.contains(a)) a.blur(); el.classList.remove('on'); el.setAttribute('aria-hidden', 'true'); } if (rgMode === 'mk' && form) form.egiNew = null; rgC = null; rgN = null; rgMode = ''; rgDrag = false; pickDrag = null; }
     function rgSetR(ev) {
       const x = rgX(), big = $('rg-big'); if (!x || !big) return;
       const r = big.getBoundingClientRect(), y = (ev.clientY - r.top) / r.height * 52, v = Math.round(Math.max(0, Math.min(100, (y - 1.5) / 37 * 100)) / 10) * 10;
       if (v !== x.r) { x.r = v; rgEdSync(); }
     }
-    window.jjugapRigEd = () => { const el = $('mv-rged'); if (el && !el.hidden) { rgEdClose(); return true; } return false; };
+    window.jjugapRigEd = () => { if (rgOpen()) { rgEdClose(); return true; } return false; };
+    rgEl();   // 판 틀은 미리 만들어 둔다 (처음 꾹 누를 때도 깜빡이지 않게)
     function lpCancel() { if (lpT) { clearTimeout(lpT); lpT = null; } document.querySelectorAll('.mv-cell.press, .mv-egis button.press').forEach(c => c.classList.remove('press')); }
     panel.addEventListener('pointerdown', e => {   // 꾹 누르기: 상자의 에기 칸 → 손질 · 봉돌 칸 → 메모 · 아래 에기 단추 → 고치기
       const c = e.target.closest && e.target.closest('.mv-cell.eg, .mv-cell.sk, .mv-egis [data-act=egi]'); lpFired = false; if (!c || !form) return;
@@ -7413,7 +7415,7 @@ const TideHarm = (() => {
 
 <script>
 if ('serviceWorker' in navigator) addEventListener('load', () => {
-  const sw = navigator.serviceWorker, VER = 'f4a4d9c7'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
+  const sw = navigator.serviceWorker, VER = 'aad9c0ae'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
   // 화면에 손을 대기 시작했는지 (쓰는 중에는 새로 열지 않으려고)
   ['pointerdown', 'keydown'].forEach(t => addEventListener(t, () => { touched = true; }, { capture: true, passive: true }));
   const reload = () => {
