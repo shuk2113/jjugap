@@ -6874,16 +6874,25 @@ const TideHarm = (() => {
     let fabPos = null, fabLive = null, fabDrag = null;
     try { if (localStorage.getItem(SHEET_KEY) === 'peek') sheetMode = 'peek'; } catch (_) {}
     coverH = () => (sheet.isConnected ? grab.offsetHeight + shownH : 0);
-    // 내용이 실제로 차지하는 높이 (판 높이와 상관없이)
+    // 아래에 붙어 다니는 단추 줄(저장·닫기)의 높이: 이 줄은 판이 낮으면 판 바닥에 붙어 따라 올라오므로 자리로 재면 안 된다
+    function stickH() {
+      let h = 0; for (let el = panel.lastElementChild; el && getComputedStyle(el).position === 'sticky'; el = el.previousElementSibling) {
+        const cs = getComputedStyle(el); h += el.offsetHeight + (parseFloat(cs.marginTop) || 0) + (parseFloat(cs.marginBottom) || 0);
+      }
+      return h;
+    }
+    // 내용이 실제로 차지하는 높이 (판 높이와 상관없이) · 붙어 다니는 단추 줄은 바로 앞 내용 끝에 이어 붙여 잰다
     function contentH() {
-      const last = panel.lastElementChild, padB = parseFloat(getComputedStyle(panel).paddingBottom) || 12;
-      if (!last) return 40;
-      return Math.ceil(last.offsetTop + last.offsetHeight + (parseFloat(getComputedStyle(last).marginBottom) || 0) + padB);
+      const padB = parseFloat(getComputedStyle(panel).paddingBottom) || 12;
+      let last = panel.lastElementChild; while (last && getComputedStyle(last).position === 'sticky') last = last.previousElementSibling;
+      if (!last) return 40 + stickH();
+      return Math.ceil(last.offsetTop + last.offsetHeight + (parseFloat(getComputedStyle(last).marginBottom) || 0) + stickH() + padB);
     }
     function sheetHeights() {
       const vh = view.clientHeight || innerHeight, top = panel.firstElementChild, mapTop = box.offsetTop || 0;
       const padB = parseFloat(getComputedStyle(panel).paddingBottom) || 12;
-      const peek = Math.round(Math.min(150, (top ? top.offsetTop + top.offsetHeight : 30) + padB + 6));
+      const sh = stickH();   // 접었을 때도 맨 윗줄(제목)이 저장·닫기 줄에 가리지 않게 그 줄 높이만큼 더
+      const peek = Math.round(Math.min(150 + sh, (top && top !== panel.lastElementChild ? top.offsetTop + top.offsetHeight : 30) + (sh ? 6 : padB + 6) + sh));
       const most = Math.round(Math.min(vh * 0.82, vh - mapTop - 96) - grab.offsetHeight);   // 지도가 조금은 보이게
       return { peek, open: Math.max(peek, Math.min(most, contentH())) };
     }
@@ -7492,7 +7501,7 @@ const TideHarm = (() => {
 
 <script>
 if ('serviceWorker' in navigator) addEventListener('load', () => {
-  const sw = navigator.serviceWorker, VER = 'bb11bae9'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
+  const sw = navigator.serviceWorker, VER = '821475c2'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
   // 화면에 손을 대기 시작했는지 (쓰는 중에는 새로 열지 않으려고)
   ['pointerdown', 'keydown'].forEach(t => addEventListener(t, () => { touched = true; }, { capture: true, passive: true }));
   const reload = () => {
