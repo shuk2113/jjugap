@@ -560,6 +560,21 @@ h2{margin:0; font-size:calc(16px * var(--k)); font-weight:700; text-wrap:balance
 a.mv-row-btn{text-decoration:none; gap:10px} .mv-row-btn span{font-size:calc(20px * var(--k)); line-height:1; color:var(--ink-2); font-weight:500}
 .mv-paste{display:block; min-height:86px; resize:none; line-height:1.4}
 .mv-set .mv-tip{margin:0; padding:9px 2px 11px; border-top:1px solid var(--line)}
+/* 포인트 목록 아래: 아이콘 + 두 줄 글씨 줄 · '기록 설정' 화면 */
+.mv-row-btn.mv-ic{justify-content:flex-start; gap:12px}
+.mv-row-btn .ic{flex:none; width:18px; height:18px; color:var(--ink-2); font-style:normal} .mv-row-btn .ic svg{width:18px; height:18px; display:block}
+.mv-row-btn .t{flex:1; min-width:0; display:flex; flex-direction:column; gap:2px; font-style:normal}
+.mv-row-btn .t small{font-size:calc(11px * var(--k)); font-weight:500; color:var(--ink-2)}
+.mv-seth{justify-content:flex-start; align-items:center; gap:10px}
+.mv-bk{flex:none; width:34px; height:34px; border-radius:50%; border:1px solid var(--line); background:none; display:grid; place-items:center; padding:0 0 2px; font:inherit; font-size:calc(20px * var(--k)); line-height:1; color:var(--ink); -webkit-tap-highlight-color:transparent}
+.mv-setg{margin:14px 2px 6px; font-size:calc(11px * var(--k)); font-weight:700; color:var(--ink-2)}
+.mv-setc{border:1px solid var(--line); border-radius:14px; padding:0 12px}
+.mv-setc > .mv-row-btn:first-child{border-top:0}
+.mv-swrow + .mv-swrow{border-top:1px solid var(--line)} .mv-swrow .mv-sw{border-top:0; padding-bottom:4px}
+.mv-more{display:inline-flex; align-items:center; gap:3px; margin:0 0 8px; padding:4px 2px; border:0; background:none; font:inherit; font-size:calc(11px * var(--k)); font-weight:700; color:var(--ink-2); -webkit-tap-highlight-color:transparent}
+.mv-moretx{margin:0 2px 12px; font-size:calc(11.5px * var(--k)); line-height:1.55; color:var(--ink-2); font-weight:500; word-break:keep-all}
+.mv-setc > .mv-moretx{margin-top:-4px}
+.mv-set + .mv-btns, .mv-setc + .mv-btns{margin-top:14px}
 .mv-list b .mv-autot{display:inline-block; margin-left:6px; padding:1px 7px; border-radius:999px; border:1px solid var(--line); color:var(--ink-2); font-style:normal; font-size:calc(10.5px * var(--k)); font-weight:700; vertical-align:1px}
 .upd-bar{position:fixed; left:12px; right:12px; bottom:calc(14px + env(safe-area-inset-bottom, 0px)); z-index:95; max-width:496px; margin:0 auto; display:flex; align-items:center; gap:8px; padding:7px 6px 7px 16px; border-radius:16px; background:rgba(8,20,24,.95); color:#fff; font-size:calc(13.5px * var(--k)); font-weight:700; box-shadow:0 6px 20px rgba(0,0,0,.3); animation:sheetUp .3s cubic-bezier(.2,.8,.2,1)}
 .upd-bar span{flex:1; min-width:0}
@@ -4034,7 +4049,7 @@ const TideHarm = (() => {
     function paintPanel(force) {
       if (!isOpen) return;
       const nowMs = Date.now(); if (!force && nowMs - lastPanel < 900) return; lastPanel = nowMs;
-      if (mode === 'save' || mode === 'list' || mode === 'detail' || mode === 'pick' || mode === 'move' || mode === 'sum') return;
+      if (mode === 'save' || mode === 'list' || mode === 'set' || mode === 'detail' || mode === 'pick' || mode === 'move' || mode === 'sum') return;
       if (viewMode && !me) {
         panel.innerHTML = recSummary() + `<p class="mv-tip">선상 모드를 켜지 않고 기록만 보는 중이에요. ‘내 위치로’를 누르면 지금 자리를 한 번만 찍어 보여 주고, 지도를 길게 누르면 그 자리의 물때·조류를 볼 수 있어요.</p>`;
         return;
@@ -4579,7 +4594,7 @@ const TideHarm = (() => {
       const r = big.getBoundingClientRect(), y = (ev.clientY - r.top) / r.height * 52, v = Math.round(Math.max(0, Math.min(100, (y - 1.5) / 37 * 100)) / 10) * 10;
       if (v !== x.r) { x.r = v; rgEdSync(); }
     }
-    window.jjugapRigEd = () => { if (rgOpen()) { rgEdClose(); return true; } if (peekK && $('mv-peek')) { peekClose(); return true; } return false; };
+    window.jjugapRigEd = () => { if (rgOpen()) { rgEdClose(); return true; } if (peekK && $('mv-peek')) { peekClose(); return true; } if (mode === 'set') { showList(); return true; } return false; };
     rgEl();   // 판 틀은 미리 만들어 둔다 (처음 꾹 누를 때도 깜빡이지 않게)
     function lpCancel() { if (lpT) { clearTimeout(lpT); lpT = null; } document.querySelectorAll('.mv-cell.press, .mv-egis button.press').forEach(c => c.classList.remove('press')); }
     panel.addEventListener('pointerdown', e => {   // 꾹 누르기: 상자의 에기 칸 → 손질 · 봉돌 칸 → 메모 · 아래 에기 단추 → 고치기
@@ -6200,18 +6215,40 @@ const TideHarm = (() => {
         (points.length ? `<p class="mv-tip">포인트를 꾹 누르면 고치기·지우기, 왼쪽으로 밀어도 지울 수 있어요.</p><div class="mv-trips">${body}</div>`
           : `<p class="mv-empty">아직 저장한 포인트가 없어요. 배 위에서 지도 아래 파란 핀 단추를 누르면 그 자리와 물때·조류·수온이 함께 남아요.</p>`) +
         `<div class="mv-set">`
-        + `<button type="button" class="mv-sw${autoOn ? ' on' : ''}" data-act="auto-tog" role="switch" aria-checked="${autoOn}"><span><b>5분 머문 곳 자동 기록</b><small>${NAT ? '선상 모드를 켜 두면 GPS로 배 위치를 계속 지켜봐요. 홈 화면에 나가 있거나 화면이 잠겨 있어도 한자리(반경 약 250m)에 5분 넘게 머문 곳을 포인트로 남기고 알림으로 알려 줘요. 알림줄에 \'선상 모드 켜짐\'이 떠 있는 동안 돼요.' : '선상 모드가 켜져 있을 때 배가 한자리에 5분 넘게 머물면 포인트로 남겨요.'} 마릿수는 나중에 넣어요.</small></span><i></i></button>`
-        + (NAT ? `<button type="button" class="mv-sw${natBubble() ? ' on' : ''}" data-act="bubble-tog" role="switch" aria-checked="${natBubble()}"><span><b>홈 화면에 '포인트 저장' 단추 띄우기</b><small>선상 모드를 켠 채 홈 화면으로 나가면 떠 있는 단추가 생겨요. 끌어서 옮기고, 누르면 바로 저장 화면이 열려요. 아래 ×로 끌어 놓으면 숨겨요.</small></span><i></i></button>`
-          : `<button type="button" class="mv-sw${notiOn ? ' on' : ''}" data-act="noti-tog" role="switch" aria-checked="${notiOn}"><span><b>앱을 나가면 알림줄에 바로가기</b><small>선상 모드를 켠 채 나가면 알림이 생겨요. 누르면 선상 모드로, '포인트 저장'을 누르면 바로 저장 화면이 열려요.</small></span><i></i></button>`)
         + (NAT && natUpd ? `<button type="button" class="mv-row-btn" data-act="app-upd">앱 업데이트 (새 버전 1.${natUpd})<span>›</span></button>` : '')
-        + `<button type="button" class="mv-row-btn" data-act="move">다른 폰·앱으로 포인트 옮기기<span>›</span></button>`
+        + `<button type="button" class="mv-row-btn mv-ic" data-act="set-open"><i class="ic">${ICON_GEAR}</i><em class="t"><b>기록 설정</b><small>${esc(setSummary())}</small></em><span>›</span></button>`
+        + `<button type="button" class="mv-row-btn mv-ic" data-act="move"><i class="ic">${ICON_MOVE}</i><em class="t"><b>다른 폰·앱으로 포인트 옮기기</b></em><span>›</span></button>`
         + (!NAT && appVer ? `<a class="mv-row-btn" href="app/jjugap.apk" download="jjugap.apk">안드로이드 앱 받기 (홈 화면에 떠 있는 저장 단추·화면이 꺼져도 자동 기록)<span>›</span></a>` : '')
-        + (NAT && natBatteryNeed() ? `<button type="button" class="mv-row-btn" data-act="battery">화면이 잠겨도 끊기지 않게: 배터리 제한 풀기<span>›</span></button>` : '')
-        + (NAT ? `<p class="mv-tip">앱 아이콘을 꾹 누르면 '포인트 저장'·'선상 모드' 바로가기가 나와요. 그것을 다시 꾹 눌러 홈 화면에 따로 놓을 수도 있어요.</p></div>`
-          : `<p class="mv-tip">홈 화면에 저장 단추 놓기: 쭈갑이 물때 아이콘을 꾹 누르면 나오는 '포인트 저장'을 다시 꾹 눌러 원하는 곳에 끌어다 놓으세요.</p></div>`)
+        + `</div>`
         + `<div class="mv-btns"><button data-act="back">닫기</button></div>`;
       panel.scrollTop = keepTop;
     }
+    // ---------- 기록 설정: 포인트 목록 맨 아래 '기록 설정'을 누르면 열린다 · 설명은 한 줄, 긴 설명은 'ⓘ 자세히'를 눌러야 펼쳐진다
+    const ICON_GEAR = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15.2a3.2 3.2 0 1 0 0-6.4 3.2 3.2 0 0 0 0 6.4z" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M19.4 13.5l1.6 1.2-1.8 3.1-1.9-.6a7.6 7.6 0 0 1-1.7 1l-.3 2H10.7l-.3-2a7.6 7.6 0 0 1-1.7-1l-1.9.6L5 14.7l1.6-1.2a7.4 7.4 0 0 1 0-2.9L5 9.3l1.8-3.1 1.9.6a7.6 7.6 0 0 1 1.7-1l.3-2h3.6l.3 2a7.6 7.6 0 0 1 1.7 1l1.9-.6 1.8 3.1-1.6 1.2a7.4 7.4 0 0 1 0 2.9z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>';
+    const ICON_MOVE = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 8h13l-3.5-3.5M19 16H6l3.5 3.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+    const setMore = new Set();   // 'ⓘ 자세히'로 펼쳐 둔 것 (앱을 켜 둔 동안만 기억)
+    const setSummary = () => `자동 기록 ${autoOn ? '켜짐' : '꺼짐'} · ` + (NAT ? `떠 있는 저장 단추 ${natBubble() ? '켜짐' : '꺼짐'}` : `알림줄 바로가기 ${notiOn ? '켜짐' : '꺼짐'}`);
+    function showSet() {
+      const keepTop = mode === 'set' ? panel.scrollTop : 0;
+      sheetAtLeast('open'); closeMenu(); openRow = null; lg = null; mode = 'set';
+      const more = (k, tx) => `<button type="button" class="mv-more" data-act="set-more" data-k="${k}" aria-expanded="${setMore.has(k)}">ⓘ ${setMore.has(k) ? '접기' : '자세히'}</button>${setMore.has(k) ? `<p class="mv-moretx">${tx}</p>` : ''}`;
+      const sw = (act, on, title, short, k, full) => `<div class="mv-swrow"><button type="button" class="mv-sw${on ? ' on' : ''}" data-act="${act}" role="switch" aria-checked="${on}"><span><b>${title}</b><small>${short}</small></span><i></i></button>${more(k, full)}</div>`;
+      const home = setMore.has('home');
+      panel.innerHTML = `<div class="mv-h mv-seth"><button type="button" class="mv-bk" data-act="set-back" aria-label="포인트 목록으로">‹</button><b>기록 설정</b></div>`
+        + `<p class="mv-setg">선상 모드일 때</p><div class="mv-setc">`
+        + sw('auto-tog', autoOn, '5분 머문 곳 자동 기록', '한자리에 5분 넘게 머물면 포인트로 남겨요', 'auto', NAT
+          ? '선상 모드를 켜 두면 GPS로 배 위치를 계속 지켜봐요. 홈 화면에 나가 있거나 화면이 잠겨 있어도 한자리(반경 약 250m)에 5분 넘게 머문 곳을 포인트로 남기고 알림으로 알려 줘요. 알림줄에 \'선상 모드 켜짐\'이 떠 있는 동안 돼요. 마릿수는 나중에 넣어요.'
+          : '선상 모드가 켜져 있을 때 배가 한자리(반경 약 250m)에 5분 넘게 머물면 포인트로 남겨요. 마릿수는 나중에 넣어요.')
+        + (NAT ? sw('bubble-tog', natBubble(), '홈 화면에 떠 있는 저장 단추', '앱 밖에서도 누르면 바로 저장 화면', 'bubble', '선상 모드를 켠 채 홈 화면으로 나가면 떠 있는 단추가 생겨요. 끌어서 옮기고, 누르면 바로 저장 화면이 열려요. 아래 ×로 끌어 놓으면 숨겨요.')
+          : sw('noti-tog', notiOn, '앱을 나가면 알림줄에 바로가기', '알림에서 바로 선상 모드·포인트 저장', 'noti', '선상 모드를 켠 채 나가면 알림이 생겨요. 누르면 선상 모드로, \'포인트 저장\'을 누르면 바로 저장 화면이 열려요.'))
+        + `</div>`
+        + (NAT && natBatteryNeed() ? `<p class="mv-setg">끊기지 않게</p><div class="mv-setc"><button type="button" class="mv-row-btn" data-act="battery">배터리 제한 풀기<span>›</span></button></div>` : '')
+        + `<p class="mv-setg">도움말</p><div class="mv-setc"><button type="button" class="mv-row-btn" data-act="set-more" data-k="home" aria-expanded="${home}">홈 화면에 바로가기 놓는 법<span>${home ? '–' : '›'}</span></button>`
+        + (home ? `<p class="mv-moretx">${NAT ? '앱 아이콘을 꾹 누르면 \'포인트 저장\'·\'선상 모드\' 바로가기가 나와요. 그것을 다시 꾹 눌러 홈 화면에 따로 놓을 수도 있어요.' : '쭈갑이 물때 아이콘을 꾹 누르면 나오는 \'포인트 저장\'을 다시 꾹 눌러 원하는 곳에 끌어다 놓으세요.'}</p>` : '') + `</div>`
+        + `<div class="mv-btns"><button data-act="set-back">닫기</button></div>`;
+      panel.scrollTop = keepTop;
+    }
+    const refreshList = () => { if (mode === 'list') showList(); else if (mode === 'set') showSet(); };
     // ---------- 포인트 옮기기: 크롬에 설치한 앱 ↔ 안드로이드 앱, 다른 폰. 기록을 글자 묶음으로 복사해서 새 쪽에 붙여넣는다
     const MOVE_HEAD = '쭈갑물때-기록:';
     function showMove() {
@@ -6366,9 +6403,12 @@ const TideHarm = (() => {
       const b = e.target.closest('[data-act]'); if (!b) return; const a = b.dataset.act;
       if (a === 'fold') return toggleFold(b);
       if (a === 'auto-tog') return setAuto(!autoOn);
+      if (a === 'set-open') return showSet();
+      if (a === 'set-back') return showList();
+      if (a === 'set-more') { const k = b.dataset.k; if (setMore.has(k)) setMore.delete(k); else setMore.add(k); return showSet(); }
       if (a === 'rec-all') { dayFilter = null; const all = points.slice(); if (all.length) fitPts(all); if (mode === 'list') showList(); else paintPanel(true); return draw(); }
       if (a === 'noti-tog') return setNoti(!notiOn);
-      if (a === 'bubble-tog') { try { NAT.setBubble(!natBubble()); } catch (_) {} return setTimeout(() => { if (mode === 'list') showList(); }, 300); }
+      if (a === 'bubble-tog') { try { NAT.setBubble(!natBubble()); } catch (_) {} return setTimeout(refreshList, 300); }
       if (a === 'move') return showMove();
       if (a === 'app-upd') { try { NAT.update(); } catch (_) {} return; }
       if (a === 'battery') { try { NAT.askBattery(); } catch (_) {} return; }
@@ -6575,7 +6615,7 @@ const TideHarm = (() => {
     function setAuto(on) {
       autoOn = on; track = []; stay = null; try { localStorage.setItem(AUTO_KEY, on ? 'on' : 'off'); } catch (_) {}
       autoPill(); toast(on ? (window.JjugapNative ? '자동 기록을 켰어요 · 선상 모드를 켜 두면 홈 화면·화면 잠금 중에도 돼요' : '자동 기록을 켰어요 · 선상 모드가 켜져 있는 동안 돼요') : '자동 기록을 껐어요');
-      if (mode === 'list') showList();
+      refreshList();
     }
     pill.onclick = () => setAuto(!autoOn);
     // 가만히 있으면 GPS 소식이 뜸해질 수 있어 25초 넘게 없으면 한 번 물어본다
@@ -6786,7 +6826,7 @@ const TideHarm = (() => {
         toast(notiOn ? '앱을 나가면 알림줄에 바로가기가 생겨요' : '휴대폰 설정에서 이 앱의 알림을 허용해 주세요');
       } else notiOn = false;
       try { localStorage.setItem(NOTI_KEY, notiOn ? 'on' : 'off'); } catch (_) {}
-      if (mode === 'list') showList();
+      refreshList();
     }
     function notiSync(show) {
       if (!canNoti()) return;
@@ -6822,7 +6862,7 @@ const TideHarm = (() => {
         else if (watchId == null) startGps();
       });
       setInterval(() => { natFixes(); natStopCheck(); }, 15000);
-      document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') { natFixes(); if (!natStopCheck() && onBoard) natBoard(true); if (mode === 'list') showList(); } });
+      document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') { natFixes(); if (!natStopCheck() && onBoard) natBoard(true); refreshList(); } });
     }
     // 안드로이드 앱 업데이트: 새 앱 파일이 올라와 있으면 아래에 '업데이트' 알림 (누르면 앱이 받아서 휴대폰의 업데이트 화면을 연다, 기록은 그대로)
     let natUpd = 0, updShut = false;
@@ -6831,7 +6871,7 @@ const TideHarm = (() => {
       fetch('app/version.txt', { cache: 'no-store' }).then(r => (r.ok ? r.text() : '')).then(t => {
         const remote = parseInt(t, 10), local = Number(NAT.versionCode());
         if (!(remote > local)) return;
-        if (natUpd !== remote) { natUpd = remote; if (mode === 'list') showList(); }
+        if (natUpd !== remote) { natUpd = remote; refreshList(); }
         if (updShut || document.getElementById('upd-bar')) return;
         const bar = document.createElement('div'); bar.id = 'upd-bar'; bar.className = 'upd-bar'; bar.setAttribute('role', 'status');
         bar.innerHTML = '<span>쭈갑이 물때 앱 새 버전이 있어요</span><button type="button" class="go">업데이트</button><button type="button" class="x" aria-label="닫기">×</button>';
@@ -7512,7 +7552,7 @@ const TideHarm = (() => {
 
 <script>
 if ('serviceWorker' in navigator) addEventListener('load', () => {
-  const sw = navigator.serviceWorker, VER = 'd6fe8649'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
+  const sw = navigator.serviceWorker, VER = '7add6e31'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
   // 화면에 손을 대기 시작했는지 (쓰는 중에는 새로 열지 않으려고)
   ['pointerdown', 'keydown'].forEach(t => addEventListener(t, () => { touched = true; }, { capture: true, passive: true }));
   const reload = () => {
