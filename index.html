@@ -399,6 +399,8 @@ h2{margin:0; font-size:calc(16px * var(--k)); font-weight:700; text-wrap:balance
 .mv-rged .ratio{font-size:calc(14px * var(--k)); font-weight:700} .mv-rged .ratio small{display:block; margin-top:2px; font-size:calc(12px * var(--k)); font-weight:500; color:var(--ink-2)}
 .mv-rged .tog{min-height:40px; padding:4px 10px; border-radius:12px; border:1px solid var(--line); background:none; font:inherit; font-size:calc(13.5px * var(--k)); font-weight:700; color:var(--ink); -webkit-tap-highlight-color:transparent}
 .mv-rged .tog.on{background:rgba(255,201,60,.14); border-color:#FFC93C}
+.mv-rged .tg2{display:flex; gap:6px} .mv-rged .tg2 .tog{flex:1; min-width:0; padding:4px 6px}
+.mv-rged .tog.sub2{position:relative; margin-left:14px} .mv-rged .tog.sub2::before{content:''; position:absolute; left:-11px; top:50%; width:8px; border-top:1.5px solid var(--line)}
 .mv-rged .tog.rm{color:var(--strong)} .mv-rged .mine{display:flex; gap:6px} .mv-rged .mine .tog{flex:1; min-width:0}
 .mv-rged .lcs{display:flex; flex-wrap:wrap; gap:7px}
 .mv-rged .lcs button{width:28px; height:28px; border-radius:50%; border:0; padding:0; box-shadow:0 0 0 2px var(--card), 0 0 0 3px var(--line)}
@@ -4228,7 +4230,7 @@ const TideHarm = (() => {
       { id: 'green', n: '초록', c: '#2FA35A' }, { id: 'pink', n: '핑크', c: '#EE6AA7' }, { id: 'purple', n: '보라', c: '#8E5CE6' }, { id: 'rainbow', n: '무지개', c: '' }];
     const LASER_BY = Object.fromEntries(LASERS.map(l => [l.id, l]));
     const mixW = (hex, k) => { const n = parseInt(hex.slice(1), 16), r = n >> 16, g = (n >> 8) & 255, b = n & 255, f = v => Math.round(v + (255 - v) * k); return `rgb(${f(r)},${f(g)},${f(b)})`; };
-    const TINSEL = 'repeating-linear-gradient(90deg,#FFE48A 0 1.4px,transparent 1.4px 3.2px,#F1F4F6 3.2px 4.6px,transparent 4.6px 6.6px) bottom/100% 30% no-repeat';
+    const TINSEL = 'repeating-linear-gradient(90deg,#FFE48A 0 1.4px,transparent 1.4px 3.2px,#F1F4F6 3.2px 4.6px,transparent 4.6px 6.6px) top/100% 30% no-repeat';   // 틴셀은 입 쪽(위)
     const RIG_KEY = 'jjukgap-rig', SUM_KEY = 'jjukgap-sums', SUM_PEND = 'jjukgap-sum-pend', PARTY_KEY = 'jjukgap-party';   // 자주 같이 가는 일행 이름 (이 폰에만)
     // 에기 그림: 두 색은 고른 비율로 위·아래 · 레이저는 고른 색으로 반짝이게 · 틴셀은 아래쪽에 가닥
     function egiBg(e, x) {
@@ -4242,7 +4244,24 @@ const TideHarm = (() => {
       else base = `linear-gradient(180deg,${e.c.map((c, i) => `${c} ${(i * 100 / e.c.length).toFixed(1)}% ${((i + 1) * 100 / e.c.length).toFixed(1)}%`).join(',')})`;
       return (x ? x.t : e.tin) ? `${TINSEL},${base}` : base;
     }
-    // 에기 실루엣 그림 (상자 칸 · 손질 판): 몸통은 고른 비율로 위·아래 색 · 레이저는 고른 색 · 틴셀은 꼬리에 가닥
+    // 에기 그림 (상자 칸 · 손질 판 · 내 에기 만들기): 옆에서 본 모습 · 머리가 위, 등이 왼쪽, 배가 오른쪽
+    //  몸통 색은 고른 비율로 위·아래 · 턱 밑에 납판(삼봉에기는 길쭉한 봉) · 틴셀은 입에 묶여 몸통 양옆으로 길게
+    //  삼봉에기는 철사가 몸통을 감고, 학꽁치포를 달면 등에 얹힌다
+    const sbOf = (e, x) => (x && x.sb != null ? !!x.sb : !!(e && e.sb));   // 삼봉: 상자에 담은 에기마다 (없으면 에기 목록의 설정)
+    const sbSync = (id, was) => { const now = !!(egiGet(id) || {}).sb; if (now !== was && form && form.egi) form.egi.forEach(q => { if (q.c === id) q.sb = now ? 1 : 0; }); };   // 목록에서 삼봉을 바꾸면 상자에 담긴 그 에기도 따라
+    const TIN_C = ['#FFE48A', '#F4F7F9', '#A9DCFF', '#FFD166', '#E8EEF2'];
+    function egiTin(part) {
+      let d = '';
+      if (part === 'back') {   // 몸통 뒤로 지나가 가장자리 밖으로 보이는 가닥들
+        const L = [[2.4, 4.2, 40], [1.6, 5.4, 44], [3.0, 7.0, 46.5], [0.8, 3.2, 36.5], [2.2, 8.4, 48], [1.2, 6.2, 42]];
+        const one = (bx, ex, ey, i, fl) => { const X = v => (fl ? 24 - v : v); return `<path d="M12.6 1.8 C${X(7)} 2.4 ${X(bx)} 10 ${X(bx + .6)} 20 S${X(ex)} ${ey - 6} ${X(ex)} ${ey}" stroke="${TIN_C[i % 5]}" stroke-width="${i % 2 ? .5 : .62}"/>`; };
+        L.forEach(([bx, ex, ey], i) => { d += one(bx, ex, ey, i, false); if (i < 4) d += one(bx + 2, ex + 1.4, ey, i + 2, true); });
+        const sp = [[2.8, 19], [3.6, 28], [5, 36], [6.6, 43], [19.4, 26], [17.8, 36]];
+        return `<g fill="none" stroke-linecap="round" stroke="rgba(0,0,0,.2)" stroke-width=".95">${d.replace(/ stroke="[^"]+" stroke-width="[^"]+"/g, '')}</g><g fill="none" stroke-linecap="round">${d}</g>` + sp.map(([px, py], i) => `<circle cx="${px}" cy="${py}" r="${i % 2 ? .45 : .6}" fill="#fff"/>`).join('');
+      }
+      [[10.6, 20, 10.8, 39], [13.6, 20, 13.2, 38.6]].forEach(([cx, cy, ex, ey], i) => { d += `<path d="M12.6 1.8 Q${cx} ${cy} ${ex} ${ey}" stroke="${TIN_C[i + 1]}" stroke-width=".4" opacity=".8"/>`; });
+      return `<g fill="none" stroke-linecap="round">${d}</g><rect x="11.1" y="1.5" width="3" height="1.7" rx=".6" fill="#C9A23A" stroke="rgba(0,0,0,.35)" stroke-width=".3"/>`;
+    }
     let egiG = 0;
     function egiSvg(e, x) {
       const g = 'eg' + (++egiG); let def;
@@ -4253,13 +4272,24 @@ const TideHarm = (() => {
       } else if (e.c[0] === 'glow') def = `<radialGradient id="${g}"><stop offset="0" stop-color="#F4FFB0"/><stop offset="1" stop-color="#B9E86A"/></radialGradient>`;
       else if (e.c.length === 2) { const r = (x && x.r != null ? x.r : 50) / 100; def = `<linearGradient id="${g}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${e.c[0]}"/><stop offset="${r}" stop-color="${e.c[0]}"/><stop offset="${r}" stop-color="${e.c[1]}"/><stop offset="1" stop-color="${e.c[1]}"/></linearGradient>`; }
       else { const n = e.c.length; def = `<linearGradient id="${g}" x1="0" y1="0" x2="0" y2="1">${e.c.map((c, i) => `<stop offset="${i / n}" stop-color="${c}"/><stop offset="${(i + 1) / n}" stop-color="${c}"/>`).join('')}</linearGradient>`; }
+      def += `<linearGradient id="${g}s" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#4F575D"/><stop offset=".5" stop-color="#B3BCC3"/><stop offset="1" stop-color="#5E676E"/></linearGradient>`;
       const fin = e.c[0] === 'laser' ? '#9AA6B0' : e.c[0] === 'glow' ? '#A6D85A' : e.c[0];
-      const bait = x && x.b && e.sb ? `<defs><linearGradient id="${g}b" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#86A9C0"/><stop offset=".5" stop-color="#F2F7FA"/><stop offset="1" stop-color="#93B6CB"/></linearGradient></defs><path d="M12 5 C14.7 11.5 15.1 23 13.8 33.6 L10.2 33.6 C8.9 23 9.3 11.5 12 5 Z" fill="url(#${g}b)" stroke="rgba(40,70,90,.45)" stroke-width=".5"/><path d="M12 9 L12 31" stroke="rgba(60,95,120,.5)" stroke-width=".5"/>` : '';
-      const tin = x && x.t ? `<g stroke-width=".7" stroke-linecap="round">${[9, 10.6, 12.2, 13.8, 15.4].map((v, i) => `<path d="M${v} 35 L${v + (i - 2) * .8} 46" stroke="${i % 2 ? '#F1F4F6' : '#FFE48A'}"/>`).join('')}</g>` : '';
-      return `<svg viewBox="0 0 24 52" aria-hidden="true"><defs>${def}</defs><path d="M6.6 10.5 L2.4 15 L6.7 16.2 Z M17.4 10.5 L21.6 15 L17.3 16.2 Z" fill="${fin}"/>`
-        + `<path d="M12 1.5 C17.6 4 19.6 13.5 18.4 24.5 C17.7 30.5 16.3 35 14.7 38.5 L9.3 38.5 C7.7 35 6.3 30.5 5.6 24.5 C4.4 13.5 6.4 4 12 1.5 Z" fill="url(#${g})" stroke="rgba(0,0,0,.28)" stroke-width=".7"/>`
-        + `${bait}<circle cx="12" cy="7.6" r="1.35" fill="#15191C"/>${tin}<rect x="9.8" y="38.5" width="4.4" height="2.4" rx=".8" fill="#C3CCD2"/>`
-        + `<g fill="none" stroke="#C9D1D7" stroke-width=".8" stroke-linecap="round">${[5.5, 8.5, 11.5, 14.5, 17.5].map(v => `<path d="M12 41 Q${v} 45 ${v} 49.5"/>`).join('')}</g></svg>`;
+      const sb = sbOf(e, x), tin = !!(x && x.t), bait = sb && !!(x && x.b);
+      if (bait) def += `<linearGradient id="${g}b" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#7FA3BB"/><stop offset=".55" stop-color="#F2F7FA"/><stop offset="1" stop-color="#B9CCD8"/></linearGradient>`;
+      const lead = sb ? `<path d="M16.2 7.6 L18.2 9.4" stroke="#AEB7BE" stroke-width=".6"/><rect x="17.2" y="8.6" width="2.9" height="13.4" rx="1.45" transform="rotate(-7 18.6 15.3)" fill="url(#${g}s)" stroke="rgba(0,0,0,.5)" stroke-width=".5"/>`
+        : `<path d="M15.8 6.4 C18 7 18.8 8.6 18.6 10.6 L18.2 13.6 C17.8 14.6 16.8 14.4 16.6 13.4 Z" fill="url(#${g}s)" stroke="rgba(0,0,0,.45)" stroke-width=".5"/>`;
+      let wire = '';
+      if (sb) {
+        const w = [8, 12.8, 17.6, 22.4, 27.2, 32].map(y => `M${(4.8 + (y > 26 ? (y - 26) * .35 : 0)).toFixed(1)} ${y} L${(16.9 - (y > 24 ? (y - 24) * .28 : 0)).toFixed(1)} ${(y + 2.6).toFixed(1)}`).join(' ');
+        wire = `<g fill="none" stroke-linecap="round"><path d="M12.6 1.2 L12.6 3" stroke="#E9EEF1" stroke-width=".6"/><path d="${w}" stroke="rgba(0,0,0,.5)" stroke-width=".95"/><path d="${w}" stroke="#E9EEF1" stroke-width=".45"/></g>`;
+      }
+      return `<svg viewBox="0 0 24 52" aria-hidden="true"><defs>${def}</defs>${tin ? egiTin('back') : ''}${lead}`
+        + `<path d="M12.6 1.4 C9 2.6 6.4 8 6 15 C5.6 23 6.8 31 9.4 38.5 L14.4 38.5 C16.4 31 17.2 23 17 15.5 C16.9 10 15.6 4.4 12.6 1.4 Z" fill="url(#${g})" stroke="rgba(0,0,0,.3)" stroke-width=".7"/>`
+        + `<path d="M10.8 12.4 C8 15 6.4 18.6 5.2 22.8 C8 21.2 10.4 18.8 11.8 15.6 Z" fill="${fin}" stroke="rgba(0,0,0,.3)" stroke-width=".5"/>`
+        + (bait ? `<path d="M7.3 6.4 C5.2 12 4.6 20 5.4 27 C5.9 31 6.8 34.4 8.2 37.2 L9.4 36.8 C8.3 31 7.9 24 8.2 17 C8.4 12.6 9 9 9.8 6.4 Z" fill="url(#${g}b)" stroke="rgba(40,70,90,.5)" stroke-width=".5"/>` : '')
+        + wire + `<circle cx="13.4" cy="6.6" r="2" fill="#F4F4F0"/><circle cx="13.6" cy="6.6" r="1.25" fill="#15191C"/>${tin ? egiTin('front') : ''}`
+        + `<rect x="9.7" y="38.5" width="4.4" height="2.4" rx=".8" fill="#C3CCD2"/>`
+        + `<g fill="none" stroke="#C9D1D7" stroke-width=".8" stroke-linecap="round">${[5.4, 8.4, 11.4, 14.4, 17.4].map(v => `<path d="M11.9 41 Q${v} 45 ${v} 49.5"/>`).join('')}</g></svg>`;
     }
     // 내 색: 위·아래 두 색을 색 고르기 판으로 골라 이름을 붙여 둔다 (이 폰에 · 지워도 예전 기록 글자는 남게 숨기기만)
     const MINE_KEY = 'jjukgap-egi-mine';
@@ -4276,7 +4306,7 @@ const TideHarm = (() => {
     const sinkTxt = a => (a && a.length ? a.slice().sort((x, y) => x - y).join('·') + '호' : '');
     const egiTxt = a => (a || []).filter(x => egiGet(x.c)).map(x => {
       const e = egiGet(x.c), r = x.r != null ? x.r : 50;
-      return egiName(x) + (e.c.length === 2 && r !== 50 ? `(${r}:${100 - r})` : '') + (x.t ? '·틴셀' : '') + (e.sb ? (x.b ? '·학꽁치포' : '·삼봉') : '') + (x.s ? '★' : '');
+      return egiName(x) + (e.c.length === 2 && r !== 50 ? `(${r}:${100 - r})` : '') + (x.t ? '·틴셀' : '') + (sbOf(e, x) ? (x.b ? '·학꽁치포' : '·삼봉') : '') + (x.s ? '★' : '');
     }).join(' ');
     const rigTxt = o => [sinkTxt(o.sink), egiTxt(o.egi)].filter(Boolean).join(' · ');
     const durTxt = m => (m >= 60 ? `${Math.floor(m / 60)}시간${m % 60 ? ` ${m % 60}분` : ''}` : `${m}분`);
@@ -4374,7 +4404,7 @@ const TideHarm = (() => {
     }
     function eginSync(fromPick) {
       const n = form && form.egiNew; if (!n) return;
-      const pv = $('mv-egin-pv'); if (pv) { const e = n.edit && n.special ? egiGet(n.edit) : { c: n.c.slice(0, n.k) }; pv.innerHTML = egiSvg(e, { r: 50, t: n.tin ? 1 : 0 }); }
+      const pv = $('mv-egin-pv'); if (pv) { const e = n.edit && n.special ? egiGet(n.edit) : { c: n.c.slice(0, n.k) }; pv.innerHTML = egiSvg(e, { r: 50, t: n.tin ? 1 : 0, sb: n.sb ? 1 : 0 }); }
       for (let i = 0; i < 4; i++) { const el = $('mv-egin-s' + i); if (el) el.style.background = n.c[i]; }
       const sv = $('mv-egin-sv'); if (!sv) return;
       if (!fromPick) Object.assign(n, hex2hsv(n.c[n.slot]));
@@ -4416,6 +4446,7 @@ const TideHarm = (() => {
         if (!x) return rgEdClose();
         if (a === 'tin') { x.t = x.t ? 0 : 1; return rgEdSync(); }
         if (a === 'star') { x.s = x.s ? 0 : 1; return rgEdSync(); }
+        if (a === 'sb') { x.sb = sbOf(egiGet(x.c), x) ? 0 : 1; return rgEdSync(); }
         if (a === 'bait') { x.b = x.b ? 0 : 1; return rgEdSync(); }
         if (a === 'lc') { x.lc = b.dataset.l; return rgEdSync(); }
         if (a === 'edit') { const id = x.c; rgEdClose(); openMaker(id); }
@@ -4440,11 +4471,12 @@ const TideHarm = (() => {
     function rgEdOpen(c) {
       const x = form && form.egi.find(q => q.c === c), e = x && egiGet(c); if (!e) return;
       rgMode = 'ed'; rgC = c; rgN = null; rgOpenT = Date.now(); const el = rgEl(), two = e.c.length === 2, laser = e.c[0] === 'laser';
-      rgShow(`<h3 id="rg-nm"></h3><p class="sub">${two ? '파란 단추를 잡고 위아래로 끌어 색 비율을 맞춰요' : laser ? '레이저 색을 골라요' : '틴셀을 달거나 잘 먹힌 색으로 표시해요'}</p>`
+      rgShow(`<h3 id="rg-nm"></h3><p class="sub">${two ? '파란 단추를 잡고 위아래로 끌어 색 비율을 맞춰요' : laser ? '레이저 색을 골라요' : '틴셀·삼봉을 켜거나 잘 먹힌 색으로 표시해요'}</p>`
         + `<div class="ed"><div class="big" id="rg-big"><span class="pic"></span>${two ? '<div class="hd" id="rg-hd"><b role="slider" aria-label="색 비율">↕</b></div>' : ''}</div><div class="ctl">`
         + (two ? '<div class="ratio" id="rg-rt"></div>' : '')
         + (laser ? `<div class="lcs">${LASERS.map(l => `<button type="button" data-rg="lc" data-l="${l.id}" aria-label="${l.n} 레이저" style="background:${l.id === 'rainbow' ? 'conic-gradient(#ff5a5a,#ffb84d,#fff176,#69f0ae,#4fc3f7,#7c4dff,#ff5a5a)' : l.c}"></button>`).join('')}</div>` : '')
-        + '<button type="button" class="tog" data-rg="tin" id="rg-tin"></button>' + (e.sb ? '<button type="button" class="tog" data-rg="bait" id="rg-bait"></button>' : '') + '<button type="button" class="tog" data-rg="star" id="rg-star"></button>'
+        + '<div class="tg2"><button type="button" class="tog" data-rg="tin" id="rg-tin">✨ 틴셀</button><button type="button" class="tog" data-rg="sb" id="rg-sb">🐟 삼봉</button></div>'
+        + '<button type="button" class="tog sub2" data-rg="bait" id="rg-bait" hidden></button><button type="button" class="tog" data-rg="star" id="rg-star"></button>'
         + '<button type="button" class="tog" data-rg="edit">에기 고치기</button>'
         + `</div></div><input class="memo" id="rg-memo" maxlength="30" placeholder="메모 (예: 3.5호, 오후 들물에 잘 먹음)" enterkeyhint="done" autocomplete="off" value="${esc(x.m || '')}">`
         + '<button type="button" class="done" data-rg="close">다 됐어요</button>'); rgEdSync();
@@ -4456,8 +4488,9 @@ const TideHarm = (() => {
       const hd = el.querySelector('#rg-hd'); if (hd) { const r = x.r != null ? x.r : 50; hd.style.top = (big.offsetHeight * (1.5 + 37 * r / 100) / 52) + 'px'; hd.querySelector('b').setAttribute('aria-valuenow', r);
         el.querySelector('#rg-rt').innerHTML = `위 ${r} : 아래 ${100 - r}<small>${r === 0 ? '아래 색만' : r === 100 ? '위 색만' : r < 40 ? '위쪽 색 적게' : r > 60 ? '위쪽 색 많이' : '반반'}</small>`; }
       el.querySelectorAll('[data-rg=lc]').forEach(b => b.classList.toggle('on', b.dataset.l === (x.lc || 'silver')));
-      const t = el.querySelector('#rg-tin'); t.classList.toggle('on', !!x.t); t.textContent = x.t ? '✨ 틴셀 달림' : '✨ 틴셀 달기';
-      const bt = el.querySelector('#rg-bait'); if (bt) { bt.classList.toggle('on', !!x.b); bt.textContent = x.b ? '🐟 학꽁치포 달았음' : '🐟 학꽁치포 달기'; }
+      const t = el.querySelector('#rg-tin'); t.classList.toggle('on', !!x.t); t.setAttribute('aria-pressed', !!x.t);
+      const sb = sbOf(e, x), q = el.querySelector('#rg-sb'); q.classList.toggle('on', sb); q.setAttribute('aria-pressed', sb);
+      const bt = el.querySelector('#rg-bait'); bt.hidden = !sb; bt.classList.toggle('on', !!x.b); bt.setAttribute('aria-pressed', !!x.b); bt.textContent = x.b ? '학꽁치포 달았음' : '학꽁치포 달기';
       const s = el.querySelector('#rg-star'); s.classList.toggle('on', !!x.s); s.textContent = x.s ? '★ 잘 먹힌 색' : '☆ 잘 먹혔으면 톡';
       const c = panel.querySelector(`.mv-cell[data-k="e:${x.c}"]`);   // 상자 칸도 바로 바꾼다
       if (c) { c.querySelector('.pic').innerHTML = egiSvg(e, x); c.classList.toggle('star', !!x.s); c.querySelector('b').textContent = egiName(x); }
@@ -4534,7 +4567,7 @@ const TideHarm = (() => {
         const c = b.dataset.c, e = egiGet(c); if (!e) return true;
         const chip = panel.querySelector(`.mv-egis [data-act=egi][data-c="${c}"] i`) || panel.querySelector('.mv-egis [data-act=egi-new] i');
         if (form.egi.some(q => q.c === c)) boxChange(() => { form.egi = form.egi.filter(q => q.c !== c); }, { rmKey: 'e:' + c, dst: chip });
-        else boxChange(() => { form.egi.push({ c, s: 0, ...(e.c.length === 2 ? { r: 50 } : {}), ...(e.c[0] === 'laser' ? { lc: 'silver' } : {}), ...(e.tin ? { t: 1 } : {}) }); }, { addKey: 'e:' + c, src: chip });
+        else boxChange(() => { form.egi.push({ c, s: 0, ...(e.c.length === 2 ? { r: 50 } : {}), ...(e.c[0] === 'laser' ? { lc: 'silver' } : {}), ...(e.tin ? { t: 1 } : {}), sb: e.sb ? 1 : 0 }); }, { addKey: 'e:' + c, src: chip });
         return true;
       }
       if (a === 'egi-cur') { form.egiCur = b.dataset.c; repaint(); return true; }
@@ -4547,7 +4580,7 @@ const TideHarm = (() => {
         if (a === 'egin-sb') { n.sb = !n.sb; b.classList.toggle('on', n.sb); return true; }
         if (a === 'egin-cancel') { rgEdClose(); return true; }
         if (a === 'egin-save') {
-          const base = n.edit ? egiGet(n.edit) : null;
+          const base = n.edit ? egiGet(n.edit) : null, wasSb = !!(base && base.sb);
           const name = ((($('mv-egin-n') || {}).value || '').trim().slice(0, 10)) || (base ? base.n : `내 에기 ${egiMine.length + 1}`);
           const colors = n.special ? null : n.c.slice(0, n.k);
           if (n.edit && EGI_BY[n.edit]) {   // 기본 에기: 바뀐 것만 따로 (숨김은 그대로)
@@ -4558,11 +4591,12 @@ const TideHarm = (() => {
             const m = egiMine.find(q => q.id === n.edit); if (m) { m.n = name; if (colors) m.c = colors; if (n.tin) m.tin = 1; else delete m.tin; if (n.sb) m.sb = 1; else delete m.sb; } saveJ(MINE_KEY, egiMine);
           } else {
             const id = 'm' + Date.now().toString(36); egiMine.push({ id, n: name, c: colors, ...(n.tin ? { tin: 1 } : {}), ...(n.sb ? { sb: 1 } : {}) }); saveJ(MINE_KEY, egiMine);
-            form.egi.push({ c: id, s: 0, ...(colors.length === 2 ? { r: 50 } : {}), ...(n.tin ? { t: 1 } : {}) }); n.newId = id;
+            form.egi.push({ c: id, s: 0, ...(colors.length === 2 ? { r: 50 } : {}), ...(n.tin ? { t: 1 } : {}), sb: n.sb ? 1 : 0 }); n.newId = id;
           }
+          if (n.edit) sbSync(n.edit, wasSb);
           rgEdClose(); repaint(); if (n.newId) cellPop('e:' + n.newId); return true;
         }
-        if (a === 'egin-reset' && n.edit) { delete egiOvr[n.edit]; saveJ(OVR_KEY, egiOvr); rgEdClose(); repaint(); return true; }
+        if (a === 'egin-reset' && n.edit) { const wasSb = !!(egiGet(n.edit) || {}).sb; delete egiOvr[n.edit]; saveJ(OVR_KEY, egiOvr); sbSync(n.edit, wasSb); rgEdClose(); repaint(); return true; }
         if (a === 'egin-del' && n.edit) {   // 두 번 눌러 지우기 · 목록에서만 숨기고 예전 기록 글자는 남는다
           if (!b.classList.contains('ask')) { b.classList.add('ask'); b.textContent = '한 번 더 누르면 지워요'; setTimeout(() => { if (b.isConnected) { b.classList.remove('ask'); b.textContent = '목록에서 지우기'; } }, 3000); return true; }
           if (EGI_BY[n.edit]) { egiOvr[n.edit] = { ...(egiOvr[n.edit] || {}), hide: 1 }; saveJ(OVR_KEY, egiOvr); }
@@ -4982,7 +5016,7 @@ const TideHarm = (() => {
       } else if (e.c.length === 2) {
         const rr = x.r != null ? x.r : 50; g.fillStyle = e.c[1]; g.fillRect(cx - r, top, H, H); g.fillStyle = e.c[0]; g.fillRect(cx - r, top, H, H * rr / 100);
       } else e.c.forEach((c, i) => { g.fillStyle = c; g.fillRect(cx - r, top + H * i / e.c.length, H, H / e.c.length + .5); });
-      if (x.t) { const y0 = cy + r * .4; for (let i = 0, xx = cx - r; xx < cx + r; i++, xx += r * .16) { g.fillStyle = i % 2 ? '#F1F4F6' : '#FFE48A'; g.fillRect(xx, y0, r * .07, r * .6); } }
+      if (x.t) { const y0 = cy - r; for (let i = 0, xx = cx - r; xx < cx + r; i++, xx += r * .16) { g.fillStyle = i % 2 ? '#F1F4F6' : '#FFE48A'; g.fillRect(xx, y0, r * .07, r * .6); } }
       g.restore();
       g.beginPath(); g.arc(cx, cy, r, 0, 7); g.lineWidth = lw || 1.8; g.strokeStyle = INK; g.stroke();
       if (x.s) star(g, cx + r * .78, cy - r * .78, r * .42, '#FFC93C');
@@ -7414,7 +7448,7 @@ const TideHarm = (() => {
 
 <script>
 if ('serviceWorker' in navigator) addEventListener('load', () => {
-  const sw = navigator.serviceWorker, VER = 'a80dd872'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
+  const sw = navigator.serviceWorker, VER = 'f77dd953'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
   // 화면에 손을 대기 시작했는지 (쓰는 중에는 새로 열지 않으려고)
   ['pointerdown', 'keydown'].forEach(t => addEventListener(t, () => { touched = true; }, { capture: true, passive: true }));
   const reload = () => {
