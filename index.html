@@ -423,6 +423,21 @@ h2{margin:0; font-size:calc(16px * var(--k)); font-weight:700; text-wrap:balance
 .mv-egis button.star i::after{content:'★'; position:absolute; right:-3px; top:-6px; font-style:normal; font-size:15px; color:#FFC93C; text-shadow:0 0 2px rgba(0,0,0,.6)}
 .mv-sumli{list-style:none}
 .mv-sumbtn{width:100%; display:flex; align-items:center; gap:8px; padding:9px 12px; border:1px dashed var(--line); border-radius:12px; background:none; font:inherit; font-size:calc(12.5px * var(--k)); font-weight:700; color:#2F7DF6; text-align:left; -webkit-tap-highlight-color:transparent}
+/* 출조 정리 · 일행 조과표: 이름마다 한 줄 (쭈꾸미 · 갑오징어), 맨 아래 '모두'는 저절로 */
+.mv-prow{display:grid; grid-template-columns:minmax(0, 1fr) 60px 60px; gap:8px; align-items:center; padding:6px 0; border-bottom:1px solid var(--line)}
+.mv-prow.hd{padding:4px 0 2px; border-bottom:0; font-size:calc(11.5px * var(--k)); font-weight:700; color:var(--ink-2); text-align:center}
+.mv-prow .nm{display:flex; align-items:center; gap:2px; min-width:0; font-size:calc(14px * var(--k)); font-weight:700; text-align:left}
+.mv-prow .nm span{overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.mv-prow .mv-n{width:60px}
+.mv-prow .rm{flex:none; width:28px; height:28px; border:0; background:none; color:var(--ink-2); font-size:17px; padding:0; -webkit-tap-highlight-color:transparent}
+.mv-prow.sum{border-bottom:0; border-top:2px solid var(--line); margin-top:-1px; padding-top:8px; text-align:center; font-size:calc(15px * var(--k)); font-weight:800}
+.mv-prow.sum .nm{color:var(--ink-2); font-size:calc(13px * var(--k))}
+.mv-padd{display:flex; flex-wrap:wrap; align-items:center; gap:6px; margin:8px 0 2px}
+.mv-padd .add{height:34px; padding:0 12px; border:1px dashed var(--ink-2); border-radius:999px; background:none; font:inherit; font-size:calc(13px * var(--k)); font-weight:700; color:var(--ink); -webkit-tap-highlight-color:transparent}
+.mv-padd .pq{height:34px; padding:0 12px; border:1px solid var(--line); border-radius:999px; background:var(--card); font:inherit; font-size:calc(13px * var(--k)); font-weight:700; color:var(--ink-2); -webkit-tap-highlight-color:transparent}
+.mv-padd input{width:120px; height:34px; padding:0 12px; border:1px solid #2F7DF6; border-radius:999px; background:var(--paper); font:inherit; font-size:calc(15px * var(--k)); color:var(--ink)}
+.mv-padd input:focus{outline:none}
+.mv-pcap{margin:12px 0 0; font-size:calc(11.5px * var(--k)); font-weight:700; color:var(--ink-2)}
 .mv-sumbtn.done{border-style:solid; background:var(--well); color:var(--ink)} .mv-sumbtn span{flex:1; min-width:0} .mv-sumbtn small{display:block; margin-top:2px; font-size:calc(11px * var(--k)); font-weight:500; color:var(--ink-2)} .mv-sumbtn i{font-style:normal; color:var(--ink-2); font-weight:500}
 .mv-sumpts{display:flex; flex-direction:column; gap:6px; margin-top:4px}
 .mv-srow{display:flex; align-items:center; gap:8px; padding:7px 8px 7px 10px; border-radius:12px; background:var(--well)}
@@ -817,6 +832,10 @@ html.cv-lock, html.cv-lock body{overflow:hidden}
 .cv-chips button{flex:none; height:32px; padding:0 12px; border:1px solid var(--line); border-radius:999px; background:var(--card); font:inherit; font-size:calc(13px * var(--k)); font-weight:700; color:var(--ink); white-space:nowrap; -webkit-tap-highlight-color:transparent}
 .cv-chips button i{font-style:normal; font-size:11px; margin-left:3px}
 .cv-chips button.on{background:#2F7DF6; border-color:#2F7DF6; color:#fff}
+.cv-who{margin:10px 0 0} .cv-who > span{display:block; margin-bottom:6px; font-size:calc(12px * var(--k)); font-weight:500; color:var(--ink-2)}
+.cv-who .seg{display:flex; gap:4px; padding:4px; border-radius:12px; background:var(--well)}
+.cv-who .seg button{flex:1; min-width:0; height:38px; border:0; border-radius:9px; background:none; font:inherit; font-size:calc(13px * var(--k)); font-weight:700; color:var(--ink-2); -webkit-tap-highlight-color:transparent}
+.cv-who .seg button.on{background:var(--card); color:var(--ink); box-shadow:0 1px 4px rgba(0,0,0,.18)}
 .cv-tg{display:flex; flex-wrap:wrap; align-items:center; gap:6px; margin:10px 0 2px}
 .cv-tg span{width:100%; font-size:calc(12px * var(--k)); color:var(--ink-2); font-weight:500}
 .cv-tg button{display:inline-flex; align-items:center; gap:6px; height:32px; padding:0 12px 0 9px; border:1px solid var(--line); border-radius:999px; background:var(--card); font:inherit; font-size:calc(13px * var(--k)); font-weight:600; color:var(--ink-2); -webkit-tap-highlight-color:transparent}
@@ -4171,7 +4190,7 @@ const TideHarm = (() => {
     const LASER_BY = Object.fromEntries(LASERS.map(l => [l.id, l]));
     const mixW = (hex, k) => { const n = parseInt(hex.slice(1), 16), r = n >> 16, g = (n >> 8) & 255, b = n & 255, f = v => Math.round(v + (255 - v) * k); return `rgb(${f(r)},${f(g)},${f(b)})`; };
     const TINSEL = 'repeating-linear-gradient(90deg,#FFE48A 0 1.4px,transparent 1.4px 3.2px,#F1F4F6 3.2px 4.6px,transparent 4.6px 6.6px) bottom/100% 30% no-repeat';
-    const RIG_KEY = 'jjukgap-rig', SUM_KEY = 'jjukgap-sums', SUM_PEND = 'jjukgap-sum-pend';
+    const RIG_KEY = 'jjukgap-rig', SUM_KEY = 'jjukgap-sums', SUM_PEND = 'jjukgap-sum-pend', PARTY_KEY = 'jjukgap-party';   // 자주 같이 가는 일행 이름 (이 폰에만)
     // 에기 그림: 두 색은 고른 비율로 위·아래 · 레이저는 고른 색으로 반짝이게 · 틴셀은 아래쪽에 가닥
     function egiBg(e, x) {
       let base;
@@ -4492,14 +4511,45 @@ const TideHarm = (() => {
         <input class="mv-memo" id="mv-memo" maxlength="80" placeholder="메모 (예: 수심 20m)" value="${esc(f.memo || '')}">
         <div class="mv-btns"><button class="pri" data-act="commit">${f.edit ? '고친 내용 저장' : '저장'}</button><button data-act="cancel">취소</button></div>`;
     }
-    function catchRows(f) {
-      return `<div class="mv-step"><span>쭈꾸미</span>${stepper('jj', f.jj, '쭈꾸미')}</div>
-        <div class="mv-step"><span>갑오징어</span>${stepper('gap', f.gap, '갑오징어')}</div>
+    function catchRows(f, etcOnly) {
+      return `${etcOnly ? '' : `<div class="mv-step"><span>쭈꾸미</span>${stepper('jj', f.jj, '쭈꾸미')}</div>
+        <div class="mv-step"><span>갑오징어</span>${stepper('gap', f.gap, '갑오징어')}</div>`}
         ${f.etc.map((e, j) => `<div class="mv-step etc">${j ? '' : `<div class="mv-chips" role="group" aria-label="자주 잡히는 어종 넣기">${ETC_PICKS.map(n => `<button type="button" data-act="fish" data-n="${n}"${f.etc.some(x => x.n.trim() === n) ? ' class="on"' : ''}>${n}</button>`).join('')}</div>`}<input class="mv-sp" data-j="${j}" maxlength="10" placeholder="${j ? '다른 어종' : '기타'}" value="${esc(e.n)}" aria-label="기타 어종 이름" autocomplete="off">${stepper('e' + j, e.c, e.n || '기타 어종')}${j ? `<button type="button" class="mv-rm" data-act="rmfish" data-j="${j}" aria-label="이 어종 줄 빼기">×</button>` : ''}</div>`).join('')}
         ${f.etc.length < 4 ? '<button type="button" class="mv-add" data-act="addfish">+ 다른 어종 줄 더하기</button>' : ''}`;
     }
-    const getN = k => (k[0] === 'e' && k !== 'etc' ? form.etc[+k.slice(1)].c : form[k]);
-    const setN = (k, n) => { n = clampN(n); if (k[0] === 'e') form.etc[+k.slice(1)].c = n; else form[k] = n; const el = $('mv-n-' + k); if (el && document.activeElement !== el) el.value = n; return n; };
+    // 숫자 칸 열쇠: jj · gap · e0(기타) · p0j / p0g (일행 0번의 쭈꾸미 / 갑오징어)
+    const pKey = k => /^p\d+[jg]$/.test(k) ? [+k.slice(1, -1), k.slice(-1) === 'j' ? 'jj' : 'gap'] : null;
+    const getN = k => { const pk = pKey(k); if (pk) return (form.party[pk[0]] || {})[pk[1]] || 0; return k[0] === 'e' && k !== 'etc' ? form.etc[+k.slice(1)].c : form[k]; };
+    const setN = (k, n) => { n = clampN(n); const pk = pKey(k); if (pk) { if (form.party[pk[0]]) form.party[pk[0]][pk[1]] = n; } else if (k[0] === 'e') form.etc[+k.slice(1)].c = n; else form[k] = n;
+      const el = $('mv-n-' + k); if (el && document.activeElement !== el) el.value = n; partySum(); return n; };
+    // 일행 조과표: 나 + 일행 (이름 · 쭈꾸미 · 갑오징어), 맨 아래 '모두'는 저절로 · 기타 어종은 나만
+    const partyTot = (f, k) => (f[k] || 0) + (f.party || []).reduce((a, q) => a + (q[k] || 0), 0);
+    function partyRows(f) {
+      const cell = (k, v, lab) => `<input class="mv-n" id="mv-n-${k}" data-k="${k}" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="3" enterkeyhint="done" autocomplete="off" value="${v}" aria-label="${esc(lab)}">`;
+      const row = (nm, rm, kj, kg, vj, vg, who) => `<div class="mv-prow"><span class="nm"><span>${esc(nm)}</span>${rm}</span>${cell(kj, vj, who + ' 쭈꾸미')}${cell(kg, vg, who + ' 갑오징어')}</div>`;
+      return '<div class="mv-party"><div class="mv-prow hd"><span></span><span>쭈꾸미</span><span>갑오징어</span></div>'
+        + row('나', '', 'jj', 'gap', f.jj, f.gap, '나')
+        + f.party.map((q, i) => row(q.n, `<button type="button" class="rm" data-act="party-rm" data-i="${i}" aria-label="${esc(q.n)} 빼기">×</button>`, `p${i}j`, `p${i}g`, q.jj || 0, q.gap || 0, q.n)).join('')
+        + `<div class="mv-prow sum"><span class="nm">모두</span><span id="mv-pt-j">${partyTot(f, 'jj')}</span><span id="mv-pt-g">${partyTot(f, 'gap')}</span></div></div>`;
+    }
+    function partySum() { if (!form || !form.party || !form.party.length) return; const a = $('mv-pt-j'), b = $('mv-pt-g'); if (a) a.textContent = partyTot(form, 'jj'); if (b) b.textContent = partyTot(form, 'gap'); }
+    function partyAddRow(f) {
+      const used = new Set(f.party.map(q => q.n)), recent = f.party.length || f.partyNew ? (loadJ(PARTY_KEY, []) || []).filter(n => n && !used.has(n)).slice(0, 6) : [];
+      const full = f.party.length >= 10;
+      return `<div class="mv-padd">${f.partyNew ? '<input id="mv-party-n" maxlength="8" placeholder="일행 이름" enterkeyhint="done" autocomplete="off" aria-label="일행 이름">'
+        : full ? '' : `<button type="button" class="add" data-act="party-add">+ ${f.party.length ? '일행 더하기' : '같이 간 일행 조과도 적기'}</button>`}`
+        + (full ? '' : recent.map(n => `<button type="button" class="pq" data-act="party-quick" data-n="${esc(n)}" aria-label="${esc(n)} 일행 더하기">${esc(n)}</button>`).join('')) + '</div>';
+    }
+    function partyPush(n) {
+      n = String(n || '').trim().slice(0, 8);
+      if (!form || !n || n === '나' || form.party.some(q => q.n === n) || form.party.length >= 10) return -1;
+      form.party.push({ n, jj: 0, gap: 0 }); return form.party.length - 1;
+    }
+    function partyNameDone(focusNum) {
+      const el = $('mv-party-n'); if (!el || !form || !form.partyNew) return;
+      form.partyNew = false; const i = partyPush(el.value); repaint();
+      if (i >= 0 && focusNum) { const x = $('mv-n-p' + i + 'j'); if (x) x.focus(); }
+    }
     function showSave() {
       sheetAtLeast('open');
       if (!me) return;
@@ -4563,7 +4613,8 @@ const TideHarm = (() => {
         etc: S ? (S.etc || []).map(e => ({ n: e.n || '', c: e.c || 0 })) : [...em].map(([n, c]) => ({ n, c })),
         sink: S ? (S.sink || []).slice() : pSink.length ? pSink : (rg.last || rg.sink || []).slice(),   // 봉돌은 지난번 쓴 것을 미리
         egi: S ? (S.egi || []).map(x => ({ ...x })) : pEgi,
-        memo: S ? S.memo || '' : '', good: new Set(tr.pts.filter(p => p.good).map(p => p.id)), had: !!S };
+        memo: S ? S.memo || '' : '', good: new Set(tr.pts.filter(p => p.good).map(p => p.id)), had: !!S,
+        party: S && Array.isArray(S.party) ? S.party.filter(q => q && q.n).map(q => ({ n: String(q.n), jj: q.jj || 0, gap: q.gap || 0 })) : [], partyNew: false };
       if (!form.etc.length) form.etc.push({ n: '', c: 0 });
       sumTr = tr; mode = 'sum'; selId = null; closeMenu(); sheetAtLeast('open'); paintSum(); panel.scrollTop = 0; draw();
     }
@@ -4580,8 +4631,8 @@ const TideHarm = (() => {
       panel.innerHTML = `
         <div class="mv-h"><b>${isToday ? '오늘' : md(kstDay(first.t))} 출조 정리</b><span>${ampm(kstMin(t0))}~${ampm(kstMin(t1))}</span></div>
         <p class="mv-note">${tripTxt(first) || '배·출항지 기록 없음'} · 머문 자리 ${tr.pts.length}곳</p>
-        <div class="mv-sec">잡은 것<em>합계만 적어도 돼요</em></div>
-        ${catchRows(f)}
+        <div class="mv-sec">잡은 것<em>${f.party.length ? '일행 것도 같이 적어요 · 모두는 저절로' : '합계만 적어도 돼요'}</em></div>
+        ${f.party.length ? partyRows(f) + partyAddRow(f) + '<p class="mv-pcap">기타 어종 (나)</p>' + catchRows(f, true) : catchRows(f) + partyAddRow(f)}
         <div class="mv-sec">채비<em>누르면 상자에 담겨요 · 에기 칸을 꾹 누르면 손질</em></div>
         ${rigRows(f, false)}
         <input class="mv-memo" id="mv-memo" maxlength="120" placeholder="메모 (예: 오후 들물에 갑오징어 잘 나옴)" value="${esc(f.memo || '')}">
@@ -4593,7 +4644,9 @@ const TideHarm = (() => {
       const f = form, tr = sumTr; if (!f || !tr) return;
       const memo = (($('mv-memo') || {}).value || '').trim();
       const all = sums();
-      all[tr.key] = { jj: clampN(f.jj), gap: clampN(f.gap), etc: f.etc.map(e => ({ n: e.n.trim(), c: clampN(e.c) })).filter(e => e.c > 0), sink: f.sink.slice(), egi: f.egi.map(x => ({ ...x })), memo, t: Date.now() };
+      const party = (f.party || []).filter(q => q.n).map(q => ({ n: q.n, jj: clampN(q.jj), gap: clampN(q.gap) }));
+      all[tr.key] = { jj: clampN(f.jj), gap: clampN(f.gap), etc: f.etc.map(e => ({ n: e.n.trim(), c: clampN(e.c) })).filter(e => e.c > 0), sink: f.sink.slice(), egi: f.egi.map(x => ({ ...x })), memo, ...(party.length ? { party } : {}), t: Date.now() };
+      if (party.length) { const names = party.map(q => q.n), rec = loadJ(PARTY_KEY, []) || []; saveJ(PARTY_KEY, [...names, ...rec.filter(n => !names.includes(n))].slice(0, 8)); }
       saveJ(SUM_KEY, all);
       let ch = false; for (const p of tr.pts) { const g = f.good.has(p.id); if (!!p.good !== g) { if (g) p.good = 1; else delete p.good; ch = true; } }
       if (ch) savePts(); else tripCache = null;
@@ -4650,9 +4703,13 @@ const TideHarm = (() => {
       const egi = (S ? S.egi || [] : pEgi).filter(x => egiGet(x.c));
       const sink = (S ? S.sink || [] : [...new Set(tr.pts.flatMap(p => p.sink || []))]).slice().sort((a, b) => a - b);
       const sp = cardSp(S, tr), t0 = f.stayFrom || f.t, t1 = l.stayTo || l.t;
+      const P = S && Array.isArray(S.party) ? S.party.filter(q => q && q.n) : [];
+      const spAll = P.length ? cardSp({ ...S, jj: partyTot(S, 'jj'), gap: partyTot(S, 'gap') }, tr) : null;
+      const party = P.length ? { n: P.length + 1, names: P.map(q => q.n), sp: spAll, tot: spAll.reduce((a, x) => a + x.c, 0),
+        people: [{ n: '나', c: (S.jj || 0) + (S.gap || 0) }, ...P.map(q => ({ n: q.n, c: (q.jj || 0) + (q.gap || 0) }))] } : null;
       return { k, y: dt.getUTCFullYear(), m: dt.getUTCMonth() + 1, d: dt.getUTCDate(), dow: WD[dt.getUTCDay()],
         port: (f.depName || '').trim(), boat: (f.boat || '').trim(), mul, wt: wt == null ? null : Math.round(wt * 10) / 10, wind: wind == null ? null : Math.round(wind),
-        sp, tot: sp.reduce((a, s) => a + s.c, 0), sink, egi, egiTop: egi.find(x => x.s) || egi[0] || null, memo: S && S.memo ? String(S.memo).trim() : '',
+        sp, tot: sp.reduce((a, s) => a + s.c, 0), party, sink, egi, egiTop: egi.find(x => x.s) || egi[0] || null, memo: S && S.memo ? String(S.memo).trim() : '',
         hrs: Math.max(0, (t1 - t0) / 3600000) };
     }
     const spLv = s => { const [hi, lo] = thOf(s.k); return s.c >= hi ? 3 : s.c >= lo ? 2 : s.c > 0 ? 1 : 0; };
@@ -5223,6 +5280,11 @@ const TideHarm = (() => {
       }
     };
     function cardRender(cv, cd, o) {
+      if (o.all && cd.party) {   // 배 전체: 큰 숫자는 일행 포함 합계 · '함께'에 일행 이름 · 한마디가 없으면 'N명이 합쳐 M마리!'
+        const P = cd.party, my = o.my || {};
+        cd = { ...cd, sp: P.sp, tot: P.tot };
+        o = { ...o, my: { who: my.who || P.names.join(', '), say: my.say || `${P.n}명이 합쳐 ${P.tot}마리!` }, show: { ...o.show, my: true } };
+      }
       const g = cv.getContext('2d'), need = {};
       g.setTransform(cv.width / 360, 0, 0, cv.width / 360, 0, 0); g.clearRect(0, 0, 360, 360);
       const K = cardKit(g, need);
@@ -5230,11 +5292,13 @@ const TideHarm = (() => {
       return need;
     }
     // 이 카드를 글로: 카페 조황기에 붙여 넣기
-    function cardText(cd, sh, my) {
+    function cardText(cd, sh, my, all) {
+      if (all && cd.party) { const P = cd.party; cd = { ...cd, sp: P.sp }; my = { who: (my && my.who) || P.names.join(', '), say: my && my.say }; sh = { ...sh, my: true }; }
       const L = [`[쭈갑이 물때] ${cd.m}월 ${cd.d}일(${cd.dow}) 출조`];
       const a = [cd.port ? `${cd.port} 출항` : '', sh.boat && cd.boat ? cd.boat : ''].filter(Boolean).join(' · '); if (a) L.push(a);
       const c = sh.cond ? [cd.mul ? `물때 ${cd.mul}` : '', wtT(cd), windT(cd)].filter(Boolean).join(' · ') : ''; if (c) L.push(c);
-      L.push(`조과: ${cd.sp.length ? cd.sp.map(s => `${s.n} ${s.c}`).join(' · ') : '꽝'}`);
+      L.push(`조과${all && cd.party ? `(일행 포함 ${cd.party.n}명)` : ''}: ${cd.sp.length ? cd.sp.map(s => `${s.n} ${s.c}`).join(' · ') : '꽝'}`);
+      if (all && cd.party) L.push(`사람별: ${cd.party.people.map(q => `${q.n} ${q.c}`).join(' · ')}`);
       if (sh.rig) { const r = [sinkTxt(cd.sink), egiTxt(cd.egi)].filter(Boolean).join(' · '); if (r) L.push(`채비: ${r}`); }
       if (sh.memo && cd.memo) L.push(`메모: ${cd.memo}`);
       if (sh.my && my && my.who) L.push(`함께: ${whoJ(my.who, ', ')}`);
@@ -5258,6 +5322,7 @@ const TideHarm = (() => {
         <div class="cv-stage"><button type="button" class="cv-arr" data-c="prev" aria-label="이전 테마">‹</button><div class="cv-wrap" id="cv-wrap"><canvas id="cv-cv" width="1080" height="1080" role="img" aria-label="조과 카드 미리보기"></canvas></div><button type="button" class="cv-arr" data-c="next" aria-label="다음 테마">›</button></div>
         <div class="cv-ind" id="cv-ind"></div>
         <div class="cv-chips" id="cv-chips" role="tablist" aria-label="카드 테마"></div>
+        <div class="cv-who" id="cv-who"></div>
         <div class="cv-tg" id="cv-tg"></div>
         <div class="cv-row" id="cv-row1"></div>
         <div class="cv-row main"><button type="button" class="pri" data-c="share">보내기</button><button type="button" data-c="save">저장</button><button type="button" data-c="copy">글 복사</button></div>
@@ -5302,6 +5367,7 @@ const TideHarm = (() => {
       const s = cardS, cd = s.cd, T = CARD_THEMES[s.th];
       $('cv-ind').textContent = `${T.n} · ${s.th + 1} / ${CARD_THEMES.length}  옆으로 밀어서 바꾸기`;
       $('cv-chips').innerHTML = CARD_THEMES.map((t, i) => `<button type="button" role="tab" data-c="th-go" data-i="${i}" class="${i === s.th ? 'on' : ''}" aria-selected="${i === s.th}">${t.n}${t.ph ? '<i aria-hidden="true">📷</i>' : ''}</button>`).join('');
+      $('cv-who').innerHTML = cd.party ? `<span>카드에 넣을 조과</span><div class="seg" role="group" aria-label="카드에 넣을 조과"><button type="button" data-c="all" data-v="0" class="${s.all ? '' : 'on'}" aria-pressed="${!s.all}">나만 ${cd.tot}마리</button><button type="button" data-c="all" data-v="1" class="${s.all ? 'on' : ''}" aria-pressed="${!!s.all}">배 전체 ${cd.party.n}명 · ${cd.party.tot}마리</button></div>` : '';
       const hasMy = !!(s.my && (s.my.who || s.my.say));
       const tg = [['my', '내 글', hasMy], ['boat', '배 이름', !!cd.boat], ['rig', '에기·봉돌', !!(cd.egi.length || cd.sink.length)], ['memo', '메모', !!cd.memo], ['cond', '물때·수온', !!(cd.mul || cd.wt != null)]].filter(x => x[2]);
       $('cv-tg').innerHTML = tg.length ? '<span>카드에 넣을 것</span>' + tg.map(([k, n]) => `<button type="button" data-c="tg" data-k="${k}" class="${s.show[k] ? 'on' : ''}" aria-pressed="${!!s.show[k]}"><i aria-hidden="true"></i>${n}</button>`).join('') : '';
@@ -5341,6 +5407,7 @@ const TideHarm = (() => {
       if (c === 'th-go') { const i = +b.dataset.i; if (i !== s.th) cardGo(i - s.th); return; }
       if (c === 'tg') { s.show[b.dataset.k] = !s.show[b.dataset.k]; cardSaveSt(); cardUi(); return cardPaint(); }
       if (c === 'joke') { s.v++; return cardPaint(); }
+      if (c === 'all') { s.all = b.dataset.v === '1'; cardUi(); return cardPaint(); }
       if (c === 'photo') {
         if (NAT && natV() < 3) return cvToast('사진 넣기는 앱을 새 버전으로 업데이트하면 돼요');
         const f = $('cv-file'); f.value = ''; return f.click();
@@ -5453,7 +5520,7 @@ const TideHarm = (() => {
         cvToast(fromShare ? '이 브라우저는 바로 보내기가 안 돼서 사진으로 저장했어요' : '카드를 사진으로 저장했어요'); }, 'image/jpeg', .92);
     }
     async function cardCopy() {
-      const t = cardText(cardS.cd, cardS.show, cardS.my); let ok = false;
+      const t = cardText(cardS.cd, cardS.show, cardS.my, cardS.all); let ok = false;
       if (NAT && natV() >= 3) { try { NAT.copyText(t); ok = true; } catch (_) {} }
       if (!ok && navigator.clipboard && navigator.clipboard.writeText) { try { await navigator.clipboard.writeText(t); ok = true; } catch (_) {} }
       if (!ok) { try { const ta = document.createElement('textarea'); ta.value = t; ta.style.position = 'fixed'; ta.style.opacity = '0'; document.body.appendChild(ta); ta.select(); ok = document.execCommand('copy'); ta.remove(); } catch (_) {} }
@@ -5854,6 +5921,9 @@ const TideHarm = (() => {
     panel.addEventListener('pointerdown', e => { if (e.target.closest && e.target.closest('[data-sug]')) e.preventDefault(); });
     panel.addEventListener('click', e => { const b = e.target.closest && e.target.closest('[data-sug]'); if (b) { e.stopPropagation(); pickSug(+b.dataset.sug); } }, true);
     panel.addEventListener('keydown', e => { if (e.target.id === 'mv-sink-own' && e.key === 'Enter') { e.preventDefault(); sinkOwnDone(); } });
+    panel.addEventListener('keydown', e => { if (e.target.id === 'mv-party-n' && e.key === 'Enter') { e.preventDefault(); partyNameDone(true); } });
+    panel.addEventListener('focusout', e => { if (e.target.id === 'mv-party-n') setTimeout(() => partyNameDone(false), 0); });
+    panel.addEventListener('pointerdown', e => { if (e.target.closest && e.target.closest('[data-act=party-quick]') && $('mv-party-n')) e.preventDefault(); });   // 이름 칸이 닫혀 단추가 사라지지 않게
     panel.addEventListener('scroll', e => { const t = e.target; if (t !== panel && t.matches && t.matches('.mv-rig.scroll .mv-rchips, .mv-rig.scroll .mv-egis')) edgeFade(t); }, true);
     panel.addEventListener('input', e => {
       if (e.target.id !== 'mv-egi-r' || !form) return;
@@ -5905,7 +5975,7 @@ const TideHarm = (() => {
       const body = TL.map(tr => {
         const first = tr.pts[0], fold = folded.has(tr.key), S = SM[tr.key], tot = S ? sumTot(S) : tr.pts.reduce((a, q) => a + caughtOf(q), 0);
         const sumLi = `<li class="mv-sumli card"><button type="button" class="mv-sumbtn${S ? ' done' : ''}" data-act="sum" data-k="${esc(tr.key)}"><span>${S
-          ? `출조 정리 · 합계 ${catchTxt({ jj: S.jj, gap: S.gap, etc: S.etc }) }<small>${esc(rigTxt(S) || '채비 기록 없음')}${S.memo ? ' · ' + esc(S.memo) : ''}</small>`
+          ? `출조 정리 · ${S.party && S.party.length ? '나' : '합계'} ${catchTxt({ jj: S.jj, gap: S.gap, etc: S.etc }) }${S.party && S.party.length ? `<small>일행 ${S.party.length}명 포함 모두 ${esc(catchTxt({ jj: partyTot(S, 'jj'), gap: partyTot(S, 'gap'), etc: [] }))}</small>` : ''}<small>${esc(rigTxt(S) || '채비 기록 없음')}${S.memo ? ' · ' + esc(S.memo) : ''}</small>`
           : '출조 정리하기<small>합계 마릿수·봉돌·에기 색을 한 번에 적어요</small>'}</span><i>›</i></button>`
           + `<button type="button" class="mv-cardbtn" data-act="card" data-k="${esc(tr.key)}" aria-label="${md(kstDay(first.t))} 조과 카드 만들기"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="4.5" width="17" height="15" rx="3" fill="#fff" stroke="currentColor" stroke-width="1.8"/><circle cx="9" cy="10" r="2.2" fill="#FF7A59"/><path d="M6.5 16.5l4-3.5 2.6 2.2 2.4-2 2.5 2.3" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>카드</button></li>`;
         const items = tr.pts.slice().reverse().map(p => {
@@ -6103,6 +6173,9 @@ const TideHarm = (() => {
       if (a === 'good') { if (!form || !form.good) return; const id = b.dataset.id, on = !form.good.has(id); on ? form.good.add(id) : form.good.delete(id); b.classList.toggle('on', on); b.setAttribute('aria-pressed', on); return; }
       if (a === 'sum-pt') { const p = points.find(q => q.id === b.dataset.id); if (p) { selId = p.id; follow = false; $('mv-me').classList.remove('on'); placeAt(p.lon, p.lat, focusY()); draw(); } return; }
       if (a === 'sum-save') return sumSave();
+      if (a === 'party-add') { form.partyNew = true; repaint(); const el = $('mv-party-n'); if (el) el.focus(); return; }
+      if (a === 'party-quick') { const i = partyPush(b.dataset.n); form.partyNew = false; repaint(); return; }
+      if (a === 'party-rm') { form.party.splice(+b.dataset.i, 1); repaint(); return; }
       if (a === 'sum-later') return sumExit(false);
       if (a === 'save') showSave();
       else if (a === 'inc' || a === 'dec') { const k = b.dataset.k, el = $('mv-n-' + k); const n = setN(k, getN(k) + (a === 'inc' ? 1 : -1)); if (el) el.value = n; }
@@ -7214,7 +7287,7 @@ const TideHarm = (() => {
 
 <script>
 if ('serviceWorker' in navigator) addEventListener('load', () => {
-  const sw = navigator.serviceWorker, VER = 'a2b5a6c9'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
+  const sw = navigator.serviceWorker, VER = '532f4b92'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
   // 화면에 손을 대기 시작했는지 (쓰는 중에는 새로 열지 않으려고)
   ['pointerdown', 'keydown'].forEach(t => addEventListener(t, () => { touched = true; }, { capture: true, passive: true }));
   const reload = () => {
