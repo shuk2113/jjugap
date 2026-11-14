@@ -578,6 +578,13 @@ h2{margin:0; font-size:calc(16px * var(--k)); font-weight:700; text-wrap:balance
 .mv-fm .fo.on{background:rgba(127,127,127,.13)}
 .mv-fm p{margin:4px 10px 6px; font-size:calc(10.5px * var(--k)); color:var(--ink-2)}
 .mv-fm .mv-sw{padding:9px 6px 8px; border-top:1px solid var(--line)} .mv-fm .mv-sw b{font-size:calc(13px * var(--k))} .mv-fm .mv-sw small{font-size:calc(10.5px * var(--k))}
+.mv-stygrid{display:grid; grid-template-columns:repeat(3, 1fr); gap:6px; margin:4px 0 12px}
+.mv-stygrid button{display:flex; align-items:center; gap:7px; min-height:44px; padding:5px 8px; border-radius:12px; border:1px solid var(--line); background:none; font:inherit; font-size:calc(12px * var(--k)); font-weight:700; color:var(--ink-2); text-align:left; word-break:keep-all; line-height:1.2; -webkit-tap-highlight-color:transparent}
+.mv-stygrid button i{flex:none; width:24px; height:24px; border-radius:50%; background:linear-gradient(135deg, var(--b) 0 48%, var(--a) 52% 100%); box-shadow:inset 0 0 0 1.5px rgba(0,0,0,.12)}
+.mv-stygrid button.on{border-color:var(--ink); background:var(--ink); color:var(--card)}
+.mv-rged.sty .bd{background:rgba(0,0,0,.06)}
+.mv-setc > .mv-row-btn + .mv-swrow{border-top:1px solid var(--line)}
+.mv-fm .lnk em{font-style:normal; font-weight:500}
 .mv-fm .lnk{display:flex; justify-content:space-between; align-items:center; width:100%; padding:10px 6px 4px; border:0; border-top:1px solid var(--line); background:none; font:inherit; font-size:calc(12.5px * var(--k)); font-weight:700; color:var(--ink-2); -webkit-tap-highlight-color:transparent}
 .mv-auto:not(.wait){background:var(--card)} .mv-auto.off i, .mv-auto.idle i{background:var(--ink-2); box-shadow:none} .mv-auto.off{color:var(--ink-2); font-weight:500}
 .mv-auto.wait i{animation:mvBlink 1.2s ease-in-out infinite} .mv-auto.done i{background:#FF9F1A; box-shadow:0 0 0 3px rgba(255,159,26,.25)}
@@ -3488,7 +3495,7 @@ const TideHarm = (() => {
     // 지금 화면에서 본 바탕 그림의 배율·위치
     const baseXf = () => { const k = v.s / bv.s; return { k, tx: W / 2 * (1 - k) + (bv.lon - v.lon) * KX * v.s, ty: H / 2 * (1 - k) - (bv.lat - v.lat) * v.s }; };
     function renderBase(C, font) {
-      const okey = [W, H, dpr, C.sea, C.land, C.shallow, landState].join('|');
+      const okey = [W, H, dpr, C.sea, C.land, C.shallow, landState, mapSty].join('|');
       // 손으로 움직이는 중에 새로 그릴 때는 낮은 해상도로 빠르게 (이름표는 따로 또렷하게 그리니 흐려 보이지 않는다). 손을 떼면 또렷하게 다시
       const R = interacting ? Math.min(dpr, 1.25) : dpr;
       const key = [v.lon, v.lat, v.s, okey, R].join('|');
@@ -3523,6 +3530,7 @@ const TideHarm = (() => {
       const lands = vis(basemap.L[lod]), flats = vis(basemap.F[lod]), waters = vis(basemap.W[lod]);
       const merge = cs => { if (cs.length === 1) return cs[0].p; const pp = new Path2D(); for (const c of cs) pp.addPath(c.p); return pp; };
       const landP = merge(lands), coastP = basemap.K ? merge(vis(basemap.K[lod])) : landP;   // 해안선(K)은 칸 경계선을 뺀 진짜 바닷가만
+      if (mapSty !== 'base' && msBase(g, R, landP, coastP, flats.length ? merge(flats) : null, waters.length ? merge(waters) : null, wr, lr)) return;   // 지도 모양
       g.save(); g.setTransform(R * v.s, 0, 0, R * v.s, R * (BM + W / 2 - v.lon * KX * v.s), R * (BM + H / 2 + v.lat * v.s));
       g.lineJoin = 'round'; g.lineCap = 'round';
       // 해안 가까운 얕은 물: 육지 둘레를 넓게 두 번 그어 바깥으로 갈수록 옅어지게
@@ -3762,7 +3770,7 @@ const TideHarm = (() => {
     // 색·글꼴은 테마가 바뀔 때만 다시 읽는다 (매 장면마다 읽으면 느려서)
     let Cc = null, fontC = '';
     const mapColors = () => Cc || (Cc = { port: css('--map-port') || css('--ink'), sea: css('--map-sea'), shallow: css('--map-shallow'), land: css('--map-land'), shade: css('--map-shade'), coast: css('--map-coast'), flat: css('--map-flat'),
-      isl: css('--map-isl'), bay: css('--map-bay'), lab: css('--map-lab'), cur: css('--map-cur'), card: css('--card'), ink: css('--ink') });
+      isl: css('--map-isl'), bay: css('--map-bay'), lab: css('--map-lab'), cur: css('--map-cur'), card: css('--map-card') || css('--card'), ink: css('--map-ink') || css('--ink') });   // 지도 위 작은 것들은 지도 모양에 맞춘 색 (밝기와 상관없이)
     try { matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => { Cc = null; if (isOpen) draw(); }); } catch (_) {}
     // 그리기 요청은 한 화면(프레임)에 한 번으로 모은다
     let drawRaf = 0, needDraw = false, lastLoopDraw = 0, inLoop = false;
@@ -3836,6 +3844,7 @@ const TideHarm = (() => {
         d.innerHTML = '<h4>지도에 또렷하게 보일 기록</h4>' + FLTS.map(([k, n]) => `<button type="button" class="fo${k === flt ? ' on' : ''}" role="radio" aria-checked="${k === flt}" data-f="${k}"><b>${n}${k === 'mul' && todayMul ? ` <em>${esc(todayMul)}</em>` : ''}</b><small>${esc(DESC[k])}</small><i aria-hidden="true">${k === flt ? '✓' : ''}</i></button>`).join('')
           + (flt === 'all' ? '' : '<p>고르지 않은 기록은 흐린 점으로 남아요</p>')
           + `<button type="button" class="mv-sw${mapSet.cl ? ' on' : ''}" data-sw="cl" role="switch" aria-checked="${!!mapSet.cl}"><span><b>멀리 보면 묶기</b><small>멀리 볼 때 가까운 기록을 동그라미로</small></span><i></i></button>`
+          + `<button type="button" class="lnk" data-sty="1">지도 모양 <span><em>${esc(styName(mapSty))}</em> ›</span></button>`
           + '<button type="button" class="lnk" data-more="1">지도 설정 더 보기 <span aria-hidden="true">›</span></button>';
       };
       paint(); view.append(bd, d); fmEl = [bd, d];
@@ -3847,6 +3856,7 @@ const TideHarm = (() => {
       d.addEventListener('click', e => {
         const f = e.target.closest('[data-f]'); if (f) { fltMenuOff(); fltSet(f.dataset.f); return; }
         if (e.target.closest('[data-sw]')) { mapSet.cl = !mapSet.cl; mapSetSave(); paint(); toast(mapSet.cl ? '멀리 보면 가까운 기록끼리 묶여요' : '멀리 봐도 묶지 않아요'); draw(); return; }
+        if (e.target.closest('[data-sty]')) { fltMenuOff(); styOpen(); return; }
         if (e.target.closest('[data-more]')) { fltMenuOff(); showSet(); requestAnimationFrame(() => { const h = [...panel.querySelectorAll('.mv-setg')].find(x => x.textContent === '지도'); if (h) panel.scrollTop = Math.max(0, h.offsetTop - 56); }); }
       });
       try { d.querySelector('.fo.on').focus({ preventScroll: true }); } catch (_) {}
@@ -3906,6 +3916,206 @@ const TideHarm = (() => {
       const s = clampS(Math.max(CL_S * 1.3, Math.min(ww / Math.max((e - w) * KX, 1e-4), hh / Math.max(b - a, 1e-4), CL_S * 3)));
       try { navigator.vibrate && navigator.vibrate(8); } catch (_) {}
       flyTo((w + e) / 2, (a + b) / 2, s, top + hh / 2);
+    }
+    // ---------- 지도 모양: 기본 + 열두 가지 (설정 > 지도 · 겹친 종이 창에서 고른다 · 이 폰에 기억)
+    const STYS = [['base', '기본', '#A6C9D3', '#F2D9BF'], ['toy', '장난감 섬', '#5CCAE6', '#A9DD72'], ['map', '보물지도', '#EEDDB2', '#E8C384'], ['neon', '밤바다 네온', '#161B47', '#58FFD6'],
+      ['water', '그림책 수채화', '#D3ECF4', '#FADABA'], ['pixel', '8비트 게임', '#2E7CF6', '#5CCB5F'], ['tropic', '열대 바다', '#13B5C9', '#3FBF6A'], ['candy', '캔디 팝', '#CDB8FF', '#9FF0CC'],
+      ['comic', '만화책', '#E9F5FF', '#FFE45C'], ['crayon', '크레파스', '#FBF7EC', '#FFCD5A'], ['sunset', '노을 바다', '#F2668B', '#3A2160'], ['paper', '종이 오리기', '#2A86C8', '#5DBB63'], ['note', '공책 낙서', '#FDFCF4', '#FFEC3C']];
+    const STY_VARS = {
+      base: { sea: '#2B4A55', shallow: 'rgba(170,222,230,.12)', land: '#5A574D', shade: 'rgba(0,0,0,.16)', coast: '#86816F', flat: '#2E4A4C', isl: '#DAD9CF', bay: '#A3D8E0', lab: '#D3DEDA', cur: '#8EE3E8', port: '#E2ECE8', card: '#132223', ink: '#E2ECE8' },
+      toy: { sea: '#5CCAE6', land: '#A9DD72', lab: '#1B4757', isl: '#2D5B37', bay: '#0B5873', cur: '#0B4F6B', port: '#1B4757', card: '#F8FBF8', ink: '#12282A' },
+      map: { sea: '#EEDDB2', land: '#E8C384', lab: '#5A3818', isl: '#5E3A1A', bay: '#3F6672', cur: '#7A4A1C', port: '#5A3818', card: '#F8FBF8', ink: '#12282A' },
+      neon: { sea: '#161B47', land: '#2C2160', lab: '#ECEAFF', isl: '#B6FFF0', bay: '#FF9BD5', cur: '#FFD86B', port: '#ECEAFF', card: '#132223', ink: '#E2ECE8' },
+      water: { sea: '#D3ECF4', land: '#FADABA', lab: '#6A4B3A', isl: '#7A5A45', bay: '#3D7C95', cur: '#3D7C95', port: '#6A4B3A', card: '#F8FBF8', ink: '#12282A' },
+      pixel: { sea: '#2E7CF6', land: '#5CCB5F', lab: '#0D2A5C', isl: '#123F1A', bay: '#FFFFFF', cur: '#FFFFFF', port: '#0D2A5C', card: '#F8FBF8', ink: '#12282A' },
+      tropic: { sea: '#13B5C9', land: '#3FBF6A', lab: '#0B4F5C', isl: '#0F4A28', bay: '#FFFFFF', cur: '#FFFFFF', port: '#0B4F5C', card: '#F8FBF8', ink: '#12282A' },
+      candy: { sea: '#CDB8FF', land: '#9FF0CC', lab: '#5B2E91', isl: '#2E7A5A', bay: '#7A3FC0', cur: '#7A3FC0', port: '#5B2E91', card: '#F8FBF8', ink: '#12282A' },
+      comic: { sea: '#E9F5FF', land: '#FFE45C', lab: '#111111', isl: '#111111', bay: '#1A5FB4', cur: '#1A5FB4', port: '#111111', card: '#F8FBF8', ink: '#12282A' },
+      crayon: { sea: '#FBF7EC', land: '#FFCD5A', lab: '#7A4A1C', isl: '#8A4A12', bay: '#2F7DC0', cur: '#2F7DC0', port: '#7A4A1C', card: '#F8FBF8', ink: '#12282A' },
+      sunset: { sea: '#F2668B', land: '#3A2160', lab: '#FFF1E0', isl: '#FFD9B0', bay: '#FFF1E0', cur: '#FFF1E0', port: '#FFF1E0', card: '#132223', ink: '#E2ECE8' },
+      paper: { sea: '#2A86C8', land: '#5DBB63', lab: '#0E3A5C', isl: '#1D4F22', bay: '#FFFFFF', cur: '#FFFFFF', port: '#0E3A5C', card: '#F8FBF8', ink: '#12282A' },
+      note: { sea: '#FDFCF4', land: '#FFEC3C', lab: '#2D3A8C', isl: '#2D3A8C', bay: '#2D4DB3', cur: '#2D4DB3', port: '#2D3A8C', card: '#F8FBF8', ink: '#12282A' } };
+    let mapSty = STYS.some(o => o[0] === mapSet.sty) ? mapSet.sty : 'base';
+    const styName = k => (STYS.find(o => o[0] === k) || STYS[0])[1];
+    function styVars() {   // 이름표·항구 글씨 색과 테두리를 지도 모양에 맞게
+      const st = document.documentElement.style, V = STY_VARS[mapSty];
+      for (const k of ['sea', 'shallow', 'land', 'shade', 'coast', 'flat', 'isl', 'bay', 'lab', 'cur', 'port', 'card', 'ink']) { if (V && V[k]) st.setProperty('--map-' + k, V[k]); else st.removeProperty('--map-' + k); }
+      Cc = null;
+    }
+    styVars();
+    function styApply(k) {
+      mapSty = k; mapSet.sty = k; mapSetSave(); styVars(); bkey = ''; draw();
+      const el = $('mv-rged-p'); if (el) el.querySelectorAll('[data-act=sty-sel]').forEach(b => { const on = b.dataset.v === k; b.classList.toggle('on', on); b.setAttribute('aria-pressed', on); });
+    }
+    function styOpen() {
+      rgMode = 'sty'; rgC = null; rgN = null; rgOpenT = 0; const el = rgEl(); el.classList.add('sty');
+      rgShow(`<h3>지도 모양</h3><p class="sub">고르면 바로 바뀌어요 · 출조 경로와 숫자는 그대로</p><div class="mv-stygrid" role="group" aria-label="지도 모양">${STYS.map(([k, n, a, b]) => `<button type="button" data-act="sty-sel" data-v="${k}" class="${k === mapSty ? 'on' : ''}" aria-pressed="${k === mapSty}"><i style="--a:${a};--b:${b}" aria-hidden="true"></i><span>${n}</span></button>`).join('')}</div><button type="button" class="done" data-rg="close">다 됐어요</button>`);
+    }
+    const msHash = (i, j) => { let h = (i * 374761393 + j * 668265263) | 0; h = (h ^ (h >>> 13)) * 1274126177 | 0; return (h ^ (h >>> 16)) >>> 0; };
+    function msBase(g, R, landP, coastP, flatP, waterP, wr, lr) {
+      if (MS2[mapSty]) return ms2(g, R, landP, coastP, flatP, waterP, wr, lr);
+      const MS = mapSty, toG2 = () => g.setTransform(R * v.s, 0, 0, R * v.s, R * (BM + W / 2 - v.lon * KX * v.s), R * (BM + H / 2 + v.lat * v.s));
+      const scr = () => g.setTransform(R, 0, 0, R, BM * R, BM * R);
+      const P = {
+        toy: { sea: '#5CCAE6', sea2: '#3FB2D6' },
+        map: { sea: '#EEDDB2', sea2: '#CDAA6C' },
+        neon: { sea: '#161B47', sea2: '#0C0F2E' },
+      }[MS];
+      scr();
+      const gr = g.createRadialGradient(W / 2, H * 0.4, 60, W / 2, H / 2, Math.max(W, H) * 0.85); gr.addColorStop(0, P.sea); gr.addColorStop(1, P.sea2); g.fillStyle = gr; g.fillRect(-BM, -BM, W + 2 * BM, H + 2 * BM);
+      // 바다 낙서 (지도에 붙은 자리)
+      const lvl = Math.pow(2, Math.round(Math.log2(v.s / 3000))), cs = 58 / (3000 * lvl);
+      const ax = v.lon * KX, x0 = Math.floor((ax - (W / 2 + BM) / v.s) / cs), x1 = Math.ceil((ax + (W / 2 + BM) / v.s) / cs), y0 = Math.floor((v.lat - (H / 2 + BM) / v.s) / cs), y1 = Math.ceil((v.lat + (H / 2 + BM) / v.s) / cs);
+      for (let i = x0; i <= x1; i++) for (let j = y0; j <= y1; j++) {
+        const h = msHash(i, j); if (h % 5 > 1) continue;
+        const gx = (i + (h % 97) / 97) * cs, gy = (j + ((h >>> 8) % 89) / 89) * cs, x = W / 2 + (gx - ax) * v.s, y = H / 2 - (gy - v.lat) * v.s;
+        g.save(); g.translate(x, y);
+        if (MS === 'toy') { g.strokeStyle = 'rgba(255,255,255,.62)'; g.lineWidth = 2; g.lineCap = 'round'; g.beginPath(); g.moveTo(-8, 0); g.quadraticCurveTo(-4, -4, 0, 0); g.quadraticCurveTo(4, 4, 8, 0); g.stroke(); if (h % 7 === 0) { g.beginPath(); g.moveTo(-4, 6); g.quadraticCurveTo(-1, 3, 2, 6); g.stroke(); } }
+        else if (MS === 'map') { g.strokeStyle = 'rgba(120,80,35,.38)'; g.lineWidth = 1.2; g.lineCap = 'round'; for (const dy of [0, 4]) { g.beginPath(); g.moveTo(-7, dy); g.quadraticCurveTo(-3.5, dy - 3, 0, dy); g.quadraticCurveTo(3.5, dy + 3, 7, dy); g.stroke(); }
+          if (h % 23 === 0) { g.fillStyle = 'rgba(120,80,35,.45)'; g.beginPath(); g.ellipse(0, 12, 6, 3, 0, 0, 2 * Math.PI); g.fill(); g.beginPath(); g.moveTo(5, 12); g.lineTo(10, 9); g.lineTo(10, 15); g.fill(); } }
+        else { const c = h % 3 === 0 ? '#FF7AC8' : h % 3 === 1 ? '#6CF5FF' : '#FFE27A', rr = 1 + (h % 4) * 0.5; g.fillStyle = c; g.globalAlpha = 0.55; g.beginPath(); g.arc(0, 0, rr, 0, 2 * Math.PI); g.fill();
+          if (h % 11 === 0) { g.globalAlpha = 0.8; g.strokeStyle = c; g.lineWidth = 1; g.beginPath(); g.moveTo(-5, 0); g.lineTo(5, 0); g.moveTo(0, -5); g.lineTo(0, 5); g.stroke(); } }
+        g.restore();
+      }
+      toG2(); g.lineJoin = 'round'; g.lineCap = 'round';
+      const U = 1 / v.s;
+      if (MS === 'toy') {
+        g.strokeStyle = 'rgba(255,255,255,.28)'; g.lineWidth = 16 * wr * U; g.stroke(coastP);
+        g.strokeStyle = 'rgba(255,255,255,.55)'; g.lineWidth = 7 * wr * U; g.stroke(coastP);
+        g.save(); g.translate(0, 4.5 * U); g.fillStyle = 'rgba(10,70,100,.35)'; g.fill(landP, 'evenodd'); g.restore();
+        g.strokeStyle = '#FFE4A3'; g.lineWidth = 5.5 * lr * U; g.stroke(coastP);
+        if (flatP) { g.fillStyle = '#F6E1A6'; g.fill(flatP, 'evenodd'); }
+        g.fillStyle = '#A9DD72'; g.fill(landP, 'evenodd');
+        g.strokeStyle = '#2D5B37'; g.lineWidth = 1.7 * U; g.stroke(coastP);
+        if (waterP) { g.fillStyle = P.sea; g.fill(waterP, 'evenodd'); g.lineWidth = 1.2 * U; g.stroke(waterP); }
+      } else if (MS === 'map') {
+        for (const w of [22, 15, 9]) { g.strokeStyle = 'rgba(110,70,30,.42)'; g.lineWidth = (w + 1.3) * wr * U; g.stroke(coastP); g.strokeStyle = P.sea; g.lineWidth = w * wr * U; g.stroke(coastP); }
+        g.save(); g.translate(1.5 * U, 2.5 * U); g.fillStyle = 'rgba(90,55,20,.28)'; g.fill(landP, 'evenodd'); g.restore();
+        if (flatP) { g.fillStyle = '#E2CC97'; g.fill(flatP, 'evenodd'); }
+        g.fillStyle = '#E8C384'; g.fill(landP, 'evenodd');
+        g.strokeStyle = '#6A4321'; g.lineWidth = 1.7 * U; g.stroke(coastP);
+        if (waterP) { g.fillStyle = '#D9C9A0'; g.fill(waterP, 'evenodd'); g.stroke(waterP); }
+        scr(); let sd = 11; const rnd = () => (sd = (sd * 16807) % 2147483647) / 2147483647;   // 종이 얼룩
+        for (let k = 0; k < 900; k++) { g.fillStyle = `rgba(110,70,30,${0.04 + rnd() * 0.07})`; g.fillRect(-BM + rnd() * (W + 2 * BM), -BM + rnd() * (H + 2 * BM), 1.2, 1.2); }
+        const vg = g.createRadialGradient(W / 2, H / 2, Math.min(W, H) * 0.35, W / 2, H / 2, Math.max(W, H) * 0.75); vg.addColorStop(0, 'rgba(90,55,20,0)'); vg.addColorStop(1, 'rgba(90,55,20,.28)'); g.fillStyle = vg; g.fillRect(-BM, -BM, W + 2 * BM, H + 2 * BM);
+      } else {
+        g.strokeStyle = 'rgba(100,240,255,.08)'; g.lineWidth = 18 * wr * U; g.stroke(coastP);
+        g.strokeStyle = 'rgba(100,240,255,.14)'; g.lineWidth = 8 * wr * U; g.stroke(coastP);
+        if (flatP) { g.fillStyle = '#222A5E'; g.fill(flatP, 'evenodd'); }
+        g.fillStyle = '#2C2160'; g.fill(landP, 'evenodd');
+        g.save(); g.shadowColor = 'rgba(88,255,214,.9)'; g.shadowBlur = 8 * R; g.strokeStyle = '#58FFD6'; g.lineWidth = 1.5 * U; g.stroke(coastP); g.restore();
+        if (waterP) { g.fillStyle = P.sea; g.fill(waterP, 'evenodd'); }
+      }
+      return true;
+    }
+    const MS2 = { water: 1, pixel: 1, tropic: 1, candy: 1, comic: 1, crayon: 1, blue: 1, sunset: 1, paper: 1, note: 1 };
+    let msPix = null;
+    function ms2(g, R, landP, coastP, flatP, waterP, wr, lr) {
+      const MS = mapSty, U = 1 / v.s, ax = v.lon * KX;
+      const scr = () => g.setTransform(R, 0, 0, R, BM * R, BM * R);
+      const geo = () => g.setTransform(R * v.s, 0, 0, R * v.s, R * (BM + W / 2 - ax * v.s), R * (BM + H / 2 + v.lat * v.s));
+      const full = f => { g.fillStyle = f; g.fillRect(-BM, -BM, W + 2 * BM, H + 2 * BM); };
+      const cells = (px, fn) => {   // 지도에 붙은 칸마다 한 번씩 (낙서 자리)
+        const lvl = Math.pow(2, Math.round(Math.log2(v.s / 3000))), cs = px / (3000 * lvl);
+        const x0 = Math.floor((ax - (W / 2 + BM) / v.s) / cs), x1 = Math.ceil((ax + (W / 2 + BM) / v.s) / cs), y0 = Math.floor((v.lat - (H / 2 + BM) / v.s) / cs), y1 = Math.ceil((v.lat + (H / 2 + BM) / v.s) / cs);
+        for (let i = x0; i <= x1; i++) for (let j = y0; j <= y1; j++) { const h = msHash(i, j), gx = (i + (h % 97) / 97) * cs, gy = (j + ((h >>> 8) % 89) / 89) * cs; fn(W / 2 + (gx - ax) * v.s, H / 2 - (gy - v.lat) * v.s, h, gy, gx / KX); }
+      };
+      const ring = (col, w, bg) => { g.strokeStyle = col; g.lineWidth = (w + 1.3) * wr * U; g.stroke(coastP); g.strokeStyle = bg; g.lineWidth = w * wr * U; g.stroke(coastP); };
+      g.lineJoin = 'round'; g.lineCap = 'round';
+      if (MS === 'water') {
+        scr(); full('#D3ECF4');
+        cells(90, (x, y, h) => { const rr = 30 + h % 40, gr = g.createRadialGradient(x, y, 2, x, y, rr); gr.addColorStop(0, 'rgba(140,200,228,.45)'); gr.addColorStop(1, 'rgba(140,200,228,0)'); g.fillStyle = gr; g.fillRect(x - rr, y - rr, rr * 2, rr * 2); });
+        geo(); g.strokeStyle = 'rgba(255,255,255,.55)'; g.lineWidth = 12 * wr * U; g.stroke(coastP);
+        if (flatP) { g.fillStyle = 'rgba(232,214,180,.8)'; g.fill(flatP, 'evenodd'); }
+        g.save(); g.translate(1.2 * U, 1.2 * U); g.fillStyle = 'rgba(240,185,140,.55)'; g.fill(landP, 'evenodd'); g.restore();
+        g.fillStyle = 'rgba(250,218,186,.92)'; g.fill(landP, 'evenodd');
+        g.strokeStyle = 'rgba(120,90,70,.55)'; g.lineWidth = 0.9 * U; g.stroke(coastP); g.save(); g.translate(0.8 * U, -0.6 * U); g.globalAlpha = 0.35; g.stroke(coastP); g.restore();
+        if (waterP) { g.fillStyle = '#C6E6F2'; g.fill(waterP, 'evenodd'); }
+      } else if (MS === 'pixel') {
+        const K = 5, lw = Math.ceil((W + 2 * BM) / K), lh = Math.ceil((H + 2 * BM) / K);
+        if (!msPix) msPix = document.createElement('canvas'); msPix.width = lw; msPix.height = lh; const q = msPix.getContext('2d');
+        q.setTransform(1, 0, 0, 1, 0, 0); q.fillStyle = '#2E7CF6'; q.fillRect(0, 0, lw, lh);
+        q.setTransform(v.s / K, 0, 0, v.s / K, (BM + W / 2 - ax * v.s) / K, (BM + H / 2 + v.lat * v.s) / K); q.lineJoin = 'miter';
+        const px = K / v.s; q.strokeStyle = '#5AA9FF'; q.lineWidth = 4 * px; q.stroke(coastP);
+        q.strokeStyle = '#F5D66E'; q.lineWidth = 2 * px; q.stroke(coastP);
+        if (flatP) { q.fillStyle = '#E8C65A'; q.fill(flatP, 'evenodd'); }
+        q.fillStyle = '#5CCB5F'; q.fill(landP, 'evenodd'); q.strokeStyle = '#1F5E2A'; q.lineWidth = 1 * px; q.stroke(coastP);
+        if (waterP) { q.fillStyle = '#2E7CF6'; q.fill(waterP, 'evenodd'); }
+        q.setTransform(1, 0, 0, 1, 0, 0); q.fillStyle = '#FFFFFF';
+        scr(); g.imageSmoothingEnabled = false; g.drawImage(msPix, -BM, -BM, lw * K, lh * K); g.imageSmoothingEnabled = true;
+        cells(60, (x, y, h) => { if (h % 4) return; if (onLand(...[(H / 2 - y) / v.s + v.lat, (x - W / 2) / v.s / KX + v.lon]) === true) return; const X = Math.round(x / K) * K, Y = Math.round(y / K) * K; g.fillStyle = 'rgba(255,255,255,.75)'; g.fillRect(X, Y, K * 2, K); g.fillRect(X + K * 2, Y - K, K * 2, K); });
+      } else if (MS === 'tropic') {
+        scr(); const gr = g.createLinearGradient(0, -BM, 0, H + BM); gr.addColorStop(0, '#13B5C9'); gr.addColorStop(1, '#0B8FB0'); full(gr);
+        geo(); g.strokeStyle = 'rgba(95,224,212,.6)'; g.lineWidth = 24 * wr * U; g.stroke(coastP); g.strokeStyle = 'rgba(170,246,232,.85)'; g.lineWidth = 11 * wr * U; g.stroke(coastP);
+        g.strokeStyle = '#FFF1C9'; g.lineWidth = 6 * lr * U; g.stroke(coastP);
+        if (flatP) { g.fillStyle = '#FBE7B3'; g.fill(flatP, 'evenodd'); }
+        g.fillStyle = '#3FBF6A'; g.fill(landP, 'evenodd'); g.strokeStyle = '#1E7A43'; g.lineWidth = 1.2 * U; g.stroke(coastP);
+        if (waterP) { g.fillStyle = '#13B5C9'; g.fill(waterP, 'evenodd'); }
+        scr(); cells(54, (x, y, h, lat, lon) => {
+          const L = onLand(lat, lon) === true;
+          if (L && h % 3 === 0) { g.strokeStyle = '#8A5A2B'; g.lineWidth = 2; g.beginPath(); g.moveTo(x, y + 8); g.quadraticCurveTo(x + 2, y + 2, x, y - 4); g.stroke(); g.fillStyle = '#1F8F4A';
+            for (const a of [-2.4, -1.6, -0.8, 0.0]) { g.beginPath(); g.ellipse(x + Math.cos(a) * 5, y - 4 + Math.sin(a) * 3, 5.5, 1.8, a, 0, 2 * Math.PI); g.fill(); } }
+          else if (!L && h % 9 === 0) { g.fillStyle = '#FF9F43'; g.beginPath(); g.ellipse(x, y, 5, 2.8, 0, 0, 2 * Math.PI); g.fill(); g.beginPath(); g.moveTo(x + 4, y); g.lineTo(x + 8, y - 3); g.lineTo(x + 8, y + 3); g.fill(); g.fillStyle = '#fff'; g.beginPath(); g.arc(x - 2.5, y - 0.6, 0.9, 0, 7); g.fill(); }
+          else if (!L && h % 5 === 0) { g.strokeStyle = 'rgba(255,255,255,.5)'; g.lineWidth = 1.6; g.beginPath(); g.moveTo(x - 6, y); g.quadraticCurveTo(x - 3, y - 3, x, y); g.quadraticCurveTo(x + 3, y + 3, x + 6, y); g.stroke(); } });
+      } else if (MS === 'candy') {
+        scr(); full('#CDB8FF');
+        cells(26, (x, y, h) => { g.fillStyle = 'rgba(255,255,255,.32)'; g.beginPath(); g.arc(x, y, 2.2 + (h % 3) * 0.6, 0, 2 * Math.PI); g.fill(); });
+        geo(); g.save(); g.translate(0, 3.5 * U); g.fillStyle = 'rgba(255,110,180,.45)'; g.fill(landP, 'evenodd'); g.restore();
+        g.strokeStyle = '#FF8CC6'; g.lineWidth = 7 * lr * U; g.stroke(coastP); g.strokeStyle = '#FFFFFF'; g.lineWidth = 4.5 * lr * U; g.stroke(coastP);
+        if (flatP) { g.fillStyle = '#FFE0F0'; g.fill(flatP, 'evenodd'); }
+        g.fillStyle = '#9FF0CC'; g.fill(landP, 'evenodd');
+        if (waterP) { g.fillStyle = '#CDB8FF'; g.fill(waterP, 'evenodd'); }
+      } else if (MS === 'comic') {
+        scr(); full('#E9F5FF');
+        for (let y = -BM; y < H + BM; y += 7) for (let x = -BM + ((y / 7) % 2) * 3.5; x < W + BM; x += 7) { g.fillStyle = 'rgba(80,165,255,.35)'; g.beginPath(); g.arc(x, y, 1.25, 0, 7); g.fill(); }
+        geo(); g.save(); g.translate(3 * U, 3 * U); g.fillStyle = '#111'; g.fill(landP, 'evenodd'); g.restore();
+        if (flatP) { g.fillStyle = '#FFF4B8'; g.fill(flatP, 'evenodd'); }
+        g.fillStyle = '#FFE45C'; g.fill(landP, 'evenodd'); g.strokeStyle = '#111'; g.lineWidth = 2.4 * U; g.stroke(coastP);
+        if (waterP) { g.fillStyle = '#E9F5FF'; g.fill(waterP, 'evenodd'); g.stroke(waterP); }
+      } else if (MS === 'crayon') {
+        scr(); full('#FBF7EC');
+        cells(46, (x, y, h) => { if (h % 3 === 0) return; g.strokeStyle = 'rgba(80,160,230,.3)'; g.lineWidth = 2.2; g.lineCap = 'round'; const n = 2 + h % 2; for (let k = 0; k < n; k++) { const o = k * 5 - n * 2.5; g.beginPath(); g.moveTo(x - 10 + o, y + 6); g.lineTo(x + 6 + o, y - 8); g.stroke(); } });
+        geo(); if (flatP) { g.fillStyle = 'rgba(255,220,150,.7)'; g.fill(flatP, 'evenodd'); }
+        g.fillStyle = 'rgba(255,205,90,.92)'; g.fill(landP, 'evenodd');
+        g.strokeStyle = 'rgba(232,120,40,.6)'; g.lineWidth = 2.4 * U;
+        for (const [dx, dy] of [[0, 0], [0.9, -0.6], [-0.7, 0.8]]) { g.save(); g.translate(dx * U, dy * U); g.stroke(coastP); g.restore(); }
+        if (waterP) { g.fillStyle = '#FBF7EC'; g.fill(waterP, 'evenodd'); }
+      } else if (MS === 'blue') {
+        scr(); full('#1D4E8E');
+        g.strokeStyle = 'rgba(255,255,255,.10)'; g.lineWidth = 1; const o0 = ((ax * v.s) % 24), o1 = ((v.lat * v.s) % 24);
+        for (let x = -BM - o0; x < W + BM; x += 24) { g.beginPath(); g.moveTo(x, -BM); g.lineTo(x, H + BM); g.stroke(); }
+        for (let y = -BM + o1; y < H + BM; y += 24) { g.beginPath(); g.moveTo(-BM, y); g.lineTo(W + BM, y); g.stroke(); }
+        geo(); ring('rgba(255,255,255,.35)', 10, '#1D4E8E'); ring('rgba(255,255,255,.2)', 18, '#1D4E8E');
+        g.fillStyle = 'rgba(255,255,255,.09)'; g.fill(landP, 'evenodd'); g.strokeStyle = '#EAF3FF'; g.lineWidth = 1.4 * U; g.stroke(coastP);
+        if (waterP) { g.fillStyle = '#1D4E8E'; g.fill(waterP, 'evenodd'); }
+      } else if (MS === 'sunset') {
+        scr(); const gr = g.createLinearGradient(0, -BM, 0, H + BM); gr.addColorStop(0, '#FFA66B'); gr.addColorStop(0.5, '#F2668B'); gr.addColorStop(1, '#6B48B5'); full(gr);
+        cells(46, (x, y, h) => { if (h % 3) return; g.strokeStyle = 'rgba(255,240,210,.55)'; g.lineWidth = 2; g.beginPath(); g.moveTo(x - 7, y); g.lineTo(x + 7, y); g.stroke(); g.beginPath(); g.moveTo(x - 3, y + 4); g.lineTo(x + 4, y + 4); g.stroke(); });
+        geo(); g.strokeStyle = 'rgba(255,220,180,.18)'; g.lineWidth = 12 * wr * U; g.stroke(coastP);
+        if (flatP) { g.fillStyle = '#5A3480'; g.fill(flatP, 'evenodd'); }
+        g.fillStyle = '#3A2160'; g.fill(landP, 'evenodd'); g.strokeStyle = '#FFC48A'; g.lineWidth = 1.1 * U; g.stroke(coastP);
+        if (waterP) { g.fillStyle = '#F2668B'; g.fill(waterP, 'evenodd'); }
+      } else if (MS === 'paper') {
+        scr(); full('#2A86C8');
+        geo(); g.save(); g.shadowColor = 'rgba(0,30,60,.35)'; g.shadowBlur = 6 * R; g.shadowOffsetY = 2 * R;
+        for (const [w, c] of [[34, '#3E9AD6'], [22, '#5DB0E3'], [12, '#82C6EE']]) { g.strokeStyle = c; g.lineWidth = w * wr * U; g.stroke(coastP); }
+        g.shadowBlur = 8 * R; g.shadowOffsetY = 3 * R; g.fillStyle = '#5DBB63'; g.fill(landP, 'evenodd'); g.restore();
+        g.save(); g.clip(landP, 'evenodd'); g.strokeStyle = '#3F9A4A'; g.lineWidth = 9 * U; g.stroke(coastP); g.strokeStyle = '#7ED07F'; g.lineWidth = 3 * U; g.stroke(coastP); g.restore();
+        if (flatP) { g.fillStyle = '#E9D59B'; g.fill(flatP, 'evenodd'); }
+        if (waterP) { g.fillStyle = '#82C6EE'; g.fill(waterP, 'evenodd'); }
+      } else if (MS === 'note') {
+        scr(); full('#FDFCF4'); const o1 = ((v.lat * v.s) % 22 + 22) % 22;
+        g.strokeStyle = 'rgba(90,140,220,.32)'; g.lineWidth = 1; for (let y = -BM + o1; y < H + BM; y += 22) { g.beginPath(); g.moveTo(-BM, y); g.lineTo(W + BM, y); g.stroke(); }
+        g.strokeStyle = 'rgba(230,80,90,.45)'; g.beginPath(); g.moveTo(36, -BM); g.lineTo(36, H + BM); g.stroke();
+        cells(70, (x, y, h, lat, lon) => { if (h % 6 || onLand(lat, lon) === true) return; g.strokeStyle = 'rgba(45,77,179,.6)'; g.lineWidth = 1.3;
+          if (h % 4 === 0) { g.beginPath(); for (let k = 0; k < 5; k++) { const a = -Math.PI / 2 + k * 4 * Math.PI / 5; g[k ? 'lineTo' : 'moveTo'](x + Math.cos(a) * 5, y + Math.sin(a) * 5); } g.closePath(); g.stroke(); }
+          else { g.beginPath(); g.ellipse(x, y, 6, 3.2, 0, 0, 2 * Math.PI); g.moveTo(x + 6, y); g.lineTo(x + 10, y - 3); g.lineTo(x + 10, y + 3); g.lineTo(x + 6, y); g.stroke(); } });
+        geo(); if (flatP) { g.fillStyle = 'rgba(255,200,120,.45)'; g.fill(flatP, 'evenodd'); }
+        g.fillStyle = 'rgba(255,236,60,.72)'; g.fill(landP, 'evenodd');
+        g.strokeStyle = '#2D4DB3'; g.lineWidth = 1.2 * U; g.stroke(coastP); g.save(); g.translate(0.7 * U, 0.5 * U); g.globalAlpha = 0.4; g.stroke(coastP); g.restore();
+        if (waterP) { g.fillStyle = '#FDFCF4'; g.fill(waterP, 'evenodd'); g.stroke(waterP); }
+      }
+      return true;
     }
     function drawNow() {
       if (!isOpen || !W) return;
@@ -4949,7 +5159,7 @@ const TideHarm = (() => {
     }
     function rgShow(html) { const el = rgEl(); $('mv-rged-p').innerHTML = html; el.setAttribute('aria-hidden', 'false'); el.classList.add('on'); }
     const rgOpen = () => { const el = $('mv-rged'); return !!(el && el.classList.contains('on')); };
-    function rgEdClose() { const el = $('mv-rged'); if (el) { const a = document.activeElement; if (a && el.contains(a)) a.blur(); el.classList.remove('on'); el.setAttribute('aria-hidden', 'true'); }
+    function rgEdClose() { const el = $('mv-rged'); if (el) { const a = document.activeElement; if (a && el.contains(a)) a.blur(); el.classList.remove('on', 'sty'); el.setAttribute('aria-hidden', 'true'); }
       if (form && (rgMode === 'ed' || rgMode === 'sk')) { const bx = $('mv-box'); if (bx) { const t = document.createElement('div'); t.innerHTML = boxHtml(form, bx.classList.contains('sm')); bx.replaceWith(t.firstElementChild); } } if (rgMode === 'mk' && form) form.egiNew = null; rgC = null; rgN = null; rgMode = ''; rgDrag = false; pickDrag = null; }
     function rgSetR(ev) {
       const x = rgX(), big = $('rg-big'); if (!x || !big) return;
@@ -4973,6 +5183,7 @@ const TideHarm = (() => {
     for (const ev of ['pointerup', 'pointercancel']) panel.addEventListener(ev, lpCancel);
     panel.addEventListener('contextmenu', e => { if (e.target.closest && e.target.closest('.mv-cell, .mv-egis button')) e.preventDefault(); });
     function rigTap(a, b) {
+      if (a === 'sty-sel') { styApply(b.dataset.v); return true; }   // 지도 모양 (출조 정리 밖에서도)
       if (!form) return false;
       if (a === 'lbl-sel') { lblSet(b.dataset.v); return true; }
       if (a === 'lbl-next') { const i = LBLS.findIndex(o => o[0] === form.lbl); lblSet(LBLS[(i + 1) % LBLS.length][0]); return true; }
@@ -6612,7 +6823,7 @@ const TideHarm = (() => {
         + (NAT ? sw('bubble-tog', natBubble(), '홈 화면에 떠 있는 저장 단추', '앱 밖에서도 누르면 바로 저장 화면', 'bubble', '선상 모드를 켠 채 홈 화면으로 나가면 떠 있는 단추가 생겨요. 끌어서 옮기고, 누르면 바로 저장 화면이 열려요. 아래 ×로 끌어 놓으면 숨겨요.')
           : sw('noti-tog', notiOn, '앱을 나가면 알림줄에 바로가기', '알림에서 바로 선상 모드·포인트 저장', 'noti', '선상 모드를 켠 채 나가면 알림이 생겨요. 누르면 선상 모드로, \'포인트 저장\'을 누르면 바로 저장 화면이 열려요.'))
         + `</div>`
-        + `<p class="mv-setg">지도</p><div class="mv-setc">`
+        + `<p class="mv-setg">지도</p><div class="mv-setc"><button type="button" class="mv-row-btn" data-act="sty-open">지도 모양<span>${esc(styName(mapSty))} ›</span></button>`
         + sw('mapcl-tog', mapSet.cl, '멀리 보면 묶기', '멀리 볼 때 가까운 기록을 동그라미 하나로', 'mapcl', '출조가 4번 넘게 보일 때 지도를 멀리 보면, 가까운 포인트끼리 동그라미 하나로 묶고 총 마릿수를 적어요. 제일 많이 잡은 곳은 금색이에요. 동그라미를 톡 하면 그 자리로 확대돼요. 끄면 멀리 볼 때도 경로와 포인트가 그대로 보여요.')
         + sw('mapqz-tog', mapSet.qz, '한 손 확대·축소', '두 번 톡 한 뒤 위아래로 끌기', 'mapqz', '지도를 톡 한 번 누르고, 바로 한 번 더 누른 채 손가락을 떼지 않고 아래로 끌면 확대, 위로 끌면 축소돼요. 끄면 두 번 톡은 확대만 해요.')
         + sw('mapzb-tog', mapSet.zb, '+ − 단추 보이기', '오른쪽에 확대·축소 단추', 'mapzb', '지도 오른쪽에 확대(+)·축소(−) 단추를 보여요. 손가락으로 확대·축소하는 것보다 단추가 편할 때 켜요.')
@@ -6819,6 +7030,7 @@ const TideHarm = (() => {
       if (a === 'set-more') { const k = b.dataset.k; if (setMore.has(k)) setMore.delete(k); else setMore.add(k); return showSet(); }
       if (a === 'rec-all') { dayFilter = null; const all = points.slice(); if (all.length) fitPts(all); if (mode === 'list') showList(); else paintPanel(true); return draw(); }
       if (a === 'noti-tog') return setNoti(!notiOn);
+      if (a === 'sty-open') { selId = null; mode = 'info'; paintPanel(true); setMode('peek'); return setTimeout(styOpen, 280); }   // 판을 접어 지도가 보이게 한 뒤
       if (a === 'mapcl-tog' || a === 'mapqz-tog' || a === 'mapzb-tog') { const k = a.slice(3, 5); mapSet[k] = !mapSet[k]; mapSetSave(); draw(); return showSet(); }
       if (a === 'bubble-tog') { try { NAT.setBubble(!natBubble()); } catch (_) {} return setTimeout(refreshList, 300); }
       if (a === 'move') return showMove();
@@ -7974,7 +8186,7 @@ const TideHarm = (() => {
 
 <script>
 if ('serviceWorker' in navigator) addEventListener('load', () => {
-  const sw = navigator.serviceWorker, VER = '274dc6e8'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
+  const sw = navigator.serviceWorker, VER = 'f735d89b'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
   // 화면에 손을 대기 시작했는지 (쓰는 중에는 새로 열지 않으려고)
   ['pointerdown', 'keydown'].forEach(t => addEventListener(t, () => { touched = true; }, { capture: true, passive: true }));
   const reload = () => {
