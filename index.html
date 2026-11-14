@@ -4053,10 +4053,10 @@ const TideHarm = (() => {
         g.strokeStyle = 'rgba(120,90,70,.55)'; g.lineWidth = 0.9 * U; g.stroke(coastP); g.save(); g.translate(0.8 * U, -0.6 * U); g.globalAlpha = 0.35; g.stroke(coastP); g.restore();
         if (waterP) { g.fillStyle = '#C6E6F2'; g.fill(waterP, 'evenodd'); }
       } else if (MS === 'pixel') {
-        const K = 5, lw = Math.ceil((W + 2 * BM) / K), lh = Math.ceil((H + 2 * BM) / K);
+        const K = 2, lw = Math.ceil((W + 2 * BM) / K), lh = Math.ceil((H + 2 * BM) / K);   // 도트 크기 2 (멀리·가까이 모두)
         if (!msPix) msPix = document.createElement('canvas'); msPix.width = lw; msPix.height = lh; const q = msPix.getContext('2d');
         q.setTransform(1, 0, 0, 1, 0, 0); q.fillStyle = '#2E7CF6'; q.fillRect(0, 0, lw, lh);
-        q.setTransform(v.s / K, 0, 0, v.s / K, (BM + W / 2 - ax * v.s) / K, (BM + H / 2 + v.lat * v.s) / K); q.lineJoin = 'miter';
+        q.setTransform(v.s / K, 0, 0, v.s / K, (BM + W / 2 - ax * v.s) / K, (BM + H / 2 + v.lat * v.s) / K); q.lineJoin = 'miter'; q.miterLimit = 2;
         const px = K / v.s; q.strokeStyle = '#5AA9FF'; q.lineWidth = 4 * px; q.stroke(coastP);
         q.strokeStyle = '#F5D66E'; q.lineWidth = 2 * px; q.stroke(coastP);
         if (flatP) { q.fillStyle = '#E8C65A'; q.fill(flatP, 'evenodd'); }
@@ -8241,7 +8241,7 @@ const TideHarm = (() => {
 
 <script>
 if ('serviceWorker' in navigator) addEventListener('load', () => {
-  const sw = navigator.serviceWorker, VER = '3cf67649'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
+  const sw = navigator.serviceWorker, VER = '0c3597bf'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
   // 화면에 손을 대기 시작했는지 (쓰는 중에는 새로 열지 않으려고)
   ['pointerdown', 'keydown'].forEach(t => addEventListener(t, () => { touched = true; }, { capture: true, passive: true }));
   const reload = () => {
