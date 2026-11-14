@@ -563,6 +563,22 @@ h2{margin:0; font-size:calc(16px * var(--k)); font-weight:700; text-wrap:balance
 .mv-auto{position:absolute; left:10px; top:10px; z-index:1; display:flex; align-items:center; gap:7px; height:30px; padding:0 12px 0 10px; border:1px solid var(--line); border-radius:999px;
   background:linear-gradient(90deg, rgba(34,176,125,.28) calc(var(--pg, 0) * 100%), var(--card) 0); font:inherit; font-size:calc(12px * var(--k)); font-weight:700; color:var(--ink); box-shadow:0 2px 8px rgba(0,0,0,.14); -webkit-tap-highlight-color:transparent}
 .mv-auto i{width:8px; height:8px; border-radius:50%; background:#22B07D; box-shadow:0 0 0 3px rgba(34,176,125,.22)}
+/* 지도 기록 정리: 오른쪽 '겹친 종이' 단추 → 작은 고르기 창 · + − 단추는 설정에서 켤 때만 */
+.mv-tools #mv-zin, .mv-tools #mv-zout{display:none}
+.mv-map.zbtn .mv-tools #mv-zin, .mv-map.zbtn .mv-tools #mv-zout{display:grid}
+.mv-tools button.fb{display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px} .mv-tools button.fb[hidden]{display:none}
+.mv-tools button.fb svg{width:17px; height:17px} .mv-tools button.fb span{font-size:9px; font-weight:700; line-height:1; color:var(--ink-2)}
+.mv-fmbd{position:absolute; inset:0; z-index:21}
+.mv-fm{position:absolute; z-index:22; width:252px; box-sizing:border-box; padding:8px; border-radius:16px; border:1px solid var(--line); background:var(--card); box-shadow:0 12px 30px rgba(0,0,0,.32)}
+.mv-fm h4{margin:2px 6px 6px; font-size:calc(11.5px * var(--k)); font-weight:700; color:var(--ink-2)}
+.mv-fm .fo{display:grid; grid-template-columns:1fr auto; align-items:center; width:100%; padding:8px 10px; border:0; border-radius:10px; background:none; font:inherit; text-align:left; color:var(--ink); -webkit-tap-highlight-color:transparent}
+.mv-fm .fo b{font-size:calc(13.5px * var(--k)); font-weight:700} .mv-fm .fo b em{font-style:normal; font-weight:500; color:var(--ink-2)}
+.mv-fm .fo small{grid-column:1; margin-top:1px; font-size:calc(11px * var(--k)); color:var(--ink-2)}
+.mv-fm .fo i{grid-row:1 / span 2; grid-column:2; padding-left:8px; font-style:normal; font-weight:700; font-size:15px; color:#2F7DF6}
+.mv-fm .fo.on{background:rgba(127,127,127,.13)}
+.mv-fm p{margin:4px 10px 6px; font-size:calc(10.5px * var(--k)); color:var(--ink-2)}
+.mv-fm .mv-sw{padding:9px 6px 8px; border-top:1px solid var(--line)} .mv-fm .mv-sw b{font-size:calc(13px * var(--k))} .mv-fm .mv-sw small{font-size:calc(10.5px * var(--k))}
+.mv-fm .lnk{display:flex; justify-content:space-between; align-items:center; width:100%; padding:10px 6px 4px; border:0; border-top:1px solid var(--line); background:none; font:inherit; font-size:calc(12.5px * var(--k)); font-weight:700; color:var(--ink-2); -webkit-tap-highlight-color:transparent}
 .mv-auto:not(.wait){background:var(--card)} .mv-auto.off i, .mv-auto.idle i{background:var(--ink-2); box-shadow:none} .mv-auto.off{color:var(--ink-2); font-weight:500}
 .mv-auto.wait i{animation:mvBlink 1.2s ease-in-out infinite} .mv-auto.done i{background:#FF9F1A; box-shadow:0 0 0 3px rgba(255,159,26,.25)}
 .mv-auto.locoff{color:var(--strong); border-color:var(--strong)} .mv-auto.locoff i{background:#E5484D; box-shadow:0 0 0 3px rgba(229,72,77,.25); animation:mvBlink 1.2s ease-in-out infinite}
@@ -3755,6 +3771,142 @@ const TideHarm = (() => {
       needDraw = true;
       if (!raf && !drawRaf) drawRaf = requestAnimationFrame(() => { drawRaf = 0; if (needDraw) { needDraw = false; drawNow(); } });
     }
+    // ---------- 기록이 많아져도 지도가 깔끔하게: 골라 보기(오른쪽 '겹친 종이' 단추) · 멀리 보면 묶기 · 한 손 확대·축소
+    const MAP_SET = 'jjukgap-map-set';   // { cl: 묶기, qz: 한 손 확대·축소, zb: + − 단추 }
+    const mapSet = (() => { const d = { cl: true, qz: true, zb: false }; try { return { ...d, ...(JSON.parse(localStorage.getItem(MAP_SET) || '{}') || {}) }; } catch (_) { return d; } })();
+    const mapSetSave = () => { try { localStorage.setItem(MAP_SET, JSON.stringify(mapSet)); } catch (_) {} $('mv-map').classList.toggle('zbtn', !!mapSet.zb); };
+    $('mv-map').classList.toggle('zbtn', !!mapSet.zb);
+    let flt = 'all'; try { const q = localStorage.getItem('jjukgap-map-flt'); if (['r3', 'mul', 'season', 'all'].includes(q)) flt = q; } catch (_) {}
+    let clL = null, clIds = null, fltN = -1, fltDF, todayMul = '', todayMulD = -1, fbEl = null, fmEl = null;
+    const CL_S = 11000;   // 이보다 멀리 보면 묶음 (1km가 100px 남짓보다 작게 보일 때)
+    const FLTS = [['r3', '최근 3번'], ['mul', '같은 물때'], ['season', '이맘때'], ['all', '전체']];
+    const FSHORT = { r3: '최근3', mul: '물때', season: '이맘때', all: '전체' };
+    const LAYER_IC = '<svg viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round" stroke-linecap="round"><path d="M12 3.6l8.4 4.4L12 12.4 3.6 8z"/><path d="M3.6 12.2l8.4 4.4 8.4-4.4"/><path d="M3.6 16.2l8.4 4.4 8.4-4.4" opacity=".55"/></g></svg>';
+    const fltName = k => k === 'mul' ? `같은 물때${todayMul ? ' ' + todayMul : ''}` : (FLTS.find(o => o[0] === k) || FLTS[3])[1];
+    const mulCache = new Map();
+    const trMul = tr => { let m = mulCache.get(tr.key); if (m == null) { const p = tr.pts[0]; m = p.mul || ''; if (!m) { try { m = infoAt(p, p.t).dd.name || ''; } catch (_) { m = ''; } } mulCache.set(tr.key, m); } return m; };
+    const doyOf = t => { const d = new Date(t + 9 * 3600000); return Math.round((Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()) - Date.UTC(d.getUTCFullYear(), 0, 1)) / 86400000); };
+    const seasonNear = t => { const a = Math.abs(doyOf(t) - doyOf(Date.now())); return Math.min(a, 365 - a) <= 14; };   // 해가 달라도 앞뒤 2주
+    const isTodayTr = tr => kstDay(tr.pts[tr.pts.length - 1].t) === kstDay(Date.now());
+    function mulToday(TG) {
+      const d = kstDay(Date.now()); if (todayMulD === d && todayMul) return todayMul;
+      const c = me || (TG.list[0] && TG.list[0].pts[0]) || TideHarm.STATIONS[tideSt];
+      try { todayMul = infoAt(c, Date.now()).dd.name || ''; } catch (_) { todayMul = ''; }
+      todayMulD = d; return todayMul;
+    }
+    function fltOk(tr, i) {
+      if (dayFilter != null || flt === 'all') return true;
+      if (isTodayTr(tr)) return true;   // 오늘 출조는 늘 또렷하게
+      if (flt === 'r3') return i < 3;
+      if (flt === 'mul') return !!todayMul && trMul(tr) === todayMul;
+      if (flt === 'season') return seasonNear(tr.pts[0].t);
+      return true;
+    }
+    function fltList(TG) { TG = TG || tripGroups(); mulToday(TG); return TG.list.filter((tr, i) => fltOk(tr, i)); }
+    function fltPaint(TG) {
+      TG = TG || tripGroups(); fltN = TG.list.length; fltDF = dayFilter; mulToday(TG);
+      if (!fbEl) {
+        fbEl = document.createElement('button'); fbEl.type = 'button'; fbEl.id = 'mv-fbtn'; fbEl.className = 'fb'; fbEl.setAttribute('aria-haspopup', 'menu');
+        $('mv-map').querySelector('.mv-tools').appendChild(fbEl); fbEl.addEventListener('click', () => fltMenu(fbEl));
+        try { if (!localStorage.getItem('jjukgap-qz-tip') && mapSet.qz && !mapSet.zb) { localStorage.setItem('jjukgap-qz-tip', '1'); setTimeout(() => toast('확대·축소: 두 손가락으로, 또는 한 손으로 두 번 톡 한 뒤 위아래로 끌어요'), 900); } } catch (_) {}
+      }
+      fbEl.hidden = !(TG.list.length >= 2 && dayFilter == null);
+      fbEl.innerHTML = `${LAYER_IC}<span>${FSHORT[flt]}</span>`; fbEl.setAttribute('aria-label', `지도에 또렷하게 보일 기록 고르기 · 지금 ${fltName(flt)}`);
+    }
+    const fltBack = () => { selId = null; if (mode === 'detail') { mode = 'info'; paintPanel(true); } };
+    function fltSet(k) {
+      flt = k; try { localStorage.setItem('jjukgap-map-flt', k); } catch (_) {}
+      fltBack(); const TG = tripGroups(); fltPaint(TG);
+      const L = fltList(TG), n = L.length;
+      toast(k === 'r3' ? `최근 출조 ${Math.min(3, TG.list.length)}번만 또렷하게 · 흐린 점은 톡 하면 보여요`
+        : k === 'mul' ? (!todayMul ? '오늘 물때를 알 수 없어요' : n ? `오늘과 같은 ${todayMul}에 나간 출조 ${n}번` : `${todayMul}에 나간 출조는 아직 없어요`)
+        : k === 'season' ? (n ? `해마다 이맘때(앞뒤 2주) 출조 ${n}번` : '이맘때 출조는 아직 없어요')
+        : `전체 출조 ${TG.list.length}번${mapSet.cl ? ' · 멀리 보면 묶여요' : ''}`);
+      if (n) fitPts(L.flatMap(t => t.pts));
+      draw();
+    }
+    // 작은 고르기 창 (오른쪽 단추 왼쪽에 열림)
+    function fltMenuOff() { if (!fmEl) return false; fmEl.forEach(x => x.remove()); fmEl = null; return true; }
+    function fltMenu(anchor) {
+      fltMenuOff(); const TG = tripGroups(); mulToday(TG);
+      const bd = document.createElement('div'); bd.className = 'mv-fmbd';
+      const d = document.createElement('div'); d.className = 'mv-fm'; d.setAttribute('role', 'dialog'); d.setAttribute('aria-label', '지도에 또렷하게 보일 기록');
+      const DESC = { r3: '최근 출조 3번만', mul: todayMul ? `오늘(${todayMul})과 같은 물때인 날` : '오늘과 같은 물때인 날', season: '해마다 이맘때 (앞뒤 2주)', all: `출조 ${TG.list.length}번 모두` };
+      const paint = () => {
+        d.innerHTML = '<h4>지도에 또렷하게 보일 기록</h4>' + FLTS.map(([k, n]) => `<button type="button" class="fo${k === flt ? ' on' : ''}" role="radio" aria-checked="${k === flt}" data-f="${k}"><b>${n}${k === 'mul' && todayMul ? ` <em>${esc(todayMul)}</em>` : ''}</b><small>${esc(DESC[k])}</small><i aria-hidden="true">${k === flt ? '✓' : ''}</i></button>`).join('')
+          + (flt === 'all' ? '' : '<p>고르지 않은 기록은 흐린 점으로 남아요</p>')
+          + `<button type="button" class="mv-sw${mapSet.cl ? ' on' : ''}" data-sw="cl" role="switch" aria-checked="${!!mapSet.cl}"><span><b>멀리 보면 묶기</b><small>멀리 볼 때 가까운 기록을 동그라미로</small></span><i></i></button>`
+          + '<button type="button" class="lnk" data-more="1">지도 설정 더 보기 <span aria-hidden="true">›</span></button>';
+      };
+      paint(); view.append(bd, d); fmEl = [bd, d];
+      const vr = view.getBoundingClientRect(), ar = anchor.getBoundingClientRect(), Wm = d.offsetWidth, Hm = d.offsetHeight;
+      const left = Math.max(10, Math.min(vr.width - 10 - Wm, ar.left - vr.left - Wm - 8)), top = Math.max(10, Math.min(vr.height - 10 - Hm, ar.top - vr.top));
+      d.style.left = left + 'px'; d.style.top = top + 'px'; d.style.transformOrigin = 'top right';
+      if (!RM.matches && d.animate) d.animate([{ opacity: 0, transform: 'scale(.92)' }, { opacity: 1, transform: 'none' }], { duration: 160, easing: 'cubic-bezier(.3,1.2,.5,1)' });
+      bd.addEventListener('click', () => fltMenuOff());
+      d.addEventListener('click', e => {
+        const f = e.target.closest('[data-f]'); if (f) { fltMenuOff(); fltSet(f.dataset.f); return; }
+        if (e.target.closest('[data-sw]')) { mapSet.cl = !mapSet.cl; mapSetSave(); paint(); toast(mapSet.cl ? '멀리 보면 가까운 기록끼리 묶여요' : '멀리 봐도 묶지 않아요'); draw(); return; }
+        if (e.target.closest('[data-more]')) { fltMenuOff(); showSet(); requestAnimationFrame(() => { const h = [...panel.querySelectorAll('.mv-setg')].find(x => x.textContent === '지도'); if (h) panel.scrollTop = Math.max(0, h.offsetTop - 56); }); }
+      });
+      try { d.querySelector('.fo.on').focus({ preventScroll: true }); } catch (_) {}
+    }
+    // 부드럽게 그 자리로 (묶음을 톡 했을 때)
+    function flyTo(lon, lat, s1, y) {
+      const s0 = v.s, lon0 = v.lon, lat0 = v.lat; v.s = s1; placeAt(lon, lat, y); const lon1 = v.lon, lat1 = v.lat; v.s = s0; v.lon = lon0; v.lat = lat0;
+      follow = false; $('mv-me').classList.remove('on');
+      if (RM.matches) { v.s = s1; v.lon = lon1; v.lat = lat1; draw(); return; }
+      const t0 = performance.now(), D = 340;
+      const step = now => { const k = Math.min(1, (now - t0) / D), e = 1 - Math.pow(1 - k, 3); v.s = s0 * Math.pow(s1 / s0, e); v.lon = lon0 + (lon1 - lon0) * e; v.lat = lat0 + (lat1 - lat0) * e; interacting = k < 1; draw(); if (k < 1) requestAnimationFrame(step); };
+      requestAnimationFrame(step);
+    }
+    // ---------- 지도에 붙은 묶음: 바다를 축척 단계별 고정 칸으로 나눠 묶는다
+    //  · 끌어 옮기면 동그라미가 지도와 함께 움직일 뿐 바뀌지 않는다 · 확대·축소는 2배 단계를 넘을 때만 바뀐다
+    //  · 손가락으로 움직이는 동안은 그대로 두었다가, 놓은 뒤 바뀔 게 있으면 0.25초 동안 겹쳐 흐려지며 바뀐다
+    let clCur = null, clPrev = null, clT0 = 0;
+    function clBuild(T, L) {
+      const sL = CL_S * Math.pow(2, L + 0.5), cell = 150 / sL, cells = new Map();
+      for (const tr of T) for (const p of tr.pts) { const key = Math.floor(p.lat / cell) + ',' + Math.floor(p.lon * KX / cell); let c = cells.get(key); if (!c) cells.set(key, c = { lat: 0, lon: 0, n: 0, tot: 0, trips: new Set(), pts: [] }); c.lat += p.lat; c.lon += p.lon; c.n++; c.tot += caughtOf(p); c.trips.add(tr); c.pts.push(p); }
+      let A = [...cells.values()].map(c => { c.lat /= c.n; c.lon /= c.n; return c; });
+      const mx0 = Math.max(1, ...A.map(c => c.tot)), rOf = c => Math.min(26, 17 + 9 * Math.sqrt(c.tot / mx0));
+      for (let pass = 0; pass < 4; pass++) {   // 동그라미끼리 가까우면 하나로
+        A.sort((a, b) => b.tot - a.tot || b.n - a.n); const keep = [];
+        for (const c of A) { const o = keep.find(k => Math.hypot((k.lat - c.lat) * sL, (k.lon - c.lon) * KX * sL) < rOf(k) + rOf(c) + 44); if (!o) { keep.push(c); continue; }
+          o.lat = (o.lat * o.n + c.lat * c.n) / (o.n + c.n); o.lon = (o.lon * o.n + c.lon * c.n) / (o.n + c.n); o.n += c.n; o.tot += c.tot; c.trips.forEach(t => o.trips.add(t)); o.pts.push(...c.pts); }
+        A = keep;
+      }
+      const mx = Math.max(...A.map(c => c.tot)), ids = new Set();
+      A.forEach(c => { c.r = Math.min(26, 17 + 9 * Math.sqrt(c.tot / Math.max(1, mx))); c.top = mx > 0 && c.tot === mx; c.pts.forEach(p => ids.add(p.id)); });
+      return { list: A, ids, set: new Set(T) };
+    }
+    function clPaint(S, a, C, font) {   // 숫자 하나 · 살짝 비치는 동그라미 · 제일 많이 잡은 곳만 금색
+      for (const c of S.list) {
+        const [x, y] = toS(c.lon, c.lat); c.x = x; c.y = y; if (a <= 0 || x < -40 || x > W + 40 || y < -40 || y > H + 40) continue; const r = c.r, top = c.top;
+        ctx.save(); ctx.globalAlpha = (top ? 0.95 : 0.82) * a; ctx.fillStyle = top ? '#E8B931' : C.card; ctx.beginPath(); ctx.arc(x, y, r, 0, 2 * Math.PI); ctx.fill();
+        ctx.globalAlpha = 0.5 * a; ctx.strokeStyle = top ? '#fff' : C.ink; ctx.lineWidth = 1; ctx.stroke();
+        ctx.globalAlpha = a; ctx.fillStyle = top ? '#3A2A00' : C.ink; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.font = `700 ${r > 21 ? 14 : 12.5}px ${font}`; ctx.fillText(String(c.tot), x, y + 0.5); ctx.restore();
+      }
+    }
+    function clStep(TG, shownS, selTr, C, font) {
+      if (!interacting) {
+        const T = TG.list.filter(tr => shownS.has(tr) && tr !== selTr && !isTodayTr(tr));
+        const on = mapSet.cl && dayFilter == null && v.s < CL_S && T.length >= 4, L = on ? Math.floor(Math.log2(v.s / CL_S)) : 0;
+        const key = on ? L + '|' + T.map(t => t.key + ':' + t.pts.length + ':' + t.pts.reduce((a, q) => a + caughtOf(q), 0)).join(',') : '';
+        if (key !== (clCur ? clCur.key : '')) { clPrev = clCur; clCur = on ? Object.assign(clBuild(T, L), { key }) : null; clT0 = performance.now(); }
+      }
+      const k = RM.matches ? 1 : Math.min(1, (performance.now() - clT0) / 250);
+      if (k < 1) draw(); else clPrev = null;
+      if (clPrev) clPaint(clPrev, 1 - k, C, font);
+      if (clCur) clPaint(clCur, k, C, font);
+      return clCur;
+    }
+    function clZoom(c) {
+      let a = 90, b = -90, w = 180, e = -180; for (const q of c.pts) { a = Math.min(a, q.lat); b = Math.max(b, q.lat); w = Math.min(w, q.lon); e = Math.max(e, q.lon); }
+      const top = 64, hh = Math.max(140, H - top - Math.min(coverH(), H - 200) - 40), ww = Math.max(140, W - 130);
+      const s = clampS(Math.max(CL_S * 1.3, Math.min(ww / Math.max((e - w) * KX, 1e-4), hh / Math.max(b - a, 1e-4), CL_S * 3)));
+      try { navigator.vibrate && navigator.vibrate(8); } catch (_) {}
+      flyTo((w + e) / 2, (a + b) / 2, s, top + hh / 2);
+    }
     function drawNow() {
       if (!isOpen || !W) return;
       fxItems = [];
@@ -3805,8 +3957,19 @@ const TideHarm = (() => {
       const zk = v.s < 800 ? 0.7 : v.s < 1500 ? 0.85 : 1;   // 멀리 볼 때는 포인트를 조금 작게
       const star = (sx, sy, s, col) => { ctx.fillStyle = col; ctx.beginPath(); ctx.moveTo(sx, sy - s); ctx.quadraticCurveTo(sx, sy, sx + s, sy); ctx.quadraticCurveTo(sx, sy, sx, sy + s); ctx.quadraticCurveTo(sx, sy, sx - s, sy); ctx.quadraticCurveTo(sx, sy, sx, sy - s); ctx.fill(); };
       const depMarks = new Map();
+      // 기록 정리: 고른 출조만 또렷하게, 나머지는 흐린 점 · 멀리 보면 가까운 것끼리 묶음 (오늘 출조와 고른 포인트의 출조는 늘 그대로)
+      if (TG.list.length !== fltN || dayFilter !== fltDF) fltPaint(TG);
+      const shownS = new Set(); TG.list.forEach((tr, i) => { if (tr === selTr || fltOk(tr, i)) shownS.add(tr); });
+      if (shownS.size < TG.list.length) {
+        ctx.save(); ctx.fillStyle = C.ink;
+        for (const tr of TG.list) { if (shownS.has(tr)) continue; for (const p of tr.pts) { const [x, y] = toS(p.lon, p.lat); if (x < -8 || x > W + 8 || y < -8 || y > H + 8) continue; ctx.globalAlpha = 0.42; ctx.beginPath(); ctx.arc(x, y, 3.2, 0, 2 * Math.PI); ctx.fill(); } }
+        ctx.restore();
+      }
+      clL = null; clIds = null; let clSet = null;
+      { const R2 = clStep(TG, shownS, selTr, C, font); if (R2) { clSet = R2.set; clL = R2.list; clIds = R2.ids; } }
       for (const tr of drawOrder) {
         if (dayFilter != null && kstDayOf(tr.pts[0].t) !== dayFilter) continue;   // '이날 내 기록'이면 그날 것만
+        if (!shownS.has(tr) || (clSet && clSet.has(tr))) continue;   // 흐린 점이나 묶음으로 그린 출조
         const A = selTr && tr !== selTr ? 0.3 : 1;
         const xy = tr.pts.map(p => { const [x, y] = toS(p.lon, p.lat), c = caughtOf(p); return { p, x, y, c, r: ptR(c) * zk + (p.id === selId ? 2 : 0), info: TG.by.get(p.id) }; });
         const p0 = xy[0], D0 = depPosOf(p0.p), dOk = D0 && distKm(D0, p0.p) < 80, [sx, sy] = dOk ? toS(D0.lon, D0.lat) : [p0.x, p0.y];
@@ -4793,7 +4956,7 @@ const TideHarm = (() => {
       const r = big.getBoundingClientRect(), y = (ev.clientY - r.top) / r.height * 52, v = Math.round(Math.max(0, Math.min(100, (y - 1.5) / 37 * 100)) / 10) * 10;
       if (v !== x.r) { x.r = v; rgEdSync(); }
     }
-    window.jjugapRigEd = () => { if (askOff(true)) return true; if (flipOff(true)) return true; if (rgOpen()) { rgEdClose(); return true; } if (mode === 'set') { showList(); return true; } return false; };
+    window.jjugapRigEd = () => { if (fltMenuOff()) return true; if (askOff(true)) return true; if (flipOff(true)) return true; if (rgOpen()) { rgEdClose(); return true; } if (mode === 'set') { showList(); return true; } return false; };
     rgEl();   // 판 틀은 미리 만들어 둔다 (처음 꾹 누를 때도 깜빡이지 않게)
     function lpCancel() { if (lpT) { clearTimeout(lpT); lpT = null; } document.querySelectorAll('.mv-cell.press, .mv-egis button.press').forEach(c => c.classList.remove('press')); }
     panel.addEventListener('pointerdown', e => {   // 꾹 누르기: 상자의 에기 칸 → 손질 · 봉돌 칸 → 메모 · 아래 에기 단추 → 고치기
@@ -6423,7 +6586,7 @@ const TideHarm = (() => {
           : `<p class="mv-empty">아직 저장한 포인트가 없어요. 배 위에서 지도 아래 파란 핀 단추를 누르면 그 자리와 물때·조류·수온이 함께 남아요.</p>`) +
         `<div class="mv-set">`
         + (NAT && natUpd ? `<button type="button" class="mv-row-btn" data-act="app-upd">앱 업데이트 (새 버전 1.${natUpd})<span>›</span></button>` : '')
-        + `<button type="button" class="mv-row-btn mv-ic" data-act="set-open"><i class="ic">${ICON_GEAR}</i><em class="t"><b>기록 설정</b><small>${esc(setSummary())}</small></em><span>›</span></button>`
+        + `<button type="button" class="mv-row-btn mv-ic" data-act="set-open"><i class="ic">${ICON_GEAR}</i><em class="t"><b>설정</b><small>${esc(setSummary())}</small></em><span>›</span></button>`
         + `<button type="button" class="mv-row-btn mv-ic" data-act="move"><i class="ic">${ICON_MOVE}</i><em class="t"><b>다른 폰·앱으로 포인트 옮기기</b></em><span>›</span></button>`
         + (!NAT && appVer ? `<a class="mv-row-btn" href="app/jjugap.apk" download="jjugap.apk">안드로이드 앱 받기 (홈 화면에 떠 있는 저장 단추·화면이 꺼져도 자동 기록)<span>›</span></a>` : '')
         + `</div>`
@@ -6441,13 +6604,18 @@ const TideHarm = (() => {
       const more = (k, tx) => `<button type="button" class="mv-more" data-act="set-more" data-k="${k}" aria-expanded="${setMore.has(k)}">ⓘ ${setMore.has(k) ? '접기' : '자세히'}</button>${setMore.has(k) ? `<p class="mv-moretx">${tx}</p>` : ''}`;
       const sw = (act, on, title, short, k, full) => `<div class="mv-swrow"><button type="button" class="mv-sw${on ? ' on' : ''}" data-act="${act}" role="switch" aria-checked="${on}"><span><b>${title}</b><small>${short}</small></span><i></i></button>${more(k, full)}</div>`;
       const home = setMore.has('home');
-      panel.innerHTML = `<div class="mv-h mv-seth"><button type="button" class="mv-bk" data-act="set-back" aria-label="포인트 목록으로">‹</button><b>기록 설정</b></div>`
+      panel.innerHTML = `<div class="mv-h mv-seth"><button type="button" class="mv-bk" data-act="set-back" aria-label="포인트 목록으로">‹</button><b>설정</b></div>`
         + `<p class="mv-setg">선상 모드일 때</p><div class="mv-setc">`
         + sw('auto-tog', autoOn, '5분 머문 곳 자동 기록', '한자리에 5분 넘게 머물면 포인트로 남겨요', 'auto', NAT
           ? '선상 모드를 켜 두면 GPS로 배 위치를 계속 지켜봐요. 홈 화면에 나가 있거나 화면이 잠겨 있어도 한자리(반경 약 250m)에 5분 넘게 머문 곳을 포인트로 남기고 알림으로 알려 줘요. 알림줄에 \'선상 모드 켜짐\'이 떠 있는 동안 돼요. 마릿수는 나중에 넣어요.'
           : '선상 모드가 켜져 있을 때 배가 한자리(반경 약 250m)에 5분 넘게 머물면 포인트로 남겨요. 마릿수는 나중에 넣어요.')
         + (NAT ? sw('bubble-tog', natBubble(), '홈 화면에 떠 있는 저장 단추', '앱 밖에서도 누르면 바로 저장 화면', 'bubble', '선상 모드를 켠 채 홈 화면으로 나가면 떠 있는 단추가 생겨요. 끌어서 옮기고, 누르면 바로 저장 화면이 열려요. 아래 ×로 끌어 놓으면 숨겨요.')
           : sw('noti-tog', notiOn, '앱을 나가면 알림줄에 바로가기', '알림에서 바로 선상 모드·포인트 저장', 'noti', '선상 모드를 켠 채 나가면 알림이 생겨요. 누르면 선상 모드로, \'포인트 저장\'을 누르면 바로 저장 화면이 열려요.'))
+        + `</div>`
+        + `<p class="mv-setg">지도</p><div class="mv-setc">`
+        + sw('mapcl-tog', mapSet.cl, '멀리 보면 묶기', '멀리 볼 때 가까운 기록을 동그라미 하나로', 'mapcl', '출조가 4번 넘게 보일 때 지도를 멀리 보면, 가까운 포인트끼리 동그라미 하나로 묶고 총 마릿수를 적어요. 제일 많이 잡은 곳은 금색이에요. 동그라미를 톡 하면 그 자리로 확대돼요. 끄면 멀리 볼 때도 경로와 포인트가 그대로 보여요.')
+        + sw('mapqz-tog', mapSet.qz, '한 손 확대·축소', '두 번 톡 한 뒤 위아래로 끌기', 'mapqz', '지도를 톡 한 번 누르고, 바로 한 번 더 누른 채 손가락을 떼지 않고 아래로 끌면 확대, 위로 끌면 축소돼요. 끄면 두 번 톡은 확대만 해요.')
+        + sw('mapzb-tog', mapSet.zb, '+ − 단추 보이기', '오른쪽에 확대·축소 단추', 'mapzb', '지도 오른쪽에 확대(+)·축소(−) 단추를 보여요. 손가락으로 확대·축소하는 것보다 단추가 편할 때 켜요.')
         + `</div>`
         + (NAT && natBatteryNeed() ? `<p class="mv-setg">끊기지 않게</p><div class="mv-setc"><button type="button" class="mv-row-btn" data-act="battery">배터리 제한 풀기<span>›</span></button></div>` : '')
         + `<p class="mv-setg">도움말</p><div class="mv-setc"><button type="button" class="mv-row-btn" data-act="set-more" data-k="home" aria-expanded="${home}">홈 화면에 바로가기 놓는 법<span>${home ? '–' : '›'}</span></button>`
@@ -6651,6 +6819,7 @@ const TideHarm = (() => {
       if (a === 'set-more') { const k = b.dataset.k; if (setMore.has(k)) setMore.delete(k); else setMore.add(k); return showSet(); }
       if (a === 'rec-all') { dayFilter = null; const all = points.slice(); if (all.length) fitPts(all); if (mode === 'list') showList(); else paintPanel(true); return draw(); }
       if (a === 'noti-tog') return setNoti(!notiOn);
+      if (a === 'mapcl-tog' || a === 'mapqz-tog' || a === 'mapzb-tog') { const k = a.slice(3, 5); mapSet[k] = !mapSet[k]; mapSetSave(); draw(); return showSet(); }
       if (a === 'bubble-tog') { try { NAT.setBubble(!natBubble()); } catch (_) {} return setTimeout(refreshList, 300); }
       if (a === 'move') return showMove();
       if (a === 'app-upd') { try { NAT.update(); } catch (_) {} return; }
@@ -7400,7 +7569,7 @@ const TideHarm = (() => {
       if (!(o && (o.pick || o.view))) boardOn();
       if (!viewMode) { startGps(); wakeOn(); }
       loadLand(); loadMapPorts(); loadSpots(); natFixes(); paintView(); paintPanel(true); applySheet(false); resize(); kick(); autoPill(); autoPill.last = '';
-      if (rec) { const L = points.filter(recVis); if (L.length) fitPts(L); if (onBoard) showList(); draw(); }
+      if (rec) { const F = dayFilter == null ? fltList().flatMap(t => t.pts) : [], L = F.length ? F : points.filter(recVis); if (L.length) fitPts(L); if (onBoard) showList(); draw(); }
       if (useHist) { try { history.pushState({ mapv: 1 }, ''); } catch (_) {} }
     }
     // 지도만 닫는다: 선상 모드는 켜 둔 채 물때 화면으로 (GPS·자동 기록·홈 화면 단추·알림줄은 그대로)
@@ -7469,16 +7638,17 @@ const TideHarm = (() => {
       mode = mode === 'save' ? 'save' : 'info'; selId = null; paintPanel(true); kick(); draw();
     };
     // ---------- 손가락: 끌기 · 두 손가락 확대 · 두 번 톡 확대 · 길게 눌러 가상 위치 · 포인트 누르기
-    const ptrs = new Map(); let g = null, lastTap = 0, pressT = 0;
+    const ptrs = new Map(); let g = null, lastTap = 0, lastTapX = 0, lastTapY = 0, pressT = 0;
     const pinchInfo = () => { const [a, b] = [...ptrs.values()]; return { d: Math.hypot(a.x - b.x, a.y - b.y), x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 }; };
     cv.addEventListener('pointerdown', e => {
       cv.setPointerCapture(e.pointerId); const r = cv.getBoundingClientRect(), x = e.clientX - r.left, y = e.clientY - r.top;
       ptrs.set(e.pointerId, { x, y });
       if (ptrs.size === 1) {
         g = { x0: x, y0: y, lon: v.lon, lat: v.lat, moved: false, pinch: null };
+        if (mapSet.qz && Date.now() - lastTap < 320 && Math.hypot(x - lastTapX, y - lastTapY) < 48) g.qz = { y0: y, s: v.s, c: toG(x, y), x, y };   // 두 번째 톡: 끌면 한 손 확대·축소
         clearTimeout(pressT);
         if (mode !== 'pick') pressT = setTimeout(() => {   // 길게 누르기: 그 자리를 내 위치로 가정
-          if (!g || g.moved || ptrs.size !== 1) return;
+          if (!g || g.moved || g.qz || ptrs.size !== 1) return;
           const p = toG(g.x0, g.y0); me = { lat: p.lat, lon: p.lon, acc: 0, virtual: true }; follow = false; $('mv-me').classList.remove('on');
           setGps('가상 위치 (길게 눌러 지정) · ‘내 위치로’를 누르면 GPS로', 'warn'); try { navigator.vibrate && navigator.vibrate(15); } catch (_) {}
           g.moved = true; mode = 'info'; selId = null; paintPanel(true); draw(); toast('이 자리를 내 위치로 가정했어요');
@@ -7494,6 +7664,12 @@ const TideHarm = (() => {
         follow = false; $('mv-me').classList.remove('on'); interacting = true; draw(); return;
       }
       if (ptrs.size !== 1 || g.pinch) return;
+      if (g.qz) {   // 한 손 확대·축소: 아래로 끌면 확대 · 위로 끌면 축소 (두 번째로 톡 한 자리를 기준으로)
+        const q = ptrs.get(e.pointerId), d = q.y - g.qz.y0;
+        if (!g.moved && Math.abs(d) < 8) return;
+        if (!g.moved) { g.moved = true; clearTimeout(pressT); follow = false; $('mv-me').classList.remove('on'); }
+        v.s = clampS(g.qz.s * Math.exp(d * 0.011)); v.lon = g.qz.c.lon - (g.qz.x - W / 2) / (KX * v.s); v.lat = g.qz.c.lat + (g.qz.y - H / 2) / v.s; interacting = true; draw(); return;
+      }
       const p = ptrs.get(e.pointerId), dx = p.x - g.x0, dy = p.y - g.y0;
       if (!g.moved && Math.hypot(dx, dy) < 6) return;
       if (!g.moved) { g.moved = true; clearTimeout(pressT); follow = false; $('mv-me').classList.remove('on'); }
@@ -7508,11 +7684,14 @@ const TideHarm = (() => {
         const now = Date.now();
         // 포인트를 눌렀으면 그 포인트 보기
         let hit = null, hd = 1e9;
-        for (const p of points) { if (!recVis(p)) continue; const [x, y] = toS(p.lon, p.lat), d = Math.hypot(x - g.x0, y - g.y0); if (d < Math.max(18, ptR(caughtOf(p)) + 6) && d < hd) { hd = d; hit = p; } }
+        const cHit = clL && clL.find(c => c.r && Math.hypot(c.x - g.x0, c.y - g.y0) < c.r + 8);
+        if (cHit) { clZoom(cHit); g = null; return; }
+        for (const p of points) { if (!recVis(p) || (clIds && clIds.has(p.id))) continue; const [x, y] = toS(p.lon, p.lat), d = Math.hypot(x - g.x0, y - g.y0); if (d < Math.max(18, ptR(caughtOf(p)) + 6) && d < hd) { hd = d; hit = p; } }
         if (hit) showDetail(hit.id);
         else if (now - lastTap < 320) { zoomAt(2, g.x0, g.y0); lastTap = 0; }
-        else lastTap = now;
+        else { lastTap = now; lastTapX = g.x0; lastTapY = g.y0; }
       }
+      if (g && g.qz && g.moved) lastTap = 0;
       g = null;
     };
     cv.addEventListener('pointerup', up); cv.addEventListener('pointercancel', up);
@@ -7795,7 +7974,7 @@ const TideHarm = (() => {
 
 <script>
 if ('serviceWorker' in navigator) addEventListener('load', () => {
-  const sw = navigator.serviceWorker, VER = 'd1dfbac9'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
+  const sw = navigator.serviceWorker, VER = '274dc6e8'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
   // 화면에 손을 대기 시작했는지 (쓰는 중에는 새로 열지 않으려고)
   ['pointerdown', 'keydown'].forEach(t => addEventListener(t, () => { touched = true; }, { capture: true, passive: true }));
   const reload = () => {
