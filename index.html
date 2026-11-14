@@ -584,8 +584,8 @@ h2{margin:0; font-size:calc(16px * var(--k)); font-weight:700; text-wrap:balance
 .mv-stygrid button.on{border-color:var(--ink); background:var(--ink); color:var(--card)}
 .mv-rged.sty .bd{background:rgba(0,0,0,.06)}
 .mv-setc > .mv-row-btn + .mv-swrow{border-top:1px solid var(--line)}
-.mv-fm .lnk em{font-style:normal; font-weight:500}
-.mv-fm .lnk{display:flex; justify-content:space-between; align-items:center; width:100%; padding:10px 6px 4px; border:0; border-top:1px solid var(--line); background:none; font:inherit; font-size:calc(12.5px * var(--k)); font-weight:700; color:var(--ink-2); -webkit-tap-highlight-color:transparent}
+.mv-fm .lnk em{font-style:normal; font-weight:500} .mv-fm .lnk:last-child{padding:10px 6px 2px}
+.mv-fm .lnk{display:flex; justify-content:space-between; align-items:center; width:100%; padding:8px 6px 9.5px; border:0; border-top:1px solid var(--line); background:none; font:inherit; font-size:calc(12.5px * var(--k)); font-weight:700; color:var(--ink-2); -webkit-tap-highlight-color:transparent}
 .mv-auto:not(.wait){background:var(--card)} .mv-auto.off i, .mv-auto.idle i{background:var(--ink-2); box-shadow:none} .mv-auto.off{color:var(--ink-2); font-weight:500}
 .mv-auto.wait i{animation:mvBlink 1.2s ease-in-out infinite} .mv-auto.done i{background:#FF9F1A; box-shadow:0 0 0 3px rgba(255,159,26,.25)}
 .mv-auto.locoff{color:var(--strong); border-color:var(--strong)} .mv-auto.locoff i{background:#E5484D; box-shadow:0 0 0 3px rgba(229,72,77,.25); animation:mvBlink 1.2s ease-in-out infinite}
@@ -8241,7 +8241,7 @@ const TideHarm = (() => {
 
 <script>
 if ('serviceWorker' in navigator) addEventListener('load', () => {
-  const sw = navigator.serviceWorker, VER = '670cbe29'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
+  const sw = navigator.serviceWorker, VER = '3cf67649'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
   // 화면에 손을 대기 시작했는지 (쓰는 중에는 새로 열지 않으려고)
   ['pointerdown', 'keydown'].forEach(t => addEventListener(t, () => { touched = true; }, { capture: true, passive: true }));
   const reload = () => {
