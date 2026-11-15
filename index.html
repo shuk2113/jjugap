@@ -543,6 +543,8 @@ html.mv-on .app *{animation-play-state:paused !important} html.mv-hide .app{visi
 .mv-prow .mv-n{width:60px}
 .mv-prow .rm{flex:none; width:28px; height:28px; border:0; background:none; color:var(--ink-2); font-size:17px; padding:0; -webkit-tap-highlight-color:transparent}
 .mv-prow.sum{border-bottom:0; border-top:2px solid var(--line); margin-top:-1px; padding-top:8px; text-align:center; font-size:calc(15px * var(--k)); font-weight:800}
+.mv-prow.c3{grid-template-columns:minmax(0, 1fr) 54px 54px 54px} .mv-prow.c3 .mv-n{width:54px} .mv-prow.c1{grid-template-columns:minmax(0, 1fr) 64px} .mv-prow.c1 .mv-n{width:64px}
+.mv-cmrow.solo{margin-top:0; padding-top:10px}
 .mv-prow.sum .nm{color:var(--ink-2); font-size:calc(13px * var(--k))}
 .mv-padd{display:flex; flex-wrap:wrap; align-items:center; gap:6px; margin:8px 0 2px}
 .mv-padd .add{height:34px; padding:0 12px; border:1px dashed var(--ink-2); border-radius:999px; background:none; font:inherit; font-size:calc(13px * var(--k)); font-weight:700; color:var(--ink); -webkit-tap-highlight-color:transparent}
@@ -5802,8 +5804,8 @@ const TideHarm = (() => {
       const mainRows = !R ? '' : R.main.map(n => {
         const j = f.etc.findIndex(e => e.n.trim() === n), e = f.etc[j]; if (!e) return '';
         const big = R.big.includes(n), cm = big && f.big && f.big[n] ? f.big[n] : '', low = big && cm && LIMIT[n] && cm <= LIMIT[n];
-        return `<div class="mv-step${big ? ' has-cm' : ''}"><span>${n}</span>${stepper('e' + j, e.c, n)}</div>`
-          + (big ? `<div class="mv-cmrow"><span class="lb">최대 씨알</span><label class="mv-cmn"><svg class="fs" viewBox="0 0 28 16" aria-hidden="true"><path d="M2 8c3.2-4.6 8.6-6.2 13.4-4.4 2.6 1 4.4 2.6 5.6 4.4-1.2 1.8-3 3.4-5.6 4.4C10.6 14.2 5.2 12.6 2 8z" fill="currentColor" opacity=".9"/><path d="M20.4 8l5.6-4.6v9.2z" fill="currentColor" opacity=".9"/><circle cx="7" cy="7" r="1.1" fill="var(--card)"/></svg><input class="mv-cm" data-big="${n}" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="3" enterkeyhint="done" autocomplete="off" placeholder="—" value="${cm}" aria-label="${n} 최대 씨알 cm"><em>cm</em></label>`
+        return (etcOnly ? '' : `<div class="mv-step${big ? ' has-cm' : ''}"><span>${n}</span>${stepper('e' + j, e.c, n)}</div>`)
+          + (big ? `<div class="mv-cmrow${etcOnly ? ' solo' : ''}"><span class="lb">${etcOnly ? `${n} 최대 씨알 (나)` : '최대 씨알'}</span><label class="mv-cmn"><svg class="fs" viewBox="0 0 28 16" aria-hidden="true"><path d="M2 8c3.2-4.6 8.6-6.2 13.4-4.4 2.6 1 4.4 2.6 5.6 4.4-1.2 1.8-3 3.4-5.6 4.4C10.6 14.2 5.2 12.6 2 8z" fill="currentColor" opacity=".9"/><path d="M20.4 8l5.6-4.6v9.2z" fill="currentColor" opacity=".9"/><circle cx="7" cy="7" r="1.1" fill="var(--card)"/></svg><input class="mv-cm" data-big="${n}" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="3" enterkeyhint="done" autocomplete="off" placeholder="—" value="${cm}" aria-label="${n} 최대 씨알 cm"><em>cm</em></label>`
             + (LIMIT[n] ? `<em class="mv-lim" data-lim="${n}"${low ? '' : ' hidden'}>${n}${josa(n, '은', '는')} ${LIMIT[n]}cm 이하면 놓아줘야 해요 (금지체장)</em>` : '') + '</div>' : '');
       }).join('');
       return `${R ? mainRows : etcOnly ? '' : `<div class="mv-step"><span>쭈꾸미</span>${stepper('jj', f.jj, '쭈꾸미')}</div>
@@ -5815,21 +5817,34 @@ const TideHarm = (() => {
           return `<div class="mv-step etc">${pk ? `<span class="fnm">${esc(e.n.trim())}</span>` : `<input class="mv-sp" data-j="${j}" maxlength="10" placeholder="어종 이름" value="${esc(e.n)}" aria-label="기타 어종 이름" autocomplete="off">`}${stepper('e' + j, e.c, e.n || '기타 어종')}${pk ? '<span class="mv-rmsp"></span>' : `<button type="button" class="mv-rm" data-act="rmfish" data-j="${j}" aria-label="이 어종 줄 빼기">×</button>`}</div>`; }).join('')}`;
     }
     // 숫자 칸 열쇠: jj · gap · e0(기타) · p0j / p0g (일행 0번의 쭈꾸미 / 갑오징어)
-    const pKey = k => /^p\d+[jg]$/.test(k) ? [+k.slice(1, -1), k.slice(-1) === 'j' ? 'jj' : 'gap'] : null;
-    const getN = k => { const pk = pKey(k); if (pk) return (form.party[pk[0]] || {})[pk[1]] || 0; return k[0] === 'e' && k !== 'etc' ? form.etc[+k.slice(1)].c : form[k]; };
-    const setN = (k, n) => { n = clampN(n); const pk = pKey(k); if (pk) { if (form.party[pk[0]]) form.party[pk[0]][pk[1]] = n; } else if (k[0] === 'e') form.etc[+k.slice(1)].c = n; else form[k] = n;
+    const pKey = k => { let m = /^p(\d+)([jg])$/.exec(k); if (m) return [+m[1], m[2] === 'j' ? 'jj' : 'gap']; m = /^p(\d+)m(\d+)$/.exec(k); return m ? [+m[1], 'm', +m[2]] : null; };
+    const pEtc = (q, n) => ((q && q.etc) || []).find(e => e.n === n);
+    const getN = k => { const pk = pKey(k); if (pk) { const q = form.party[pk[0]] || {}; if (pk[1] === 'm') { const e = pEtc(q, mainOf(form)[pk[2]]); return e ? e.c || 0 : 0; } return q[pk[1]] || 0; } return k[0] === 'e' && k !== 'etc' ? form.etc[+k.slice(1)].c : form[k]; };
+    const setN = (k, n) => { n = clampN(n); const pk = pKey(k); if (pk) { const q = form.party[pk[0]]; if (q) { if (pk[1] === 'm') { const nm = mainOf(form)[pk[2]]; q.etc = q.etc || []; let e = pEtc(q, nm); if (!e) q.etc.push(e = { n: nm, c: 0 }); e.c = n; } else q[pk[1]] = n; } } else if (k[0] === 'e') form.etc[+k.slice(1)].c = n; else form[k] = n;
       const el = $('mv-n-' + k); if (el && document.activeElement !== el) el.value = n; partySum(); if (k === 'jj' || k === 'gap') { lblLiveSoon(); draw(); } return n; };
     // 일행 조과표: 나 + 일행 (이름 · 쭈꾸미 · 갑오징어), 맨 아래 '모두'는 저절로 · 기타 어종은 나만
     const partyTot = (f, k) => (f[k] || 0) + (f.party || []).reduce((a, q) => a + (q[k] || 0), 0);
+    // 광어 다운샷·우럭 외줄: 어종 이름별 (나 + 일행)
+    const partyTotN = (f, n) => { const me = (f.etc || []).find(e => String(e.n || '').trim() === n); return (me ? me.c || 0 : 0) + (f.party || []).reduce((a, q) => a + ((pEtc(q, n) || {}).c || 0), 0); };
+    const partyAllTxt = S => { const R = REC[S.sp]; return R ? R.main.map(n => ({ n, c: partyTotN(S, n) })).filter(x => x.c > 0).map(x => `${x.n} ${x.c}`).join(' · ') || '꽝' : catchTxt({ jj: partyTot(S, 'jj'), gap: partyTot(S, 'gap'), etc: [] }); };
     function partyRows(f) {
       const cell = (k, v, lab) => `<input class="mv-n" id="mv-n-${k}" data-k="${k}" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="3" enterkeyhint="done" autocomplete="off" value="${v}" aria-label="${esc(lab)}">`;
+      const R = recOf(f);
+      if (R) {   // 주인공 어종 칸 (광어·우럭·양태 / 우럭)
+        const M = mainOf(f), cls = M.length >= 3 ? ' c3' : M.length === 1 ? ' c1' : '', idx = n => f.etc.findIndex(e => e.n.trim() === n);
+        const rowR = (nm, rm, keys, vals, who) => `<div class="mv-prow${cls}"><span class="nm"><span>${esc(nm)}</span>${rm}</span>${keys.map((k, j) => cell(k, vals[j], who + ' ' + M[j])).join('')}</div>`;
+        return `<div class="mv-party"><div class="mv-prow hd${cls}"><span></span>${M.map(n => `<span>${n}</span>`).join('')}</div>`
+          + rowR('나', '', M.map(n => 'e' + idx(n)), M.map(n => (f.etc[idx(n)] || {}).c || 0), '나')
+          + f.party.map((q, i) => rowR(q.n, `<button type="button" class="rm" data-act="party-rm" data-i="${i}" aria-label="${esc(q.n)} 빼기">×</button>`, M.map((n, j) => `p${i}m${j}`), M.map(n => (pEtc(q, n) || {}).c || 0), q.n)).join('')
+          + `<div class="mv-prow sum${cls}"><span class="nm">모두</span>${M.map((n, j) => `<span id="mv-pt-m${j}">${partyTotN(f, n)}</span>`).join('')}</div></div>`;
+      }
       const row = (nm, rm, kj, kg, vj, vg, who) => `<div class="mv-prow"><span class="nm"><span>${esc(nm)}</span>${rm}</span>${cell(kj, vj, who + ' 쭈꾸미')}${cell(kg, vg, who + ' 갑오징어')}</div>`;
       return '<div class="mv-party"><div class="mv-prow hd"><span></span><span>쭈꾸미</span><span>갑오징어</span></div>'
         + row('나', '', 'jj', 'gap', f.jj, f.gap, '나')
         + f.party.map((q, i) => row(q.n, `<button type="button" class="rm" data-act="party-rm" data-i="${i}" aria-label="${esc(q.n)} 빼기">×</button>`, `p${i}j`, `p${i}g`, q.jj || 0, q.gap || 0, q.n)).join('')
         + `<div class="mv-prow sum"><span class="nm">모두</span><span id="mv-pt-j">${partyTot(f, 'jj')}</span><span id="mv-pt-g">${partyTot(f, 'gap')}</span></div></div>`;
     }
-    function partySum() { if (!form || !form.party || !form.party.length) return; const a = $('mv-pt-j'), b = $('mv-pt-g'); if (a) a.textContent = partyTot(form, 'jj'); if (b) b.textContent = partyTot(form, 'gap'); }
+    function partySum() { if (!form || !form.party || !form.party.length) return; if (recOf(form)) { mainOf(form).forEach((n, j) => { const el = $('mv-pt-m' + j); if (el) el.textContent = partyTotN(form, n); }); return; } const a = $('mv-pt-j'), b = $('mv-pt-g'); if (a) a.textContent = partyTot(form, 'jj'); if (b) b.textContent = partyTot(form, 'gap'); }
     function partyAddRow(f) {
       const used = new Set(f.party.map(q => q.n)), recent = f.party.length || f.partyNew ? (loadJ(PARTY_KEY, []) || []).filter(n => n && !used.has(n)).slice(0, 6) : [];
       const full = f.party.length >= 10;
@@ -5840,12 +5855,12 @@ const TideHarm = (() => {
     function partyPush(n) {
       n = String(n || '').trim().slice(0, 8);
       if (!form || !n || n === '나' || form.party.some(q => q.n === n) || form.party.length >= 10) return -1;
-      form.party.push({ n, jj: 0, gap: 0 }); return form.party.length - 1;
+      form.party.push({ n, jj: 0, gap: 0, etc: [] }); return form.party.length - 1;
     }
     function partyNameDone(focusNum) {
       const el = $('mv-party-n'); if (!el || !form || !form.partyNew) return;
       form.partyNew = false; const i = partyPush(el.value); repaint();
-      if (i >= 0 && focusNum) { const x = $('mv-n-p' + i + 'j'); if (x) x.focus(); }
+      if (i >= 0 && focusNum) { const x = $('mv-n-p' + i + (recOf(form) ? 'm0' : 'j')); if (x) x.focus(); }
     }
     function showSave() {
       sheetAtLeast('open');
@@ -5918,7 +5933,7 @@ const TideHarm = (() => {
         sink: S ? (S.sink || []).slice() : pSink.length ? pSink : (rg.last || rg.sink || []).slice(),   // 봉돌은 지난번 쓴 것을 미리
         egi: S ? (S.egi || []).map(x => ({ ...x })) : pEgi, sinkM: S && S.sinkM ? { ...S.sinkM } : {},
         memo: S ? S.memo || '' : '', good: new Set(tr.pts.filter(p => p.good).map(p => p.id)), had: !!S,
-        party: S && Array.isArray(S.party) ? S.party.filter(q => q && q.n).map(q => ({ n: String(q.n), jj: q.jj || 0, gap: q.gap || 0 })) : [], partyNew: false,
+        party: S && Array.isArray(S.party) ? S.party.filter(q => q && q.n).map(q => ({ n: String(q.n), jj: q.jj || 0, gap: q.gap || 0, etc: Array.isArray(q.etc) ? q.etc.filter(e => e && e.n).map(e => ({ n: String(e.n), c: e.c || 0 })) : [] })) : [], partyNew: false,
         lbl: S && S.lbl && LBLS.some(o => o[0] === S.lbl) ? S.lbl : lblPick() };   // 이름표: 이 출조에 고른 것, 없으면 지난번에 고른 것
       // 낚시 방식: 정리해 둔 것 → 포인트에 적힌 것 → 쭈갑 기록이 있으면 쭈갑 → 지금 고른 방식
       form.sp = S ? S.sp || 'jg' : (tr.pts.find(p => p.sp) || {}).sp || (tr.pts.some(p => p.jj || p.gap || (p.egi || []).length) ? 'jg' : spNow());
@@ -5947,7 +5962,7 @@ const TideHarm = (() => {
           <p class="mv-note">${tripTxt(first) || '배·출항지 기록 없음'} · 머문 자리 ${tr.pts.length}곳</p></div>
           <div class="r"><span class="tm">${ampm(kstMin(t0))}~${ampm(kstMin(t1))}</span><button type="button" class="mv-lblchip" id="mv-lblrow" data-act="lbl-open" aria-label="지도 이름표 고르기 · 지금 ${esc(lblShort(f.lbl))}">${LBL_IC}이름표 <em>${esc(lblShort(f.lbl))}</em><i aria-hidden="true">›</i></button></div></div>
         <div class="mv-sec">잡은 것<em>${f.party.length ? '일행 것도 같이 적어요 · 모두는 저절로' : '합계만 적어도 돼요'}</em></div>
-        ${recOf(f) ? catchRows(f) : f.party.length ? partyRows(f) + partyAddRow(f) + catchRows(f, true) : catchRows(f) + partyAddRow(f)}
+        ${f.party.length ? partyRows(f) + partyAddRow(f) + catchRows(f, true) : catchRows(f) + partyAddRow(f)}
         <div class="mv-sec">채비<em>누르면 상자에 담겨요 · 칸을 꾹 누르면 손질 · −로 빼기</em></div>
         ${rigRows(f, false)}
         <input class="mv-memo" id="mv-memo" maxlength="120" placeholder="${recOf(f) ? recOf(f).memo : '메모 (예: 오후 들물에 갑오징어 잘 나옴)'}" value="${esc(f.memo || '')}">
@@ -5960,7 +5975,7 @@ const TideHarm = (() => {
       const f = form, tr = sumTr; if (!f || !tr) return;
       const memo = (($('mv-memo') || {}).value || '').trim();
       const all = sums();
-      const party = (f.party || []).filter(q => q.n).map(q => ({ n: q.n, jj: clampN(q.jj), gap: clampN(q.gap) }));
+      const party = (f.party || []).filter(q => q.n).map(q => recOf(f) ? { n: q.n, etc: (q.etc || []).filter(e => mainOf(f).includes(e.n)).map(e => ({ n: e.n, c: clampN(e.c) })).filter(e => e.c > 0) } : { n: q.n, jj: clampN(q.jj), gap: clampN(q.gap) });
       const sinkM = sinkMOf(f.sink, f.sinkM);
       const big = bigClean(f, f.big), rgs = (f.rg || []).slice();
       all[tr.key] = { jj: clampN(f.jj), gap: clampN(f.gap), etc: f.etc.map(e => ({ n: e.n.trim(), c: clampN(e.c) })).filter(e => e.c > 0), sink: f.sink.slice(), egi: egiClean(f.egi), ...(Object.keys(sinkM).length ? { sinkM } : {}), memo, ...(party.length ? { party } : {}), lbl: f.lbl || 'base', t: Date.now(),
@@ -6027,9 +6042,12 @@ const TideHarm = (() => {
       const sink = (S ? S.sink || [] : [...new Set(tr.pts.flatMap(p => p.sink || []))]).slice().sort((a, b) => a - b);
       const sp = cardSp(S, tr), t0 = f.stayFrom || f.t, t1 = l.stayTo || l.t, sinkM = S ? S.sinkM || {} : {};
       const P = S && Array.isArray(S.party) ? S.party.filter(q => q && q.n) : [];
-      const spAll = P.length ? cardSp({ ...S, jj: partyTot(S, 'jj'), gap: partyTot(S, 'gap') }, tr) : null;
+      const RS = S && REC[S.sp], RM = RS ? RS.main : [];
+      const allEtc = () => { const m = new Map(); for (const e of (S.etc || [])) if (e && e.c > 0) m.set(String(e.n).trim(), (m.get(String(e.n).trim()) || 0) + e.c); for (const q of P) for (const e of (q.etc || [])) if (e && e.c > 0) m.set(e.n, (m.get(e.n) || 0) + e.c); return [...m].map(([n, c]) => ({ n, c })); };
+      const spAll = P.length ? cardSp(RS ? { ...S, etc: allEtc() } : { ...S, jj: partyTot(S, 'jj'), gap: partyTot(S, 'gap') }, tr) : null;
+      const myC = RS ? (S.etc || []).filter(e => RM.includes(String(e.n).trim())).reduce((a, e) => a + (e.c || 0), 0) : (S && S.jj || 0) + (S && S.gap || 0);
       const party = P.length ? { n: P.length + 1, names: P.map(q => q.n), sp: spAll, tot: spAll.reduce((a, x) => a + x.c, 0),
-        people: [{ n: '나', c: (S.jj || 0) + (S.gap || 0) }, ...P.map(q => ({ n: q.n, c: (q.jj || 0) + (q.gap || 0) }))] } : null;
+        people: [{ n: '나', c: myC }, ...P.map(q => ({ n: q.n, c: RS ? (q.etc || []).reduce((a, e) => a + (e.c || 0), 0) : (q.jj || 0) + (q.gap || 0) }))] } : null;
       const mode = S && SPECIES[S.sp] ? S.sp : ptSpOf(f, sumsAll());
       const big = {}; for (const [n, c] of Object.entries(S && S.big ? S.big : {})) if (c > 0) big[n] = c;
       if (!S || !S.big) for (const p of tr.pts) for (const [n, c] of Object.entries(p.big || {})) if (c > (big[n] || 0)) big[n] = c;
@@ -7449,7 +7467,7 @@ const TideHarm = (() => {
       const body = TL.map(tr => {
         const first = tr.pts[0], fold = folded.has(tr.key), S = SM[tr.key], tot = S ? sumTot(S) : tr.pts.reduce((a, q) => a + caughtOf(q), 0);
         const sumLi = `<li class="mv-sumli card"><button type="button" class="mv-sumbtn${S ? ' done' : ''}" data-act="sum" data-k="${esc(tr.key)}"><span>${S
-          ? `출조 정리 · ${S.party && S.party.length ? '나' : '합계'} ${catchTxt({ jj: S.jj, gap: S.gap, etc: S.etc }) }${S.party && S.party.length ? `<small>일행 ${S.party.length}명 포함 모두 ${esc(catchTxt({ jj: partyTot(S, 'jj'), gap: partyTot(S, 'gap'), etc: [] }))}</small>` : ''}<small>${esc(rigTxt(S) || '채비 기록 없음')}${S.memo ? ' · ' + esc(S.memo) : ''}</small>`
+          ? `출조 정리 · ${S.party && S.party.length ? '나' : '합계'} ${catchTxt({ jj: S.jj, gap: S.gap, etc: S.etc }) }${S.party && S.party.length ? `<small>일행 ${S.party.length}명 포함 모두 ${esc(partyAllTxt(S))}</small>` : ''}<small>${esc(rigTxt(S) || '채비 기록 없음')}${S.memo ? ' · ' + esc(S.memo) : ''}</small>`
           : '출조 정리하기<small>합계 마릿수·봉돌·에기 색을 한 번에 적어요</small>'}</span><i>›</i></button>`
           + `<button type="button" class="mv-cardbtn" data-act="card" data-k="${esc(tr.key)}" aria-label="${md(kstDay(first.t))} 조과 카드 만들기"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="4.5" width="17" height="15" rx="3" fill="#fff" stroke="currentColor" stroke-width="1.8"/><circle cx="9" cy="10" r="2.2" fill="#FF7A59"/><path d="M6.5 16.5l4-3.5 2.6 2.2 2.4-2 2.5 2.3" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>카드</button></li>`;
         const items = tr.pts.slice().reverse().map(p => {
@@ -8897,7 +8915,7 @@ const TideHarm = (() => {
 
 <script>
 if ('serviceWorker' in navigator) addEventListener('load', () => {
-  const sw = navigator.serviceWorker, VER = 'd95a0abc'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
+  const sw = navigator.serviceWorker, VER = 'd0341aae'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
   // 화면에 손을 대기 시작했는지 (쓰는 중에는 새로 열지 않으려고)
   ['pointerdown', 'keydown'].forEach(t => addEventListener(t, () => { touched = true; }, { capture: true, passive: true }));
   const reload = () => {
