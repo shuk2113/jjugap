@@ -1714,6 +1714,44 @@ const TideHarm = (() => {
       if (M === 'bust') s += `<path d="M${cx - 11} ${my + 9} q2.75 -3.5 5.5 0 t5.5 0 t5.5 0 t5.5 0" stroke="${o.ink}" stroke-width="${o.lw * .8}" fill="none" stroke-linecap="round" stroke-linejoin="round"/>` + drop(166, 44, 1.5);
       return s;
     }
+    // ---------- 갑오징어 옆모습 (메인 바다 장면 · 가로로 헤엄): 몸통은 가로로 길게 · 다리는 앞으로 모아 · 얼굴은 바로 · 지느러미는 장면에서 따로 물결치게 그린다 (GS)
+    const GS = { cx: 82, cy: 104, rx: 54, ry: 29 };
+    const gsPal = (o, M) => M === 'bust' ? ['#DDD5CC', '#B9AEA2', '#A99C8E', '#F5F1EC'] : M === 'big' ? ['#F0A07A', '#C77A52', '#E2457E', '#FFE0E8'] : o.pal.gp;
+    const gsEdge = a => { const { cx, cy, rx, ry } = GS, c = Math.cos(a), t = c < 0 ? 1 - .2 * c * c : 1; return [cx + rx * c, cy + ry * Math.sin(a) * t]; };
+    function cuttleSide(o) {
+      const M = o.mood || 'base', P = gsPal(o, M), { cx, cy, rx, ry } = GS;
+      let s = '';
+      if (o.fin) {   // 미리보기용 고정 지느러미 (장면에서는 캔버스가 물결치게 그린다)
+        const pts = []; for (let i = 0; i <= 160; i++) { const a = Math.PI * 2 * i / 160, d = Math.abs(Math.atan2(Math.sin(a), Math.cos(a))), w = d < 1.1 ? 0 : d < 1.9 ? 11 * (d - 1.1) / .8 : 11, e = gsEdge(a), n = [Math.cos(a), Math.sin(a)]; const ww = w + (w ? 2.2 * Math.sin(a * 13) : 0); pts.push([e[0] + n[0] * ww, e[1] + n[1] * ww]); }
+        s += `<path d="${pathOf(pts, o)}" fill="${P[3]}" stroke="${o.ink}" stroke-width="${o.lw}" stroke-linejoin="round"/>`;
+      }
+      // 다리: 앞(오른쪽)으로 모아 뻗고 끝이 살짝 말린다
+      const arms = [];
+      for (let i = 0; i < 6; i++) { const y0 = 101 + i * 4.6, ye = 98 + i * 6.6, k = (i - 2.5) / 2.5; arms.push([bez([162, y0], [178, y0 + k * 1.5], [190, ye - 2], [200 - Math.abs(k) * 4, ye + 5 + Math.abs(k) * 2], 14), 5.8, 2.3]); }
+      arms.reverse().forEach(([pts, a, b]) => { s += paint(tube(pts, a, b, o), P[0], P[1], o); });
+      // 머리
+      const hd = []; for (let i = 0; i <= 60; i++) { const a = Math.PI * 2 * i / 60; hd.push([148 + 27 * Math.cos(a), 106 + 26 * Math.sin(a)]); }
+      s += paint(pathOf(hd, o), P[0], P[1], o);
+      // 몸통 (꼬리 쪽이 살짝 좁은 달걀) + 등 얼룩 줄
+      const body = []; for (let i = 0; i <= 96; i++) body.push(gsEdge(Math.PI * 2 * i / 96));
+      let zeb = ''; if (!o.plain) for (let i = 0; i < 5; i++) { const x = cx - 40 + i * 17; zeb += `<path d="M${x - 3} ${cy - ry - 2} Q${x + 6} ${cy - ry * .55} ${x} ${cy - ry * .2} T${x + 3} ${cy + 4}" stroke="${P[2]}" stroke-width="${5.5 - i * .3}" fill="none" stroke-linecap="round" opacity=".75"/>`; }
+      s += paint(pathOf(body, o), P[0], P[1], o, zeb, `<ellipse cx="${cx - 22}" cy="${cy - 17}" rx="16" ry="6" fill="#fff" opacity=".4" transform="rotate(-8 ${cx - 22} ${cy - 17})"/>`);
+      // 얼굴 (머리 쪽 · 3/4 모습: 두 눈)
+      const er = 14, E = [[137, 98, er * .9], [162, 99, er]];
+      const tA = { base: .1, joy: .3, big: .45 }[M] || 0;
+      if (tA && !o.flat) s += `<ellipse cx="${cx + 10}" cy="${cy + 6}" rx="${rx * .8}" ry="${ry * .6}" fill="#FF8FB0" opacity="${tA}"/>`;
+      if (M === 'bust') s += gloom([[58, 12], [70, 17], [82, 13], [94, 18]], 52, '#5A6E9E', .5);
+      if (M !== 'bust') s += blushes([[133, 118], [171, 117]], M === 'base' ? 7 : 8.5, { ...o, blushA: (o.blushA || .45) + (M === 'base' ? .1 : .25) });
+      E.forEach(([x, y, r]) => { s += eye(x, y, r, o, 'w'); });
+      if (M === 'joy' || M === 'big') E.forEach(([x, y, r]) => { s += `<path d="M${x - r * .8} ${y + r * .95} Q${x} ${y + r * .62} ${x + r * .8} ${y + r * .95}" stroke="${o.ink}" stroke-width="${o.lw * .7}" fill="none" stroke-linecap="round"/>`; });
+      if (M === 'bust') [[E[0], 1], [E[1], -1]].forEach(([[x, y, r], d]) => { s += `<path d="M${x - d * r * .75} ${y - r * 1.15} Q${x} ${y - r * 1.42} ${x + d * r * .75} ${y - r * 1.62}" stroke="${o.ink}" stroke-width="${o.lw * .95}" fill="none" stroke-linecap="round"/>`; });
+      const mx = 152, my = 118;
+      if (M === 'base') s += `<path d="M${mx - 6} ${my + 3} Q${mx} ${my + 8} ${mx + 6} ${my + 3}" stroke="${o.ink}" stroke-width="${o.lw * .8}" fill="none" stroke-linecap="round"/>`;
+      if (M === 'joy') s += `<path d="M${mx - 8} ${my + 2} Q${mx} ${my + 12} ${mx + 8} ${my + 2}" stroke="${o.ink}" stroke-width="${o.lw * .8}" fill="#C8504A" stroke-linejoin="round"/>`;
+      if (M === 'big') s += `<path d="M${mx - 10} ${my + 1} Q${mx} ${my + 17} ${mx + 10} ${my + 1} Z" stroke="${o.ink}" stroke-width="${o.lw * .8}" fill="#B23E3E" stroke-linejoin="round"/><path d="M${mx - 5} ${my + 9} Q${mx} ${my + 6} ${mx + 5} ${my + 9} Q${mx} ${my + 12} ${mx - 5} ${my + 9} Z" fill="#FF9C9C"/>` + heart(118, 62, 1.25) + spark(176, 70, 6);
+      if (M === 'bust') s += `<path d="M${mx - 7} ${my + 5} q1.75 -2.5 3.5 0 t3.5 0 t3.5 0 t3.5 0" stroke="${o.ink}" stroke-width="${o.lw * .75}" fill="none" stroke-linecap="round" stroke-linejoin="round"/>` + drop(178, 84, 1.2);
+      return s;
+    }
     // ---------- 광어: 아주 납작 · 두 눈이 왼쪽 한쪽에 · 이빨 보이는 넓은 입 · 하얀 점
     function flounder(o) {
       const P = o.pal.gw, ex = o.ex, fl = 1 - .16 * ex, cy = 104;
@@ -1782,11 +1820,12 @@ const TideHarm = (() => {
       return s;
     }
     const PALN = { oc: ['#F27A55', '#C9553A', '#5A2A1C'], gp: ['#E9A063', '#BF7C3E', '#8E5323', '#FFE6C4'], gw: ['#C79A6A', '#9E7148', '#6E4A2C', '#EED3AA'], ur: ['#5E6679', '#41495A', '#BFC6D2', '#4C5468', '#2C323F', '#B88C8A'] };
-    const DRAW = { oc: octo, gp: cuttle, gw: flounder, ur: rockfish };
+    const DRAW = { oc: octo, gp: cuttle, gw: flounder, ur: rockfish, gs: cuttleSide };
     const BASE = { pal: PALN, ink: '#3A2618', lw: 3.2, ex: 1, ocEye: 'curious' };
     return {
-      svg(k, m) { const t = k === 'oc' ? -5 : k === 'gw' && m === 'big' ? -8 : 0; return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="-14 -14 228 214" width="684" height="642"><g transform="rotate(${t} 100 100)">${DRAW[k]({ ...BASE, mood: m })}</g></svg>`; },
-      BOX: { oc: [8, -6, 173, 160], gp: [19, 0, 155, 160], gw: [8, 37, 192, 125], ur: [8, -3, 192, 165] }
+      svg(k, m, x) { const t = k === 'oc' ? -5 : k === 'gw' && m === 'big' ? -8 : 0; return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="-14 -14 228 214" width="684" height="642"><g transform="rotate(${t} 100 100)">${DRAW[k]({ ...BASE, mood: m, ...(x || {}) })}</g></svg>`; },
+      gs: { edge: gsEdge, pal: m => gsPal(BASE, m), ink: BASE.ink, lw: BASE.lw },
+      BOX: { oc: [8, -6, 173, 160], gp: [19, 0, 155, 160], gw: [8, 37, 192, 125], ur: [8, -3, 192, 165], gs: [15, 64, 187, 78] }
     };
   })();
   // 안내·빈 화면의 가족 한마디: st = empty 빈 화면 · load 불러오는 중 · err 오류
@@ -3139,7 +3178,7 @@ const TideHarm = (() => {
     }
     // 바닥 친구들 움직이기 + 그리기. 조건이 나쁘면 한 마리만 바닥에 숨어 눈만 내놓는다
     // 가족 주인공: 표정마다 미리 그려 둔 작은 그림판을 찍는다 · 몸 키(px, k 곱하기 전)
-    const FAM_H = { oc: 38, gp: 36, gw: 25, ur: 32 }, famBmp = new Map();
+    const FAM_H = { oc: 38, gp: 36, gw: 25, ur: 32, gs: 23 }, famBmp = new Map();
     function famBm(f, m, h) {
       const S = Math.min(2, window.devicePixelRatio || 1) * uiK() * 1.25, key = f + m + Math.round(h * S);
       let e = famBmp.get(key); if (e) return e.c;
@@ -3151,7 +3190,18 @@ const TideHarm = (() => {
       } catch (_) {}
       return null;
     }
+    // 엄마 옆모습 지느러미: 몸통 둘레를 따라 물결이 꼬리 쪽으로 흐른다 (그림 좌표에서 그림)
+    function gsFin(t, spd, m) {
+      const G = FAM.gs, P = G.pal(m); ctx.beginPath();
+      for (let i = 0; i <= 120; i++) {
+        const a = Math.PI * 2 * i / 120, d = Math.abs(Math.atan2(Math.sin(a), Math.cos(a))), w = d < 1.1 ? 0 : d < 1.9 ? 11 * (d - 1.1) / 0.8 : 11;
+        const ww = w + (w / 11) * 2.6 * Math.sin(a * 13 + t * spd), e = G.edge(a), x = e[0] + Math.cos(a) * ww, y = e[1] + Math.sin(a) * ww;
+        if (i) ctx.lineTo(x, y); else ctx.moveTo(x, y);
+      }
+      ctx.closePath(); ctx.fillStyle = P[3]; ctx.fill(); ctx.strokeStyle = G.ink; ctx.lineWidth = G.lw; ctx.lineJoin = 'round'; ctx.stroke();
+    }
     function drawFam(c, bed, k, t, m) {
+      if (c.fam === 'gp') return drawGs(c, bed, k, t, m);
       const f = c.fam, h = FAM_H[f] * k, B = FAM.BOX[f], sc = h / B[3];
       ['base', 'joy', 'bust', 'big'].forEach(q => famBm(f, q, h));   // 네 표정 다 미리
       const bm = famBm(f, m, h) || famBm(f, 'base', h); if (!bm) return;
@@ -3169,6 +3219,20 @@ const TideHarm = (() => {
       ctx.drawImage(bm, -(B[0] + 14 + B[2] / 2) * sc, -(B[1] + 14 + B[3]) * sc, 228 * sc, 214 * sc);
       ctx.restore();
     }
+    // 엄마(갑오징어): 몸을 눕혀 가로로 헤엄 · 가는 쪽으로 다리를 향하고 · 꽝인 날엔 바닥 가까이 느릿느릿
+    function drawGs(c, bed, k, t, m) {
+      const h = FAM_H.gs * k, B = FAM.BOX.gs, sc = h / B[3];
+      ['base', 'joy', 'bust', 'big'].forEach(q => famBm('gs', q, h));
+      const bm = famBm('gs', m, h) || famBm('gs', 'base', h); if (!bm) return;
+      const moving = Math.abs(c.tx - c.x) >= 1.5, flip = c.dir < 0 ? -1 : 1;
+      const yb = bed - (c.low ? 3 + Math.sin(t * 1.1) * 0.6 : 13 + Math.sin(t * 1.6) * 2.2) * k;
+      const rot = Math.sin(t * 1.3) * (c.low ? 0.8 : 2) + (m === 'big' ? 3 : 0);
+      ctx.save(); ctx.translate(c.x, yb); ctx.scale(flip, 1); if (rot) ctx.rotate(rot * Math.PI / 180);
+      ctx.translate(-(B[0] + 14 + B[2] / 2) * sc, -(B[1] + 14 + B[3]) * sc); ctx.scale(sc, sc); ctx.translate(14, 14);
+      gsFin(t, moving ? (c.low ? 5 : 10) : 4, m);
+      ctx.drawImage(bm, -14, -14, 228, 214);
+      ctx.restore();
+    }
     function drawCritters(t, surf, jig, maxX) {
       const dt = running ? Math.max(0, Math.min(0.05, t - lifeLast)) : 0; lifeLast = t;
       const fit = flowFit(Math.min(1, Math.abs(flow))), k = Math.max(0.85, Math.min(1.15, W / 390));
@@ -3182,9 +3246,11 @@ const TideHarm = (() => {
         const score = fit * lifeT[kind], group = critters.filter(c => c.kind === kind), act = Math.max(0.15, score);
         group.forEach(c => {
           const on = c.fam ? score >= 0.5 : c.i < Math.round(c.n * score * score);   // 친구들: 1.0 → 다 나옴, 0.85 → 약 2/3, 0.7 → 절반, 0.45 → 한두 마리
-          const hide = c.fam ? !on : false;   // 안 맞으면 가족 주인공이 바닥에 반쯤 묻혀 빼꼼
-          c.a += ((on || hide ? 1 : 0) - c.a) * Math.min(1, dt * 2.5);
-          if (!running) c.a = on || hide ? 1 : 0;
+          const low = c.fam === 'gp' && !on;   // 엄마는 안 맞는 날에도 숨지 않고 바닥 가까이 느릿느릿 헤엄
+          const hide = c.fam && !low ? !on : false;   // 안 맞으면 가족 주인공이 바닥에 반쯤 묻혀 빼꼼
+          c.low = low;
+          c.a += ((on || hide || low ? 1 : 0) - c.a) * Math.min(1, dt * 2.5);
+          if (!running) c.a = on || hide || low ? 1 : 0;
           if (c.x === null || c.x > xMax) { c.x = xMin + (xMax - xMin) * (c.fam ? HX[c.fam] : CR[kind].x0[c.i]); c.tx = c.x; }
           if (hide && !c.hidden) {
             // 에기와 다른 숨은 친구에게서 떨어진 잘 보이는 자리
@@ -3201,11 +3267,11 @@ const TideHarm = (() => {
           c.hz = (c.hz || 0) + ((hide ? 1 : 0) - (c.hz || 0)) * (running ? Math.min(1, dt * 3) : 1);
           if (c.a < 0.02) return;
           // 다음 목적지: 활발할수록 자주 움직이고, 가끔은 지그(애기)로 다가간다
-          if (on && running) {
+          if ((on || low) && running) {
             if (c.rest > 0) c.rest -= dt;
             else if (Math.abs(c.tx - c.x) < 1.5) {
               const others = critters.filter(o => o !== c && o.a > 0.3 && o.tx != null), wasJig = c.jig;
-              const toJig = jig && !others.some(o => o.jig || Math.abs(o.x - jig.x) < 20 * k) && Math.random() < 0.25 + 0.35 * act;
+              const toJig = on && jig && !others.some(o => o.jig || Math.abs(o.x - jig.x) < 20 * k) && Math.random() < 0.25 + 0.35 * act;
               c.jig = toJig;
               if (toJig) c.tx = Math.max(xMin, Math.min(xMax, jig.x - Math.sign(jig.x - c.x || 1) * CR[kind].gap * (c.fam ? 1.9 : 1)));
               else {
@@ -3213,11 +3279,13 @@ const TideHarm = (() => {
                 let best = null, bestD = -1;
                 for (let tries = 0; tries < 8; tries++) {
                   const cand = xMin + Math.random() * (xMax - xMin);
-                  const d = Math.min(Infinity, ...others.map(o => Math.min(Math.abs(o.tx - cand), Math.abs(o.x - cand)) * (c.fam && o.fam ? 0.25 : o.kind === kind ? 1 : 1.6)));   // 가족 주인공끼리는 더 떨어지게
+                  let d = Math.min(Infinity, ...others.map(o => Math.min(Math.abs(o.tx - cand), Math.abs(o.x - cand)) * (c.fam && o.fam ? 0.25 : o.kind === kind ? 1 : 1.6)));   // 가족 주인공끼리는 더 떨어지게
+                  if (c.low && jig) d = Math.min(d, Math.abs(jig.x - cand) * 0.6);   // 기운 없는 엄마는 에기 근처를 피해 다닌다
                   if (d > bestD) { bestD = d; best = cand; }
                 }
                 c.tx = best;
               }
+              if (c.fam === 'gp') c.tx = Math.max(xMin + 24 * k, Math.min(xMax - 24 * k, c.tx));   // 옆으로 긴 몸: 끝에서 잘리지 않게
               c.rest = CR[kind].rest + Math.random() * (2.4 - 1.6 * act);
               if (wasJig) c.rest += 1.5;   // 방금 에기 앞에 도착했으면 조금 더 머문다
             } else {
@@ -3257,7 +3325,7 @@ const TideHarm = (() => {
       for (const [c, bed, score] of late) {
         ctx.save(); ctx.globalAlpha = Math.min(1, c.a);
         if (c.hidden) { ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(W, 0); for (let x = W; x >= 0; x -= 6) ctx.lineTo(x, bedOf(x) - 0.5); ctx.closePath(); ctx.clip(); }
-        drawFam(c, bed, k, t + c.ph, c.hidden ? 'bust' : c.jig && c.a > 0.6 && Math.abs(c.tx - c.x) < 1.5 ? 'big' : score >= 0.8 ? 'joy' : 'base');
+        drawFam(c, bed, k, t + c.ph, c.hidden || c.low ? 'bust' : c.jig && c.a > 0.6 && Math.abs(c.tx - c.x) < 1.5 ? 'big' : score >= 0.8 ? 'joy' : 'base');
         ctx.restore();
       }
     }
@@ -5631,7 +5699,7 @@ const TideHarm = (() => {
     function rigRemember(sink, egi, sinkM) { saveJ(RIG_KEY, { d: kstDay(Date.now()), sink: sink.slice(), egi: egi.map(x => ({ ...x })), sinkM: sinkMOf(sink, sinkM), last: sink.length ? sink.slice() : ((loadJ(RIG_KEY, null) || {}).last || []) }); }
     // 봉돌 메모: 상자에 있는 봉돌 것만, 빈 것은 빼고
     const sinkMOf = (sink, m) => { const o = {}; for (const n of sink || []) { const t = m && String(m[n] || '').trim(); if (t) o[n] = t.slice(0, 30); } return o; };
-    const TM_L = [['dawn', '해 뜨기 전'], ['am', '직후'], ['pm', '오른 뒤']], TM_N = { dawn: '해 뜨기 전', am: '해 뜬 직후', pm: '해 오른 뒤' };   // ★ 잘 먹힌 때 (해 기준 · 예전 새벽/오전/오후 키 그대로)
+    const TM_L = [['dawn', '새벽'], ['am', '오전'], ['pm', '오후']], TM_N = { dawn: '새벽', am: '오전', pm: '오후' };   // ★ 잘 먹힌 때
     const egiClean = a => (a || []).map(x => { const y = { ...x }; if (!y.s || !Array.isArray(y.tm) || !y.tm.length) delete y.tm; if (y.m != null) { y.m = String(y.m).trim().slice(0, 30); if (!y.m) delete y.m; } return y; });
     // 채비: 위에 '오늘 채비' 상자 (봉돌 칸 · 에기 칸), 아래에 고르는 단추 · 누르면 상자에 쏙, 상자의 칸을 누르면 제자리로 · 에기 칸을 꾹 누르면 손질
     function rigRows(f, scroll) {
@@ -9509,7 +9577,7 @@ const TideHarm = (() => {
 
 <script>
 if ('serviceWorker' in navigator) addEventListener('load', () => {
-  const sw = navigator.serviceWorker, VER = 'd71d1fa2'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
+  const sw = navigator.serviceWorker, VER = '69cfad82'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
   // 화면에 손을 대기 시작했는지 (쓰는 중에는 새로 열지 않으려고)
   ['pointerdown', 'keydown'].forEach(t => addEventListener(t, () => { touched = true; }, { capture: true, passive: true }));
   const reload = () => {
