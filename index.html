@@ -569,7 +569,8 @@ html.mv-on .app *{animation-play-state:paused !important} html.mv-hide .app{visi
 .mv-sea button{min-height:34px; padding:0 11px; border:0; border-radius:9px; background:none; font:inherit; font-size:calc(13px * var(--k)); font-weight:700; color:var(--ink-2); -webkit-tap-highlight-color:transparent}
 .mv-sea .sg button.on{background:var(--card); color:var(--ink); box-shadow:0 1px 4px rgba(0,0,0,.22)}
 .mv-sea .rn{display:flex; gap:6px} .mv-sea .rn button{border:1px solid var(--line)} .mv-sea .rn button.on{border-color:#5AA9E6; background:rgba(90,169,230,.14); color:var(--ink)}
-.mv-rged .tms{display:flex; gap:4px; margin-top:-3px} .mv-rged .tms button{flex:1; min-height:34px; border:1px solid var(--line); border-radius:10px; background:none; font:inherit; font-size:calc(12.5px * var(--k)); font-weight:700; color:var(--ink-2)}
+.mv-rged .tms{display:flex; gap:4px; margin-top:-3px} .mv-rged .tms button{flex:1 1 auto; white-space:nowrap; padding:0 6px; min-height:34px; border:1px solid var(--line); border-radius:10px; background:none; font:inherit; font-size:calc(12.5px * var(--k)); font-weight:700; color:var(--ink-2)}
+.sim-row .nw{white-space:nowrap} .sim-row .v.tmv{flex-direction:column; align-items:flex-start; gap:3px}
 .mv-rged .tms button.on{border-color:#FFC93C; background:rgba(255,201,60,.14); color:var(--ink)}
 .mv-memo{width:100%; margin:10px 0; padding:10px 12px; border:1px solid var(--line); border-radius:12px; background:var(--paper); font:inherit; font-size:calc(16px * var(--k)); color:var(--ink)}
 .mv-trip > span:first-child{flex:none}
@@ -5630,7 +5631,7 @@ const TideHarm = (() => {
     function rigRemember(sink, egi, sinkM) { saveJ(RIG_KEY, { d: kstDay(Date.now()), sink: sink.slice(), egi: egi.map(x => ({ ...x })), sinkM: sinkMOf(sink, sinkM), last: sink.length ? sink.slice() : ((loadJ(RIG_KEY, null) || {}).last || []) }); }
     // 봉돌 메모: 상자에 있는 봉돌 것만, 빈 것은 빼고
     const sinkMOf = (sink, m) => { const o = {}; for (const n of sink || []) { const t = m && String(m[n] || '').trim(); if (t) o[n] = t.slice(0, 30); } return o; };
-    const TM_L = [['dawn', '새벽'], ['am', '오전'], ['pm', '오후']], TM_N = { dawn: '새벽', am: '오전', pm: '오후' };   // ★ 잘 먹힌 때
+    const TM_L = [['dawn', '해 뜨기 전'], ['am', '직후'], ['pm', '오른 뒤']], TM_N = { dawn: '해 뜨기 전', am: '해 뜬 직후', pm: '해 오른 뒤' };   // ★ 잘 먹힌 때 (해 기준 · 예전 새벽/오전/오후 키 그대로)
     const egiClean = a => (a || []).map(x => { const y = { ...x }; if (!y.s || !Array.isArray(y.tm) || !y.tm.length) delete y.tm; if (y.m != null) { y.m = String(y.m).trim().slice(0, 30); if (!y.m) delete y.m; } return y; });
     // 채비: 위에 '오늘 채비' 상자 (봉돌 칸 · 에기 칸), 아래에 고르는 단추 · 누르면 상자에 쏙, 상자의 칸을 누르면 제자리로 · 에기 칸을 꾹 누르면 손질
     function rigRows(f, scroll) {
@@ -7378,7 +7379,7 @@ const TideHarm = (() => {
       const top = m => [...m].sort((a, b) => b[1].c - a[1].c).slice(0, 3);
       const sink = [...sk].sort((a, b) => b[1] - a[1] || a[0] - b[0])[0];
       const byTm = {}; for (const x of L) for (const e of x.cd.egi) if (e.s && e.tm) for (const q of e.tm) { const m = byTm[q] || (byTm[q] = new Map()), nm = egiName(e); if (nm) m.set(nm, (m.get(nm) || 0) + 1); }
-      const tm = TM_L.filter(([q]) => byTm[q]).map(([q, t]) => `${t} ${[...byTm[q]].sort((a, b) => b[1] - a[1]).slice(0, 2).map(([nm]) => esc(nm)).join('·')}`);
+      const tm = TM_L.filter(([q]) => byTm[q]).map(([q]) => `<span class="nw">${TM_N[q]} ${[...byTm[q]].sort((a, b) => b[1] - a[1]).slice(0, 2).map(([nm]) => esc(nm)).join('·')}</span>`);
       return { star: top(star), used: top(used), sink: sink ? sink[0] : null, tm };
     }
     const simIc = q => { const e = egiGet(q.e.c); return e ? egiSvg(e, q.e) : ''; };
@@ -7390,7 +7391,7 @@ const TideHarm = (() => {
       const row = x => { const cd = x.cd; return `<li><b>${cd.y !== y0 ? cd.y + '년 ' : ''}${cd.m}월 ${cd.d}일${cd.boat ? ' · ' + esc(cd.boat) : ''} · ${cd.tot}마리</b><span>${[cd.mul, cd.wt != null ? `수온 ${cd.wt.toFixed(1)}℃` : '', seaTxt(x.sq), cd.port ? esc(cd.port) : '', sinkTxt(cd.sink), cd.egi.filter(e => e.s).map(starTxt).join(' ')].filter(Boolean).join(' · ')}</span><em>${x.why.join(' · ')}</em></li>`; };
       const pick = sm.star.length ? `<div class="sim-row"><span class="k">★ 잘 먹힌 ${N}</span><span class="v">${sm.star.map(([nm, q]) => `<i>${simIc(q)}${esc(nm)} ${q.c}번</i>`).join('')}</span></div>`
         : sm.used.length ? `<div class="sim-row"><span class="k">써 본 ${N}</span><span class="v">${sm.used.map(([nm, q]) => `<i>${simIc(q)}${esc(nm)} ${q.c}번</i>`).join('')}</span></div>` : '';
-      const sink = (sm.tm.length ? `<div class="sim-row"><span class="k">때별 ★</span><span class="v">${sm.tm.join(' · ')}</span></div>` : '')
+      const sink = (sm.tm.length ? `<div class="sim-row"><span class="k">때별 ★</span><span class="v tmv">${sm.tm.join('')}</span></div>` : '')
         + (sm.sink ? `<div class="sim-row"><span class="k">봉돌</span><span class="v">주로 ${sm.sink}호</span></div>` : '');
       if (L.length === 1) return head + `<div class="sim-card"><p class="sim-one">비슷한 날 기록 1번 · 참고만 해 주세요</p><ul class="sim-list">${row(L[0])}</ul></div>`;
       return head + `<div class="sim-card"><p class="sim-top">비슷했던 내 출조 ${L.length}번 <span>· 평균 ${Math.round(T.reduce((a, x) => a + x.cd.tot, 0) / T.length)}마리</span></p>${pick}${sink}<ul class="sim-list">${T.map(row).join('')}</ul></div>`;
@@ -9508,7 +9509,7 @@ const TideHarm = (() => {
 
 <script>
 if ('serviceWorker' in navigator) addEventListener('load', () => {
-  const sw = navigator.serviceWorker, VER = 'd06d1422'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
+  const sw = navigator.serviceWorker, VER = 'd71d1fa2'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
   // 화면에 손을 대기 시작했는지 (쓰는 중에는 새로 열지 않으려고)
   ['pointerdown', 'keydown'].forEach(t => addEventListener(t, () => { touched = true; }, { capture: true, passive: true }));
   const reload = () => {
