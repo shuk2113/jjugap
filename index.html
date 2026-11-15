@@ -1535,7 +1535,14 @@ const TideHarm = (() => {
     ur: { name: '우럭', full: '우럭 외줄', sub: '먼바다 침선·어초<br>생미끼', ic: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7.2 8.2l.9-3.6 1.3 3 1.2-3.4 1.2 3.2 1.2-3 1 3.4" fill="#3E362F"/><path d="M2.4 12.4c1.6-4.8 9-6.6 14.4-3.4L21.6 6v12.8l-4.8-3c-5.4 3.2-12.8 1.4-14.4-3.4z" fill="#5E544A"/><path d="M10 8.6c-.8 2-.8 5.6 0 7.6M13.6 8.8c-.6 2-.6 5.2 0 7.2" stroke="#3B332C" stroke-width="1.3" fill="none" opacity=".7"/><circle cx="6.2" cy="11.2" r="2" fill="#E6C25A"/><circle cx="6" cy="11.2" r="1.05" fill="#1B1B1B"/><path d="M2.5 13l2.7-.2" stroke="#241D18" stroke-width="1.1" stroke-linecap="round"/></svg>' }
   };
   let SP = (() => { try { const v = localStorage.getItem(SP_KEY); if (SPECIES[v]) return v; } catch (e) {} return 'jg'; })();
-  const spNow = () => SP;   // 지금 고른 낚시 방식 · 지도 쪽에는 이름이 같은 SP(조류 자료)가 따로 있어서 거기서는 꼭 이걸로 읽는다
+  const spNow = () => SP;
+  // 포인트가 어느 낚시 방식 기록인지: 포인트에 적힌 방식 → 없으면 그 출조를 정리할 때 고른 방식 → 없으면 쭈갑 (어종 모드 전 기록은 모두 쭈갑)
+  function ptSpOf(p, S) {
+    if (p && SPECIES[p.sp]) return p.sp;
+    const x = p && S && S[[Math.floor((p.t + 9 * 3600000) / 86400000), p.boat || '', p.depName || ''].join('|')];
+    return x && SPECIES[x.sp] ? x.sp : 'jg';
+  }
+  const sumsAll = () => { try { return JSON.parse(localStorage.getItem('jjukgap-sums') || '{}') || {}; } catch (e) { return {}; } };   // 지금 고른 낚시 방식 · 지도 쪽에는 이름이 같은 SP(조류 자료)가 따로 있어서 거기서는 꼭 이걸로 읽는다
   const ADV = {
     jg: { calm: LV.calm.advice, mid: LV.mid.advice, strong: LV.strong.advice,
           lg: ['조금 전후 · 채비가 바닥에 곧게 닿아요', '적당히 흘러요 · 봉돌 무게로 조절', '사리 전후 · 줄이 날리고 밑걸림'] },
@@ -1569,7 +1576,7 @@ const TideHarm = (() => {
   function recDays() {
     if (recDaysC) return recDaysC;
     const m = new Map(); recTotal = 0;
-    try { for (const q of JSON.parse(localStorage.getItem('jjukgap-points') || '[]')) { const n = Math.floor((q.t + 9 * 3600000) / DAY); m.set(n, (m.get(n) || 0) + 1); recTotal++; } } catch (e) {}
+    try { const S = sumsAll(); for (const q of JSON.parse(localStorage.getItem('jjukgap-points') || '[]')) { if (ptSpOf(q, S) !== SP) continue; const n = Math.floor((q.t + 9 * 3600000) / DAY); m.set(n, (m.get(n) || 0) + 1); recTotal++; } } catch (e) {}   // 지금 고른 방식의 기록만
     return (recDaysC = m);
   }
   function paintRec() {
@@ -2250,6 +2257,7 @@ const TideHarm = (() => {
     if (!SPECIES[k] || k === SP) return;
     SP = k; try { localStorage.setItem(SP_KEY, k); } catch (e) {}
     spPaint(); wtKey = ''; renderWt(); Scene.setSpecies(k); paintWx(); render();
+    dispatchEvent(new Event('jjugap-sp')); dispatchEvent(new Event('jjugap-points'));   // 기록 지도·'내 기록' 숫자·달력 표시도 그 방식으로
     const b = $('sp-btn'); b.classList.remove('pulse'); void b.offsetWidth; b.classList.add('pulse');
   }
   function spShow() { if (spOpen) return; spOpen = true; spPaint(); spEl.hidden = false; try { history.pushState({ ...(history.state || {}), spv: 1 }, ''); } catch (e) {} const f = spEl.querySelector('[aria-pressed="true"]'); if (f) f.focus({ preventScroll: true }); }
@@ -3587,7 +3595,7 @@ const TideHarm = (() => {
     let isOpen = false, skipPop = false, W = 0, H = 0, dpr = 1;
     let onBoard = false, board = null, natStartT = 0, seaFrom = 0;   // 선상 모드 (지도 화면이 닫혀 있어도 켜져 있을 수 있다)
     let viewMode = false, dayFilter = null;   // '내 기록' 보기(선상 모드를 켜지 않고 지도만) · 그날 기록만 보기
-    const recVis = p => dayFilter == null || kstDayOf(p.t) === dayFilter;
+    const recVis = p => (dayFilter == null || kstDayOf(p.t) === dayFilter) && tripGroups().by.has(p.id);   // 그날 · 지금 방식 기록만
     const kstDayOf = t => Math.floor((t + 9 * 3600000) / 86400000);
     let v = { lon: 126.4, lat: 36.45, s: 900 };          // 지도 가운데와 배율(1도당 화면 점 수)
     let me = null, gps = null, follow = true, watchId = null, wake = null, mode = 'info', selId = null, form = null, raf = 0, lastPanel = 0;
@@ -3595,8 +3603,10 @@ const TideHarm = (() => {
     let points = [], tripCache = null, goldOn = false;
     const RM = matchMedia('(prefers-reduced-motion: reduce)');
     try { points = JSON.parse(localStorage.getItem(PT_KEY) || '[]') || []; } catch (_) { points = []; }
-    const savePts = () => { tripCache = null; try { localStorage.setItem(PT_KEY, JSON.stringify(points)); } catch (_) {} $('mv-pts-n').textContent = points.length; paintBoardBtn(); dispatchEvent(new Event('jjugap-points')); };
-    $('mv-pts-n').textContent = points.length;
+    let spAll = false;   // 다른 낚시 방식 기록도 보기 (골라 보기 창 · 지도를 닫거나 방식을 바꾸면 다시 꺼짐)
+    const ptCount = () => { if (spAll) return points.length; const S = sumsAll(), k = spNow(); return points.filter(p => ptSpOf(p, S) === k).length; };
+    const savePts = () => { tripCache = null; try { localStorage.setItem(PT_KEY, JSON.stringify(points)); } catch (_) {} $('mv-pts-n').textContent = ptCount(); paintBoardBtn(); dispatchEvent(new Event('jjugap-points')); };
+    $('mv-pts-n').textContent = ptCount();
     const esc = t => String(t).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
     const short = k => (TideHarm.STATIONS[k].custom ? TideHarm.STATIONS[k].name : TideHarm.STATIONS[k].name.split(' ').pop());
     // 거리(km)와 방향(출항지에서 본 쪽)
@@ -4098,7 +4108,8 @@ const TideHarm = (() => {
         $('mv-map').querySelector('.mv-tools').appendChild(fbEl); fbEl.addEventListener('click', () => fltMenu(fbEl));
         try { if (!localStorage.getItem('jjukgap-qz-tip') && mapSet.qz && !mapSet.zb) { localStorage.setItem('jjukgap-qz-tip', '1'); setTimeout(() => toast('확대·축소: 두 손가락으로, 또는 한 손으로 두 번 톡 한 뒤 위아래로 끌어요'), 900); } } catch (_) {}
       }
-      fbEl.hidden = !(TG.list.length >= 2 && dayFilter == null);
+      const fbWas = fbEl.hidden; fbEl.hidden = !((TG.list.length >= 2 || TG.oth > 0) && dayFilter == null);
+      if (fbWas !== fbEl.hidden) requestAnimationFrame(() => placeFab(false));   // 단추 줄 길이가 바뀌면 저장 단추 자리도 다시
       fbEl.innerHTML = `${LAYER_IC}<span>${FSHORT[flt]}</span>`; fbEl.setAttribute('aria-label', `지도에 또렷하게 보일 기록 고르기 · 지금 ${fltName(flt)}`);
     }
     const fltBack = () => { selId = null; if (mode === 'detail') { mode = 'info'; paintPanel(true); } };
@@ -4123,6 +4134,7 @@ const TideHarm = (() => {
       const paint = () => {
         d.innerHTML = '<h4>지도에 또렷하게 보일 기록</h4>' + FLTS.map(([k, n]) => `<button type="button" class="fo${k === flt ? ' on' : ''}" role="radio" aria-checked="${k === flt}" data-f="${k}"><b>${n}${k === 'mul' && todayMul ? ` <em>${esc(todayMul)}</em>` : ''}</b><small>${esc(DESC[k])}</small><i aria-hidden="true">${k === flt ? '✓' : ''}</i></button>`).join('')
           + (flt === 'all' ? '' : '<p>고르지 않은 기록은 흐린 점으로 남아요</p>')
+          + (TG.oth ? `<button type="button" class="mv-sw${spAll ? ' on' : ''}" data-sw="sp" role="switch" aria-checked="${spAll}"><span><b>다른 방식 기록도 보기</b><small>${SPECIES[spNow()].full} 말고 ${TG.oth}곳 · 지도를 닫으면 꺼져요</small></span><i></i></button>` : '')
           + `<button type="button" class="mv-sw${mapSet.cl ? ' on' : ''}" data-sw="cl" role="switch" aria-checked="${!!mapSet.cl}"><span><b>멀리 보면 묶기</b><small>멀리 볼 때 가까운 기록을 동그라미로</small></span><i></i></button>`
           + `<button type="button" class="lnk" data-sty="1">지도 모양 <span><em>${esc(styName(mapSty))}</em> ›</span></button>`
           + '<button type="button" class="lnk" data-more="1">지도 설정 더 보기 <span aria-hidden="true">›</span></button>';
@@ -4135,6 +4147,11 @@ const TideHarm = (() => {
       bd.addEventListener('click', () => fltMenuOff());
       d.addEventListener('click', e => {
         const f = e.target.closest('[data-f]'); if (f) { fltMenuOff(); fltSet(f.dataset.f); return; }
+        if (e.target.closest('[data-sw="sp"]')) {
+          spAll = !spAll; tripCache = null; $('mv-pts-n').textContent = ptCount(); fltBack(); fltPaint(); paint();
+          if (mode === 'list') showList();
+          toast(spAll ? '다른 방식 기록도 함께 보여요 · 지도를 닫으면 다시 꺼져요' : `${SPECIES[spNow()].full} 기록만 보여요`); draw(); return;
+        }
         if (e.target.closest('[data-sw]')) { mapSet.cl = !mapSet.cl; mapSetSave(); paint(); toast(mapSet.cl ? '멀리 보면 가까운 기록끼리 묶여요' : '멀리 봐도 묶지 않아요'); draw(); return; }
         if (e.target.closest('[data-sty]')) { fltMenuOff(); styOpen(); return; }
         if (e.target.closest('[data-more]')) { fltMenuOff(); showSet(); requestAnimationFrame(() => { const h = [...panel.querySelectorAll('.mv-setg')].find(x => x.textContent === '지도'); if (h) panel.scrollTop = Math.max(0, h.offsetTop - 56); }); }
@@ -5028,8 +5045,11 @@ const TideHarm = (() => {
     const ptR = c => 8.5 + Math.min(7.5, 2 * Math.sqrt(c));
     function tripGroups() {
       if (tripCache) return tripCache;
-      const m = new Map();
-      for (const p of points) { const k = [kstDay(p.t), p.boat || '', p.depName || ''].join('|'); if (!m.has(k)) m.set(k, []); m.get(k).push(p); }
+      const m = new Map(), S = sumsAll(), spk = spNow(); let oth = 0;
+      for (const p of points) {
+        if (ptSpOf(p, S) !== spk) { oth++; if (!spAll) continue; }   // 다른 방식 기록은 숨김 (스위치를 켜면 함께)
+        const k = [kstDay(p.t), p.boat || '', p.depName || ''].join('|'); if (!m.has(k)) m.set(k, []); m.get(k).push(p);
+      }
       const list = [...m.entries()].map(([key, pts]) => ({ key, pts: pts.slice().sort((a, b) => a.t - b.t) })).sort((a, b) => a.pts[0].t - b.pts[0].t);
       const by = new Map();
       list.forEach((tr, i) => {
@@ -5037,7 +5057,12 @@ const TideHarm = (() => {
         tr.pts.forEach((p, j) => by.set(p.id, { tr, n: j + 1, best: tr.max >= 5 && caughtOf(p) === tr.max }));
       });
       list.reverse();   // 최근 출조가 앞
-      return (tripCache = { list, by });
+      return (tripCache = { list, by, oth });
+    }
+    function tripByKey(k) {
+      const tr = tripGroups().list.find(t => t.key === k); if (tr) return tr;
+      const pts = points.filter(p => [kstDay(p.t), p.boat || '', p.depName || ''].join('|') === k).sort((a, b) => a.t - b.t);
+      return pts.length ? { key: k, pts, color: TRIP_COLORS[0], max: Math.max(0, ...pts.map(caughtOf)) } : null;
     }
     const tripTxt = p => (p.boat || p.depName ? `${p.boat ? esc(p.boat) : '배 기록 없음'}${p.depName ? ` · ${esc(p.depName)} 출항` : ''}` : '');
     // ---------- 채비: 봉돌 호수 · 에기 색 (오늘 출조 정리와 포인트 저장에서 같은 단추로)
@@ -5876,7 +5901,7 @@ const TideHarm = (() => {
     // ---------- 오늘 출조 정리: 낚시가 끝나면 합계 마릿수·채비·잘 나온 자리를 한 번에 (포인트마다 적은 사람은 합계가 미리 채워져 있다)
     let sumTr = null, sumBack = 'list';
     function openSum(k, auto) {
-      const tr = tripGroups().list.find(t => t.key === k); if (!tr) return false;
+      const tr = tripByKey(k); if (!tr) return false;
       sumBack = auto ? 'close' : 'list';
       if (mainToastEl) { clearTimeout(mainToastT); mainToastEl.hidden = true; }   // '선상 모드를 껐어요' 알림이 정리 판 단추를 가리지 않게
       if (!isOpen) { dayFilter = kstDayOf(tr.pts[0].t); open({ view: true }); }
@@ -5944,7 +5969,7 @@ const TideHarm = (() => {
       if (party.length) { const names = party.map(q => q.n), rec = loadJ(PARTY_KEY, []) || []; saveJ(PARTY_KEY, [...names, ...rec.filter(n => !names.includes(n))].slice(0, 8)); }
       saveJ(SUM_KEY, all);
       let ch = false; for (const p of tr.pts) { const g = f.good.has(p.id); if (!!p.good !== g) { if (g) p.good = 1; else delete p.good; ch = true; } }
-      if (ch) savePts(); else tripCache = null;
+      if (ch) savePts(); else { tripCache = null; $('mv-pts-n').textContent = ptCount(); dispatchEvent(new Event('jjugap-points')); }
       if (recOf(f)) saveJ(rigMemK(f.sp), { d: kstDay(Date.now()), sink: f.sink.slice(), egi: egiClean(f.egi) });
       else if (f.sink.length || f.egi.length) rigRemember(f.sink, egiClean(f.egi), f.sinkM);
       sumExit(true, tr.key);
@@ -5960,7 +5985,7 @@ const TideHarm = (() => {
     function sumPendCheck() {
       if (document.visibilityState !== 'visible' || onBoard || mode === 'sum') return;
       const pd = loadJ(SUM_PEND, null); if (!pd) return;
-      const tr = tripGroups().list.find(t => t.key === pd.k), S = sums()[pd.k];
+      const tr = tripByKey(pd.k), S = sums()[pd.k];
       if (Date.now() - pd.at > 18 * 3600000 || !tr || (S && S.t > pd.at)) { try { localStorage.removeItem(SUM_PEND); } catch (_) {} return; }
       if (isOpen && mode === 'save') return;   // 포인트를 적는 중이면 다음에
       openSum(pd.k, !isOpen || viewMode);
@@ -5988,7 +6013,7 @@ const TideHarm = (() => {
       return L;
     }
     function cardData(k) {
-      const tr = tripGroups().list.find(t => t.key === k); if (!tr) return null;
+      const tr = tripByKey(k); if (!tr) return null;
       const S = sums()[k] || null, f = tr.pts[0], l = tr.pts[tr.pts.length - 1];
       const dt = new Date(kstDay(f.t) * DAY);
       const cnt = new Map(); for (const p of tr.pts) if (p.mul) cnt.set(p.mul, (cnt.get(p.mul) || 0) + 1);
@@ -7294,10 +7319,12 @@ const TideHarm = (() => {
           + `<i style="background:${tr.color}"></i><span class="t">${md(kstDay(first.t))} · ${tripTxt(first) || '배·출항지 기록 없음'}</span><span class="n">${tr.pts.length}곳 · ${tot}마리</span>${ICON_CHEV}</button>`
           + `<ul class="mv-list">${sumLi}${items}</ul></section>`;
       }).join('');
-      panel.innerHTML = (dayFilter != null ? `<div class="mv-h"><b>${mdK(dayFilter)} 기록 ${TL.reduce((a, tr) => a + tr.pts.length, 0)}곳</b><span>전체 ${points.length}곳</span></div><div class="mv-btns"><button data-act="rec-all">전체 기록 보기</button></div>`
-        : `<div class="mv-h"><b>저장한 포인트 ${points.length}곳</b><span>이 폰에만 저장돼요</span></div>`) +
-        (points.length ? `<p class="mv-tip">포인트를 꾹 누르면 고치기·지우기, 왼쪽으로 밀어도 지울 수 있어요.</p><div class="mv-trips">${body}</div>`
-          : `<p class="mv-empty">아직 저장한 포인트가 없어요. 배 위에서 지도 아래 파란 핀 단추를 누르면 그 자리와 물때·조류·수온이 함께 남아요.</p>`) +
+      const VN = TG.list.reduce((a, tr) => a + tr.pts.length, 0), spF = SPECIES[spNow()].full, hidTxt = TG.oth && !spAll ? `${spF} 기록만 · 다른 방식 ${TG.oth}곳 숨김` : '';
+      panel.innerHTML = (dayFilter != null ? `<div class="mv-h"><b>${mdK(dayFilter)} 기록 ${TL.reduce((a, tr) => a + tr.pts.length, 0)}곳</b><span>전체 ${VN}곳</span></div><div class="mv-btns"><button data-act="rec-all">전체 기록 보기</button></div>`
+        : `<div class="mv-h"><b>저장한 포인트 ${VN}곳</b><span>${hidTxt || '이 폰에만 저장돼요'}</span></div>`) +
+        (!VN && TG.oth && !spAll ? `<p class="mv-empty">아직 ${spF} 기록이 없어요. 다른 방식 기록 ${TG.oth}곳은 지도 오른쪽 위 골라 보기에서 '다른 방식 기록도 보기'를 켜면 함께 보여요.</p>` : '') +
+        (VN ? `<p class="mv-tip">포인트를 꾹 누르면 고치기·지우기, 왼쪽으로 밀어도 지울 수 있어요.</p><div class="mv-trips">${body}</div>`
+          : TG.oth && !spAll ? '' : `<p class="mv-empty">아직 저장한 포인트가 없어요. 배 위에서 지도 아래 파란 핀 단추를 누르면 그 자리와 물때·조류·수온이 함께 남아요.</p>`) +
         `<div class="mv-set">`
         + (NAT && natUpd ? `<button type="button" class="mv-row-btn" data-act="app-upd">앱 업데이트 (새 버전 1.${natUpd})<span>›</span></button>` : '')
         + `<button type="button" class="mv-row-btn mv-ic" data-act="set-open"><i class="ic">${ICON_GEAR}</i><em class="t"><b>설정</b><small>${esc(setSummary())}</small></em><span>›</span></button>`
@@ -7707,7 +7734,7 @@ const TideHarm = (() => {
       if (mine) { stay.id = mine.id; stay.saved = t; if (!mine.stayFrom) { mine.stayFrom = from; mine.stayTo = t; savePts(); } return; }
       const i = infoAt(c, t), tr = tripFor(t), id = String(t);
       points.unshift({ id, t, lat: +lat.toFixed(6), lon: +lon.toFixed(6), acc: Math.round((me && me.acc) || 0), virtual: false, auto: true, stayFrom: from, stayTo: t,
-        ...tripOf(tr), ...(tr.hint ? { tripGuess: true } : {}), ...condOf(i), jj: 0, gap: 0, etc: [], memo: '' });
+        ...tripOf(tr), ...(tr.hint ? { tripGuess: true } : {}), ...condOf(i), jj: 0, gap: 0, etc: [], memo: '', ...(spNow() !== 'jg' ? { sp: spNow() } : {}) });
       stay.id = id; stay.saved = t; savePts(); draw();
       if (mode === 'list') showList(); else if (mode === 'detail' && selId) showDetail(selId);
       try { navigator.vibrate && navigator.vibrate([30, 70, 30]); } catch (_) {}
@@ -8166,8 +8193,9 @@ const TideHarm = (() => {
       // 오른쪽 위 단추들(확대·축소·내 위치·항구 이름)을 가리면 그 바로 아래로 비켜 둔다 (단추가 늘어도)
       const tb = !fabLive && box.querySelector('.mv-tools');
       if (tb && cx + FAB_R > tb.offsetLeft - 4 && cy - FAB_R < tb.offsetTop + tb.offsetHeight + 4) cy = Math.min(L.y1, Math.max(cy, tb.offsetTop + tb.offsetHeight + 12 + FAB_R));
+      let cx2 = cx; if (tb && cx + FAB_R > tb.offsetLeft - 4 && cy - FAB_R < tb.offsetTop + tb.offsetHeight + 4) cx2 = Math.max(L.x0, tb.offsetLeft - 6 - FAB_R);   // 그래도 겹치면 왼쪽으로
       fab.style.transition = anim ? EASE + ', opacity .18s' : 'opacity .18s';
-      fab.style.transform = `translate3d(${Math.round(cx - FAB_R)}px,${Math.round(cy - FAB_R)}px,0)`;
+      fab.style.transform = `translate3d(${Math.round(cx2 - FAB_R)}px,${Math.round(cy - FAB_R)}px,0)`;
     }
     fab.addEventListener('contextmenu', e => e.preventDefault());
     fab.addEventListener('pointerdown', e => {
@@ -8286,12 +8314,15 @@ const TideHarm = (() => {
       loadLand(); loadMapPorts(); loadSpots(); natFixes(); paintView(); paintPanel(true); applySheet(false); resize(); kick(); autoPill(); autoPill.last = '';
       if (rec) { const F = dayFilter == null ? fltList().flatMap(t => t.pts) : [], L = F.length ? F : points.filter(recVis); if (L.length) fitPts(L); if (onBoard) showList(); draw(); }
       if (useHist) { try { history.pushState({ mapv: 1 }, ''); } catch (_) {} }
+      try { if (!localStorage.getItem('jjukgap-sp-tip') && tripGroups().oth) { localStorage.setItem('jjukgap-sp-tip', '1'); setTimeout(() => { if (isOpen) toast(`${SPECIES[spNow()].full} 기록만 보여요 · 다른 방식은 오른쪽 위 골라 보기에서`); }, 900); } } catch (_) {}
     }
+    addEventListener('jjugap-sp', () => { spAll = false; tripCache = null; $('mv-pts-n').textContent = ptCount(); if (isOpen) { fltPaint(); draw(); } });
     // 지도만 닫는다: 선상 모드는 켜 둔 채 물때 화면으로 (GPS·자동 기록·홈 화면 단추·알림줄은 그대로)
     function close(fromPop) {
       if (!isOpen) return; rgEdClose();
       if (mode === 'sum') { try { localStorage.removeItem(SUM_PEND); } catch (_) {} form = null; sumTr = null; mode = 'info'; }
       natFixes(); isOpen = false; closeMenu(); view.hidden = true; wakeOff(); pendingSave = false;
+      if (spAll) { spAll = false; tripCache = null; $('mv-pts-n').textContent = ptCount(); }
       if (!onBoard) { stopGps(); endStay(); track = []; }
       if (viewMode && me && !me.virtual && !onBoard) me = null;   // '내 기록'에서 한 번 찍어 본 위치는 남기지 않는다
       viewMode = false; dayFilter = null;
@@ -8723,7 +8754,7 @@ const TideHarm = (() => {
 
 <script>
 if ('serviceWorker' in navigator) addEventListener('load', () => {
-  const sw = navigator.serviceWorker, VER = '9f63309d'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
+  const sw = navigator.serviceWorker, VER = '6cc24beb'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
   // 화면에 손을 대기 시작했는지 (쓰는 중에는 새로 열지 않으려고)
   ['pointerdown', 'keydown'].forEach(t => addEventListener(t, () => { touched = true; }, { capture: true, passive: true }));
   const reload = () => {
