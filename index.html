@@ -692,6 +692,23 @@ a.mv-row-btn{text-decoration:none; gap:10px} .mv-row-btn span{font-size:calc(20p
 @keyframes famBob{0%,100%{transform:translateY(0) rotate(-3deg)} 50%{transform:translateY(-3px) rotate(3deg)}}
 @media (prefers-reduced-motion: reduce){ .fam-say.load img{animation:none} }
 .fam-t{display:block}
+.cardv.bookv{z-index:82}   /* 조과 카드 위에 열린다 */
+.bk-sum{display:flex; align-items:center; gap:10px; margin:2px 2px 6px; font-size:calc(13px * var(--k)); font-weight:700}
+.bk-bar{flex:1; height:8px; border-radius:4px; background:var(--well); overflow:hidden} .bk-bar i{display:block; height:100%; border-radius:4px; background:#FF7A59}
+.bk-g{display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:10px; margin-top:8px}
+.bk-c{position:relative; display:flex; flex-direction:column; align-items:center; gap:3px; min-width:0; padding:10px 4px 9px; border:1px solid var(--line); border-radius:14px; background:var(--card); font:inherit; color:var(--ink); -webkit-tap-highlight-color:transparent}
+.bk-c .im{height:76px; display:flex; align-items:center; justify-content:center} .bk-c .im svg{height:76px; width:auto; display:block}
+.bk-c b{max-width:100%; font-size:calc(13px * var(--k)); white-space:nowrap; overflow:hidden; text-overflow:ellipsis} .bk-c small{font-size:calc(11px * var(--k)); font-weight:600; color:var(--ink-2)}
+.bk-c.no .im svg{filter:brightness(0); opacity:.16} .bk-c.no b{color:var(--ink-2)}
+.bk-c .nw{position:absolute; top:6px; right:6px; padding:1px 6px; border-radius:8px; background:#FF7A59; color:#fff; font-size:calc(10px * var(--k)); font-weight:800}
+.bk-st{color:#E0A100}
+.bk-dt{display:flex; gap:14px; align-items:center; margin:6px 0 10px; padding:14px; border:1px solid var(--line); border-radius:16px; background:var(--card)}
+.bk-dt .im svg{height:130px; width:auto; display:block} .bk-dt.no .im svg{filter:brightness(0); opacity:.16}
+.bk-dt h3{margin:0 0 8px; font-size:calc(19px * var(--k))} .bk-ch{display:flex; flex-wrap:wrap; gap:6px}
+.bk-ch span{padding:4px 9px; border-radius:10px; background:var(--well); font-size:calc(12px * var(--k)); font-weight:700}
+.bk-h4{margin:14px 2px 6px; font-size:calc(13.5px * var(--k)); font-weight:800}
+.bk-tr{display:flex; gap:8px; align-items:baseline; padding:10px 2px; border-top:1px solid var(--line); font-size:calc(13px * var(--k))} .bk-tr b{flex:none; width:1.2em; color:#E0A100} .bk-tr span{color:var(--ink-2); font-size:calc(12px * var(--k))}
+.bk-none{margin:8px 2px; font-size:calc(13px * var(--k)); line-height:1.6; color:var(--ink-2)}
 .mv-empty{margin:6px 0 12px; font-size:calc(13px * var(--k)); color:var(--ink-2); line-height:1.5; font-weight:500}
 @media (prefers-reduced-motion: reduce){ .mapv{animation:none} }
 .sheet{position:fixed; left:0; right:0; bottom:0; z-index:41; max-width:520px; max-height:85vh; overflow-y:auto; margin:0 auto; border-radius:24px 24px 0 0; background:var(--card); box-shadow:0 -10px 30px rgba(0,0,0,.2);
@@ -1757,7 +1774,8 @@ const TideHarm = (() => {
   const FAM_SAY = {
     empty: { oc: '텅~ 비었다! 첫 출조 언제 가요?', gw: '누워서 기다리는 중…', ur: '기다린 거 아니거든.' },
     load: { oc: '두리번두리번… 찾는 중!', gw: '천천히 가져오는 중~', ur: '금방 돼. 재촉하지 마.' },
-    err: { oc: '힝… 다시 해 볼래요?', gw: '그럴 수도 있지. 이따 다시!', ur: '…내 탓 아니다.' }
+    err: { oc: '힝… 다시 해 볼래요?', gw: '그럴 수도 있지. 이따 다시!', ur: '…내 탓 아니다.' },
+    book: { oc: '우와, 이거 나 봤어!', gw: '이 웜은 좀 알지~', ur: '…미꾸라지는 반칙이다.' }
   };
   const famK = () => ({ gw: 'gw', ur: 'ur' })[spNow()] || 'oc';
   const FAMURL = new Map();
@@ -1769,7 +1787,7 @@ const TideHarm = (() => {
   // 가족 + 말풍선 (+ 원래 안내 글 t) → HTML
   function famSay(k, st, t) {
     const e = x => String(x).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
-    let img = ''; try { img = `<img src="${famUrl(k, st === 'err' ? 'bust' : 'base')}" alt="" aria-hidden="true">`; } catch (_) {}
+    let img = ''; try { img = `<img src="${famUrl(k, st === 'err' ? 'bust' : st === 'book' ? 'joy' : 'base')}" alt="" aria-hidden="true">`; } catch (_) {}
     return `<span class="fam-say ${st}">${img}<span class="fb">${(FAM_SAY[st] || FAM_SAY.empty)[k] || FAM_SAY[st].oc}</span></span>` + (t ? `<span class="fam-t">${e(t)}</span>` : '');
   }
   // 포인트가 어느 낚시 방식 기록인지: 포인트에 적힌 방식 → 없으면 그 출조를 정리할 때 고른 방식 → 없으면 쭈갑 (어종 모드 전 기록은 모두 쭈갑)
@@ -3587,10 +3605,10 @@ const TideHarm = (() => {
     const reduceM = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
     function paintBtn() { $('st-name').textContent = TideHarm.STATIONS[tideSt].name; }
     // ---------- 목록: 검색어가 없으면 최근 고른 곳, 있으면 항·포구 검색 결과
-    let PORTS = null, portsP = null, results = [], busy = false;
+    let PORTS = null, portsP = null, results = [], busy = false, portsErr = false;
     const qEl = $('st-q'), qX = $('st-q-x');
     function loadPorts() {
-      if (!portsP) portsP = fetch('data/ports.json').then(r => (r.ok ? r.json() : [])).then(d => { PORTS = Array.isArray(d) ? d : []; if (qEl.value.trim()) paintList(); return PORTS; }).catch(() => { portsP = null; PORTS = PORTS || []; return PORTS; });
+      if (!portsP) portsP = fetch('data/ports.json').then(r => (r.ok ? r.json() : [])).then(d => { PORTS = Array.isArray(d) ? d : []; if (qEl.value.trim()) paintList(); return PORTS; }).catch(() => { portsP = null; if (!PORTS) portsErr = true; if (qEl.value.trim()) paintList(); return PORTS || []; });
       return portsP;
     }
     const norm = t => String(t || '').replace(/\s+/g, '').toLowerCase();
@@ -3628,6 +3646,7 @@ const TideHarm = (() => {
           + `<p class="st-none">다른 곳은 위에서 <b>항·포구 이름</b>으로 찾거나 <b>내 위치에서 가장 가까운 곳</b>을 눌러 주세요. 서해·남해·제주의 항·포구를 찾을 수 있어요.</p>`;
         return;
       }
+      if (!PORTS && portsErr) { portsErr = false; list.innerHTML = famSay('oc', 'err') + '<p class="st-none">항·포구 목록을 받지 못했어요. 인터넷 연결을 확인하고 다시 찾아 주세요.</p>'; return; }   // 다음 글자를 칠 때 다시 받는다
       if (!PORTS) { list.innerHTML = famSay('oc', 'load') + '<p class="st-none">항·포구 목록을 불러오는 중이에요…</p>'; loadPorts(); return; }
       const rs = [];
       for (const k of mine) { const S = TideHarm.STATIONS[k], sc = Math.max(score(q, toks, S.name, S.sub || ''), akaScore(q, toks, ST_AKA[k], 4)); if (sc) rs.push({ sc: sc + 0.5, k, name: S.name, sub: '최근 고른 곳 · ' + cSub(S), lat: S.lat, lon: S.lon }); }
@@ -7189,7 +7208,7 @@ const TideHarm = (() => {
       const tg = [['my', '내 글', hasMy], ['boat', '배 이름', !!cd.boat], ['rig', '에기·봉돌', !!(cd.egi.length || cd.sink.length)], ['memo', '메모', !!cd.memo], ['cond', '물때·수온', !!(cd.mul || cd.wt != null)]].filter(x => x[2]);
       $('cv-tg').innerHTML = tg.length ? '<span>카드에 넣을 것</span>' + tg.map(([k, n]) => `<button type="button" data-c="tg" data-k="${k}" class="${s.show[k] ? 'on' : ''}" aria-pressed="${!!s.show[k]}"><i aria-hidden="true"></i>${n}</button>`).join('') : '';
       $('cv-row1').innerHTML = (s.photo ? '<button type="button" data-c="photo">사진 바꾸기</button><button type="button" class="sm" data-c="photo-rm" aria-label="사진 빼기">사진 빼기</button>' : '<button type="button" data-c="photo">사진 넣기</button>')
-        + '<button type="button" data-c="joke">다른 문구</button>'
+        + '<button type="button" data-c="joke">다른 문구</button>' + (cd.egi.length ? `<button type="button" data-c="book">${cd.lureN} 도감</button>` : '')
         + `<button type="button" data-c="my">${hasMy ? '내 글 고치기' : '내 글 쓰기'}</button>`;
     }
     function cardPaint() {
@@ -7216,6 +7235,78 @@ const TideHarm = (() => {
       try { row.scrollTo({ left, behavior: smooth ? 'smooth' : 'auto' }); } catch (_) { row.scrollLeft = left; }
     }
     function cvToast(t) { const el = $('cv-toast'); el.textContent = t; el.hidden = false; clearTimeout(cvToast.t); cvToast.t = setTimeout(() => { el.hidden = true; }, 2600); }
+    // ---------- 웜·미끼·에기 도감: 써 본 것은 그림 카드로 모이고, 안 써 본 기본 것은 실루엣 (추천 없이 내 기록 그대로)
+    const BK_N = { jg: '에기', gw: '웜', ur: '미끼' }, BK_SEEN = 'jjukgap-book-seen';
+    const bkOfMode = (id, md) => (md === 'gw' ? id[0] === 'w' && id[1] === '-' : md === 'ur' ? id[0] === 'b' && id[1] === '-' : !isLure(id));
+    function bookData(md) {
+      const keys = [...new Set(points.map(p => [kstDay(p.t), p.boat || '', p.depName || ''].join('|')))], st = new Map();
+      for (const k of keys) {
+        const cd = cardData(k); if (!cd || cd.mode !== md) continue;
+        const t = Date.UTC(cd.y, cd.m - 1, cd.d);
+        for (const x of cd.egi) {
+          if (!bkOfMode(x.c, md)) continue;
+          let o = st.get(x.c); if (!o) st.set(x.c, o = { n: 0, s: 0, last: 0, first: Infinity, trips: [], x });
+          o.n++; if (x.s) o.s++; if (t >= o.last) { o.last = t; o.x = x; } o.first = Math.min(o.first, t); o.trips.push({ t, cd, s: !!x.s });
+        }
+      }
+      const base = md === 'gw' ? [...WRM, ...wrmMine] : md === 'ur' ? [...BAIT, ...baitMine] : [...EGI.map(e => egiGet(e.id)), ...egiMine];
+      const L = base.filter(e => e && (!e.hide || st.has(e.id))).map(e => e.id);
+      for (const id of st.keys()) if (!L.includes(id) && egiGet(id)) L.push(id);
+      return { L, st };
+    }
+    let bookS = null, bookEl = null;
+    const bkDay = t => { const d = new Date(t); return `${d.getUTCMonth() + 1}월 ${d.getUTCDate()}일`; };
+    function bookOpen(md, focus) {
+      if (!BK_N[md]) md = 'jg';
+      if (!bookEl) {
+        bookEl = document.createElement('div'); bookEl.className = 'cardv bookv'; bookEl.id = 'bookv'; bookEl.hidden = true;
+        bookEl.setAttribute('role', 'dialog'); bookEl.setAttribute('aria-modal', 'true');
+        document.body.appendChild(bookEl);
+        bookEl.addEventListener('click', e => {
+          const b = e.target.closest('[data-b]'); if (!b || !bookS) return; const a = b.dataset.b;
+          if (a === 'x') { if (bookS.sel) { if (useHist && history.state && history.state.bookd) history.back(); else { bookS.sel = null; bookRender(); } } else bookClose(); return; }
+          if (a === 'it') { bookS.sel = b.dataset.id; if (useHist) { try { history.pushState({ bookv: 1, bookd: 1 }, ''); } catch (_) {} } bookRender(); bookEl.scrollTop = 0; }
+        });
+      }
+      const D = bookData(md);
+      bookS = { md, sel: focus && D.st.has(focus) ? focus : null };
+      bookEl.hidden = false; document.documentElement.classList.add('cv-lock');
+      if (useHist) { try { history.pushState({ bookv: 1 }, ''); if (bookS.sel) history.pushState({ bookv: 1, bookd: 1 }, ''); } catch (_) {} }
+      bookRender(D); bookEl.scrollTop = 0;
+    }
+    function bookClose(fromPop) {
+      if (!bookS) return; bookS = null; bookEl.hidden = true;
+      if (!cardS && !portS) document.documentElement.classList.remove('cv-lock');
+      if (useHist && !fromPop && history.state && history.state.bookv) { skipPop = true; history.back(); }
+    }
+    function bookRender(D) {
+      const s = bookS; if (!s) return; D = D || bookData(s.md);
+      const N = BK_N[s.md], fk = { jg: 'oc', gw: 'gw', ur: 'ur' }[s.md];
+      let seen = loadJ(BK_SEEN, {}); if (!seen || typeof seen !== 'object') seen = {};
+      const used = D.L.filter(id => D.st.has(id)).length;
+      const head = `<div class="cv-h"><button type="button" class="cv-x" data-b="x" aria-label="${s.sel ? '도감으로' : '닫기'}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button><b>${N} 도감</b><span>${SPECIES[s.md] ? SPECIES[s.md].full : ''}</span></div>`;
+      let body;
+      if (s.sel) {
+        const id = s.sel, e = egiGet(id), o = D.st.get(id);
+        const nm = o ? egiName(o.x) : e.n;
+        body = `<div class="bk-dt${o ? '' : ' no'}"><div class="im">${egiSvg(e, o ? o.x : null)}</div><div><h3>${esc(nm)}</h3><div class="bk-ch">`
+          + (o ? `<span>써 본 출조 ${o.n}번</span><span class="bk-st">★ 잘 먹힘 ${o.s}번</span><span>처음 ${bkDay(o.first)}</span><span>마지막 ${bkDay(o.last)}</span>` : '<span>아직 안 써 봤어요</span>') + '</div></div></div>';
+        if (o) {
+          const T = o.trips.slice().sort((a, b) => b.s - a.s || b.t - a.t);
+          body += `<p class="bk-h4">써 본 날 <span class="bk-st">★ 잘 먹힌 날</span></p>` + T.map(({ t, cd, s: st }) => `<div class="bk-tr"><b>${st ? '★' : ''}</b><div>${bkDay(t)}${cd.boat ? ' · ' + esc(cd.boat) : ''} · ${cd.tot}마리<br><span>${[cd.mul, cd.wt != null ? `수온 ${cd.wt.toFixed(1)}℃` : '', cd.port ? esc(cd.port) : ''].filter(Boolean).join(' · ')}</span></div></div>`).join('')
+            + (o.s ? '' : `<p class="bk-none">아직 ★ 표시한 날이 없어요. 출조 정리에서 잘 먹힌 ${N}에 ★를 눌러 두면 여기 모여요.</p>`);
+        } else body += `<p class="bk-none">출조 정리에서 이 ${N}를 고르면 도감에 등록돼요.</p>`;
+      } else {
+        body = famSay(fk, 'book') + `<div class="bk-sum"><span>모은 ${N} ${used} / ${D.L.length}</span><span class="bk-bar"><i style="width:${D.L.length ? Math.round(used / D.L.length * 100) : 0}%"></i></span></div>`
+          + `<div class="bk-g">${D.L.map(id => { const e = egiGet(id), o = D.st.get(id);
+            return `<button type="button" class="bk-c${o ? '' : ' no'}" data-b="it" data-id="${esc(id)}" aria-label="${o ? esc(egiName(o.x)) : '아직 안 써 본 ' + N}">${o && !seen[id] ? '<i class="nw">NEW</i>' : ''}<span class="im">${egiSvg(e, o ? o.x : null)}</span><b>${o ? esc(egiName(o.x)) : '???'}</b><small>${o ? (o.s ? `<span class="bk-st">★${o.s}</span> · ` : '') + o.n + '번' : '아직'}</small></button>`; }).join('')}</div>`
+          + (used ? '' : `<p class="bk-none">출조 정리에서 ${N}를 고르면 하나씩 그림이 채워져요.</p>`);
+        let ch = false; for (const id of D.st.keys()) if (!seen[id]) { seen[id] = 1; ch = true; }   // NEW는 한 번만
+        if (ch) saveJ(BK_SEEN, seen);
+      }
+      bookEl.setAttribute('aria-label', `${N} 도감`);
+      bookEl.innerHTML = `<div class="cv-in">${head}${body}</div>`;
+    }
     function cardClick(e) {
       const b = e.target.closest('[data-c]'); if (!b || !cardS) return; const c = b.dataset.c, s = cardS;
       if (c === 'x') return cardClose();
@@ -7224,6 +7315,7 @@ const TideHarm = (() => {
       if (c === 'th-go') { const i = +b.dataset.i; if (i !== s.th) cardGo(i - s.th); return; }
       if (c === 'tg') { s.show[b.dataset.k] = !s.show[b.dataset.k]; cardSaveSt(); cardUi(); return cardPaint(); }
       if (c === 'joke') { s.v++; return cardPaint(); }
+      if (c === 'book') return bookOpen(s.cd.mode, s.cd.egiTop && s.cd.egiTop.c);
       if (c === 'all') { s.all = b.dataset.v === '1'; cardUi(); return cardPaint(); }
       if (c === 'photo') {
         if (NAT && natV() < 3) return cvToast('사진 넣기는 앱을 새 버전으로 업데이트하면 돼요');
@@ -7830,6 +7922,7 @@ const TideHarm = (() => {
           : TG.oth && !spAll ? '' : famSay(famK(), 'empty') + `<p class="mv-empty">아직 저장한 포인트가 없어요. 배 위에서 지도 아래 파란 핀 단추를 누르면 그 자리와 물때·조류·수온이 함께 남아요.</p>`) +
         `<div class="mv-set">`
         + (NAT && natUpd ? `<button type="button" class="mv-row-btn" data-act="app-upd">앱 업데이트 (새 버전 1.${natUpd})<span>›</span></button>` : '')
+        + `<button type="button" class="mv-row-btn mv-ic" data-act="book"><i class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4.5h10.5a3 3 0 0 1 3 3V20H8a3 3 0 0 1-3-3z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M5 17a3 3 0 0 1 3-3h10.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M11.8 7.4l.8 1.7 1.8.2-1.4 1.2.4 1.8-1.6-.9-1.6.9.4-1.8-1.4-1.2 1.8-.2z" fill="currentColor"/></svg></i><em class="t"><b>${BK_N[spNow()] || '에기'} 도감</b><small>써 본 ${BK_N[spNow()] || '에기'}를 그림 카드로 모아 봐요</small></em><span>›</span></button>`
         + `<button type="button" class="mv-row-btn mv-ic" data-act="set-open"><i class="ic">${ICON_GEAR}</i><em class="t"><b>설정</b><small>${esc(setSummary())}</small></em><span>›</span></button>`
         + `<button type="button" class="mv-row-btn mv-ic" data-act="move"><i class="ic">${ICON_MOVE}</i><em class="t"><b>다른 폰·앱으로 포인트 옮기기</b></em><span>›</span></button>`
         + (!NAT && appVer ? `<a class="mv-row-btn" href="app/jjugap.apk" download="jjugap.apk">안드로이드 앱 받기 (홈 화면에 떠 있는 저장 단추·화면이 꺼져도 자동 기록)<span>›</span></a>` : '')
@@ -8060,6 +8153,7 @@ const TideHarm = (() => {
       if (a === 'fold') return toggleFold(b);
       if (a === 'auto-tog') return setAuto(!autoOn);
       if (a === 'set-open') return showSet();
+      if (a === 'book') return bookOpen(spNow());
       if (a === 'lbl-open') return lblOpen();
       if (a === 'set-back') return showList();
       if (a === 'set-more') { const k = b.dataset.k; if (setMore.has(k)) setMore.delete(k); else setMore.add(k); return showSet(); }
@@ -8842,10 +8936,10 @@ const TideHarm = (() => {
     // 앱을 열면 조금 뒤 지도용 자료도 받아 둔다 (바다 위에서 인터넷이 끊겨도 저장해 둔 것으로 보이게)
     if (!inFrame) setTimeout(loadSpots, 3500);
     if (!inFrame) setTimeout(() => (window.requestIdleCallback || (f => setTimeout(f, 0)))(() => loadLand(), { timeout: 4000 }), 5000);
-    addEventListener('popstate', () => { if (skipPop) { skipPop = false; return; } if (portS) { portClose(true); return; } if (cardS) { cardClose(true); return; } if (isOpen) close(true); });
+    addEventListener('popstate', () => { if (skipPop) { skipPop = false; return; } if (bookS) { if (bookS.sel && !(history.state && history.state.bookd)) { bookS.sel = null; bookRender(); } else if (!(history.state && history.state.bookv)) bookClose(true); return; } if (portS) { portClose(true); return; } if (cardS) { cardClose(true); return; } if (isOpen) close(true); });
     document.addEventListener('keydown', e => { if (e.key !== 'Escape') return; if (portS) portClose(); else if (cardS) cardClose(); else if (isOpen) close(); });
     // 안드로이드 앱의 뒤로 단추: 저절로 열린 판(출조 정리·카드 등)은 웹 화면의 '뒤로 가기'가 건너뛰어 앱이 꺼지므로, 앱이 먼저 물어본다
-    window.jjugapBack = () => { if (window.jjugapRigEd && window.jjugapRigEd()) return true; const s = history.state; if (s && (s.mapv || s.cardv || s.portv || s.stSheet || s.pcal || s.palv || s.spv)) { history.back(); return true; } return false; };
+    window.jjugapBack = () => { if (window.jjugapRigEd && window.jjugapRigEd()) return true; const s = history.state; if (s && (s.bookv || s.mapv || s.cardv || s.portv || s.stSheet || s.pcal || s.palv || s.spv)) { history.back(); return true; } return false; };
     { const pb = $('pk-btn'); if (pb) pb.onclick = async () => portOpen(await portIdxFor(tideSt)); }
     // 바다 위(인터넷 약함)에서도 열리게: 지금 출항지의 항구 자료를 미리 받아 둔다 (sw.js 가 저장)
     let portWarmK = '';
@@ -9259,7 +9353,7 @@ const TideHarm = (() => {
 
 <script>
 if ('serviceWorker' in navigator) addEventListener('load', () => {
-  const sw = navigator.serviceWorker, VER = '01f7619a'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
+  const sw = navigator.serviceWorker, VER = 'd3c4cebd'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
   // 화면에 손을 대기 시작했는지 (쓰는 중에는 새로 열지 않으려고)
   ['pointerdown', 'keydown'].forEach(t => addEventListener(t, () => { touched = true; }, { capture: true, passive: true }));
   const reload = () => {
