@@ -1535,6 +1535,7 @@ const TideHarm = (() => {
     ur: { name: '우럭', full: '우럭 외줄', sub: '먼바다 침선·어초<br>생미끼', ic: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7.2 8.2l.9-3.6 1.3 3 1.2-3.4 1.2 3.2 1.2-3 1 3.4" fill="#3E362F"/><path d="M2.4 12.4c1.6-4.8 9-6.6 14.4-3.4L21.6 6v12.8l-4.8-3c-5.4 3.2-12.8 1.4-14.4-3.4z" fill="#5E544A"/><path d="M10 8.6c-.8 2-.8 5.6 0 7.6M13.6 8.8c-.6 2-.6 5.2 0 7.2" stroke="#3B332C" stroke-width="1.3" fill="none" opacity=".7"/><circle cx="6.2" cy="11.2" r="2" fill="#E6C25A"/><circle cx="6" cy="11.2" r="1.05" fill="#1B1B1B"/><path d="M2.5 13l2.7-.2" stroke="#241D18" stroke-width="1.1" stroke-linecap="round"/></svg>' }
   };
   let SP = (() => { try { const v = localStorage.getItem(SP_KEY); if (SPECIES[v]) return v; } catch (e) {} return 'jg'; })();
+  const spNow = () => SP;   // 지금 고른 낚시 방식 · 지도 쪽에는 이름이 같은 SP(조류 자료)가 따로 있어서 거기서는 꼭 이걸로 읽는다
   const ADV = {
     jg: { calm: LV.calm.advice, mid: LV.mid.advice, strong: LV.strong.advice,
           lg: ['조금 전후 · 채비가 바닥에 곧게 닿아요', '적당히 흘러요 · 봉돌 무게로 조절', '사리 전후 · 줄이 날리고 밑걸림'] },
@@ -5825,9 +5826,9 @@ const TideHarm = (() => {
       sheetAtLeast('open');
       if (!me) return;
       const i = infoAt(me), at = Date.now(), rg = rigToday();
-      const rr = REC[SP] ? loadJ(rigMemK(SP), null) : null, rrOk = rr && rr.d === kstDay(at);   // 광어·우럭: 그 방식으로 오늘 고른 채비
-      form = { sp: SP, jj: 0, gap: 0, etc: [], memo: '', i, at, lat: me.lat, lon: me.lon, acc: me.acc || 0, virtual: !!me.virtual, ...tripFor(at),
-        sink: REC[SP] ? (rrOk ? rr.sink.slice() : []) : rg ? rg.sink.slice() : [], egi: REC[SP] ? (rrOk && rr.egi ? rr.egi.map(x => ({ ...x })) : []) : rg ? rg.egi.map(x => ({ ...x })) : [], sinkM: rg && rg.sinkM && !REC[SP] ? { ...rg.sinkM } : {},
+      const spk = spNow(), rr = REC[spk] ? loadJ(rigMemK(spk), null) : null, rrOk = rr && rr.d === kstDay(at);   // 광어·우럭: 그 방식으로 오늘 고른 채비
+      form = { sp: spk, jj: 0, gap: 0, etc: [], memo: '', i, at, lat: me.lat, lon: me.lon, acc: me.acc || 0, virtual: !!me.virtual, ...tripFor(at),
+        sink: REC[spk] ? (rrOk ? rr.sink.slice() : []) : rg ? rg.sink.slice() : [], egi: REC[spk] ? (rrOk && rr.egi ? rr.egi.map(x => ({ ...x })) : []) : rg ? rg.egi.map(x => ({ ...x })) : [], sinkM: rg && rg.sinkM && !REC[SP] ? { ...rg.sinkM } : {},
         big: {}, rg: rrOk && rr.rg ? rr.rg.slice() : [] };
       ensureMain(form);
       mode = 'save'; paintForm(); requestAnimationFrame(rigScrollInit);
@@ -5895,7 +5896,7 @@ const TideHarm = (() => {
         party: S && Array.isArray(S.party) ? S.party.filter(q => q && q.n).map(q => ({ n: String(q.n), jj: q.jj || 0, gap: q.gap || 0 })) : [], partyNew: false,
         lbl: S && S.lbl && LBLS.some(o => o[0] === S.lbl) ? S.lbl : lblPick() };   // 이름표: 이 출조에 고른 것, 없으면 지난번에 고른 것
       // 낚시 방식: 정리해 둔 것 → 포인트에 적힌 것 → 쭈갑 기록이 있으면 쭈갑 → 지금 고른 방식
-      form.sp = S ? S.sp || 'jg' : (tr.pts.find(p => p.sp) || {}).sp || (tr.pts.some(p => p.jj || p.gap || (p.egi || []).length) ? 'jg' : SP);
+      form.sp = S ? S.sp || 'jg' : (tr.pts.find(p => p.sp) || {}).sp || (tr.pts.some(p => p.jj || p.gap || (p.egi || []).length) ? 'jg' : spNow());
       if (recOf(form)) {
         const bg = {}; for (const p of tr.pts) for (const [n, v] of Object.entries(p.big || {})) bg[n] = Math.max(bg[n] || 0, v);
         form.big = S ? { ...(S.big || {}) } : bg; form.rg = S ? (S.rg || []).slice() : [...new Set(tr.pts.flatMap(p => p.rg || []))];
@@ -8722,7 +8723,7 @@ const TideHarm = (() => {
 
 <script>
 if ('serviceWorker' in navigator) addEventListener('load', () => {
-  const sw = navigator.serviceWorker, VER = 'c2898d7e'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
+  const sw = navigator.serviceWorker, VER = '9f63309d'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
   // 화면에 손을 대기 시작했는지 (쓰는 중에는 새로 열지 않으려고)
   ['pointerdown', 'keydown'].forEach(t => addEventListener(t, () => { touched = true; }, { capture: true, passive: true }));
   const reload = () => {
