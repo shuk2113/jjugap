@@ -6017,7 +6017,7 @@ const TideHarm = (() => {
     const bigTh = n => { const v = thAll()['cm:' + n]; return v >= 10 ? v | 0 : BIG_DEF[n] || 0; };
     const thAll = () => { const m = loadJ(CARD_TH_KEY, {}); return m && typeof m === 'object' ? m : {}; };
     const thOf = k => { const v = thAll()[k] || TH_DEF[k] || [10, 3]; const hi = Math.max(2, v[0] | 0), lo = Math.max(1, Math.min(hi - 1, v[1] | 0)); return [hi, lo]; };
-    const CH_COL = { oc: '#FF7A59', gp: '#E9A15B', nak: '#C8A2E8', mun: '#D8504A', fish: '#5BB8F0' };
+    const CH_COL = { oc: '#FF7A59', gp: '#E9A15B', nak: '#C8A2E8', mun: '#D8504A', fish: '#5BB8F0', gw: '#C79A6A', ur: '#6E7890' };
     function cardSp(S, tr) {
       const jj = S ? S.jj || 0 : tr.pts.reduce((a, p) => a + (p.jj || 0), 0), gap = S ? S.gap || 0 : tr.pts.reduce((a, p) => a + (p.gap || 0), 0);
       const em = new Map();
@@ -6026,7 +6026,7 @@ const TideHarm = (() => {
       if (jj) L.push({ k: 'jj', n: '쭈꾸미', s: '쭈', c: jj, ch: 'oc' });
       if (gap) L.push({ k: 'gap', n: '갑오징어', s: '갑', c: gap, ch: 'gp' });
       for (const [n, c] of [...em].sort((a, b) => b[1] - a[1]))
-        L.push({ k: n, n, s: n.slice(0, 1), c, ch: /낙지/.test(n) ? 'nak' : /문어/.test(n) ? 'mun' : /[쭈주]꾸미/.test(n) ? 'oc' : /갑오/.test(n) ? 'gp' : 'fish' });
+        L.push({ k: n, n, s: n.slice(0, 1), c, ch: /낙지/.test(n) ? 'nak' : /문어/.test(n) ? 'mun' : /[쭈주]꾸미/.test(n) ? 'oc' : /갑오/.test(n) ? 'gp' : /광어/.test(n) ? 'gw' : /우럭/.test(n) ? 'ur' : 'fish' });
       return L;
     }
     function cardData(k) {
@@ -6054,7 +6054,7 @@ const TideHarm = (() => {
       const bigL = Object.entries(big).map(([n, cm]) => ({ n, cm, r: bigTh(n) ? cm / bigTh(n) : cm / 100 })).sort((a, b) => b.r - a.r || b.cm - a.cm);
       const bigTop = bigL[0] || null, bigHit = !!(bigTop && bigTh(bigTop.n) && bigTop.cm >= bigTh(bigTop.n));
       const LURE = { gw: '웜', ur: '미끼' }, MAINN = { gw: '광어', ur: '우럭' };
-      return { mode, big, bigTop, bigHit, lureN: LURE[mode] || '에기', mainN: MAINN[mode] || '쭈갑이', ch0: mode === 'jg' ? 'oc' : 'fish',
+      return { mode, big, bigTop, bigHit, lureN: LURE[mode] || '에기', mainN: MAINN[mode] || '쭈갑이', ch0: mode === 'jg' ? 'oc' : mode === 'gw' || mode === 'ur' ? mode : 'fish',
         k, y: dt.getUTCFullYear(), m: dt.getUTCMonth() + 1, d: dt.getUTCDate(), dow: WD[dt.getUTCDay()],
         port: (f.depName || '').trim(), boat: (f.boat || '').trim(), mul, wt: wt == null ? null : Math.round(wt * 10) / 10, wind: wind == null ? null : Math.round(wind),
         sp, tot: sp.reduce((a, s) => a + s.c, 0), party, sink, sinkM, egi, egiTop: egi.find(x => x.s) || egi[0] || null, memo: S && S.memo ? String(S.memo).trim() : '',
@@ -6230,7 +6230,7 @@ const TideHarm = (() => {
     // 방식별 문구 고르기: 씨알 대박이면 그 어종의 대물 문구 → 아니면 방식(광어 다운샷 · 우럭 외줄 · 쭈갑)의 단계별 문구
     const jSet = cd => (cd.mode === 'gw' ? JOKE_GW : cd.mode === 'ur' ? JOKE_UR : JOKE);
     const JK = (th, tier, cd) => { const B = cd.bigHit && JOKE_BIG[cd.bigTop.n]; return B && B[th] ? B[th] : (jSet(cd)[th] || JOKE[th])[tier]; };
-    const CHAT_WHO = { oc: ['oc', '쭈꾸미'], gp: ['gp', '갑오징어'], gw: ['fish', '광어'], ur: ['fish', '우럭'], yl: ['fish', '열기'] };
+    const CHAT_WHO = { oc: ['oc', '꾸미'], gp: ['gp', '갑분이 엄마'], gw: ['gw', '넙돌이 아빠'], ur: ['ur', '우락 삼촌'], yl: ['fish', '열기'] };
     const chatWho = (w, cd) => CHAT_WHO[w === 'x' ? (cd.mode === 'gw' ? 'gw' : 'yl') : w] || CHAT_WHO.oc;
     // ---------- 그리기 도구
     const CF = { j: '"Jua","IBM Plex Sans KR",sans-serif', g: '"Gaegu","Jua",sans-serif', b: '"Black Han Sans","Jua",sans-serif' };
@@ -6292,6 +6292,242 @@ const TideHarm = (() => {
       g.restore();
       return vb[0] * k;
     }
+    // ---------- 쭈갑이네 가족 (조과 카드 캐릭터 · chara/mood.js 1번 특징 콕 스타일과 같은 그림): oc 꾸미 · gp 갑분이 엄마 · gw 넙돌이 아빠 · ur 우락 삼촌
+    // 표정 m = base 기본 · joy 기쁨 · bust 꽝 · big 대박 → SVG 글자 (이미지로 만들어 카드 캔버스에 그린다)
+    const FAM = (() => {
+      let UID = 0; const uid = p => p + (++UID); const f1 = n => +n.toFixed(1);
+      const bez = (p0, p1, p2, p3, n) => { const out = []; for (let i = 0; i <= n; i++) { const t = i / n, a = (1 - t) ** 3, b = 3 * (1 - t) ** 2 * t, c = 3 * (1 - t) * t * t, d = t ** 3; out.push([a * p0[0] + b * p1[0] + c * p2[0] + d * p3[0], a * p0[1] + b * p1[1] + c * p2[1] + d * p3[1]]); } return out; };
+      const norms = pts => pts.map((p, i) => { const a = pts[Math.max(0, i - 1)], b = pts[Math.min(pts.length - 1, i + 1)], dx = b[0] - a[0], dy = b[1] - a[1], l = Math.hypot(dx, dy) || 1; return [-dy / l, dx / l]; });
+      const cubic = (segs, n) => { let out = []; segs.forEach((s, i) => { const q = bez(...s, n); out = out.concat(i ? q.slice(1) : q); }); return out; };
+      const scaleP = (pts, cx, cy, sx, sy) => pts.map(([x, y]) => [cx + (x - cx) * sx, cy + (y - cy) * (sy == null ? sx : sy)]);
+      function pathOf(pts, o, closed = true) { const P = o.angular ? pts.filter((_, i) => i % o.angular === 0) : pts; return 'M' + P.map(p => f1(p[0]) + ' ' + f1(p[1])).join(' L') + (closed ? 'Z' : ''); }
+      function tube(pts, w0, w1, o) {
+        const N = norms(pts), L = [], R = [];
+        pts.forEach((p, i) => { const t = i / (pts.length - 1), w = w0 + (w1 - w0) * t; L.push([p[0] + N[i][0] * w, p[1] + N[i][1] * w]); R.push([p[0] - N[i][0] * w, p[1] - N[i][1] * w]); });
+        const e = pts[pts.length - 1], q = pts[pts.length - 2], dl = Math.hypot(e[0] - q[0], e[1] - q[1]) || 1, tip = [e[0] + (e[0] - q[0]) / dl * w1 * 1.3, e[1] + (e[1] - q[1]) / dl * w1 * 1.3];
+        return pathOf([...L, tip, ...R.reverse()], o);
+      }
+      // 칠하기: 바탕 + (그림자 · 반사광) + 테두리 + 봉제선
+      function paint(d, base, shade, o, inner = '', shine = '') {
+        const id = uid('c'); let s = `<defs><clipPath id="${id}"><path d="${d}"/></clipPath></defs><path d="${d}" fill="${o.flat ? base : shade}"/><g clip-path="url(#${id})">`;
+        if (!o.flat) s += `<path d="${d}" fill="${base}" transform="translate(-6 -7)"/>`;
+        s += inner + (o.flat || o.noShine ? '' : shine) + '</g>';
+        if (o.stitch) s += `<path d="${d}" fill="none" stroke="${o.stitch}" stroke-width="1.6" stroke-dasharray="4 3.2" transform="translate(100 100) scale(.93) translate(-100 -100)" opacity=".9"/>`;
+        s += `<path d="${d}" fill="none" stroke="${o.ink}" stroke-width="${o.lw}" stroke-linejoin="round" stroke-linecap="round"/>`;
+        return s;
+      }
+      // ---------- 눈
+      function eye(x, y, r, o, kind, look = [0, 0]) {
+        const ink = o.ink, k = kind === 'big' && o.eyes ? o.eyes : kind;   // 갑오징어 W 눈 · 우럭 금빛 눈은 어느 버전이든 그대로 (어종 표시)
+        if (k === 'pie') return `<ellipse cx="${x}" cy="${y}" rx="${r * .55}" ry="${r * .95}" fill="#111"/><path d="M${x} ${y - r * .2} L${x + r * .5} ${y - r * .75} A${r * .55} ${r * .95} 0 0 0 ${x + r * .05} ${y - r * .95} Z" fill="#fff"/>`;
+        if (k === 'dot') return `<circle cx="${x + look[0] * r * .2}" cy="${y + look[1] * r * .2}" r="${r * .38}" fill="${ink}"/>`;
+        if (k === 'stitch') return `<circle cx="${x}" cy="${y}" r="${r * .5}" fill="#2A1E16"/><circle cx="${x}" cy="${y}" r="${r * .5}" fill="none" stroke="#fff" stroke-width="1.2" stroke-dasharray="2 2" opacity=".7"/><circle cx="${x - r * .18}" cy="${y - r * .2}" r="${r * .14}" fill="#fff"/>`;
+        if (k === 'w') return `<ellipse cx="${x}" cy="${y}" rx="${r}" ry="${r * .86}" fill="#FFFBF2" stroke="${ink}" stroke-width="${o.lw * .75}"/><path d="M${x - r * .66} ${y - r * .22} Q${x - r * .36} ${y + r * .7} ${x} ${y + r * .06} Q${x + r * .36} ${y + r * .7} ${x + r * .66} ${y - r * .22}" fill="none" stroke="${o.wCol || '#2A1A10'}" stroke-width="${r * .36}" stroke-linecap="round" stroke-linejoin="round"/><circle cx="${x - r * .45}" cy="${y - r * .42}" r="${r * .17}" fill="#fff"/>`;
+        if (k === 'gold') return `<circle cx="${x}" cy="${y}" r="${r}" fill="${o.goldC || '#F2C14E'}" stroke="${ink}" stroke-width="${o.lw * .75}"/><circle cx="${x + look[0] * r * .2}" cy="${y + look[1] * r * .2}" r="${r * .55}" fill="#120A06"/><circle cx="${x - r * .32}" cy="${y - r * .36}" r="${r * .2}" fill="#fff"/>`;
+        // 'big': 흰자 + 큰 눈동자
+        return `<ellipse cx="${x}" cy="${y}" rx="${r * .9}" ry="${r}" fill="#FFFDF8" stroke="${ink}" stroke-width="${o.lw * .75}"/><ellipse cx="${x + look[0] * r * .28}" cy="${y + look[1] * r * .28 + r * .08}" rx="${r * .5}" ry="${r * .6}" fill="#1A0F09"/><circle cx="${x + look[0] * r * .28 - r * .16}" cy="${y + look[1] * r * .28 - r * .14}" r="${r * .17}" fill="#fff"/>`;
+      }
+      const drop = (x, y, k, c = '#8FD3FF') => `<path d="M${x} ${y - 8 * k} C${x + 1.2 * k} ${y - 5 * k} ${x + 4 * k} ${y - 2.6 * k} ${x + 4 * k} ${y} A${4 * k} ${4 * k} 0 0 1 ${x - 4 * k} ${y} C${x - 4 * k} ${y - 2.6 * k} ${x - 1.2 * k} ${y - 5 * k} ${x} ${y - 8 * k} Z" fill="${c}" stroke="#3E79A8" stroke-width="1.3"/><ellipse cx="${x - 1.5 * k}" cy="${y - .4 * k}" rx="${1 * k}" ry="${1.6 * k}" fill="#fff" opacity=".85"/>`;
+      const spark = (x, y, r, c = '#FFD54A') => `<path d="M${x} ${y - r} Q${x + r * .18} ${y - r * .18} ${x + r} ${y} Q${x + r * .18} ${y + r * .18} ${x} ${y + r} Q${x - r * .18} ${y + r * .18} ${x - r} ${y} Q${x - r * .18} ${y - r * .18} ${x} ${y - r} Z" fill="${c}" stroke="#B8860B" stroke-width=".9" stroke-linejoin="round"/>`;
+      const heart = (x, y, k) => `<path d="M${x} ${y + 4 * k} C${x - 7 * k} ${y - 1 * k} ${x - 3.5 * k} ${y - 7.5 * k} ${x} ${y - 3 * k} C${x + 3.5 * k} ${y - 7.5 * k} ${x + 7 * k} ${y - 1 * k} ${x} ${y + 4 * k} Z" fill="#FF6B95" stroke="#B83A60" stroke-width="1.2" stroke-linejoin="round"/>`;
+      const gloom = (xs, y, c, a = .55) => xs.map(([x, h]) => `<path d="M${x} ${y} v${h}" stroke="${c}" stroke-width="2.4" stroke-linecap="round" opacity="${a}"/>`).join('');
+      const blushes = (pts, r, o) => o.noBlush ? '' : pts.map(([x, y]) => `<ellipse cx="${x}" cy="${y}" rx="${r}" ry="${r * .55}" fill="${o.blush || '#FF7F7F'}" opacity="${o.blushA || .45}"/>`).join('');
+      function lidEye(x, y, r, o, kind, look, lid, lidC, tiltL = 0) {
+        const id = uid('le'); let s = eye(x, y, r, o, kind, look);
+        const top = kind === 'gold' ? r : r;
+        s += `<defs><clipPath id="${id}"><ellipse cx="${x}" cy="${y}" rx="${kind === 'gold' ? r : r * .9}" ry="${r}"/></clipPath></defs>`;
+        const ly = y - r + 2 * r * lid, a = tiltL * r;
+        s += `<path d="M${x - r * 1.1} ${ly - a} Q${x} ${ly - r * .25} ${x + r * 1.1} ${ly + a} L${x + r * 1.1} ${y - r * 1.2} L${x - r * 1.1} ${y - r * 1.2} Z" fill="${lidC}" clip-path="url(#${id})"/>`;
+        s += `<path d="M${x - r * .92} ${ly - a * .85} Q${x} ${ly - r * .25} ${x + r * .92} ${ly + a * .85}" stroke="${o.ink}" stroke-width="${o.lw * .9}" fill="none" stroke-linecap="round"/>`;
+        return s;
+      }
+      function ocEyes(o, E, r, P) {
+        const v = o.ocEye || 'orig', ink = o.ink; let s = '';
+        const grad = uid('og');
+        s += `<defs><linearGradient id="${grad}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#4A2C1C"/><stop offset=".6" stop-color="#1C110A"/><stop offset="1" stop-color="#0E0805"/></linearGradient><radialGradient id="${grad}i" cx="50%" cy="80%" r="60%"><stop offset="0" stop-color="#C9783A"/><stop offset="1" stop-color="#1C110A" stop-opacity="0"/></radialGradient></defs>`;
+        E.forEach(([x, y], i) => {
+    const sg = i ? 1 : -1;
+    if (v === 'curious') { s += `<ellipse cx="${x}" cy="${y}" rx="${r * .74}" ry="${r * .93}" fill="url(#${grad})"/><ellipse cx="${x}" cy="${y + r * .32}" rx="${r * .55}" ry="${r * .45}" fill="url(#${grad}i)"/><ellipse cx="${x - r * .1}" cy="${y - r * .48}" rx="${r * .3}" ry="${r * .32}" fill="#fff"/><circle cx="${x + r * .32}" cy="${y + r * .3}" r="${r * .13}" fill="#fff"/><circle cx="${x + r * .36}" cy="${y - r * .38}" r="${r * .08}" fill="#fff"/><path d="M${x - r * .6} ${y - r * 1.45 - (sg > 0 ? r * .15 : 0)} Q${x} ${y - r * 1.8} ${x + r * .6} ${y - r * 1.45 - (sg > 0 ? 0 : r * .15)}" stroke="${ink}" stroke-width="${r * .2}" fill="none" stroke-linecap="round"/>`; return; }
+    if (v === 'teary') {   // 꽝: 눈물 글썽 + 처진 눈썹 (안쪽이 올라감)
+      const ox = x + sg * r * .65, ix = x - sg * r * .65;
+      s += `<ellipse cx="${x}" cy="${y + r * .05}" rx="${r * .74}" ry="${r * .9}" fill="url(#${grad})"/><ellipse cx="${x - r * .14}" cy="${y - r * .36}" rx="${r * .34}" ry="${r * .36}" fill="#fff"/><circle cx="${x + r * .28}" cy="${y + r * .05}" r="${r * .17}" fill="#fff"/><path d="M${x - r * .58} ${y + r * .55} Q${x} ${y + r * .9} ${x + r * .58} ${y + r * .55}" stroke="#BFE8FF" stroke-width="${r * .16}" fill="none" stroke-linecap="round" opacity=".95"/>`
+        + `<path d="M${ox} ${y - r * 1.2} Q${x} ${y - r * 1.35} ${ix} ${y - r * 1.7}" stroke="${ink}" stroke-width="${r * .2}" fill="none" stroke-linecap="round"/>` + drop(x + sg * r * .62, y + r * 1.2, r / 13);
+      return;
+    }
+    if (v === 'starB') {   // 대박: 별 눈 + 번쩍 올라간 눈썹
+      s += `<ellipse cx="${x}" cy="${y}" rx="${r * .76}" ry="${r * .95}" fill="url(#${grad})"/><ellipse cx="${x}" cy="${y + r * .32}" rx="${r * .55}" ry="${r * .45}" fill="url(#${grad}i)"/>` + spark(x - r * .05, y - r * .15, r * .5, '#FFF3B0') + `<circle cx="${x + r * .32}" cy="${y + r * .45}" r="${r * .1}" fill="#fff"/>`
+        + `<path d="M${x - r * .62} ${y - r * 1.6} Q${x} ${y - r * 2.05} ${x + r * .62} ${y - r * 1.6}" stroke="${ink}" stroke-width="${r * .2}" fill="none" stroke-linecap="round"/>`;
+      return;
+    }
+    if (v === 'happy') { s += `<path d="M${x - r * .7} ${y + r * .25} Q${x} ${y - r * .8} ${x + r * .7} ${y + r * .25}" stroke="${ink}" stroke-width="${r * .34}" fill="none" stroke-linecap="round"/>`; return; }
+        });
+        return s;
+      }
+      // ---------- 쭈꾸미: 큰 머리 · 튀어나온 눈 · 쭉 내민 깔때기 입 · 금빛 고리 · 짧게 말린 다리
+      function octo(o) {
+        const P = o.pal.oc, ex = o.ex, hs = (1 + .12 * ex) * (o.bighead ? 1.12 : 1), cx = 100, cy = 74;
+        let s = '';
+        for (let i = 0; i < 6; i++) {   // 짧고 동그랗게 말린 다리
+    const x0 = 64 + i * 14.4, d = i < 3 ? -1 : 1, k = Math.abs(i - 2.5) / 2.5, L = (o.bighead ? .72 : 1) * (1 - .1 * ex);
+    const pts = bez([x0, 112], [x0 + d * 2, 112 + 22 * L], [x0 + d * (8 + 14 * k), 112 + 36 * L], [x0 + d * (16 + 18 * k), 112 + 26 * L], 18)
+      .concat(bez([x0 + d * (16 + 18 * k), 112 + 26 * L], [x0 + d * (20 + 18 * k), 112 + 18 * L], [x0 + d * (12 + 14 * k), 112 + 14 * L], [x0 + d * (10 + 14 * k), 112 + 22 * L], 10).slice(1));
+    s += paint(tube(pts, 9 * (o.round ? 1.15 : 1), 3.2, o), P[0], P[1], o);
+        }
+        const head = scaleP(cubic([[[100, 16], [140, 16], [160, 46], [158, 78]], [[158, 78], [156, 108], [134, 120], [100, 120]], [[100, 120], [66, 120], [44, 108], [42, 78]], [[42, 78], [40, 46], [60, 16], [100, 16]]], 24), cx, cy, hs * (o.round ? 1.04 : 1), hs);
+        const spots = o.plain ? '' : [[72, 40, 3.4], [126, 36, 2.6], [140, 64, 3], [62, 64, 2.4], [104, 28, 2.2], [116, 52, 1.8]].map(([x, y, r]) => `<circle cx="${cx + (x - cx) * hs}" cy="${cy + (y - cy) * hs}" r="${r}" fill="${P[1]}" opacity=".6"/>`).join('');
+        s += paint(pathOf(head, o), P[0], P[1], o, spots, `<ellipse cx="${cx - 26 * hs}" cy="${cy - 38 * hs}" rx="16" ry="8" fill="#fff" opacity=".45" transform="rotate(-25 ${cx - 26 * hs} ${cy - 38 * hs})"/>`);
+        const ey = cy - 2 * hs, er = 12 + 3 * ex + (o.bighead ? 2 : 0), exs = 21 * hs;
+        const M = o.mood || 'base', ov = { joy: 'happy', bust: 'teary', big: 'starB' }[M] || o.ocEye;
+        if (M === 'bust') s += gloom([[78, 18], [88, 24], [98, 20], [108, 26], [118, 18]], 24, '#4E66A8');
+        s += ocEyes({ ...o, ocEye: ov }, [[cx - exs, ey], [cx + exs, ey]], er, P);
+        if (ov === 'dot' || ov === 'happy') s += blushes([[cx - exs - 2, ey + er * .9], [cx + exs + 2, ey + er * .9]], 9, { ...o, blushA: .55 });
+        // 금빛 고리 (주꾸미 표시) — 눈 아래에 크게
+        const rr = 6 + 3 * ex; [[cx - exs - 6, ey + er + 10], [cx + exs + 6, ey + er + 10]].forEach(([x, y]) => { if (M === 'big') s += `<circle cx="${x}" cy="${y}" r="${rr + 6}" fill="#FFE27A" opacity=".6"/>`; s += `<circle cx="${x}" cy="${y}" r="${rr}" fill="${P[2]}" opacity=".85"/><circle cx="${x}" cy="${y}" r="${rr}" fill="none" stroke="${o.ringC || '#F2C230'}" stroke-width="${2.6 + ex}"/>`; });
+        // 깔때기 입: 쭉 내민 동그란 관
+        // 깔때기 입: 볼록하게 쭉 내민 입술 (뽀뽀하듯)
+        const mk = { bust: .78, big: 1.35 }[M] || 1, mx = cx + (M === 'bust' ? 6 : 0), my = ey + er + 12 + (M === 'bust' ? 2 : 0), ml = (5 + 6 * ex) * (M === 'big' ? 1.2 : 1), mr = (6.5 + 2 * ex) * mk;
+        s += `<path d="M${mx - mr * 1.15} ${my - 2} C${mx - mr * 1.1} ${my + ml} ${mx - mr * .9} ${my + ml + mr * .6} ${mx} ${my + ml + mr * .7} C${mx + mr * .9} ${my + ml + mr * .6} ${mx + mr * 1.1} ${my + ml} ${mx + mr * 1.15} ${my - 2} Z" fill="${P[0]}" stroke="${o.ink}" stroke-width="${o.lw * .85}" stroke-linejoin="round"/>`;
+        s += `<ellipse cx="${mx}" cy="${my + ml + mr * .15}" rx="${mr}" ry="${mr * .62}" fill="${o.lipC || '#FF8E86'}" stroke="${o.ink}" stroke-width="${o.lw * .85}"/><ellipse cx="${mx}" cy="${my + ml + mr * .15}" rx="${mr * (M === 'big' ? .6 : .42)}" ry="${mr * (M === 'big' ? .42 : .26)}" fill="#5A1E16"/><ellipse cx="${mx - mr * .45}" cy="${my + ml - mr * .1}" rx="${mr * .22}" ry="${mr * .12}" fill="#fff" opacity=".6"/>`;
+        if (M === 'big') s += spark(26, 26, 10) + spark(176, 34, 8) + spark(184, 92, 5);
+        if (M === 'joy') s += spark(30, 30, 6, '#FFE9A0') + spark(172, 30, 5, '#FFE9A0');
+        return s;
+      }
+      // ---------- 갑오징어: 넓적한 방패 몸 · 주름 치마 지느러미 · 큰 W 눈동자 · 굵은 얼룩 줄
+      function cuttle(o) {
+        const M = o.mood || 'base', P0 = o.pal.gp, P = M === 'bust' ? ['#DDD5CC', '#B9AEA2', '#A99C8E', '#F5F1EC'] : M === 'big' ? ['#F0A07A', '#C77A52', '#E2457E', '#FFE0E8'] : P0, ex = o.ex, cx = 100, cy = 76, rx = 50 + 4 * ex, ry = 50;
+        let s = '';
+        const arms = [];
+        for (let i = 0; i < 8; i++) { const x0 = 74 + i * 7.4, d = i < 4 ? -1 : 1, k = Math.abs(i - 3.5) / 3.5; arms.push([bez([x0, 120], [x0 + d * 2, 134], [x0 + d * (3 + 6 * k), 146], [x0 + d * (5 + 9 * k), 156 - 3 * k], 14), 5, 2.2]); }
+        [-1, 1].forEach(d => arms.unshift([bez([100 + d * 10, 122], [100 + d * 30, 156], [100 + d * 58, 160], [100 + d * 60, 136], 22).concat(bez([100 + d * 60, 136], [100 + d * 61, 126], [100 + d * 52, 126], [100 + d * 52, 134], 8).slice(1)), 3.4, 2.6]));
+        arms.forEach(([pts, a, b]) => { s += paint(tube(pts, a, b, o), P[0], P[1], o); });
+        // 주름 치마 지느러미
+        const amp = .022 + .018 * ex, fq = 11; let fin = [];   // 주름 치마: 둥글게 물결치는 가장자리
+        for (let i = 0; i <= 200; i++) { const a = Math.PI * 2 * i / 200, w = 1 + amp * (1.6 * Math.abs(Math.sin(a * fq / 2)) - .8); fin.push([cx + (rx + 12 + 5 * ex) * w * Math.cos(a), cy + (ry + 11 + 4 * ex) * w * Math.sin(a)]); }
+        let rays = ''; for (let i = 0; i < 40; i++) { const a = Math.PI * 2 * i / 40; rays += `<path d="M${f1(cx + rx * Math.cos(a))} ${f1(cy + ry * Math.sin(a))} L${f1(cx + (rx + 14) * Math.cos(a))} ${f1(cy + (ry + 13) * Math.sin(a))}" stroke="${P[1]}" stroke-width="1" opacity=".4"/>`; }
+        s += paint(pathOf(fin, o), P[3], P[1], o, o.plain ? '' : rays);
+        const body = []; for (let i = 0; i <= 96; i++) { const a = Math.PI * 2 * i / 96; body.push([cx + rx * Math.cos(a) * (o.round ? 1 : 1 - .06 * Math.cos(a * 2) ** 2), cy + ry * Math.sin(a)]); }
+        let zeb = ''; if (!o.plain) for (let i = 0; i < 4; i++) { const y = cy - ry + 12 + i * 11; zeb += `<path d="M${cx - rx} ${y + 3} Q${cx - rx * .5} ${y - 6} ${cx} ${y + 2} T${cx + rx} ${y}" stroke="${P[2]}" stroke-width="${4 + 1.5 * ex}" fill="none" stroke-linecap="round" opacity=".75"/><path d="M${cx - rx} ${y + 7} Q${cx - rx * .5} ${y - 2} ${cx} ${y + 6} T${cx + rx} ${y + 4}" stroke="#fff" stroke-width="1.4" fill="none" opacity=".35"/>`; }
+        s += paint(pathOf(body, o), P[0], P[1], o, zeb, `<ellipse cx="${cx - 24}" cy="${cy - 32}" rx="15" ry="7" fill="#fff" opacity=".4" transform="rotate(-22 ${cx - 24} ${cy - 32})"/>`);
+        const er = 13 + 4 * ex + (o.bighead ? 2 : 0), ey = cy + 12;
+        const tA = { base: .1, joy: .3, big: .45 }[M] || 0;
+        if (tA && !o.flat && !o.mono) s += `<ellipse cx="${cx}" cy="${ey + 6}" rx="${rx * .9}" ry="${ry * .55}" fill="#FF8FB0" opacity="${tA}"/>`;   // 기분 좋을수록 분홍빛
+        if (M === 'bust') s += gloom([[78, 16], [88, 22], [98, 18], [108, 24], [118, 16]], 34, '#5A6E9E', .5);
+        if (M !== 'bust') s += blushes([[cx - 39, ey + 13], [cx + 39, ey + 13]], M === 'base' ? 10 : 12, { ...o, blushA: (o.blushA || .45) + (M === 'base' ? .1 : .25) });
+        s += eye(cx - 22, ey, er, o, 'w') + eye(cx + 22, ey, er, o, 'w');
+        if (M === 'joy' || M === 'big') [cx - 22, cx + 22].forEach(x => { s += `<path d="M${x - er * .8} ${ey + er * .95} Q${x} ${ey + er * .62} ${x + er * .8} ${ey + er * .95}" stroke="${o.ink}" stroke-width="${o.lw * .7}" fill="none" stroke-linecap="round"/>`; });
+        if (M === 'bust') [[cx - 22, 1], [cx + 22, -1]].forEach(([x, d]) => { s += `<path d="M${x - d * er * .75} ${ey - er * 1.15} Q${x} ${ey - er * 1.42} ${x + d * er * .75} ${ey - er * 1.62}" stroke="${o.ink}" stroke-width="${o.lw * .95}" fill="none" stroke-linecap="round"/>`; });
+        const my = ey + er;
+        if (M === 'base') s += `<path d="M${cx - 9} ${my + 6} Q${cx} ${my + 13} ${cx + 9} ${my + 6}" stroke="${o.ink}" stroke-width="${o.lw * .85}" fill="none" stroke-linecap="round"/>`;
+        if (M === 'joy') s += `<path d="M${cx - 13} ${my + 4} Q${cx} ${my + 18} ${cx + 13} ${my + 4}" stroke="${o.ink}" stroke-width="${o.lw * .85}" fill="#C8504A" stroke-linejoin="round"/><path d="M${cx - 6} ${my + 11} Q${cx} ${my + 8} ${cx + 6} ${my + 11}" fill="#FF9C9C"/>`;
+        if (M === 'big') s += `<path d="M${cx - 17} ${my + 2} Q${cx} ${my + 25} ${cx + 17} ${my + 2} Z" stroke="${o.ink}" stroke-width="${o.lw * .85}" fill="#B23E3E" stroke-linejoin="round"/><path d="M${cx - 8} ${my + 15} Q${cx} ${my + 10} ${cx + 8} ${my + 15} Q${cx} ${my + 19} ${cx - 8} ${my + 15} Z" fill="#FF9C9C"/>` + heart(26, 30, 1.5) + heart(176, 24, 1.2) + spark(184, 86, 6);
+        if (M === 'bust') s += `<path d="M${cx - 11} ${my + 9} q2.75 -3.5 5.5 0 t5.5 0 t5.5 0 t5.5 0" stroke="${o.ink}" stroke-width="${o.lw * .8}" fill="none" stroke-linecap="round" stroke-linejoin="round"/>` + drop(166, 44, 1.5);
+        return s;
+      }
+      // ---------- 광어: 아주 납작 · 두 눈이 왼쪽 한쪽에 · 이빨 보이는 넓은 입 · 하얀 점
+      function flounder(o) {
+        const P = o.pal.gw, ex = o.ex, fl = 1 - .16 * ex, cy = 104;
+        const B = scaleP(cubic([[[16, 108], [22, 70], [60, 50], [100, 50]], [[100, 50], [138, 50], [162, 76], [172, 104]], [[172, 104], [162, 132], [138, 156], [100, 156]], [[100, 156], [60, 156], [22, 146], [16, 108]]], 32), 96, cy, 1, fl);
+        const N = norms(B);
+        let s = `<path d="M166 104 C178 90 188 80 198 76 C193 94 193 114 198 132 C188 128 178 118 166 104 Z" fill="${P[3]}" stroke="${o.ink}" stroke-width="${o.lw}" stroke-linejoin="round"/>`;
+        if (!o.plain) for (let i = 0; i < 6; i++) s += `<path d="M172 104 L196 ${84 + i * 8}" stroke="${P[1]}" stroke-width="1" opacity=".5"/>`;
+        const fin = B.map((p, i) => { const head = Math.max(0, Math.min(1, (p[0] - 34) / 28)), tail = p[0] > 150 ? Math.max(0, (172 - p[0]) / 22) : 1, w = (10 + 3 * Math.sin(i * 1.9)) * head * tail * (o.round ? .9 : 1); return [p[0] - N[i][0] * w, p[1] - N[i][1] * w]; });
+        s += paint(pathOf(fin, o), P[3], P[1], o);
+        const spots = o.plain ? '' : [[100, 76, 4], [126, 96, 3.4], [84, 124, 3.6], [140, 120, 3], [112, 134, 2.6], [148, 88, 2.6], [70, 100, 2.4]].map(([x, y, r]) => `<circle cx="${x}" cy="${cy + (y - cy) * fl}" r="${r}" fill="#FFF6E2"/><circle cx="${x}" cy="${cy + (y - cy) * fl}" r="${r + 2.4}" fill="none" stroke="${P[2]}" stroke-width="1.6" opacity=".55"/>`).join('')
+    + [[116, 112, 9, 5], [94, 90, 7, 4], [138, 104, 6, 4]].map(([x, y, a, b]) => `<ellipse cx="${x}" cy="${cy + (y - cy) * fl}" rx="${a}" ry="${b}" fill="${P[2]}" opacity=".45"/>`).join('');
+        s += paint(pathOf(B, o), P[0], P[1], o, spots, `<ellipse cx="80" cy="${cy - 34 * fl}" rx="20" ry="6" fill="#fff" opacity=".4" transform="rotate(-12 80 ${cy - 34 * fl})"/>`);
+        // 두 눈이 왼쪽 위에 몰려 있음 (크기가 살짝 다름, 둘 다 같은 쪽을 봄)
+        const k = o.bighead ? 1.2 : 1, e1 = [46, cy - 16 * fl], e2 = [66, cy - 30 * fl];
+        [[...e1, 10 * k], [...e2, 12.5 * k]].forEach(([x, y, r]) => { s += `<path d="M${x - r * 1.15} ${y + r * .2} Q${x} ${y - r * 1.9} ${x + r * 1.15} ${y + r * .2}" fill="${P[0]}" stroke="${o.ink}" stroke-width="${o.lw * .85}"/>`; });
+        const ek = o.eyes === 'pie' ? 'pie' : o.eyes === 'stitch' ? 'stitch' : 'big', M = o.mood || 'base';
+        if (M === 'joy') [[...e1, 10 * k], [...e2, 12.5 * k]].forEach(([x, y, r]) => { s += `<path d="M${x - r * .8} ${y - r * .05} Q${x} ${y + r * .75} ${x + r * .8} ${y - r * .05}" stroke="${o.ink}" stroke-width="${r * .28}" fill="none" stroke-linecap="round"/><path d="M${x - r * .8} ${y - r * .05} l${-r * .3} ${-r * .25}" stroke="${o.ink}" stroke-width="${r * .18}" stroke-linecap="round"/>`; });
+        else if (M === 'big') [[...e1, 11.5 * k], [...e2, 14 * k]].forEach(([x, y, r]) => { s += eye(x, y, r, o, ek, [-.15, -.1]) + spark(x - r * .22, y - r * .2, r * .32, '#fff'); });
+        else { const lid = M === 'bust' ? .62 : .42, lk = M === 'bust' ? [-.05, .35] : [-.55, .15]; s += lidEye(...e1, 10 * k, o, ek, lk, lid, P[0], .12) + lidEye(...e2, 12.5 * k, o, ek, lk, lid, P[0], .12); }
+        if (M !== 'bust') s += blushes([[72, cy + 2]], M === 'base' ? 8 : 10, { ...o, blushA: M === 'base' ? o.blushA : .6 });
+        // 넓은 입 + 뾰족한 작은 이빨
+        const mw = 26 + 12 * ex, m0 = M === 'big' ? [14, cy + 8] : [17, cy + 6], m1 = [17 + mw + (M === 'big' ? 4 : 0), cy + ({ base: -2, joy: -8, bust: 6, big: -11 }[M])];   // 한쪽 입꼬리만 올라간 능청 웃음
+        const dl = { base: 12, joy: 14, bust: 4, big: 28 }[M];
+        s += `<path d="M${m0[0]} ${m0[1]} Q${(m0[0] + m1[0]) / 2} ${m1[1] + dl} ${m1[0]} ${m1[1]} Q${(m0[0] + m1[0]) / 2} ${m1[1] + 2} ${m0[0]} ${m0[1]} Z" fill="#7A2E2E\" stroke="${o.ink}" stroke-width="${o.lw * .85}" stroke-linejoin="round"/>`;
+        const nT = 4 + Math.round(ex * 2); for (let i = 0; i < nT; i++) { const t = (i + .5) / nT, x = m0[0] + (m1[0] - m0[0]) * t, y = m0[1] + (m1[1] - m0[1]) * t + 4 * Math.sin(Math.PI * t); s += `<path d="M${f1(x - 2.2)} ${f1(y)} L${f1(x)} ${f1(y + 4.2)} L${f1(x + 2.2)} ${f1(y)} Z" fill="#fff" stroke="${o.ink}" stroke-width=".8" stroke-linejoin="round"/>`; }
+        if (M === 'big') s += `<path d="M${m0[0] + 8} ${m0[1] + 6} Q${(m0[0] + m1[0]) / 2} ${m1[1] + 22} ${m1[0] - 8} ${m1[1] + 8} Q${(m0[0] + m1[0]) / 2} ${m1[1] + 14} ${m0[0] + 8} ${m0[1] + 6} Z" fill="#E86A6A"/>` + spark(30, 52, 9) + spark(150, 40, 7) + spark(186, 150, 5);
+        if (M === 'bust') s += drop(84, cy - 44, 1.4);
+        return s;
+      }
+      // ---------- 우럭: 왕머리 · 주걱턱(튀어나온 아래턱 + 아랫니 두 개) · 두툼한 입술 · 가시 머리 · 금빛 눈 · 짙은 얼룩
+      function rockfish(o) {
+        const P = o.pal.ur, ex = o.ex, jaw = 6 + 9 * ex, hb = o.bighead ? 1.12 : 1;
+        const B = cubic([[[22, 98], [20, 54], [64, 34], [108, 40]], [[108, 40], [148, 46], [168, 70], [174, 100]], [[174, 100], [168, 130], [146, 150], [106, 152]], [[106, 152], [64, 154], [26, 142], [22, 98]]], 32).map(([x, y]) => x < 100 ? [100 + (x - 100) * hb, 98 + (y - 98) * hb] : [x, y]);
+        let s = `<path d="M168 100 C178 88 188 78 198 74 C194 90 194 110 198 126 C188 122 178 112 168 100 Z" fill="${P[3]}" stroke="${o.ink}" stroke-width="${o.lw}" stroke-linejoin="round"/>`;
+        if (!o.plain) for (let i = 0; i < 6; i++) s += `<path d="M173 100 L196 ${80 + i * 8}" stroke="${P[1]}" stroke-width="1" opacity=".55"/>`;
+        // 가시 머리 (등지느러미 가시가 모히칸처럼)
+        const top = x => { let b = B[0]; for (const p of B) if (p[1] < 98 && Math.abs(p[0] - x) < Math.abs(b[0] - x)) b = p; return b; };
+        const H = 22 + 12 * ex, xs = [58, 68, 78, 88, 98, 108, 118, 128]; let sp = `M${top(52).join(' ')}`;
+        xs.forEach((x, i) => { const b = top(x), h = H * (1 - Math.abs(i - 2.5) * .08); sp += ` L${f1(x + 2)} ${f1(b[1] - h)} L${f1(x + 7)} ${f1(top(x + 7)[1] - h * .35)}`; });
+        sp += ` L${top(136).join(' ')} Z`;
+        s += paint(o.angular ? sp : sp, P[3], P[1], o, xs.map(x => { const b = top(x); return `<path d="M${f1(b[0])} ${f1(b[1])} L${f1(x + 2)} ${f1(b[1] - H * .9)}" stroke="${P[1]}" stroke-width="1.4"/>`; }).join(''));
+        const sd = top(146); s += `<path d="M${top(136).join(' ')} Q${sd[0] + 4} ${sd[1] - 20} ${sd[0] + 20} ${sd[1] - 2} L${top(162).join(' ')} Z" fill="${P[3]}" stroke="${o.ink}" stroke-width="${o.lw * .85}" stroke-linejoin="round"/>`;
+        const mott = o.plain ? '' : [[86, 60, 7], [118, 58, 6], [140, 78, 7], [100, 92, 6], [130, 118, 8], [76, 126, 6], [154, 104, 5], [110, 136, 5]].map(([x, y, r]) => `<circle cx="${x}" cy="${y}" r="${r}" fill="${P[4]}" opacity=".5"/>`).join('')
+    + `<path d="M96 42 Q88 96 94 150 M126 46 Q120 98 126 148" stroke="${P[4]}" stroke-width="12" fill="none" opacity=".3" stroke-linecap="round"/>`;
+        const belly = `<path d="M30 118 C56 150 130 158 172 112 C158 146 128 160 100 160 C62 160 38 146 30 118 Z" fill="${P[2]}" opacity=".9"/>`;
+        const oper = `<path d="M74 52 Q94 98 76 140" stroke="${P[1]}" stroke-width="2.6" fill="none" stroke-linecap="round" opacity=".8"/>`;
+        s += paint(pathOf(B, o), P[0], P[1], o, belly + mott + oper, `<ellipse cx="62" cy="54" rx="20" ry="7" fill="#fff" opacity=".3" transform="rotate(-18 62 54)"/>`);
+        // 가슴지느러미
+        s += `<path d="M98 104 Q118 88 132 102 Q122 118 98 112 Z" fill="${P[3]}" stroke="${o.ink}" stroke-width="${o.lw * .85}" stroke-linejoin="round"/>`;
+        // 두툼한 윗입술 + 튀어나온 아래턱 + 아랫니 두 개
+        const M = o.mood || 'base', lip = P[5] || '#B98A86', jx = 26 - jaw, jd = { big: 10, bust: 2 }[M] || 0, cr = { joy: 7, big: 3, bust: -5 }[M] || 0;
+        if (M === 'big') s += `<path d="M26 101 Q42 108 ${58} ${110 - cr} L58 ${116 - cr + jd * .5} Q40 ${120 + jd} ${jx + 4} ${109 + jd} Z" fill="#4A1A1E" stroke="${o.ink}" stroke-width="${o.lw * .7}" stroke-linejoin="round"/><path d="M${jx + 10} ${118 + jd * .8} Q38 ${112 + jd} 52 ${116 + jd * .6} Q40 ${124 + jd} ${jx + 10} ${118 + jd * .8} Z" fill="#E86A6A"/>`;
+        s += `<path d="M${jx} ${108 + jd} Q${jx - 4} ${126 + jd} ${jx + 18} ${130 + jd} Q${46} ${132 + jd} ${58} ${116 - cr + jd * .5} Q${40} ${120 + jd - cr * .5} ${jx} ${108 + jd} Z" fill="${lip}\" stroke="${o.ink}" stroke-width="${o.lw}" stroke-linejoin="round"/>`;
+        s += `<path d="M${jx + 6} ${112 + jd} L${jx + 9} ${103 + jd} L${jx + 12} ${112 + jd} Z M${jx + 18} ${116 + jd} L${jx + 21} ${107.5 + jd} L${jx + 24} ${116 + jd} Z" fill="#fff" stroke="${o.ink}" stroke-width="1" stroke-linejoin="round"/>`;
+        s += `<path d="M24 98 Q30 92 40 96 Q50 ${104 - cr * .6} ${58 + (cr > 0 ? 2 : 0)} ${110 - cr} Q44 ${108 - cr * .5} 32 104 Q26 102 24 98 Z" fill="${lip}" stroke="${o.ink}" stroke-width="${o.lw}" stroke-linejoin="round"/>`;
+        // 금빛 큰 눈 + 굵은 눈썹 (무뚝뚝)
+        const er = (13 + 2 * ex) * (o.bighead ? 1.12 : 1), ex0 = 56, ey0 = 72;
+        if (M === 'bust') s += gloom([[66, 14], [76, 20], [86, 16], [96, 22], [106, 14]], 46, '#1C2233', .6);
+        if (M === 'big') s += eye(ex0, ey0, er * 1.1, o, 'gold', [-.05, 0]) + spark(ex0 - er * .32, ey0 - er * .34, er * .34, '#fff');
+        else s += lidEye(ex0, ey0, er, o, 'gold', M === 'bust' ? [.25, .55] : [.45, .25], M === 'bust' ? .52 : .38, P[0], M === 'bust' ? -.24 : -.18);
+        if (M === 'big') s += `<path d="M${ex0 - er * 1.1} ${ey0 - er * 1.5} Q${ex0} ${ey0 - er * 2} ${ex0 + er * 1.15} ${ey0 - er * 1.45}" stroke="${o.ink}" stroke-width="${5 + ex}" fill="none" stroke-linecap="round"/>`;
+        else { const dv = M === 'bust' ? er * .18 : 0; s += `<path d="M${ex0 - er * 1.2} ${ey0 - er * 1.4} L${ex0 + er * .2} ${ey0 - er * .95 + dv} L${ex0 + er * 1.2} ${ey0 - er * 1.1}" stroke="${o.ink}" stroke-width="${5 + ex + (M === 'bust' ? 1.2 : 0)}" fill="none" stroke-linecap="round" stroke-linejoin="round"/>`; }
+        if (M !== 'bust') { const br = { base: 11, joy: 13.5, big: 14 }[M]; s += blushes([[80, 95]], br, { ...o, blush: '#FF5A5A', blushA: (o.blushA || .45) + (M === 'base' ? .25 : .38) }) + (o.noBlush ? '' : `<path d="M73 90 l4 6 M80 89 l4 6 M87 90 l4 6" stroke="#B8323A" stroke-width="1.8" stroke-linecap="round" opacity=".85"/>`); }
+        if (M === 'joy') s += drop(30, 54, 1.4) + `<path d="M64 97 Q68 101 65 106 M70 94 Q75 100 71 107" stroke="${o.ink}" stroke-width="2" fill="none" stroke-linecap="round"/>`;
+        if (M === 'big') s += drop(ex0 + er * .95, ey0 + er + 6, 1.15) + spark(18, 40, 9) + spark(176, 34, 7) + spark(188, 150, 5);
+        return s;
+      }
+      const PALN = { oc: ['#F27A55', '#C9553A', '#5A2A1C'], gp: ['#E9A063', '#BF7C3E', '#8E5323', '#FFE6C4'], gw: ['#C79A6A', '#9E7148', '#6E4A2C', '#EED3AA'], ur: ['#5E6679', '#41495A', '#BFC6D2', '#4C5468', '#2C323F', '#B88C8A'] };
+      const DRAW = { oc: octo, gp: cuttle, gw: flounder, ur: rockfish };
+      const BASE = { pal: PALN, ink: '#3A2618', lw: 3.2, ex: 1, ocEye: 'curious' };
+      return {
+        svg(k, m) { const t = k === 'oc' ? -5 : k === 'gw' && m === 'big' ? -8 : 0; return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="-14 -14 228 214" width="684" height="642"><g transform="rotate(${t} 100 100)">${DRAW[k]({ ...BASE, mood: m })}</g></svg>`; },
+        BOX: { oc: [8, -6, 173, 160], gp: [19, 0, 155, 160], gw: [8, 37, 192, 125], ur: [8, -3, 192, 165] }
+      };
+    })();
+    // 가족 그림 이미지 (필요한 것만 그때그때 만들고, 다 되면 카드를 다시 그린다)
+    const FAM_K = { oc: 1, gp: 1, gw: 1, ur: 1 }, FAMIMG = new Map(); let famT = 0;
+    function famImg(k, m) {
+      const key = k + ':' + m; let im = FAMIMG.get(key);
+      if (!im) {
+        im = new Image(); FAMIMG.set(key, im);
+        const again = () => { clearTimeout(famT); famT = setTimeout(() => { if (cardS) cardPaint(); }, 30); };
+        im.onload = again; im.onerror = () => { im.bad = 1; again(); };
+        try { im.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(FAM.svg(k, m)); } catch (_) { im.bad = 1; }
+      }
+      return im;
+    }
+    const famWait = () => Promise.race([Promise.all([...FAMIMG.values()].filter(im => !im.complete && !im.bad).map(im => new Promise(r => { im.addEventListener('load', r, { once: true }); im.addEventListener('error', r, { once: true }); }))), new Promise(r => setTimeout(r, 2500))]);
+    const famAsp = k => (FAM_K[k] ? FAM.BOX[k][2] / FAM.BOX[k][3] : (CH_VB[k] || CH_VB.oc)[0] / (CH_VB[k] || CH_VB.oc)[1]);
+    // 카드 캐릭터: (x, y) 왼쪽 위 · h 몸 높이 · m 표정 → 그린 폭 (가족이 아니면 예전 그림, sad = 꽝)
+    function cardChar(g, kind, x, y, h, m) {
+      m = m || 'base';
+      if (!FAM_K[kind]) return drawChar(g, kind, x, y, h, m === 'bust');
+      const im = famImg(kind, m), B = FAM.BOX[kind], k = h / B[3];
+      if (im.bad) return drawChar(g, kind === 'gw' || kind === 'ur' ? 'fish' : kind, x, y, h, m === 'bust');
+      if (im.complete && im.naturalWidth) g.drawImage(im, x - (B[0] + 14) * k, y - (B[1] + 14) * k, 228 * k, 214 * k);
+      return B[2] * k;
+    }
+    // 상자 (가운데 cx, cy · 최대 mw × mh) 안에 맞춰 그리기 → 그린 폭
+    function cardCharIn(g, kind, cx, cy, mw, mh, m) { const a = famAsp(kind), h = Math.min(mh, mw / a); return cardChar(g, kind, cx - h * a / 2, cy - h / 2, h, m); }
+    const WIDE_CH = { fish: 1, gw: 1, ur: 1 };
+    // 표정 고르기: 어종 단계 (꽝 0 · 아쉬움 1 · 보통 2 · 대박 3) / 씨알 대박이면 그 어종은 대박
+    const MOOD = ['bust', 'base', 'joy', 'big'];
+    const spMood = (s, cd) => (!s.c ? 'bust' : cd.bigHit && cd.bigTop && cd.bigTop.n === s.n ? 'big' : MOOD[spLv(s)]);
+    const chatMood = (tier, cd) => (cd.bigHit ? 'bust' : ['joy', 'joy', 'base', 'bust'][tier]);   // 단톡방은 물고기들 이야기: 사람이 못 잡을수록 신남
     // 에기 동그라미: 두 색은 고른 비율로 위·아래 · 레이저는 고른 색으로 반짝 · 틴셀은 아래쪽 가닥 · ★ 잘 먹힌 색
     const LIMG = new Map(); let limgT = 0;
     function lureImg(e, x) {
@@ -6396,7 +6632,7 @@ const TideHarm = (() => {
       for (let i = 0; i <= 8; i++) g.quadraticCurveTo(x + (i + .5) * w / 8, sea + (i % 2 ? 5 : -5), x + (i + 1) * w / 8, sea);
       g.lineTo(x + w, y + h); g.lineTo(x, y + h); g.closePath(); g.fillStyle = '#7FD0F5'; g.fill();
       const L = (cd.sp.length ? cd.sp : [{ ch: cd.ch0 || 'oc' }]).slice(0, 3), ch = Math.min(h * .42, 46);
-      L.forEach((s, i) => drawChar(g, s.ch, x + w * (i + .5) / L.length - ch * .45, sea + (h - (sea - y)) * .5 - ch * .5 + (i % 2 ? 4 : -2), ch, !cd.sp.length));
+      L.forEach((s, i) => cardCharIn(g, s.ch, x + w * (i + .5) / L.length, sea + (h - (sea - y)) * .5 + (i % 2 ? 4 : -2), Math.min(w / L.length - 6, ch * 1.5), ch, cd.sp.length ? spMood(s, cd) : 'bust'));
       g.restore();
     }
 
@@ -6414,7 +6650,7 @@ const TideHarm = (() => {
         K.txt(dayT(cd), 22, 42, 21, INK);
         const L = cd.sp.slice(0, 3), n = L.length, cols = ['#FFFFFF', '#FFD1E3', '#C9F2C2'], rots = [-5, 4, -3];
         if (!n) {
-          K.rot(118, 112, -4, () => { K.box(-92, -44, 184, 88, 20, '#fff', 3); (cd.ch0 === 'fish' ? drawChar(g, 'fish', -86, -24, 44, true) : drawChar(g, cd.ch0 || 'oc', -80, -32, 62, true)); K.txt('오늘은', 28, -8, 15, INK, { al: 'center' }); K.txt('꽝!', 28, 30, 40, '#E8432F', { al: 'center' }); });
+          K.rot(118, 112, -4, () => { K.box(-92, -44, 184, 88, 20, '#fff', 3); cardCharIn(g, cd.ch0 || 'oc', -50, 0, 70, 66, 'bust'); K.txt('오늘은', 28, -8, 15, INK, { al: 'center' }); K.txt('꽝!', 28, 30, 40, '#E8432F', { al: 'center' }); });
         } else {
           const W = n === 1 ? 200 : n === 2 ? 152 : 104, gap = n === 3 ? 8 : 14, x0 = (360 - n * W - (n - 1) * gap) / 2;
           L.forEach((s, i) => {
@@ -6422,8 +6658,8 @@ const TideHarm = (() => {
             K.rot(cx, cy, rots[i], () => {
               K.box(-W / 2, -H / 2, W, H, 20, cols[i], 3);
               const bc = cd.big && cd.big[s.n];   // 최대 씨알
-              if (n === 3) { drawChar(g, s.ch, -W / 2 + 8, -H / 2 + 8, 30); K.txt(s.n, W / 2 - 10, -H / 2 + 26, 12, INK, { al: 'right', mw: W - 50 }); if (bc) K.txt(`${bc}cm`, W / 2 - 10, -H / 2 + 42, 11.5, '#C0392B', { al: 'right' }); K.txt(s.c, 0, H / 2 - 14, 38, INK, { al: 'center', mw: W - 16 }); }
-              else { const cw = drawChar(g, s.ch, -W / 2 + 10, -26, 52); K.txt(s.n, -W / 2 + 18 + cw, -6, 13, INK, { mw: W - cw - 30 }); K.txt(s.c, -W / 2 + 18 + cw, 30, 42, INK, { mw: W - cw - 30 }); if (bc) K.txt(`최대 ${bc}cm`, W / 2 - 12, H / 2 - 6, 10.5, '#C0392B', { al: 'right' }); }
+              if (n === 3) { cardCharIn(g, s.ch, -W / 2 + 26, -H / 2 + 23, 40, 32, spMood(s, cd)); K.txt(s.n, W / 2 - 10, -H / 2 + 26, 12, INK, { al: 'right', mw: W - 50 }); if (bc) K.txt(`${bc}cm`, W / 2 - 10, -H / 2 + 42, 11.5, '#C0392B', { al: 'right' }); K.txt(s.c, 0, H / 2 - 14, 38, INK, { al: 'center', mw: W - 16 }); }
+              else { const cw = cardCharIn(g, s.ch, -W / 2 + 10 + Math.min(70, 52 * famAsp(s.ch)) / 2, 0, 70, 54, spMood(s, cd)); K.txt(s.n, -W / 2 + 18 + cw, -6, 13, INK, { mw: W - cw - 30 }); K.txt(s.c, -W / 2 + 18 + cw, 30, 42, INK, { mw: W - cw - 30 }); if (bc) K.txt(`최대 ${bc}cm`, W / 2 - 12, H / 2 - 6, 10.5, '#C0392B', { al: 'right' }); }
             });
           });
         }
@@ -6459,7 +6695,7 @@ const TideHarm = (() => {
         K.box(bx, 262, bw, 28, 12, '#fff', 2.5); K.txt(word, bx + bw / 2, 281, 14, INK, { al: 'center' });
         g.beginPath(); g.moveTo(bx + bw - 30, 289); g.lineTo(bx + bw - 22, 300); g.lineTo(bx + bw - 18, 289); g.fillStyle = '#fff'; g.fill(); g.lineWidth = 2.5; g.strokeStyle = INK; g.stroke();
         g.fillStyle = '#fff'; g.fillRect(bx + bw - 29, 287, 10, 3);
-        drawChar(g, mn ? mn.ch : cd.ch0 || 'oc', 290, 296, 56, tier === 0);
+        cardCharIn(g, mn ? mn.ch : cd.ch0 || 'oc', 316, 324, 76, 56, mn ? spMood(mn, cd) : 'bust');
         K.brand(22, 348, '#7A6A2A');
       },
       ticket(K, cd, o) {
@@ -6605,7 +6841,7 @@ const TideHarm = (() => {
         const rows = cd.sp.length ? cd.sp.slice(0, 3) : [{ n: cd.mainN || '쭈갑이', c: 0, ch: cd.ch0 || 'oc', k: 'jj' }];
         rows.forEach(s => {
           const [hi] = thOf(s.k), r = s.c ? Math.min(1, s.c / Math.max(hi, s.c * 1.05)) : 0;
-          if (s.ch === 'fish') drawChar(g, 'fish', X + 12, y + 5, 17, !s.c); else drawChar(g, s.ch, X + 14, y, 24, !s.c);   // 물고기는 옆으로 길어 작게
+          cardCharIn(g, s.ch, X + 26, y + 13, 30, 26, spMood(s, cd));   // 옆으로 긴 물고기는 폭에 맞춰 작게
           K.txt(s.n, X + 46, y + 17, 13, INK, { mw: 62 });
           K.box(X + 112, y + 6, 160, 14, 7, '#F1F4F6', 2); if (r) { g.save(); K.rr(X + 112, y + 6, 160, 14, 7); g.clip(); g.fillStyle = CH_COL[s.ch] || '#FF7A59'; g.fillRect(X + 112, y + 6, 160 * r, 14); g.restore(); K.rr(X + 112, y + 6, 160, 14, 7); g.lineWidth = 2; g.strokeStyle = INK; g.stroke(); }
           K.txt(s.c, X + W - 14, y + 18, 15, INK, { al: 'right' }); y += 30;
@@ -6696,7 +6932,7 @@ const TideHarm = (() => {
         conv.forEach(([w], i) => {
           const L = bub[i], bw = Math.max(...L.map(l => K.tw(l, 14))) + 20, bh = L.length * 18 + 12;
           const [wk, wn] = chatWho(w, cd);
-          K.box(14, y, 36, 36, 12, '#fff'); drawChar(g, wk, wk === 'gp' ? 21 : wk === 'fish' ? 17 : 18, wk === 'fish' ? y + 9 : y + 3, wk === 'fish' ? 20 : 30);
+          K.box(14, y, 36, 36, 12, '#fff'); cardCharIn(g, wk, 32, y + 18, 32, 30, chatMood(tier, cd));
           K.txt(wn, 58, y + 10, 11, '#4E6476');
           K.box(58, y + 15, bw, bh, 12, '#fff'); K.lines(L, 68, y + 34, 14, 18, INK);
           y += bh + gap;
@@ -6724,9 +6960,9 @@ const TideHarm = (() => {
         if (sh.boat && cd.boat) K.txt(cd.boat, 160, sea - 5, 11, '#2B2BA8', { f: 'g', al: 'center', mw: 80, w: 700 });
         g.beginPath(); g.moveTo(206, sea - 16); g.quadraticCurveTo(236, sea - 30, 246, sea + 16); g.lineWidth = 1.4; g.stroke();
         const L = (cd.sp.length ? cd.sp : [{ ch: cd.ch0 || 'oc' }]).slice(0, 3);
-        drawChar(g, L[0].ch, 232, sea + 12, 32, !cd.sp.length);
-        if (L[1]) drawChar(g, L[1].ch, 40, sea + 10, 34);
-        if (L[2]) drawChar(g, L[2].ch, 290, sea + 14, 28);
+        cardCharIn(g, L[0].ch, 248, sea + 28, 54, 34, cd.sp.length ? spMood(L[0], cd) : 'bust');
+        if (L[1]) cardCharIn(g, L[1].ch, 66, sea + 27, 56, 36, spMood(L[1], cd));
+        if (L[2]) cardCharIn(g, L[2].ch, 314, sea + 28, 46, 30, spMood(L[2], cd));
         K.brand(PX + 8, PY + 16, '#A0B4C0'); g.restore(); g.lineWidth = 1.5; g.strokeStyle = pk; g.strokeRect(PX, PY, PW, PH);
         // 원고지
         const who = myWho(o), say = mySay(o);
@@ -6974,6 +7210,7 @@ const TideHarm = (() => {
     async function cardReady() {
       const s = cardS; if (!s) return null;
       try { if (document.fonts) { const need = cardRender($('cv-cv'), s.cd, s); await Promise.race([Promise.all(Object.entries(need).map(([f, t]) => document.fonts.load(`20px ${CF[f]}`, [...new Set(t)].join('')).catch(() => []))), new Promise(r => setTimeout(r, 2500))]); } } catch (_) {}
+      await famWait();
       if (cardS !== s) return null;
       cardRender($('cv-cv'), s.cd, s);
       return $('cv-cv');
@@ -8915,7 +9152,7 @@ const TideHarm = (() => {
 
 <script>
 if ('serviceWorker' in navigator) addEventListener('load', () => {
-  const sw = navigator.serviceWorker, VER = 'd0341aae'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
+  const sw = navigator.serviceWorker, VER = '9b89e1da'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
   // 화면에 손을 대기 시작했는지 (쓰는 중에는 새로 열지 않으려고)
   ['pointerdown', 'keydown'].forEach(t => addEventListener(t, () => { touched = true; }, { capture: true, passive: true }));
   const reload = () => {
