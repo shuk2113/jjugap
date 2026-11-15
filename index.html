@@ -2677,11 +2677,13 @@ const TideHarm = (() => {
     const drops = Array.from({ length: 90 }, () => ({ x: rnd(), y: rnd(), v: 0.8 + rnd() * 0.4 }));
     // 바닥의 쭈꾸미·갑오징어: 그 시각 조류 세기와 지금 수온이 낚시에 알맞을수록 여러 마리가 활발하게 돌아다닌다
     // (실제 마릿수·확률이 아니라 조건을 그림으로 보여주는 것)
-    // 어종마다: 쭈갑 = 쭈꾸미 6 + 갑오징어 4 · 광어 4 (바닥에 납작) · 우럭 5 (어초·바위 곁에 떠 있음)
-    const mkCritters = sp => (sp === 'gw' ? [...[0, 1, 2, 3].map(i => ({ kind: 'gw', i, n: 4 })), ...[0, 1].map(i => ({ kind: 'ur', i, n: 2 }))]
-      : sp === 'ur' ? [0, 1, 2, 3, 4].map(i => ({ kind: 'ur', i, n: 5 }))
-      : [...[0, 1, 2, 3, 4, 5].map(i => ({ kind: 'jj', i, n: 6 })), ...[0, 1, 2, 3].map(i => ({ kind: 'gap', i, n: 4 }))]
+    // 어종마다 가족 주인공 한 명(fam) + 작은 동네 친구들: 쭈갑 = 꾸미 + 쭈꾸미 5 · 갑분이 엄마 + 갑오징어 3 / 광어 = 넙돌이 아빠 + 광어 3 · 우락 삼촌 + 우럭 1 / 우럭 = 우락 삼촌 + 우럭 4
+    const hero = (kind, fam) => ({ kind, fam, i: -1, n: 0 });
+    const mkCritters = sp => (sp === 'gw' ? [hero('gw', 'gw'), ...[0, 1, 2].map(i => ({ kind: 'gw', i, n: 3 })), hero('ur', 'ur'), { kind: 'ur', i: 0, n: 1 }]
+      : sp === 'ur' ? [hero('ur', 'ur'), ...[0, 1, 2, 3].map(i => ({ kind: 'ur', i, n: 4 }))]
+      : [hero('jj', 'oc'), ...[0, 1, 2, 3, 4].map(i => ({ kind: 'jj', i, n: 5 })), hero('gap', 'gp'), ...[0, 1, 2].map(i => ({ kind: 'gap', i, n: 3 }))]
     ).map((c, k) => ({ ...c, x: null, tx: null, dir: k % 2 ? -1 : 1, a: 0, ph: rnd() * 6.28, rest: rnd() * 2, reach: 0 }));
+    const HX = { oc: 0.36, gp: 0.64, gw: 0.42, ur: 0.6 };   // 주인공이 처음 서 있는 자리
     let spScene = SP, critters = mkCritters(SP);
     const CR = { jj: { v: 9, rest: 0.8, gap: 9, x0: [0.08, 0.5, 0.86, 0.28, 0.68, 0.98] }, gap: { v: 16, rest: 0.5, gap: 15, x0: [0.2, 0.6, 0.4, 0.8] },
       gw: { v: 13, rest: 1.3, gap: 17, x0: [0.15, 0.55, 0.35, 0.8] }, ur: { v: 10, rest: 0.9, gap: 14, x0: [0.12, 0.46, 0.76, 0.3, 0.6] } };
@@ -3058,6 +3060,37 @@ const TideHarm = (() => {
       ctx.restore();
     }
     // 바닥 친구들 움직이기 + 그리기. 조건이 나쁘면 한 마리만 바닥에 숨어 눈만 내놓는다
+    // 가족 주인공: 표정마다 미리 그려 둔 작은 그림판을 찍는다 · 몸 키(px, k 곱하기 전)
+    const FAM_H = { oc: 38, gp: 36, gw: 25, ur: 32 }, famBmp = new Map();
+    function famBm(f, m, h) {
+      const S = Math.min(2, window.devicePixelRatio || 1) * uiK() * 1.25, key = f + m + Math.round(h * S);
+      let e = famBmp.get(key); if (e) return e.c;
+      e = { c: null }; famBmp.set(key, e);
+      try {
+        const im = new Image();
+        im.onload = () => { const s0 = h * S / FAM.BOX[f][3], c = document.createElement('canvas'); c.width = Math.ceil(228 * s0); c.height = Math.ceil(214 * s0); c.getContext('2d').drawImage(im, 0, 0, c.width, c.height); e.c = c; if (!running) draw(0); };
+        im.src = famUrl(f, m);
+      } catch (_) {}
+      return null;
+    }
+    function drawFam(c, bed, k, t, m) {
+      const f = c.fam, h = FAM_H[f] * k, B = FAM.BOX[f], sc = h / B[3];
+      ['base', 'joy', 'bust', 'big'].forEach(q => famBm(f, q, h));   // 네 표정 다 미리
+      const bm = famBm(f, m, h) || famBm(f, 'base', h); if (!bm) return;
+      const moving = Math.abs(c.tx - c.x) >= 1.5 && !c.hidden, lean = m === 'big';
+      let yb, rot = 0, flip = (f === 'gw' || f === 'ur') && c.dir > 0 ? -1 : 1;   // 아빠·삼촌은 왼쪽을 보는 그림: 오른쪽으로 갈 때 뒤집기
+      if (c.hidden) {
+        const b = beat(t, 4.6, 1.3), peek = b < 0.08 ? b / 0.08 : b < 0.2 ? 1 : b < 0.24 ? 1 - (b - 0.2) / 0.04 : 0;   // 쏙 → 잠깐 → 후다닥
+        yb = bed + (0.46 - 0.24 * peek) * h + (1 - Math.max(0.05, c.hz)) * 8 * k;
+        if (peek > 0) { ctx.save(); ctx.strokeStyle = 'rgba(255,255,255,.7)'; ctx.lineWidth = 0.8; [[-3, 1.1], [3, 0.8], [0.5, 1.4]].forEach(([dx, r], j) => { ctx.beginPath(); ctx.arc(c.x + dx * k + Math.sin(t * 6 + j) * 0.6, bed - h * 0.55 - peek * (6 + j * 4) * k, r * k, 0, 2 * Math.PI); ctx.stroke(); }); ctx.restore(); }
+      } else if (f === 'oc') { yb = bed + k - (moving ? Math.abs(Math.sin(t * 7)) * 3 * k : 0); rot = c.dir * (lean ? 14 : moving ? 6 : 0); }   // 통통 · 에기 쪽으로 몸을 쭉
+      else if (f === 'gp') { yb = bed - (10 + Math.sin(t * 1.6) * 1.6) * k; rot = c.dir * (lean ? 10 : moving ? 5 : 0); }   // 둥실
+      else if (f === 'gw') { yb = bed + 2 * k; rot = moving ? Math.sin(t * 5) * 2 : 0; }   // 바닥에 엎드려 미끄러지기
+      else { yb = bed - (8 + Math.sin(t * 1.3) * 1.4) * k; rot = (moving ? -2 : 0) * c.dir; }   // 떠서 둥실둥실
+      ctx.save(); ctx.translate(c.x, yb); if (rot) ctx.rotate(rot * Math.PI / 180); ctx.scale(flip, 1);
+      ctx.drawImage(bm, -(B[0] + 14 + B[2] / 2) * sc, -(B[1] + 14 + B[3]) * sc, 228 * sc, 214 * sc);
+      ctx.restore();
+    }
     function drawCritters(t, surf, jig, maxX) {
       const dt = running ? Math.max(0, Math.min(0.05, t - lifeLast)) : 0; lifeLast = t;
       const fit = flowFit(Math.min(1, Math.abs(flow))), k = Math.max(0.85, Math.min(1.15, W / 390));
@@ -3066,14 +3099,15 @@ const TideHarm = (() => {
       const xMin = 14;
       if (spScene === 'ur') { const wx = xMin + (xMax - xMin) * 0.3; drawWreck(wx, bedOf(wx), k * 1.05); const rx = xMin + (xMax - xMin) * 0.66; drawRock(rx, bedOf(rx), k * 0.8); }   // 우럭 외줄: 먼바다 침선·어초
       if (spScene === 'gw') { const rx = xMin + (xMax - xMin) * 0.46; drawRock(rx, bedOf(rx), k * 0.75); }   // 광어 다운샷: 모래·자갈 사이 작은 여
+      const late = [];
       [...new Set(critters.map(c => c.kind))].forEach(kind => {
         const score = fit * lifeT[kind], group = critters.filter(c => c.kind === kind), act = Math.max(0.15, score);
         group.forEach(c => {
-          const on = c.i < Math.round(c.n * score * score);   // 1.0 → 다 나옴, 0.85 → 약 2/3, 0.7 → 절반, 0.45 → 한두 마리
-          const hide = !on && c.i === 0 && !group.some(o => o !== c && o.a > 0.5);   // 아무도 안 나오면 첫째가 숨어 있는 모습
+          const on = c.fam ? score >= 0.5 : c.i < Math.round(c.n * score * score);   // 친구들: 1.0 → 다 나옴, 0.85 → 약 2/3, 0.7 → 절반, 0.45 → 한두 마리
+          const hide = c.fam ? !on : false;   // 안 맞으면 가족 주인공이 바닥에 반쯤 묻혀 빼꼼
           c.a += ((on || hide ? 1 : 0) - c.a) * Math.min(1, dt * 2.5);
           if (!running) c.a = on || hide ? 1 : 0;
-          if (c.x === null || c.x > xMax) { c.x = xMin + (xMax - xMin) * CR[kind].x0[c.i]; c.tx = c.x; }
+          if (c.x === null || c.x > xMax) { c.x = xMin + (xMax - xMin) * (c.fam ? HX[c.fam] : CR[kind].x0[c.i]); c.tx = c.x; }
           if (hide && !c.hidden) {
             // 에기와 다른 숨은 친구에게서 떨어진 잘 보이는 자리
             const other = critters.find(o => o !== c && o.hidden);
@@ -3095,13 +3129,13 @@ const TideHarm = (() => {
               const others = critters.filter(o => o !== c && o.a > 0.3 && o.tx != null), wasJig = c.jig;
               const toJig = jig && !others.some(o => o.jig || Math.abs(o.x - jig.x) < 20 * k) && Math.random() < 0.25 + 0.35 * act;
               c.jig = toJig;
-              if (toJig) c.tx = Math.max(xMin, Math.min(xMax, jig.x - Math.sign(jig.x - c.x || 1) * CR[kind].gap));
+              if (toJig) c.tx = Math.max(xMin, Math.min(xMax, jig.x - Math.sign(jig.x - c.x || 1) * CR[kind].gap * (c.fam ? 1.9 : 1)));
               else {
                 // 후보 8곳 중 다른 친구(같은 종류는 더 멀리)와 가장 떨어진 곳으로: 여럿이 한데 뭉치지 않게
                 let best = null, bestD = -1;
                 for (let tries = 0; tries < 8; tries++) {
                   const cand = xMin + Math.random() * (xMax - xMin);
-                  const d = Math.min(Infinity, ...others.map(o => Math.min(Math.abs(o.tx - cand), Math.abs(o.x - cand)) * (o.kind === kind ? 1 : 1.6)));
+                  const d = Math.min(Infinity, ...others.map(o => Math.min(Math.abs(o.tx - cand), Math.abs(o.x - cand)) * (c.fam && o.fam ? 0.25 : o.kind === kind ? 1 : 1.6)));   // 가족 주인공끼리는 더 떨어지게
                   if (d > bestD) { bestD = d; best = cand; }
                 }
                 c.tx = best;
@@ -3114,6 +3148,7 @@ const TideHarm = (() => {
             }
           }
           const bed = bedOf(c.x), act2 = c.hidden ? 0.1 : act;
+          if (c.fam) { late.push([c, bed, score]); return; }   // 가족 주인공은 작은 친구들 위에 (맨 나중에)
           ctx.save(); ctx.globalAlpha = Math.min(1, c.a);
           if (c.hidden) {   // 바닥선 위만 보이게 잘라서 반쯤 묻힌 모습
             ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(W, 0);
@@ -3141,6 +3176,12 @@ const TideHarm = (() => {
           ctx.restore();
         });
       });
+      for (const [c, bed, score] of late) {
+        ctx.save(); ctx.globalAlpha = Math.min(1, c.a);
+        if (c.hidden) { ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(W, 0); for (let x = W; x >= 0; x -= 6) ctx.lineTo(x, bedOf(x) - 0.5); ctx.closePath(); ctx.clip(); }
+        drawFam(c, bed, k, t + c.ph, c.hidden ? 'bust' : c.jig && c.a > 0.6 && Math.abs(c.tx - c.x) < 1.5 ? 'big' : score >= 0.8 ? 'joy' : 'base');
+        ctx.restore();
+      }
     }
     function draw(t) {
       if (!W || !H || lev === null) return;
@@ -9218,7 +9259,7 @@ const TideHarm = (() => {
 
 <script>
 if ('serviceWorker' in navigator) addEventListener('load', () => {
-  const sw = navigator.serviceWorker, VER = 'cd325ec1'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
+  const sw = navigator.serviceWorker, VER = '1ea5bf6a'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
   // 화면에 손을 대기 시작했는지 (쓰는 중에는 새로 열지 않으려고)
   ['pointerdown', 'keydown'].forEach(t => addEventListener(t, () => { touched = true; }, { capture: true, passive: true }));
   const reload = () => {
