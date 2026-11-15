@@ -563,6 +563,14 @@ html.mv-on .app *{animation-play-state:paused !important} html.mv-hide .app{visi
 :root[data-theme="dark"] .mv-good.on{color:#FFD54A}
 @media (prefers-color-scheme: dark){ :root:not([data-theme="light"]) .mv-good.on{color:#FFD54A} }
 .mv-list b .mv-goodt{display:inline-block; margin-left:6px; font-style:normal; font-size:calc(11.5px * var(--k))}
+.mv-sea{display:flex; flex-wrap:wrap; align-items:center; gap:8px 10px; margin:4px 0 2px}
+.mv-sea .lb{font-size:calc(12.5px * var(--k)); font-weight:700; color:var(--ink-2)}
+.mv-sea .sg{display:flex; gap:4px; padding:4px; border-radius:12px; background:var(--well)}
+.mv-sea button{min-height:34px; padding:0 11px; border:0; border-radius:9px; background:none; font:inherit; font-size:calc(13px * var(--k)); font-weight:700; color:var(--ink-2); -webkit-tap-highlight-color:transparent}
+.mv-sea .sg button.on{background:var(--card); color:var(--ink); box-shadow:0 1px 4px rgba(0,0,0,.22)}
+.mv-sea .rn{display:flex; gap:6px} .mv-sea .rn button{border:1px solid var(--line)} .mv-sea .rn button.on{border-color:#5AA9E6; background:rgba(90,169,230,.14); color:var(--ink)}
+.mv-rged .tms{display:flex; gap:4px; margin-top:-3px} .mv-rged .tms button{flex:1; min-height:34px; border:1px solid var(--line); border-radius:10px; background:none; font:inherit; font-size:calc(12.5px * var(--k)); font-weight:700; color:var(--ink-2)}
+.mv-rged .tms button.on{border-color:#FFC93C; background:rgba(255,201,60,.14); color:var(--ink)}
 .mv-memo{width:100%; margin:10px 0; padding:10px 12px; border:1px solid var(--line); border-radius:12px; background:var(--paper); font:inherit; font-size:calc(16px * var(--k)); color:var(--ink)}
 .mv-trip > span:first-child{flex:none}
 .mv-in, .mv-sel{width:100%; min-width:0; height:38px; padding:0 10px; border:1px solid var(--line); border-radius:10px; background:var(--paper); font:inherit; font-size:calc(16px * var(--k)); font-weight:700; color:var(--ink); -webkit-appearance:none; appearance:none}
@@ -2390,18 +2398,28 @@ const TideHarm = (() => {
       localStorage.setItem(RAIN_KEY, JSON.stringify(lg));
     } catch (_) {}
   }
+  // 그 지점(k: 출항지)·그날(n)의 비: 1/0/null(모름)
+  function rainFor(k, n) {
+    try {
+      const wk = wxOf(k), st = WX && WX.stations && WX.stations[wk], d = wxYmd(n);
+      if (st && st.rain && st.rain[d] != null) return st.rain[d] ? 1 : 0;
+      if (st && st.fc) { let c = 0, r = 0; for (let h = 6; h <= 18; h++) { const q = st.fc[d + String(h).padStart(2, '0')]; if (q) { c++; if (isRain(q)) r = 1; } } if (r || c >= 4) return r; }
+      const y = rainLog()[d]; if (y && y[wk] != null) return y[wk] ? 1 : 0;
+    } catch (_) {}
+    return null;
+  }
   // 지금 이 출항지의 하늘(1 맑음 · 3 구름많음 · 4 흐림) · 비(1/0) · 전날 비(아는 경우만)
   function wxNowOf(k) {
     const o = {};
     try {
       const wk = wxOf(k), st = WX && WX.stations && WX.stations[wk], now = Date.now() + 9 * 3600000, td = Math.floor(now / DAY), r = st ? wxRow(st, td, Math.floor((now % DAY) / 3600000)) : null;
       if (r) { if (r[3] != null) o.sky = r[3]; o.rain = isRain(r) ? 1 : 0; }
-      const y = rainLog()[wxYmd(td - 1)]; if (y && y[wk] != null) o.rainPrev = y[wk];
+      const rp = rainFor(k, td - 1); if (rp != null) o.rainPrev = rp;
     } catch (_) {}
     return o;
   }
   // 그날 비(예보 · 지나간 날은 적어 둔 기록) → true/false/null(모름)
-  function rainOfDay(n) { const w = dayWx(n); if (w) return w.icon === 'rain'; const y = rainLog()[wxYmd(n)], wk = wxOf(tideSt); return y && y[wk] != null ? !!y[wk] : null; }
+  function rainOfDay(n) { const r = rainFor(tideSt, n); if (r != null) return !!r; const w = dayWx(n); return w ? w.icon === 'rain' : null; }
   async function loadWx() {
     let inFrame = false; try { inFrame = window.top !== window.self; } catch (_) { inFrame = true; }
     if (inFrame && !WX) { wxState = 'frame'; paintWx(); renderWxStrip(); renderCal(); return; }
@@ -5612,7 +5630,8 @@ const TideHarm = (() => {
     function rigRemember(sink, egi, sinkM) { saveJ(RIG_KEY, { d: kstDay(Date.now()), sink: sink.slice(), egi: egi.map(x => ({ ...x })), sinkM: sinkMOf(sink, sinkM), last: sink.length ? sink.slice() : ((loadJ(RIG_KEY, null) || {}).last || []) }); }
     // 봉돌 메모: 상자에 있는 봉돌 것만, 빈 것은 빼고
     const sinkMOf = (sink, m) => { const o = {}; for (const n of sink || []) { const t = m && String(m[n] || '').trim(); if (t) o[n] = t.slice(0, 30); } return o; };
-    const egiClean = a => (a || []).map(x => { const y = { ...x }; if (y.m != null) { y.m = String(y.m).trim().slice(0, 30); if (!y.m) delete y.m; } return y; });
+    const TM_L = [['dawn', '새벽'], ['am', '오전'], ['pm', '오후']], TM_N = { dawn: '새벽', am: '오전', pm: '오후' };   // ★ 잘 먹힌 때
+    const egiClean = a => (a || []).map(x => { const y = { ...x }; if (!y.s || !Array.isArray(y.tm) || !y.tm.length) delete y.tm; if (y.m != null) { y.m = String(y.m).trim().slice(0, 30); if (!y.m) delete y.m; } return y; });
     // 채비: 위에 '오늘 채비' 상자 (봉돌 칸 · 에기 칸), 아래에 고르는 단추 · 누르면 상자에 쏙, 상자의 칸을 누르면 제자리로 · 에기 칸을 꾹 누르면 손질
     function rigRows(f, scroll) {
       const R = recOf(f);
@@ -5839,7 +5858,8 @@ const TideHarm = (() => {
         if (a === 'close') { if (Date.now() - rgOpenT < 500) return; return rgEdClose(); }   // 꾹 누른 손을 뗄 때 바로 닫히지 않게
         if (!x) return rgEdClose();
         if (a === 'tin') { x.t = x.t ? 0 : 1; return rgEdSync(); }
-        if (a === 'star') { x.s = x.s ? 0 : 1; return rgEdSync(); }
+        if (a === 'star') { x.s = x.s ? 0 : 1; if (!x.s) delete x.tm; return rgEdSync(); }
+        if (a === 'tm') { const v = b.dataset.v, A = (x.tm || []).filter(q => q !== v); if (A.length === (x.tm || []).length) A.push(v); if (A.length) x.tm = TM_L.map(q => q[0]).filter(q => A.includes(q)); else delete x.tm; return rgEdSync(); }
         if (a === 'sb') { x.sb = sbOf(egiGet(x.c), x) ? 0 : 1; return rgEdSync(); }
         if (a === 'bait') { x.b = x.b ? 0 : 1; return rgEdSync(); }
         if (a === 'lc') { x.lc = b.dataset.l; return rgEdSync(); }
@@ -5871,6 +5891,7 @@ const TideHarm = (() => {
         + (laser ? `<div class="lcs">${LASERS.map(l => `<button type="button" data-rg="lc" data-l="${l.id}" aria-label="${l.n} 레이저" style="background:${l.id === 'rainbow' ? 'conic-gradient(#ff5a5a,#ffb84d,#fff176,#69f0ae,#4fc3f7,#7c4dff,#ff5a5a)' : l.c}"></button>`).join('')}</div>` : '')
         + `<div class="tg2"${lure ? ' hidden' : ''}><button type="button" class="tog" data-rg="tin" id="rg-tin">✨ 틴셀</button><button type="button" class="tog" data-rg="sb" id="rg-sb">🐟 삼봉</button></div>`
         + '<button type="button" class="tog sub2" data-rg="bait" id="rg-bait" hidden></button><button type="button" class="tog" data-rg="star" id="rg-star"></button>'
+        + `<div class="tms" id="rg-tm" role="group" aria-label="언제 잘 먹혔나" hidden>${TM_L.map(([v, t]) => `<button type="button" data-rg="tm" data-v="${v}">${t}</button>`).join('')}</div>`
         + `<button type="button" class="tog" data-rg="edit">${e.k === 'bait' ? (BAIT_BY[e.id] ? '이 미끼로 다른 미끼 만들기' : '미끼 고치기') : e.k === 'wrm' ? (wMine ? '웜 고치기' : '이 웜으로 내 웜 만들기') : '에기 고치기'}</button>`
         + `</div></div><input class="memo" id="rg-memo" maxlength="30" placeholder="${e.k === 'wrm' ? '메모 (예: 3인치, 바닥에서 살짝 띄워서)' : e.k === 'bait' ? '메모 (예: 산 미꾸라지, 입에 꿰기)' : '메모 (예: 3.5호, 오후 들물에 잘 먹음)'}" enterkeyhint="done" autocomplete="off" value="${esc(x.m || '')}">`
         + '<button type="button" class="done" data-rg="close">다 됐어요</button>'); rgEdSync();
@@ -5885,6 +5906,7 @@ const TideHarm = (() => {
       const t = el.querySelector('#rg-tin'); t.classList.toggle('on', !!x.t); t.setAttribute('aria-pressed', !!x.t);
       const sb = sbOf(e, x), q = el.querySelector('#rg-sb'); q.classList.toggle('on', sb); q.setAttribute('aria-pressed', sb);
       const bt = el.querySelector('#rg-bait'); bt.hidden = !sb || !!e.k; bt.classList.toggle('on', !!x.b); bt.setAttribute('aria-pressed', !!x.b); bt.textContent = x.b ? '학꽁치포 달았음' : '학꽁치포 달기';
+      const tmB = el.querySelector('#rg-tm'); if (tmB) { tmB.hidden = !x.s; tmB.querySelectorAll('button').forEach(t => { const on = (x.tm || []).includes(t.dataset.v); t.classList.toggle('on', on); t.setAttribute('aria-pressed', on); }); }
       const s = el.querySelector('#rg-star'); s.classList.toggle('on', !!x.s); s.textContent = x.s ? (e.k === 'bait' ? '★ 잘 먹힌 미끼' : e.k === 'wrm' ? '★ 잘 먹힌 웜' : '★ 잘 먹힌 색') : '☆ 잘 먹혔으면 톡';
       const c = panel.querySelector(`.mv-cell[data-k="e:${x.c}"]`);   // 상자 칸도 바로 바꾼다
       if (c) { c.querySelector('.pic').innerHTML = egiSvg(e, x); c.classList.toggle('star', !!x.s); c.querySelector('b').textContent = egiName(x); }
@@ -6295,6 +6317,11 @@ const TideHarm = (() => {
         memo: S ? S.memo || '' : '', good: new Set(tr.pts.filter(p => p.good).map(p => p.id)), had: !!S,
         party: S && Array.isArray(S.party) ? S.party.filter(q => q && q.n).map(q => ({ n: String(q.n), jj: q.jj || 0, gap: q.gap || 0, etc: Array.isArray(q.etc) ? q.etc.filter(e => e && e.n).map(e => ({ n: String(e.n), c: e.c || 0 })) : [] })) : [], partyNew: false,
         lbl: S && S.lbl && LBLS.some(o => o[0] === S.lbl) ? S.lbl : lblPick() };   // 이름표: 이 출조에 고른 것, 없으면 지난번에 고른 것
+      // 오늘 바다: 정리해 둔 것 → 포인트에 남은 날씨 → 날씨 자료 (모르면 null)
+      { const n = kstDay(tr.pts[0].t), k0 = tr.pts[0].port || tideSt, pv = q => (tr.pts.some(p => p[q] === 1) ? 1 : tr.pts.some(p => p[q] === 0) ? 0 : null);
+        form.water = S && S.water ? S.water : null;
+        form.rain = S && S.rain != null ? S.rain : pv('rain') ?? rainFor(k0, n);
+        form.rainPrev = S && S.rainPrev != null ? S.rainPrev : pv('rainPrev') ?? rainFor(k0, n - 1); }
       // 낚시 방식: 정리해 둔 것 → 포인트에 적힌 것 → 쭈갑 기록이 있으면 쭈갑 → 지금 고른 방식
       form.sp = S ? S.sp || 'jg' : (tr.pts.find(p => p.sp) || {}).sp || (tr.pts.some(p => p.jj || p.gap || (p.egi || []).length) ? 'jg' : spNow());
       if (recOf(form)) {
@@ -6325,6 +6352,9 @@ const TideHarm = (() => {
         ${f.party.length ? partyRows(f) + partyAddRow(f) + catchRows(f, true) : catchRows(f) + partyAddRow(f)}
         <div class="mv-sec">채비<em>누르면 상자에 담겨요 · 칸을 꾹 누르면 손질 · −로 빼기</em></div>
         ${rigRows(f, false)}
+        <div class="mv-sec">오늘 바다<em>안 골라도 돼요 · 비는 앱이 알아낸 대로, 틀리면 톡</em></div>
+        <div class="mv-sea" id="mv-sea"><span class="lb">물색</span><div class="sg" role="group" aria-label="물색">${[['clear', '맑음'], ['mid', '보통'], ['murky', '탁함']].map(([v, t]) => `<button type="button" data-act="sea-w" data-v="${v}" class="${f.water === v ? 'on' : ''}" aria-pressed="${f.water === v}">${t}</button>`).join('')}</div>
+          <div class="rn"><button type="button" data-act="sea-rain" class="${f.rain ? 'on' : ''}" aria-pressed="${!!f.rain}">☔ 비</button><button type="button" data-act="sea-rprev" class="${f.rainPrev ? 'on' : ''}" aria-pressed="${!!f.rainPrev}">☔ 전날 비</button></div></div>
         <input class="mv-memo" id="mv-memo" maxlength="120" placeholder="${recOf(f) ? recOf(f).memo : '메모 (예: 오후 들물에 갑오징어 잘 나옴)'}" value="${esc(f.memo || '')}">
         <div class="mv-sec">머문 자리<em>잘 나온 곳만 톡 (안 해도 돼요)</em></div>
         <div class="mv-sumpts">${rows}</div>
@@ -6339,7 +6369,8 @@ const TideHarm = (() => {
       const sinkM = sinkMOf(f.sink, f.sinkM);
       const big = bigClean(f, f.big), rgs = (f.rg || []).slice();
       all[tr.key] = { jj: clampN(f.jj), gap: clampN(f.gap), etc: f.etc.map(e => ({ n: e.n.trim(), c: clampN(e.c) })).filter(e => e.c > 0), sink: f.sink.slice(), egi: egiClean(f.egi), ...(Object.keys(sinkM).length ? { sinkM } : {}), memo, ...(party.length ? { party } : {}), lbl: f.lbl || 'base', t: Date.now(),
-        ...(recOf(f) ? { sp: f.sp } : {}), ...(Object.keys(big).length ? { big } : {}), ...(rgs.length ? { rg: rgs } : {}) };
+        ...(recOf(f) ? { sp: f.sp } : {}), ...(Object.keys(big).length ? { big } : {}), ...(rgs.length ? { rg: rgs } : {}),
+        ...(f.water ? { water: f.water } : {}), ...(f.rain != null ? { rain: f.rain ? 1 : 0 } : {}), ...(f.rainPrev != null ? { rainPrev: f.rainPrev ? 1 : 0 } : {}) };
       try { localStorage.setItem(LBL_KEY, f.lbl || 'base'); } catch (_) {}   // 다음 출조 정리는 이 모양으로 시작
       if (party.length) { const names = party.map(q => q.n), rec = loadJ(PARTY_KEY, []) || []; saveJ(PARTY_KEY, [...names, ...rec.filter(n => !names.includes(n))].slice(0, 8)); }
       saveJ(SUM_KEY, all);
@@ -7287,7 +7318,7 @@ const TideHarm = (() => {
         for (const x of cd.egi) {
           if (!bkOfMode(x.c, md)) continue;
           let o = st.get(x.c); if (!o) st.set(x.c, o = { n: 0, s: 0, last: 0, first: Infinity, trips: [], x });
-          o.n++; if (x.s) o.s++; if (t >= o.last) { o.last = t; o.x = x; } o.first = Math.min(o.first, t); o.trips.push({ t, cd, s: !!x.s });
+          o.n++; if (x.s) o.s++; if (t >= o.last) { o.last = t; o.x = x; } o.first = Math.min(o.first, t); o.trips.push({ t, cd, s: !!x.s, k });
         }
       }
       const base = md === 'gw' ? [...WRM, ...wrmMine] : md === 'ur' ? [...BAIT, ...baitMine] : [...EGI.map(e => egiGet(e.id)), ...egiMine];
@@ -7297,6 +7328,13 @@ const TideHarm = (() => {
     }
     let bookS = null, bookEl = null;
     // ---------- 지난번 이런 날엔: 고른 날과 비슷했던 같은 방식의 내 출조 (점수: 물때 3·2·1 · 철 2·1 · 출항지 2·1 · 바람·수온·비 각 1 → 4점 이상, 물때나 철 중 하나는 가까워야)
+    const WATER_N = { clear: '맑음', mid: '보통', murky: '탁함' };
+    function tripSea(k) {
+      const S = sumsAll()[k] || {}, tp = (tripByKey(k) || { pts: [] }).pts, pv = q => (tp.some(p => p[q] === 1) ? 1 : tp.some(p => p[q] === 0) ? 0 : null);
+      return { water: S.water || null, rain: S.rain != null ? S.rain : pv('rain'), rainPrev: S.rainPrev != null ? S.rainPrev : pv('rainPrev') };
+    }
+    const seaTxt = q => [q.water ? `물색 ${WATER_N[q.water]}` : '', q.rain ? '☔ 비' : '', q.rainPrev ? '☔ 전날 비' : ''].filter(Boolean).join(' · ');
+    const starTxt = e => esc(egiName(e)) + '★' + (e.tm && e.tm.length ? `(${e.tm.map(q => TM_N[q]).join('·')})` : '');
     const lunC = n => ((Tide.info(n).lunarDay - 1) % 15) + 1;
     const cDist = (a, b, m) => { const d = Math.abs(a - b) % m; return Math.min(d, m - d); };
     const simDoy = n => { const v = ymd(n); return Math.round((Date.UTC(v.y, v.m - 1, v.d) - Date.UTC(v.y, 0, 1)) / DAY); };
@@ -7320,10 +7358,11 @@ const TideHarm = (() => {
         if ((f.dep && f.dep === tideSt) || (S0 && f.depLat != null && simKm(f.depLat, f.depLon, S0.lat, S0.lon) <= 3)) { sc += 2; why.push('같은 출항지'); } else if (S0 && dLat != null && simKm(dLat, dLon, S0.lat, S0.lon) <= 30) { sc += 1; why.push('가까운 바다'); }
         if (wd && wd.wind != null && cd.wind != null && Math.abs(wd.wind - cd.wind) <= 3) { sc += 1; why.push('바람 비슷'); }
         if (tNow != null && cd.wt != null && Math.abs(tNow - cd.wt) <= 1) { sc += 1; why.push('수온 비슷'); }
-        const tp = (tripByKey(k) || { pts: [] }).pts;
-        if (r0 && tp.some(p => p.rain === 1)) { sc += 1; why.push('비 오는 날'); }
-        if (rp0 && tp.some(p => p.rainPrev === 1)) { sc += 1; why.push('비 온 다음 날'); }
-        if (sc >= 4 && (dl <= 1 || ds <= 15)) L.push({ k, n2, cd, sc, why });
+        const sq = tripSea(k);
+        if (r0 && sq.rain === 1) { sc += 1; why.push('비 오는 날'); }
+        if (rp0 && sq.rainPrev === 1) { sc += 1; why.push('비 온 다음 날'); }
+        if ((r0 || rp0) && sq.water === 'murky') { sc += 1; why.push('탁한 물'); }   // 비가 오면 물이 탁해지기 쉬워서
+        if (sc >= 4 && (dl <= 1 || ds <= 15)) L.push({ k, n2, cd, sc, why, sq });
       }
       L.sort((a, b) => b.sc - a.sc || b.n2 - a.n2);
       simC = { k: ck, L }; return L;
@@ -7338,7 +7377,9 @@ const TideHarm = (() => {
       }
       const top = m => [...m].sort((a, b) => b[1].c - a[1].c).slice(0, 3);
       const sink = [...sk].sort((a, b) => b[1] - a[1] || a[0] - b[0])[0];
-      return { star: top(star), used: top(used), sink: sink ? sink[0] : null };
+      const byTm = {}; for (const x of L) for (const e of x.cd.egi) if (e.s && e.tm) for (const q of e.tm) { const m = byTm[q] || (byTm[q] = new Map()), nm = egiName(e); if (nm) m.set(nm, (m.get(nm) || 0) + 1); }
+      const tm = TM_L.filter(([q]) => byTm[q]).map(([q, t]) => `${t} ${[...byTm[q]].sort((a, b) => b[1] - a[1]).slice(0, 2).map(([nm]) => esc(nm)).join('·')}`);
+      return { star: top(star), used: top(used), sink: sink ? sink[0] : null, tm };
     }
     const simIc = q => { const e = egiGet(q.e.c); return e ? egiSvg(e, q.e) : ''; };
     function simHTML(n) {
@@ -7346,10 +7387,11 @@ const TideHarm = (() => {
       const head = `<div class="block-head"><h2>지난번 이런 날엔</h2><span class="hint">내 기록 · ${SPECIES[md] ? SPECIES[md].full : ''}</span></div>`;
       if (!L.length) return head + '<p class="sim-none">비슷한 날 기록이 쌓이면 여기 보여요. 물때·철·출항지가 비슷했던 내 출조를 모아 보여줘요.</p>';
       const T = L.slice(0, 5), sm = simSum(T), y0 = ymd(today).y;
-      const row = x => { const cd = x.cd; return `<li><b>${cd.y !== y0 ? cd.y + '년 ' : ''}${cd.m}월 ${cd.d}일${cd.boat ? ' · ' + esc(cd.boat) : ''} · ${cd.tot}마리</b><span>${[cd.mul, cd.wt != null ? `수온 ${cd.wt.toFixed(1)}℃` : '', cd.port ? esc(cd.port) : '', sinkTxt(cd.sink), cd.egi.filter(e => e.s).map(e => esc(egiName(e)) + '★').join(' ')].filter(Boolean).join(' · ')}</span><em>${x.why.join(' · ')}</em></li>`; };
+      const row = x => { const cd = x.cd; return `<li><b>${cd.y !== y0 ? cd.y + '년 ' : ''}${cd.m}월 ${cd.d}일${cd.boat ? ' · ' + esc(cd.boat) : ''} · ${cd.tot}마리</b><span>${[cd.mul, cd.wt != null ? `수온 ${cd.wt.toFixed(1)}℃` : '', seaTxt(x.sq), cd.port ? esc(cd.port) : '', sinkTxt(cd.sink), cd.egi.filter(e => e.s).map(starTxt).join(' ')].filter(Boolean).join(' · ')}</span><em>${x.why.join(' · ')}</em></li>`; };
       const pick = sm.star.length ? `<div class="sim-row"><span class="k">★ 잘 먹힌 ${N}</span><span class="v">${sm.star.map(([nm, q]) => `<i>${simIc(q)}${esc(nm)} ${q.c}번</i>`).join('')}</span></div>`
         : sm.used.length ? `<div class="sim-row"><span class="k">써 본 ${N}</span><span class="v">${sm.used.map(([nm, q]) => `<i>${simIc(q)}${esc(nm)} ${q.c}번</i>`).join('')}</span></div>` : '';
-      const sink = sm.sink ? `<div class="sim-row"><span class="k">봉돌</span><span class="v">주로 ${sm.sink}호</span></div>` : '';
+      const sink = (sm.tm.length ? `<div class="sim-row"><span class="k">때별 ★</span><span class="v">${sm.tm.join(' · ')}</span></div>` : '')
+        + (sm.sink ? `<div class="sim-row"><span class="k">봉돌</span><span class="v">주로 ${sm.sink}호</span></div>` : '');
       if (L.length === 1) return head + `<div class="sim-card"><p class="sim-one">비슷한 날 기록 1번 · 참고만 해 주세요</p><ul class="sim-list">${row(L[0])}</ul></div>`;
       return head + `<div class="sim-card"><p class="sim-top">비슷했던 내 출조 ${L.length}번 <span>· 평균 ${Math.round(T.reduce((a, x) => a + x.cd.tot, 0) / T.length)}마리</span></p>${pick}${sink}<ul class="sim-list">${T.map(row).join('')}</ul></div>`;
     }
@@ -7398,7 +7440,8 @@ const TideHarm = (() => {
           + (o ? `<span>써 본 출조 ${o.n}번</span><span class="bk-st">★ 잘 먹힘 ${o.s}번</span><span>처음 ${bkDay(o.first)}</span><span>마지막 ${bkDay(o.last)}</span>` : '<span>아직 안 써 봤어요</span>') + '</div></div></div>';
         if (o) {
           const T = o.trips.slice().sort((a, b) => b.s - a.s || b.t - a.t);
-          body += `<p class="bk-h4">써 본 날 <span class="bk-st">★ 잘 먹힌 날</span></p>` + T.map(({ t, cd, s: st }) => `<div class="bk-tr"><b>${st ? '★' : ''}</b><div>${bkDay(t)}${cd.boat ? ' · ' + esc(cd.boat) : ''} · ${cd.tot}마리<br><span>${[cd.mul, cd.wt != null ? `수온 ${cd.wt.toFixed(1)}℃` : '', cd.port ? esc(cd.port) : ''].filter(Boolean).join(' · ')}</span></div></div>`).join('')
+          body += `<p class="bk-h4">써 본 날 <span class="bk-st">★ 잘 먹힌 날</span></p>` + T.map(({ t, cd, s: st, k: tk }) => { const x0 = cd.egi.find(e => e.c === id) || {}, tmT = st && x0.tm && x0.tm.length ? ` (${x0.tm.map(q => TM_N[q]).join('·')})` : '';
+            return `<div class="bk-tr"><b>${st ? '★' : ''}</b><div>${bkDay(t)}${cd.boat ? ' · ' + esc(cd.boat) : ''} · ${cd.tot}마리${tmT}<br><span>${[cd.mul, cd.wt != null ? `수온 ${cd.wt.toFixed(1)}℃` : '', seaTxt(tripSea(tk)), cd.port ? esc(cd.port) : ''].filter(Boolean).join(' · ')}</span></div></div>`; }).join('')
             + (o.s ? '' : `<p class="bk-none">아직 ★ 표시한 날이 없어요. 출조 정리에서 잘 먹힌 ${N}에 ★를 눌러 두면 여기 모여요.</p>`);
         } else body += `<p class="bk-none">출조 정리에서 이 ${N}를 고르면 도감에 등록돼요.</p>`;
       } else {
@@ -8279,6 +8322,12 @@ const TideHarm = (() => {
       if (a === 'good') { if (!form || !form.good) return; const id = b.dataset.id, on = !form.good.has(id); on ? form.good.add(id) : form.good.delete(id); b.classList.toggle('on', on); b.setAttribute('aria-pressed', on); return; }
       if (a === 'sum-pt') { const p = points.find(q => q.id === b.dataset.id); if (p) { selId = p.id; follow = false; $('mv-me').classList.remove('on'); placeAt(p.lon, p.lat, focusY()); draw(); } return; }
       if (a === 'sum-save') return sumSave();
+      if ((a === 'sea-w' || a === 'sea-rain' || a === 'sea-rprev') && form) {   // 오늘 바다: 다시 그리지 않고 단추만
+        if (a === 'sea-w') form.water = form.water === b.dataset.v ? null : b.dataset.v;
+        else { const q = a === 'sea-rain' ? 'rain' : 'rainPrev'; form[q] = form[q] ? 0 : 1; }
+        const box = $('mv-sea'); if (box) box.querySelectorAll('button').forEach(t => { const on = t.dataset.act === 'sea-w' ? form.water === t.dataset.v : t.dataset.act === 'sea-rain' ? !!form.rain : !!form.rainPrev; t.classList.toggle('on', on); t.setAttribute('aria-pressed', on); });
+        return;
+      }
       if (a === 'party-add') { form.partyNew = true; repaint(); const el = $('mv-party-n'); if (el) el.focus(); return; }
       if (a === 'party-quick') { const i = partyPush(b.dataset.n); form.partyNew = false; repaint(); return; }
       if (a === 'party-rm') { form.party.splice(+b.dataset.i, 1); repaint(); return; }
@@ -9459,7 +9508,7 @@ const TideHarm = (() => {
 
 <script>
 if ('serviceWorker' in navigator) addEventListener('load', () => {
-  const sw = navigator.serviceWorker, VER = '140c93b8'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
+  const sw = navigator.serviceWorker, VER = 'd06d1422'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
   // 화면에 손을 대기 시작했는지 (쓰는 중에는 새로 열지 않으려고)
   ['pointerdown', 'keydown'].forEach(t => addEventListener(t, () => { touched = true; }, { capture: true, passive: true }));
   const reload = () => {
