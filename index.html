@@ -709,6 +709,14 @@ a.mv-row-btn{text-decoration:none; gap:10px} .mv-row-btn span{font-size:calc(20p
 .bk-h4{margin:14px 2px 6px; font-size:calc(13.5px * var(--k)); font-weight:800}
 .bk-tr{display:flex; gap:8px; align-items:baseline; padding:10px 2px; border-top:1px solid var(--line); font-size:calc(13px * var(--k))} .bk-tr b{flex:none; width:1.2em; color:#E0A100} .bk-tr span{color:var(--ink-2); font-size:calc(12px * var(--k))}
 .bk-none{margin:8px 2px; font-size:calc(13px * var(--k)); line-height:1.6; color:var(--ink-2)}
+.sim-card{display:flex; flex-direction:column; gap:8px; padding:14px; border:1px solid var(--line); border-radius:18px; background:var(--card)}
+.sim-top{margin:0; font-size:calc(15px * var(--k)); font-weight:800} .sim-top span{font-weight:600; color:var(--ink-2); font-size:calc(13px * var(--k))}
+.sim-row{display:flex; align-items:center; gap:8px; font-size:calc(13px * var(--k))} .sim-row .k{flex:none; width:6.4em; color:var(--ink-2); font-weight:700}
+.sim-row .v{display:flex; flex-wrap:wrap; align-items:center; gap:4px 10px; font-weight:700} .sim-row .v i{display:inline-flex; align-items:center; gap:3px; font-style:normal} .sim-row .v svg{height:24px; width:auto}
+.sim-list{margin:2px 0 0; padding:0; list-style:none} .sim-list li{display:flex; flex-direction:column; gap:2px; padding:9px 0 8px; border-top:1px solid var(--line); font-size:calc(13px * var(--k))}
+.sim-list li span{color:var(--ink-2); font-size:calc(12px * var(--k))} .sim-list li em{font-style:normal; font-size:calc(11.5px * var(--k)); font-weight:700; color:var(--acc, #2F7DF6)}
+.sim-one{margin:0; font-size:calc(12px * var(--k)); font-weight:700; color:var(--ink-2)}
+.sim-none{margin:0; padding:12px 14px; border:1px dashed var(--line); border-radius:16px; font-size:calc(13px * var(--k)); line-height:1.55; color:var(--ink-2)}
 .mv-empty{margin:6px 0 12px; font-size:calc(13px * var(--k)); color:var(--ink-2); line-height:1.5; font-weight:500}
 @media (prefers-reduced-motion: reduce){ .mapv{animation:none} }
 .sheet{position:fixed; left:0; right:0; bottom:0; z-index:41; max-width:520px; max-height:85vh; overflow-y:auto; margin:0 auto; border-radius:24px 24px 0 0; background:var(--card); box-shadow:0 -10px 30px rgba(0,0,0,.2);
@@ -1243,6 +1251,8 @@ window.jjFunFont = function () { if (document.getElementById('fun-font')) return
     </div>
     <p class="advice" id="advice"><b id="adv-now"></b><span class="adv-rest" id="adv-rest"><span id="adv-day"></span><span class="adv-wx" id="adv-wx"></span></span></p>
   </section>
+
+  <section class="block sim-sec" id="sim-sec" hidden></section>
 
   <section class="block" id="wt-section">
     <div class="block-head"><h2>지금 바다 수온</h2><span class="hint" id="wt-src"></span></div>
@@ -1884,7 +1894,10 @@ const TideHarm = (() => {
     renderTide();
     renderChart();
     renderCal();
+    simPaint();
   }
+  // 지난번 이런 날엔 (기록 쪽에서 window.jjugapSim 을 채운다)
+  function simPaint() { const el = $('sim-sec'); if (!el) return; let h = ''; try { h = window.jjugapSim ? window.jjugapSim(sel) : ''; } catch (_) {} el.innerHTML = h; el.hidden = !h; }
 
   // ── 물 높이: 바다 그림이 고른 시각의 실제 물 높이 · 물 흐름 · 하늘(낮밤)을 보여준다 (인천) ──
   const R = Math.PI / 180;
@@ -2361,16 +2374,44 @@ const TideHarm = (() => {
     }
     $('adv-wx').textContent = line;
   }
+  // 비 기록: 받은 날씨 자료에서 날짜(오늘까지)마다 낮(6~18시)에 비가 있었는지 지점별로 적어 둔다 (최근 14일) → 포인트 저장 때 '전날 비'
+  const RAIN_KEY = 'jjukgap-rainlog';
+  const rainLog = () => { try { const x = JSON.parse(localStorage.getItem(RAIN_KEY) || '{}'); return x && typeof x === 'object' ? x : {}; } catch (_) { return {}; } };
+  const isRain = q => q && (q[4] === 1 || q[4] === 2 || q[4] === 4);
+  function rainLogUpd() {
+    try {
+      const lg = rainLog(), td = wxYmd(Math.floor((Date.now() + 9 * 3600000) / DAY));
+      for (const [sk, st] of Object.entries((WX && WX.stations) || {})) {
+        const days = {};
+        for (const [key, q] of Object.entries(st.fc || {})) { const h = +key.slice(8, 10); if (h < 6 || h > 18) continue; const d = key.slice(0, 8), o = days[d] || (days[d] = { n: 0, r: 0 }); o.n++; if (isRain(q)) o.r = 1; }
+        for (const [d, o] of Object.entries(days)) if (d <= td && (o.r || o.n >= 4)) (lg[d] || (lg[d] = {}))[sk] = o.r;
+      }
+      const ks = Object.keys(lg).sort(); while (ks.length > 14) delete lg[ks.shift()];
+      localStorage.setItem(RAIN_KEY, JSON.stringify(lg));
+    } catch (_) {}
+  }
+  // 지금 이 출항지의 하늘(1 맑음 · 3 구름많음 · 4 흐림) · 비(1/0) · 전날 비(아는 경우만)
+  function wxNowOf(k) {
+    const o = {};
+    try {
+      const wk = wxOf(k), st = WX && WX.stations && WX.stations[wk], now = Date.now() + 9 * 3600000, td = Math.floor(now / DAY), r = st ? wxRow(st, td, Math.floor((now % DAY) / 3600000)) : null;
+      if (r) { if (r[3] != null) o.sky = r[3]; o.rain = isRain(r) ? 1 : 0; }
+      const y = rainLog()[wxYmd(td - 1)]; if (y && y[wk] != null) o.rainPrev = y[wk];
+    } catch (_) {}
+    return o;
+  }
+  // 그날 비(예보 · 지나간 날은 적어 둔 기록) → true/false/null(모름)
+  function rainOfDay(n) { const w = dayWx(n); if (w) return w.icon === 'rain'; const y = rainLog()[wxYmd(n)], wk = wxOf(tideSt); return y && y[wk] != null ? !!y[wk] : null; }
   async function loadWx() {
     let inFrame = false; try { inFrame = window.top !== window.self; } catch (_) { inFrame = true; }
     if (inFrame && !WX) { wxState = 'frame'; paintWx(); renderWxStrip(); renderCal(); return; }
     try {
       const r = await fetch('data/weather.json', { cache: 'no-cache' });
       if (!r.ok) throw new Error(r.status);
-      WX = await r.json(); wxState = 'ok'; wxAt = Date.now();
+      WX = await r.json(); wxState = 'ok'; wxAt = Date.now(); rainLogUpd();
       await loadWxPt(wxOf(tideSt));   // 고른 출항지가 해안 예보 지점을 쓰면 그 자료도
     } catch (_) { if (!WX) wxState = 'error'; }
-    capFor = null; renderTide(); paintWx(); renderWxStrip(); renderCal();
+    capFor = null; renderTide(); paintWx(); renderWxStrip(); renderCal(); simPaint();   // 바람·수온·비가 들어오면 '지난번 이런 날엔'도 다시
   }
   document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && Date.now() - wxAt > 20 * 60000) loadWx(); });
   // 시간 막대 조작: 톡 누르면 그 시각으로, 옆으로 밀면 따라가고, 만조·간조 근처에서 놓으면 그 시각에 착 붙는다
@@ -6203,7 +6244,7 @@ const TideHarm = (() => {
       mode = 'save'; selId = id; paintForm(); requestAnimationFrame(rigScrollInit); draw();
     }
     // 저장할 때 함께 남기는 그때의 물때·물 높이·조류·바람·수온
-    const condOf = i => ({ port: i.k, mul: i.dd.name, lv: i.dd.lv, h: Math.round(i.h), rising: i.rising, stand: i.stand, pct: i.pct, wind: i.wind, wave: i.wave, wt: i.wt,
+    const condOf = i => ({ ...wxNowOf(i.k), port: i.k, mul: i.dd.name, lv: i.dd.lv, h: Math.round(i.h), rising: i.rising, stand: i.stand, pct: i.pct, wind: i.wind, wave: i.wave, wt: i.wt,
       spot: !!i.spot, cur: i.cur ? { kn: +(i.cur.sp / KN).toFixed(1), dir: Math.round(i.cur.dir), calm: i.cur.calm, at: i.cur.name, model: !!i.cur.model } : null, wtAt: i.wtName || null });
     // 출조 정보: 출항지를 목록에서 골랐으면 그 자리, 아니면 이름으로 찾은 자리(못 찾으면 이름만)
     const tripOf = (f, near) => {
@@ -7255,6 +7296,70 @@ const TideHarm = (() => {
       return { L, st };
     }
     let bookS = null, bookEl = null;
+    // ---------- 지난번 이런 날엔: 고른 날과 비슷했던 같은 방식의 내 출조 (점수: 물때 3·2·1 · 철 2·1 · 출항지 2·1 · 바람·수온·비 각 1 → 4점 이상, 물때나 철 중 하나는 가까워야)
+    const lunC = n => ((Tide.info(n).lunarDay - 1) % 15) + 1;
+    const cDist = (a, b, m) => { const d = Math.abs(a - b) % m; return Math.min(d, m - d); };
+    const simDoy = n => { const v = ymd(n); return Math.round((Date.UTC(v.y, v.m - 1, v.d) - Date.UTC(v.y, 0, 1)) / DAY); };
+    const simKm = (a1, o1, a2, o2) => { const R = Math.PI / 180, x = (o2 - o1) * R * Math.cos((a1 + a2) / 2 * R), y = (a2 - a1) * R; return 6371 * Math.hypot(x, y); };
+    let simC = null;
+    function simFind(n) {
+      const md = spNow(), ck = [n, md, tideSt, points.length, (localStorage.getItem('jjukgap-sums') || '').length, wxAt].join('|');
+      if (simC && simC.k === ck) return simC.L;
+      const S0 = TideHarm.STATIONS[tideSt], c0 = lunC(n), y0 = simDoy(n), wd = dayWx(n);
+      const st = WX && WX.stations && WX.stations[wxOf(tideSt)], ob = st && st.obs, obAt = ob && ob.t ? Date.parse(ob.t.replace(' ', 'T') + ':00+09:00') : NaN;
+      const tNow = (n === today || n === today + 1) && ob && ob.wtem > 0.5 && (Date.now() - obAt) / 3600000 <= 12 ? ob.wtem : null;
+      const r0 = rainOfDay(n), rp0 = rainOfDay(n - 1);
+      const L = [];
+      for (const k of new Set(points.map(p => [kstDay(p.t), p.boat || '', p.depName || ''].join('|')))) {
+        const n2 = +k.split('|')[0]; if (n2 === n) continue;
+        const cd = cardData(k); if (!cd || cd.mode !== md) continue;
+        const f = (tripByKey(k) || { pts: [] }).pts[0] || {}; let sc = 0; const why = [];
+        const dl = cDist(lunC(n2), c0, 15); if (dl === 0) { sc += 3; why.push('같은 물때'); } else if (dl === 1) { sc += 2; why.push('물때 하루 차이'); } else if (dl === 2) sc += 1;
+        const ds = cDist(simDoy(n2), y0, 365); if (ds <= 15) { sc += 2; why.push('같은 철'); } else if (ds <= 30) { sc += 1; why.push('비슷한 철'); }
+        const dLat = f.depLat != null ? f.depLat : f.lat, dLon = f.depLon != null ? f.depLon : f.lon;   // 출항지 자리 (없으면 첫 포인트)
+        if ((f.dep && f.dep === tideSt) || (S0 && f.depLat != null && simKm(f.depLat, f.depLon, S0.lat, S0.lon) <= 3)) { sc += 2; why.push('같은 출항지'); } else if (S0 && dLat != null && simKm(dLat, dLon, S0.lat, S0.lon) <= 30) { sc += 1; why.push('가까운 바다'); }
+        if (wd && wd.wind != null && cd.wind != null && Math.abs(wd.wind - cd.wind) <= 3) { sc += 1; why.push('바람 비슷'); }
+        if (tNow != null && cd.wt != null && Math.abs(tNow - cd.wt) <= 1) { sc += 1; why.push('수온 비슷'); }
+        const tp = (tripByKey(k) || { pts: [] }).pts;
+        if (r0 && tp.some(p => p.rain === 1)) { sc += 1; why.push('비 오는 날'); }
+        if (rp0 && tp.some(p => p.rainPrev === 1)) { sc += 1; why.push('비 온 다음 날'); }
+        if (sc >= 4 && (dl <= 1 || ds <= 15)) L.push({ k, n2, cd, sc, why });
+      }
+      L.sort((a, b) => b.sc - a.sc || b.n2 - a.n2);
+      simC = { k: ck, L }; return L;
+    }
+    // ★ 잘 먹힌 것 · 써 본 것 · 봉돌 (출조마다 한 번씩 셈)
+    function simSum(L) {
+      const star = new Map(), used = new Map(), sk = new Map();
+      for (const x of L) {
+        const seen = new Set();
+        for (const e of x.cd.egi) { const nm = egiName(e); if (!nm || seen.has(nm)) continue; seen.add(nm); const u = used.get(nm) || { c: 0, e }; u.c++; used.set(nm, u); if (e.s) { const q = star.get(nm) || { c: 0, e }; q.c++; star.set(nm, q); } }
+        for (const v of new Set(x.cd.sink)) sk.set(v, (sk.get(v) || 0) + 1);
+      }
+      const top = m => [...m].sort((a, b) => b[1].c - a[1].c).slice(0, 3);
+      const sink = [...sk].sort((a, b) => b[1] - a[1] || a[0] - b[0])[0];
+      return { star: top(star), used: top(used), sink: sink ? sink[0] : null };
+    }
+    const simIc = q => { const e = egiGet(q.e.c); return e ? egiSvg(e, q.e) : ''; };
+    function simHTML(n) {
+      const md = spNow(), N = BK_N[md] || '에기', L = simFind(n);
+      const head = `<div class="block-head"><h2>지난번 이런 날엔</h2><span class="hint">내 기록 · ${SPECIES[md] ? SPECIES[md].full : ''}</span></div>`;
+      if (!L.length) return head + '<p class="sim-none">비슷한 날 기록이 쌓이면 여기 보여요. 물때·철·출항지가 비슷했던 내 출조를 모아 보여줘요.</p>';
+      const T = L.slice(0, 5), sm = simSum(T), y0 = ymd(today).y;
+      const row = x => { const cd = x.cd; return `<li><b>${cd.y !== y0 ? cd.y + '년 ' : ''}${cd.m}월 ${cd.d}일${cd.boat ? ' · ' + esc(cd.boat) : ''} · ${cd.tot}마리</b><span>${[cd.mul, cd.wt != null ? `수온 ${cd.wt.toFixed(1)}℃` : '', cd.port ? esc(cd.port) : '', sinkTxt(cd.sink), cd.egi.filter(e => e.s).map(e => esc(egiName(e)) + '★').join(' ')].filter(Boolean).join(' · ')}</span><em>${x.why.join(' · ')}</em></li>`; };
+      const pick = sm.star.length ? `<div class="sim-row"><span class="k">★ 잘 먹힌 ${N}</span><span class="v">${sm.star.map(([nm, q]) => `<i>${simIc(q)}${esc(nm)} ${q.c}번</i>`).join('')}</span></div>`
+        : sm.used.length ? `<div class="sim-row"><span class="k">써 본 ${N}</span><span class="v">${sm.used.map(([nm, q]) => `<i>${simIc(q)}${esc(nm)} ${q.c}번</i>`).join('')}</span></div>` : '';
+      const sink = sm.sink ? `<div class="sim-row"><span class="k">봉돌</span><span class="v">주로 ${sm.sink}호</span></div>` : '';
+      if (L.length === 1) return head + `<div class="sim-card"><p class="sim-one">비슷한 날 기록 1번 · 참고만 해 주세요</p><ul class="sim-list">${row(L[0])}</ul></div>`;
+      return head + `<div class="sim-card"><p class="sim-top">비슷했던 내 출조 ${L.length}번 <span>· 평균 ${Math.round(T.reduce((a, x) => a + x.cd.tot, 0) / T.length)}마리</span></p>${pick}${sink}<ul class="sim-list">${T.map(row).join('')}</ul></div>`;
+    }
+    // 선상 모드를 켤 때 한 줄
+    function simLine() {
+      const L = simFind(today); if (!L.length) return '';
+      const sm = simSum(L.slice(0, 5)), a = sm.star[0] ? `${sm.star[0][0]} ★` : sm.used[0] ? sm.used[0][0] : '';
+      return `지난번 이런 날엔 ${[a, sm.sink ? sm.sink + '호' : ''].filter(Boolean).join(' · ') || `${L[0].cd.tot}마리`} (비슷한 출조 ${L.length}번)`;
+    }
+    window.jjugapSim = simHTML; try { simPaint(); } catch (_) {}
     const bkDay = t => { const d = new Date(t); return `${d.getUTCMonth() + 1}월 ${d.getUTCDate()}일`; };
     function bookOpen(md, focus) {
       if (!BK_N[md]) md = 'jg';
@@ -8143,10 +8248,10 @@ const TideHarm = (() => {
       draw();
     }
     let toastT = 0;
-    function toast(t) {
+    function toast(t, ms) {
       const el = $('mv-toast'), sn = $('mv-snack'); el.textContent = t; el.hidden = false;
       el.style.top = sn.hidden ? '' : (sn.offsetTop + sn.offsetHeight + 6) + 'px';   // 되알림이 떠 있으면 그 아래에
-      clearTimeout(toastT); toastT = setTimeout(() => { el.hidden = true; }, 2200);
+      clearTimeout(toastT); toastT = setTimeout(() => { el.hidden = true; }, ms || 2200);
     }
     panel.addEventListener('click', e => {
       const b = e.target.closest('[data-act]'); if (!b) return; const a = b.dataset.act;
@@ -8429,6 +8534,7 @@ const TideHarm = (() => {
       if (onBoard) return;
       onBoard = true; seaFrom = 0; if (!board || !board.since) board = { since: Date.now(), sea: false, portFrom: 0 };
       saveBoard(); loadLand(); loadMapPorts(); startGps(); natBoard(true); paintBoardBtn(); autoPill.last = ''; locCheck(); autoPill();
+      if (isOpen) { let ln = ''; try { ln = simLine(); } catch (_) {} if (ln) setTimeout(() => { if (isOpen && onBoard) toast(ln, 5000); }, 1200); }   // 직접 켤 때만 (앱을 다시 열어 이어질 때는 X)
     }
     function boardOff(msg) {
       if (!onBoard) return;
@@ -8920,7 +9026,7 @@ const TideHarm = (() => {
     function close(fromPop) {
       if (!isOpen) return; rgEdClose();
       if (mode === 'sum') { try { localStorage.removeItem(SUM_PEND); } catch (_) {} form = null; sumTr = null; mode = 'info'; }
-      natFixes(); isOpen = false; closeMenu(); view.hidden = true; wakeOff(); pendingSave = false;
+      natFixes(); isOpen = false; closeMenu(); view.hidden = true; wakeOff(); pendingSave = false; try { simPaint(); } catch (_) {}   // 기록이 바뀌었을 수 있으니 '지난번 이런 날엔'도 다시
       if (spAll) { spAll = false; tripCache = null; $('mv-pts-n').textContent = ptCount(); }
       if (!onBoard) { stopGps(); endStay(); track = []; }
       if (viewMode && me && !me.virtual && !onBoard) me = null;   // '내 기록'에서 한 번 찍어 본 위치는 남기지 않는다
@@ -9353,7 +9459,7 @@ const TideHarm = (() => {
 
 <script>
 if ('serviceWorker' in navigator) addEventListener('load', () => {
-  const sw = navigator.serviceWorker, VER = 'd3c4cebd'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
+  const sw = navigator.serviceWorker, VER = '140c93b8'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
   // 화면에 손을 대기 시작했는지 (쓰는 중에는 새로 열지 않으려고)
   ['pointerdown', 'keydown'].forEach(t => addEventListener(t, () => { touched = true; }, { capture: true, passive: true }));
   const reload = () => {
