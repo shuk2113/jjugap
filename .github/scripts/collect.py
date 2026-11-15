@@ -274,6 +274,29 @@ def fetch_mid(reg, now):
     return {'tmFc': tm, 'days': dict(sorted(days.items()))}
 
 
+def rain_days(fc, prev, now):
+    """날마다 낮(6~18시)에 비가 있었는지 (1/0): 예보 칸이 남아 있으면 그 값, 칸이 없어진 지난날은 예전 기록 그대로 · 지난 8일 (앱의 '전날 비')"""
+    days = {}
+    for k, v in (fc or {}).items():
+        try:
+            h = int(k[8:10])
+        except ValueError:
+            continue
+        if h < 6 or h > 18:
+            continue
+        o = days.setdefault(k[:8], [0, 0])
+        o[0] += 1
+        if len(v) > 4 and v[4] in (1, 2, 4):
+            o[1] = 1
+    today = now.strftime('%Y%m%d')
+    out = {d: r for d, r in (prev or {}).items() if r in (0, 1)}
+    for d, (n, r) in days.items():
+        if d <= today and (r or n >= 4):
+            out[d] = r
+    keep = (now - timedelta(days=8)).strftime('%Y%m%d')
+    return {d: out[d] for d in sorted(out) if d >= keep}
+
+
 def main():
     if not KEY:
         sys.exit('DATA_GO_KR_KEY 비밀값이 없어요')
@@ -397,6 +420,7 @@ def main():
             wt.append(f'{key} {o["wtem"]}℃({o.get("name")}{"·대체" if k else ""} {o["t"][11:]}{" · " + sv["name"] + " 멈춤 " + sv["t"][5:] if sv else ""})')
         else:
             wt.append(f'{key} 없음')
+        st['rain'] = rain_days(st.get('fc'), pst.get('rain'), now)
         st['mid'] = cfg['mid']
         return st
     # 앞바다 예보 격자는 미리 한꺼번에 (여러 곳이 같은 격자를 쓴다)
