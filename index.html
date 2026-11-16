@@ -2522,7 +2522,7 @@ const TideHarm = (() => {
     $('now-btn').onclick = () => { followNow = true; setTMin(kstMin(Date.now()), true); };
     // 1분마다 '지금'을 따라가는 중이면 시각을 갱신
     setInterval(() => { if (sel === today) { if (followNow) tMin = kstMin(Date.now()); renderTide(); } }, 60000);
-    setInterval(() => { if (sel !== today || document.hidden) return; placeNow(); if (followNow && !tweenOn()) { tMin = kstMin(Date.now()); updateTime(); } }, 1000);
+    setInterval(() => { if (sel !== today || document.hidden || document.documentElement.classList.contains('mv-hide')) return; placeNow(); if (followNow && !tweenOn()) { tMin = kstMin(Date.now()); updateTime(); } }, 1000);
   }
 
   // 한 달 물때 파도: 곡선 높이 = 물살 세기, 배 = 고른 날
@@ -4026,7 +4026,8 @@ const TideHarm = (() => {
     const ctx = cv.getContext('2d', { alpha: false }), KX = Math.cos(36.6 * Math.PI / 180), ME = '#2F7DF6';
     // 움직이는 효과(내 위치 물결 · 가장 많이 잡은 곳 반짝임)는 그 자리에만 얹은 작은 그림판에 그린다 → 지도는 바뀔 때만 다시 그려 배터리를 아낀다
     const fxBox = $('mv-fx'), fxPool = [];
-    let fxItems = [], fxRaf = 0, fxLast = 0;
+    let fxItems = [], fxRaf = 0, fxLast = 0, fxTouchT = Date.now();   // 배터리: 지도를 30초 안 만지면 내 위치 물결·반짝임을 멈춘 그림으로
+    const FX_IDLE = 30000, fxIdle = () => Date.now() - fxTouchT > FX_IDLE;
     const PT_KEY = 'jjukgap-points';
     let inFrame = false; try { inFrame = window.top !== window.self; } catch (_) { inFrame = true; }
     const useHist = !inFrame;
@@ -5051,7 +5052,7 @@ const TideHarm = (() => {
       const len = nice.filter(m => m / mPerPx <= 96).pop() || 50;
       $('mv-scale').firstElementChild.style.width = Math.round(len / mPerPx) + 'px';
       $('mv-scale').lastElementChild.textContent = len >= 1000 ? `${len / 1000}km` : `${len}m`;
-      fxPlace(); fxDraw(performance.now()); fxKick();
+      fxPlace(); fxDraw(performance.now(), fxIdle()); fxKick();
     }
     // 작은 그림판: 지도에 그린 것과 겹치는 자리(포인트·왕관·파란 점)는 비워서, 원래처럼 그 밑에 깔린 것으로 보이게
     function fxCv(i, S) {
@@ -5069,8 +5070,8 @@ const TideHarm = (() => {
       for (let i = fxItems.length; i < fxPool.length; i++) fxPool[i].c.style.display = 'none';
     }
     function fxStar(f, sx, sy, s, col) { f.fillStyle = col; f.beginPath(); f.moveTo(sx, sy - s); f.quadraticCurveTo(sx, sy, sx + s, sy); f.quadraticCurveTo(sx, sy, sx, sy + s); f.quadraticCurveTo(sx, sy, sx - s, sy); f.quadraticCurveTo(sx, sy, sx, sy - s); f.fill(); }
-    function fxDraw(t) {
-      const still = RM.matches;
+    function fxDraw(t, idle) {
+      const still = RM.matches || !!idle;
       for (const o of fxItems) {
         const f = o.p.g, x = o.S / 2, y = o.S / 2;
         f.setTransform(1, 0, 0, 1, 0, 0); f.clearRect(0, 0, o.p.c.width, o.p.c.height); f.setTransform(dpr, 0, 0, dpr, 0, 0);
@@ -5098,10 +5099,14 @@ const TideHarm = (() => {
     function fxLoop(t) {
       fxRaf = 0;
       if (!isOpen || !fxItems.length || RM.matches) return;
+      if (fxIdle()) { fxDraw(t, true); return; }   // 한동안 안 만졌다: 멈춘 그림 한 번 그리고 쉰다 (만지면 다시)
       if (!(t - fxLast < 30)) { fxLast = t; fxDraw(t); }   // 초당 30번쯤 (작은 그림판이라 가볍다)
       fxRaf = requestAnimationFrame(fxLoop);
     }
-    function fxKick() { if (!fxRaf && isOpen && fxItems.length && !RM.matches) fxRaf = requestAnimationFrame(fxLoop); }
+    function fxKick() { if (!fxRaf && isOpen && fxItems.length && !RM.matches && !fxIdle()) fxRaf = requestAnimationFrame(fxLoop); }
+    function fxWake() { fxTouchT = Date.now(); fxKick(); }
+    view.addEventListener('pointerdown', () => fxWake(), { passive: true, capture: true });   // 지도를 만지면 다시 움직이게
+    document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && isOpen) fxWake(); });
     function loop(t) {
       raf = 0; if (!isOpen) return;
       const anim = false;   // 지도는 바뀔 때만 다시 그린다 (움직이는 효과는 위 그림판 fxLoop)
@@ -9212,7 +9217,7 @@ const TideHarm = (() => {
     // o.pick: 출항지 고르기로 잠깐 여는 것 · o.view: '내 기록' 보기 (둘 다 선상 모드를 켜지 않는다. 선상 모드가 이미 켜져 있으면 '내 기록'은 그 지도에서 목록으로)
     function open(o) {
       holdTipHide();
-      if (isOpen) return; isOpen = true; view.hidden = false; mode = 'info'; selId = null; form = null;
+      if (isOpen) return; isOpen = true; view.hidden = false; mode = 'info'; selId = null; form = null; fxWake();
       const rec = !!(o && o.view); viewMode = rec && !onBoard; if (!rec) dayFilter = null;
       if (!me) { const S = TideHarm.STATIONS[tideSt]; v = { lon: S.lon - 0.05, lat: S.lat - 0.02, s: 1400 }; }
       else if (follow) placeAt(me.lon, me.lat, focusY());
@@ -9662,7 +9667,7 @@ const TideHarm = (() => {
 
 <script>
 if ('serviceWorker' in navigator) addEventListener('load', () => {
-  const sw = navigator.serviceWorker, VER = '4889a3da'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
+  const sw = navigator.serviceWorker, VER = '5b687ee2'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
   // 화면에 손을 대기 시작했는지 (쓰는 중에는 새로 열지 않으려고)
   ['pointerdown', 'keydown'].forEach(t => addEventListener(t, () => { touched = true; }, { capture: true, passive: true }));
   const reload = () => {
