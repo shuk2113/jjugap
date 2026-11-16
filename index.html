@@ -5722,14 +5722,18 @@ const TideHarm = (() => {
     const sums = () => loadJ(SUM_KEY, {});
     const sumTot = S => (S.jj || 0) + (S.gap || 0) + (S.etc || []).reduce((a, e) => a + (e.c || 0), 0);
     // 오늘 고른 채비 (포인트 저장에 미리) · 봉돌은 날이 바뀌어도 지난번 것을 미리
-    function rigToday() { const r = loadJ(RIG_KEY, null); return r && r.d === kstDay(Date.now()) ? r : null; }
-    function rigRemember(sink, egi, sinkM) { saveJ(RIG_KEY, { d: kstDay(Date.now()), sink: sink.slice(), egi: egi.map(x => ({ ...x })), sinkM: sinkMOf(sink, sinkM), last: sink.length ? sink.slice() : ((loadJ(RIG_KEY, null) || {}).last || []) }); }
+    // 채비는 같은 출조(같은 날 · 같은 배·출항지)에서만 이어 쓴다 — 다른 배·다른 날로 넘어가지 않게
+    const tkOf = (boat, depName) => `${boat || ''}|${depName || ''}`;
+    const tkNow = () => { const t = tripFor(Date.now()); return tkOf(t.boat, t.depName); };
+    const rigSameTrip = (r, tk) => !!r && r.d === kstDay(Date.now()) && (tk == null || r.tk == null || r.tk === tk);
+    function rigToday(tk) { const r = loadJ(RIG_KEY, null); return rigSameTrip(r, tk) ? r : null; }
+    function rigRemember(sink, egi, sinkM, tk) { saveJ(RIG_KEY, { d: kstDay(Date.now()), ...(tk != null ? { tk } : {}), sink: sink.slice(), egi: egi.map(x => ({ ...x })), sinkM: sinkMOf(sink, sinkM), last: sink.length ? sink.slice() : ((loadJ(RIG_KEY, null) || {}).last || []) }); }
     // 봉돌 메모: 상자에 있는 봉돌 것만, 빈 것은 빼고
     const sinkMOf = (sink, m) => { const o = {}; for (const n of sink || []) { const t = m && String(m[n] || '').trim(); if (t) o[n] = t.slice(0, 30); } return o; };
     // 지금 쓰는 봉돌: 바다에서 바꾼 순간을 시각·물살과 같이 남긴다 (오늘 것만) · 포인트에는 그 시각의 봉돌을 붙인다
     const SK_KEY = 'jjukgap-sknow';
     const skState = () => { const r = loadJ(SK_KEY, null); return r && r.d === kstDay(Date.now()) ? r : { d: kstDay(Date.now()), log: [] }; };
-    const skOpts = () => { const r = rigToday(), rg = loadJ(RIG_KEY, null) || {}; const a = (r && r.sink && r.sink.length ? r.sink : rg.last || []).filter(n => n > 0); return [...new Set(a)].sort((x, y) => x - y); };
+    const skOpts = () => { const r = rigToday(tkNow()); const a = (r && r.sink || []).filter(n => n > 0); return [...new Set(a)].sort((x, y) => x - y); };   // 이번 출조 상자에 담은 봉돌만
     function skAt(t) {   // 그 시각에 쓰던 봉돌 (오늘 바다에서 누른 기록 → 상자에 봉돌이 하나뿐이면 그것)
       const st = skState(); let n = 0; for (const e of st.log || []) if (e.t <= t + 60000) n = e.n;
       if (!n && kstDay(t) === kstDay(Date.now())) { const o = skOpts(); if (o.length === 1) n = o[0]; }
@@ -6353,8 +6357,8 @@ const TideHarm = (() => {
     function showSave() {
       sheetAtLeast('open');
       if (!me) return;
-      const i = infoAt(me), at = Date.now(), rg = rigToday();
-      const spk = spNow(), rr = REC[spk] ? loadJ(rigMemK(spk), null) : null, rrOk = rr && rr.d === kstDay(at);   // 광어·우럭: 그 방식으로 오늘 고른 채비
+      const tr0 = tripFor(Date.now()), tk0 = tkOf(tr0.boat, tr0.depName), i = infoAt(me), at = Date.now(), rg = rigToday(tk0);
+      const spk = spNow(), rr = REC[spk] ? loadJ(rigMemK(spk), null) : null, rrOk = rigSameTrip(rr, tk0);   // 광어·우럭: 그 방식으로 이번 출조에 고른 채비
       form = { sp: spk, jj: 0, gap: 0, etc: [], memo: '', i, at, lat: me.lat, lon: me.lon, acc: me.acc || 0, virtual: !!me.virtual, ...tripFor(at),
         sink: REC[spk] ? (rrOk ? rr.sink.slice() : []) : rg ? rg.sink.slice() : [], egi: REC[spk] ? (rrOk && rr.egi ? rr.egi.map(x => ({ ...x })) : []) : rg ? rg.egi.map(x => ({ ...x })) : [], sinkM: rg && rg.sinkM && !REC[SP] ? { ...rg.sinkM } : {},
         big: {}, rg: rrOk && rr.rg ? rr.rg.slice() : [] };
@@ -6396,8 +6400,9 @@ const TideHarm = (() => {
         ...tripOf(f), ...condOf(f.i), ...skStamp(f.at), jj: clampN(f.jj), gap: clampN(f.gap), etc, memo, ...(recOf(f) ? { sp: f.sp } : {}), ...(Object.keys(big).length ? { big } : {}), ...(rgs.length ? { rg: rgs } : {}),
         ...(f.sink.length ? { sink: f.sink.slice() } : {}), ...(f.egi.length ? { egi: egiClean(f.egi) } : {}), ...(Object.keys(sinkMOf(f.sink, f.sinkM)).length ? { sinkM: sinkMOf(f.sink, f.sinkM) } : {}) });
       rememberTrip(f.at, points[0].boat, points[0].depName, points[0]);
-      if (recOf(f)) saveJ(rigMemK(f.sp), { d: kstDay(Date.now()), sink: f.sink.slice(), egi: egiClean(f.egi) });
-      else if (f.sink.length || f.egi.length) rigRemember(f.sink, egiClean(f.egi), f.sinkM);
+      { const tk = tkOf(points[0].boat, points[0].depName);
+        if (recOf(f)) saveJ(rigMemK(f.sp), { d: kstDay(Date.now()), tk, sink: f.sink.slice(), egi: egiClean(f.egi) });
+        else if (f.sink.length || f.egi.length) rigRemember(f.sink, egiClean(f.egi), f.sinkM, tk); }
       if (!f.virtual) absorbAuto(points[0]);
       savePts(); form = null; mode = 'info'; sheetDown(); toast('포인트를 저장했어요'); paintPanel(true); draw();
     }
@@ -6418,7 +6423,7 @@ const TideHarm = (() => {
       form = { sum: tr.key,
         jj: S ? S.jj || 0 : tr.pts.reduce((a, p) => a + (p.jj || 0), 0), gap: S ? S.gap || 0 : tr.pts.reduce((a, p) => a + (p.gap || 0), 0),
         etc: S ? (S.etc || []).map(e => ({ n: e.n || '', c: e.c || 0 })) : [...em].map(([n, c]) => ({ n, c })),
-        sink: S ? (S.sink || []).slice() : pSink.length ? pSink : (rg.last || rg.sink || []).slice(),   // 봉돌은 지난번 쓴 것을 미리
+        sink: S ? (S.sink || []).slice() : pSink,   // 이 출조 포인트에 적힌 봉돌만 (다른 출조 것은 미리 넣지 않는다)
         egi: S ? (S.egi || []).map(x => ({ ...x })) : pEgi, sinkM: S && S.sinkM ? { ...S.sinkM } : {},
         memo: S ? S.memo || '' : '', good: new Set(tr.pts.filter(p => p.good).map(p => p.id)), had: !!S,
         party: S && Array.isArray(S.party) ? S.party.filter(q => q && q.n).map(q => ({ n: String(q.n), jj: q.jj || 0, gap: q.gap || 0, etc: Array.isArray(q.etc) ? q.etc.filter(e => e && e.n).map(e => ({ n: String(e.n), c: e.c || 0 })) : [] })) : [], partyNew: false,
@@ -6433,7 +6438,7 @@ const TideHarm = (() => {
       if (recOf(form)) {
         const bg = {}; for (const p of tr.pts) for (const [n, v] of Object.entries(p.big || {})) bg[n] = Math.max(bg[n] || 0, v);
         form.big = S ? { ...(S.big || {}) } : bg; form.rg = S ? (S.rg || []).slice() : [...new Set(tr.pts.flatMap(p => p.rg || []))];
-        const rr = !S ? loadJ(rigMemK(form.sp), null) : null;
+        const rr0 = !S ? loadJ(rigMemK(form.sp), null) : null, rr = rr0 && rr0.d === kstDay(tr.pts[0].t) && (!rr0.tk || rr0.tk === tkOf(tr.pts[0].boat, tr.pts[0].depName)) ? rr0 : null;   // 같은 출조에서 고른 것만
         if (rr && !pSink.length) form.sink = rr.sink ? rr.sink.slice() : [];
         if (rr && !pEgi.length) form.egi = (rr.egi || []).map(x => ({ ...x }));
         ensureMain(form);
@@ -6508,8 +6513,11 @@ const TideHarm = (() => {
       let ch = false; for (const p of tr.pts) { const g = f.good.has(p.id); if (!!p.good !== g) { if (g) p.good = 1; else delete p.good; ch = true; } }
       { const R = skRows(f, tr); tr.pts.forEach((p, j) => { const r = R[j], v = r.how === 'none' ? (p.id in (f.skE || {}) ? 0 : null) : r.how === 'auto' ? null : r.n; /* 봉돌 하나뿐(auto)은 따로 안 적는다 */ if (v == null) { if ('sk' in p) { delete p.sk; ch = true; } } else if (p.sk !== v) { p.sk = v; ch = true; } }); }
       if (ch) savePts(); else { tripCache = null; $('mv-pts-n').textContent = ptCount(); dispatchEvent(new Event('jjugap-points')); }
-      if (recOf(f)) saveJ(rigMemK(f.sp), { d: kstDay(Date.now()), sink: f.sink.slice(), egi: egiClean(f.egi) });
-      else if (f.sink.length || f.egi.length) rigRemember(f.sink, egiClean(f.egi), f.sinkM);
+      if (kstDay(tr.pts[0].t) === kstDay(Date.now())) {   // 오늘 출조를 정리할 때만 '오늘 채비'로 기억 (지난 출조를 정리해도 오늘 채비가 바뀌지 않게)
+        const tk = tkOf(tr.pts[0].boat, tr.pts[0].depName);
+        if (recOf(f)) saveJ(rigMemK(f.sp), { d: kstDay(Date.now()), tk, sink: f.sink.slice(), egi: egiClean(f.egi) });
+        else if (f.sink.length || f.egi.length) rigRemember(f.sink, egiClean(f.egi), f.sinkM, tk);
+      }
       sumExit(true, tr.key);
     }
     function sumExit(saved, k) {
@@ -9643,7 +9651,7 @@ const TideHarm = (() => {
 
 <script>
 if ('serviceWorker' in navigator) addEventListener('load', () => {
-  const sw = navigator.serviceWorker, VER = 'f45b8c46'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
+  const sw = navigator.serviceWorker, VER = 'ce4f0437'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
   // 화면에 손을 대기 시작했는지 (쓰는 중에는 새로 열지 않으려고)
   ['pointerdown', 'keydown'].forEach(t => addEventListener(t, () => { touched = true; }, { capture: true, passive: true }));
   const reload = () => {
