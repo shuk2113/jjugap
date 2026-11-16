@@ -1729,6 +1729,11 @@ const TideHarm = (() => {
       const arms = [];
       for (let i = 0; i < 6; i++) { const y0 = 101 + i * 4.6, ye = 98 + i * 6.6, k = (i - 2.5) / 2.5; arms.push([bez([162, y0], [178, y0 + k * 1.5], [190, ye - 2], [200 - Math.abs(k) * 4, ye + 5 + Math.abs(k) * 2], 14), 5.8, 2.3]); }
       arms.reverse().forEach(([pts, a, b]) => { s += paint(tube(pts, a, b, o), P[0], P[1], o); });
+      const er = 14, ES = o.gsEye || 'one';
+      const EYE = { pair: [[137, 98, er * .9], [162, 99, er]], one: [[156, 98, er * 1.12]], peek: [[143, 82, er * .74], [159, 101, er * 1.06]], diag: [[146, 89, er * .8], [161, 104, er]] }[ES];
+      const BACK = ES === 'peek' ? [EYE[0]] : [], E = ES === 'peek' ? [EYE[1]] : EYE, EA = [...BACK, ...E];
+      const MO = { pair: [152, 118], one: [153, 118], peek: [163, 121], diag: [151, 124] }[ES], BL = { pair: [[133, 118], [171, 117]], one: [[137, 116]], peek: [[143, 119], [174, 118]], diag: [[136, 116], [174, 120]] }[ES];
+      BACK.forEach(([x, y, r]) => { s += eye(x, y, r, o, 'w'); });
       // 머리
       const hd = []; for (let i = 0; i <= 60; i++) { const a = Math.PI * 2 * i / 60; hd.push([148 + 27 * Math.cos(a), 106 + 26 * Math.sin(a)]); }
       s += paint(pathOf(hd, o), P[0], P[1], o);
@@ -1737,15 +1742,14 @@ const TideHarm = (() => {
       let zeb = ''; if (!o.plain) for (let i = 0; i < 5; i++) { const x = cx - 40 + i * 17; zeb += `<path d="M${x - 3} ${cy - ry - 2} Q${x + 6} ${cy - ry * .55} ${x} ${cy - ry * .2} T${x + 3} ${cy + 4}" stroke="${P[2]}" stroke-width="${5.5 - i * .3}" fill="none" stroke-linecap="round" opacity=".75"/>`; }
       s += paint(pathOf(body, o), P[0], P[1], o, zeb, `<ellipse cx="${cx - 22}" cy="${cy - 17}" rx="16" ry="6" fill="#fff" opacity=".4" transform="rotate(-8 ${cx - 22} ${cy - 17})"/>`);
       // 얼굴 (머리 쪽 · 3/4 모습: 두 눈)
-      const er = 14, E = [[137, 98, er * .9], [162, 99, er]];
       const tA = { base: .1, joy: .3, big: .45 }[M] || 0;
       if (tA && !o.flat) s += `<ellipse cx="${cx + 10}" cy="${cy + 6}" rx="${rx * .8}" ry="${ry * .6}" fill="#FF8FB0" opacity="${tA}"/>`;
       if (M === 'bust') s += gloom([[58, 12], [70, 17], [82, 13], [94, 18]], 52, '#5A6E9E', .5);
-      if (M !== 'bust') s += blushes([[133, 118], [171, 117]], M === 'base' ? 7 : 8.5, { ...o, blushA: (o.blushA || .45) + (M === 'base' ? .1 : .25) });
+      if (M !== 'bust') s += blushes(BL, M === 'base' ? 7 : 8.5, { ...o, blushA: (o.blushA || .45) + (M === 'base' ? .1 : .25) });
       E.forEach(([x, y, r]) => { s += eye(x, y, r, o, 'w'); });
-      if (M === 'joy' || M === 'big') E.forEach(([x, y, r]) => { s += `<path d="M${x - r * .8} ${y + r * .95} Q${x} ${y + r * .62} ${x + r * .8} ${y + r * .95}" stroke="${o.ink}" stroke-width="${o.lw * .7}" fill="none" stroke-linecap="round"/>`; });
-      if (M === 'bust') [[E[0], 1], [E[1], -1]].forEach(([[x, y, r], d]) => { s += `<path d="M${x - d * r * .75} ${y - r * 1.15} Q${x} ${y - r * 1.42} ${x + d * r * .75} ${y - r * 1.62}" stroke="${o.ink}" stroke-width="${o.lw * .95}" fill="none" stroke-linecap="round"/>`; });
-      const mx = 152, my = 118;
+      if (M === 'joy' || M === 'big') EA.forEach(([x, y, r]) => { s += `<path d="M${x - r * .8} ${y + r * .95} Q${x} ${y + r * .62} ${x + r * .8} ${y + r * .95}" stroke="${o.ink}" stroke-width="${o.lw * .7}" fill="none" stroke-linecap="round"/>`; });
+      if (M === 'bust') EA.map((q, i) => [q, EA.length > 1 && i === 0 ? 1 : -1]).forEach(([[x, y, r], d]) => { s += `<path d="M${x - d * r * .75} ${y - r * 1.15} Q${x} ${y - r * 1.42} ${x + d * r * .75} ${y - r * 1.62}" stroke="${o.ink}" stroke-width="${o.lw * .95}" fill="none" stroke-linecap="round"/>`; });
+      const [mx, my] = MO;
       if (M === 'base') s += `<path d="M${mx - 6} ${my + 3} Q${mx} ${my + 8} ${mx + 6} ${my + 3}" stroke="${o.ink}" stroke-width="${o.lw * .8}" fill="none" stroke-linecap="round"/>`;
       if (M === 'joy') s += `<path d="M${mx - 8} ${my + 2} Q${mx} ${my + 12} ${mx + 8} ${my + 2}" stroke="${o.ink}" stroke-width="${o.lw * .8}" fill="#C8504A" stroke-linejoin="round"/>`;
       if (M === 'big') s += `<path d="M${mx - 10} ${my + 1} Q${mx} ${my + 17} ${mx + 10} ${my + 1} Z" stroke="${o.ink}" stroke-width="${o.lw * .8}" fill="#B23E3E" stroke-linejoin="round"/><path d="M${mx - 5} ${my + 9} Q${mx} ${my + 6} ${mx + 5} ${my + 9} Q${mx} ${my + 12} ${mx - 5} ${my + 9} Z" fill="#FF9C9C"/>` + heart(118, 62, 1.25) + spark(176, 70, 6);
@@ -9577,7 +9581,7 @@ const TideHarm = (() => {
 
 <script>
 if ('serviceWorker' in navigator) addEventListener('load', () => {
-  const sw = navigator.serviceWorker, VER = '69cfad82'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
+  const sw = navigator.serviceWorker, VER = '250d91a1'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
   // 화면에 손을 대기 시작했는지 (쓰는 중에는 새로 열지 않으려고)
   ['pointerdown', 'keydown'].forEach(t => addEventListener(t, () => { touched = true; }, { capture: true, passive: true }));
   const reload = () => {
