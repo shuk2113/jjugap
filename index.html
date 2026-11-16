@@ -5725,7 +5725,7 @@ const TideHarm = (() => {
     // 채비는 같은 출조(같은 날 · 같은 배·출항지)에서만 이어 쓴다 — 다른 배·다른 날로 넘어가지 않게
     const tkOf = (boat, depName) => `${boat || ''}|${depName || ''}`;
     const tkNow = () => { const t = tripFor(Date.now()); return tkOf(t.boat, t.depName); };
-    const rigSameTrip = (r, tk) => !!r && r.d === kstDay(Date.now()) && (tk == null || r.tk == null || r.tk === tk);
+    const rigSameTrip = (r, tk) => !!r && r.d === kstDay(Date.now()) && (tk == null || r.tk === tk);   // 어느 출조 것인지 모르는 예전 기억은 쓰지 않는다
     function rigToday(tk) { const r = loadJ(RIG_KEY, null); return rigSameTrip(r, tk) ? r : null; }
     function rigRemember(sink, egi, sinkM, tk) { saveJ(RIG_KEY, { d: kstDay(Date.now()), ...(tk != null ? { tk } : {}), sink: sink.slice(), egi: egi.map(x => ({ ...x })), sinkM: sinkMOf(sink, sinkM), last: sink.length ? sink.slice() : ((loadJ(RIG_KEY, null) || {}).last || []) }); }
     // 봉돌 메모: 상자에 있는 봉돌 것만, 빈 것은 빼고
@@ -6402,7 +6402,7 @@ const TideHarm = (() => {
       rememberTrip(f.at, points[0].boat, points[0].depName, points[0]);
       { const tk = tkOf(points[0].boat, points[0].depName);
         if (recOf(f)) saveJ(rigMemK(f.sp), { d: kstDay(Date.now()), tk, sink: f.sink.slice(), egi: egiClean(f.egi) });
-        else if (f.sink.length || f.egi.length) rigRemember(f.sink, egiClean(f.egi), f.sinkM, tk); }
+        else rigRemember(f.sink, egiClean(f.egi), f.sinkM, tk); }   // 비워서 저장해도 기억 → 다음 포인트도 빈 상자로
       if (!f.virtual) absorbAuto(points[0]);
       savePts(); form = null; mode = 'info'; sheetDown(); toast('포인트를 저장했어요'); paintPanel(true); draw();
     }
@@ -6516,7 +6516,7 @@ const TideHarm = (() => {
       if (kstDay(tr.pts[0].t) === kstDay(Date.now())) {   // 오늘 출조를 정리할 때만 '오늘 채비'로 기억 (지난 출조를 정리해도 오늘 채비가 바뀌지 않게)
         const tk = tkOf(tr.pts[0].boat, tr.pts[0].depName);
         if (recOf(f)) saveJ(rigMemK(f.sp), { d: kstDay(Date.now()), tk, sink: f.sink.slice(), egi: egiClean(f.egi) });
-        else if (f.sink.length || f.egi.length) rigRemember(f.sink, egiClean(f.egi), f.sinkM, tk);
+        else rigRemember(f.sink, egiClean(f.egi), f.sinkM, tk);
       }
       sumExit(true, tr.key);
     }
@@ -9651,7 +9651,7 @@ const TideHarm = (() => {
 
 <script>
 if ('serviceWorker' in navigator) addEventListener('load', () => {
-  const sw = navigator.serviceWorker, VER = 'ce4f0437'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
+  const sw = navigator.serviceWorker, VER = 'f4997554'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
   // 화면에 손을 대기 시작했는지 (쓰는 중에는 새로 열지 않으려고)
   ['pointerdown', 'keydown'].forEach(t => addEventListener(t, () => { touched = true; }, { capture: true, passive: true }));
   const reload = () => {
