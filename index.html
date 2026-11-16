@@ -5482,6 +5482,7 @@ const TideHarm = (() => {
       const x = sugs[i], el = $('mv-dep'); if (!x || !form) return;
       form.depName = x.e.n; form.depPos = x.e.lat != null ? { n: x.e.n, lat: x.e.lat, lon: x.e.lon } : null;
       if (el) { el.value = x.e.n; el.blur(); }
+      if (rigReTrip()) setTimeout(paintForm, 0);
       const box = $('mv-dep-sug'); if (box) box.hidden = true; sugs = [];
       draw();
     }
@@ -5871,7 +5872,16 @@ const TideHarm = (() => {
       const y = d.querySelector('[data-a=no]'); try { y.focus({ preventScroll: true }); } catch (_) {}
     }
     const MEMO_IC = '<svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 3.5h7M2.5 6h7M2.5 8.5h4.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" fill="none"/></svg>';
+    // 저장 판에서 배·출항지를 바꾸면: 상자를 아직 손대지 않았을 때만 그 출조의 채비로 다시 채운다 (다른 배 채비가 따라오지 않게)
+    function rigReTrip() {
+      const f = form; if (!f || f.edit || mode !== 'save' || !f.rigAuto) return false;
+      const tk = tkOf(f.boat, f.depName); if (tk === f.rigTk) return false; f.rigTk = tk;
+      if (REC[f.sp]) { const rr = loadJ(rigMemK(f.sp), null), ok = rigSameTrip(rr, tk); f.sink = ok ? rr.sink.slice() : []; f.egi = ok && rr.egi ? rr.egi.map(x => ({ ...x })) : []; f.rg = ok && rr.rg ? rr.rg.slice() : []; }
+      else { const rg = rigToday(tk); f.sink = rg ? rg.sink.slice() : []; f.egi = rg ? rg.egi.map(x => ({ ...x })) : []; f.sinkM = rg && rg.sinkM ? { ...rg.sinkM } : {}; }
+      ensureMain(f); return true;
+    }
     function boxChange(mut, o) {
+      if (form) form.rigAuto = false;   // 상자를 손댔으면 배를 바꿔도 그대로
       const box = $('mv-box'); if (!box) { mut(); repaint(); return; }
       const first = new Map(); box.querySelectorAll('.mv-cell').forEach(c => first.set(c.dataset.k, c.getBoundingClientRect()));
       const h0 = box.offsetHeight, sr = o.src ? o.src.getBoundingClientRect() : null, dr = o.dst ? o.dst.getBoundingClientRect() : null;
@@ -6361,7 +6371,7 @@ const TideHarm = (() => {
       const spk = spNow(), rr = REC[spk] ? loadJ(rigMemK(spk), null) : null, rrOk = rigSameTrip(rr, tk0);   // 광어·우럭: 그 방식으로 이번 출조에 고른 채비
       form = { sp: spk, jj: 0, gap: 0, etc: [], memo: '', i, at, lat: me.lat, lon: me.lon, acc: me.acc || 0, virtual: !!me.virtual, ...tripFor(at),
         sink: REC[spk] ? (rrOk ? rr.sink.slice() : []) : rg ? rg.sink.slice() : [], egi: REC[spk] ? (rrOk && rr.egi ? rr.egi.map(x => ({ ...x })) : []) : rg ? rg.egi.map(x => ({ ...x })) : [], sinkM: rg && rg.sinkM && !REC[SP] ? { ...rg.sinkM } : {},
-        big: {}, rg: rrOk && rr.rg ? rr.rg.slice() : [] };
+        big: {}, rg: rrOk && rr.rg ? rr.rg.slice() : [], rigAuto: true, rigTk: tk0 };
       ensureMain(form);
       mode = 'save'; paintForm(); requestAnimationFrame(rigScrollInit);
     }
@@ -8153,6 +8163,7 @@ const TideHarm = (() => {
     panel.addEventListener('pointermove', e => { if (pickDrag && e.pointerId === pickDrag.id) { e.preventDefault(); pickAt(e); } });
     for (const ev of ['pointerup', 'pointercancel']) panel.addEventListener(ev, e => { if (pickDrag && e.pointerId === pickDrag.id) pickDrag = null; });
     panel.addEventListener('focusout', e => { if (e.target.id === 'mv-sink-own') setTimeout(sinkOwnDone, 0); });
+    panel.addEventListener('focusout', e => { if ((e.target.id === 'mv-boat' || e.target.id === 'mv-dep') && form) setTimeout(() => { if (rigReTrip() && !['mv-boat', 'mv-dep'].includes((document.activeElement || {}).id)) paintForm(); }, 220); });   // 배·출항지를 다 적고 나면
     panel.addEventListener('focusout', e => { if (e.target.id === 'mv-dep') setTimeout(() => { const box = $('mv-dep-sug'); if (box && document.activeElement !== $('mv-dep')) box.hidden = true; }, 180); });
     panel.addEventListener('change', e => {
       const t = e.target; if (!form) return;
@@ -8162,7 +8173,7 @@ const TideHarm = (() => {
         // 아는 배를 고르면 그 배가 지난번에 나간 출항지로
         const b = boatsMem().find(x => x.n === t.value);
         if (b && boatDep(b) && !form.edit) { form.depName = boatDep(b); form.depPos = b.depLat != null ? { n: form.depName, lat: b.depLat, lon: b.depLon } : null; }
-        form.hint = ''; paintForm();
+        rigReTrip(); form.hint = ''; paintForm();
       }
     });
     panel.addEventListener('click', e => { const t = e.target; if (t.classList && t.classList.contains('mv-n')) { try { t.select(); } catch (_) {} } });
@@ -9651,7 +9662,7 @@ const TideHarm = (() => {
 
 <script>
 if ('serviceWorker' in navigator) addEventListener('load', () => {
-  const sw = navigator.serviceWorker, VER = 'f4997554'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
+  const sw = navigator.serviceWorker, VER = '57fab7f1'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
   // 화면에 손을 대기 시작했는지 (쓰는 중에는 새로 열지 않으려고)
   ['pointerdown', 'keydown'].forEach(t => addEventListener(t, () => { touched = true; }, { capture: true, passive: true }));
   const reload = () => {
