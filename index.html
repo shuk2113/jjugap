@@ -5329,7 +5329,7 @@ const TideHarm = (() => {
     function skNowTap(n) {
       if (!me) return; const st = skState(), i = infoAt(me), t = Date.now();
       if (skAt(t) === n) return;
-      st.log = (st.log || []).concat({ t, n, pct: i.pct, rising: !!i.rising, ...(i.stand ? { stand: i.stand } : {}) }).slice(-40); saveJ(SK_KEY, st);
+      st.log = (st.log || []).concat({ t, n, tk: tkNow(), pct: i.pct, rising: !!i.rising, ...(i.stand ? { stand: i.stand } : {}) }).slice(-40); saveJ(SK_KEY, st);
       try { navigator.vibrate && navigator.vibrate(15); } catch (_) {}
       toast(`${n}호로 바꿨어요 · ${i.stand || (i.rising ? '들물' : '날물')} · 조류 ${i.pct}%`); paintPanel(true);
     }
@@ -5734,13 +5734,13 @@ const TideHarm = (() => {
     // 지금 쓰는 봉돌: 바다에서 바꾼 순간을 시각·물살과 같이 남긴다 (오늘 것만) · 포인트에는 그 시각의 봉돌을 붙인다
     const SK_KEY = 'jjukgap-sknow';
     const skState = () => { const r = loadJ(SK_KEY, null); return r && r.d === kstDay(Date.now()) ? r : { d: kstDay(Date.now()), log: [] }; };
-    const skOpts = () => { const r = rigToday(tkNow()); const a = (r && r.sink || []).filter(n => n > 0); return [...new Set(a)].sort((x, y) => x - y); };   // 이번 출조 상자에 담은 봉돌만
-    function skAt(t) {   // 그 시각에 쓰던 봉돌 (오늘 바다에서 누른 기록 → 상자에 봉돌이 하나뿐이면 그것)
-      const st = skState(); let n = 0; for (const e of st.log || []) if (e.t <= t + 60000) n = e.n;
-      if (!n && kstDay(t) === kstDay(Date.now())) { const o = skOpts(); if (o.length === 1) n = o[0]; }
+    const skOpts = (tk = tkNow()) => { const r = rigToday(tk); const a = (r && r.sink || []).filter(n => n > 0); return [...new Set(a)].sort((x, y) => x - y); };   // 이번 출조 상자에 담은 봉돌만
+    function skAt(t, tk = tkNow()) {   // 그 시각에 쓰던 봉돌 (이번 출조에서 누른 기록 → 상자에 봉돌이 하나뿐이면 그것) · 다른 배·출항지에서 누른 건 안 따라온다
+      const st = skState(); let n = 0; for (const e of st.log || []) if (e.tk === tk && e.t <= t + 60000) n = e.n;
+      if (!n && kstDay(t) === kstDay(Date.now())) { const o = skOpts(tk); if (o.length === 1) n = o[0]; }
       return n;
     }
-    const skStamp = t => { const n = skAt(t); return n ? { sk: n } : {}; };
+    const skStamp = (t, tk) => { const n = skAt(t, tk); return n ? { sk: n } : {}; };
     const TM_L = [['dawn', '새벽'], ['am', '오전'], ['pm', '오후']], TM_N = { dawn: '새벽', am: '오전', pm: '오후' };   // ★ 잘 먹힌 때
     const egiClean = a => (a || []).map(x => { const y = { ...x }; if (!y.s || !Array.isArray(y.tm) || !y.tm.length) delete y.tm; if (y.m != null) { y.m = String(y.m).trim().slice(0, 30); if (!y.m) delete y.m; } return y; });
     // 채비: 위에 '오늘 채비' 상자 (봉돌 칸 · 에기 칸), 아래에 고르는 단추 · 누르면 상자에 쏙, 상자의 칸을 누르면 제자리로 · 에기 칸을 꾹 누르면 손질
@@ -6407,7 +6407,7 @@ const TideHarm = (() => {
         form = null; toast('고친 내용을 저장했어요'); showDetail(f.edit); draw(); return;
       }
       points.unshift({ id: String(f.at), t: f.at, lat: +f.lat.toFixed(6), lon: +f.lon.toFixed(6), acc: Math.round(f.acc), virtual: f.virtual,
-        ...tripOf(f), ...condOf(f.i), ...skStamp(f.at), jj: clampN(f.jj), gap: clampN(f.gap), etc, memo, ...(recOf(f) ? { sp: f.sp } : {}), ...(Object.keys(big).length ? { big } : {}), ...(rgs.length ? { rg: rgs } : {}),
+        ...tripOf(f), ...condOf(f.i), ...skStamp(f.at, tkOf(f.boat, f.depName)), jj: clampN(f.jj), gap: clampN(f.gap), etc, memo, ...(recOf(f) ? { sp: f.sp } : {}), ...(Object.keys(big).length ? { big } : {}), ...(rgs.length ? { rg: rgs } : {}),
         ...(f.sink.length ? { sink: f.sink.slice() } : {}), ...(f.egi.length ? { egi: egiClean(f.egi) } : {}), ...(Object.keys(sinkMOf(f.sink, f.sinkM)).length ? { sinkM: sinkMOf(f.sink, f.sinkM) } : {}) });
       rememberTrip(f.at, points[0].boat, points[0].depName, points[0]);
       { const tk = tkOf(points[0].boat, points[0].depName);
@@ -8641,7 +8641,7 @@ const TideHarm = (() => {
       if (mine) { stay.id = mine.id; stay.saved = t; if (!mine.stayFrom) { mine.stayFrom = from; mine.stayTo = t; savePts(); } return; }
       const i = infoAt(c, t), tr = tripFor(t), id = String(t);
       points.unshift({ id, t, lat: +lat.toFixed(6), lon: +lon.toFixed(6), acc: Math.round((me && me.acc) || 0), virtual: false, auto: true, stayFrom: from, stayTo: t,
-        ...tripOf(tr), ...(tr.hint ? { tripGuess: true } : {}), ...condOf(i), ...skStamp(from), jj: 0, gap: 0, etc: [], memo: '', ...(spNow() !== 'jg' ? { sp: spNow() } : {}) });
+        ...tripOf(tr), ...(tr.hint ? { tripGuess: true } : {}), ...condOf(i), ...skStamp(from, tkOf(tr.boat, tr.depName)), jj: 0, gap: 0, etc: [], memo: '', ...(spNow() !== 'jg' ? { sp: spNow() } : {}) });
       stay.id = id; stay.saved = t; savePts(); draw();
       if (mode === 'list') showList(); else if (mode === 'detail' && selId) showDetail(selId);
       try { navigator.vibrate && navigator.vibrate([30, 70, 30]); } catch (_) {}
@@ -9662,7 +9662,7 @@ const TideHarm = (() => {
 
 <script>
 if ('serviceWorker' in navigator) addEventListener('load', () => {
-  const sw = navigator.serviceWorker, VER = '57fab7f1'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
+  const sw = navigator.serviceWorker, VER = '4889a3da'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
   // 화면에 손을 대기 시작했는지 (쓰는 중에는 새로 열지 않으려고)
   ['pointerdown', 'keydown'].forEach(t => addEventListener(t, () => { touched = true; }, { capture: true, passive: true }));
   const reload = () => {
