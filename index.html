@@ -7420,7 +7420,7 @@ const TideHarm = (() => {
       const st = WX && WX.stations && WX.stations[wxOf(tideSt)], ob = st && st.obs, obAt = ob && ob.t ? Date.parse(ob.t.replace(' ', 'T') + ':00+09:00') : NaN;
       const tNow = (n === today || n === today + 1) && ob && ob.wtem > 0.5 && (Date.now() - obAt) / 3600000 <= 12 ? ob.wtem : null;
       const r0 = rainOfDay(n), rp0 = rainOfDay(n - 1);
-      const L = [];
+      const L = []; let far = 0;   // far: 다른 바다라서 뺀 출조 수
       for (const k of new Set(points.map(p => [kstDay(p.t), p.boat || '', p.depName || ''].join('|')))) {
         const n2 = +k.split('|')[0]; if (n2 === n) continue;
         const cd = cardData(k); if (!cd || cd.mode !== md) continue;
@@ -7429,6 +7429,7 @@ const TideHarm = (() => {
         const ds = cDist(simDoy(n2), y0, 365); if (ds <= 15) { sc += 2; why.push('같은 철'); } else if (ds <= 30) { sc += 1; why.push('비슷한 철'); }
         const dLat = f.depLat != null ? f.depLat : f.lat, dLon = f.depLon != null ? f.depLon : f.lon;   // 출항지 자리 (없으면 첫 포인트)
         if ((f.dep && f.dep === tideSt) || (S0 && f.depLat != null && simKm(f.depLat, f.depLon, S0.lat, S0.lon) <= 3)) { sc += 2; why.push('같은 출항지'); } else if (S0 && dLat != null && simKm(dLat, dLon, S0.lat, S0.lon) <= 30) { sc += 1; why.push('가까운 바다'); }
+        else if (S0) { far++; continue; }   // 같은 바다(출항지 30km 안) 기록만: 인천 앞바다 기록을 천수만 날에 섞지 않는다
         if (wd && wd.wind != null && cd.wind != null && Math.abs(wd.wind - cd.wind) <= 3) { sc += 1; why.push('바람 비슷'); }
         if (tNow != null && cd.wt != null && Math.abs(tNow - cd.wt) <= 1) { sc += 1; why.push('수온 비슷'); }
         const sq = tripSea(k);
@@ -7437,7 +7438,7 @@ const TideHarm = (() => {
         if ((r0 || rp0) && sq.water === 'murky') { sc += 1; why.push('탁한 물'); }   // 비가 오면 물이 탁해지기 쉬워서
         if (sc >= 4 && (dl <= 1 || ds <= 15)) L.push({ k, n2, cd, sc, why, sq });
       }
-      L.sort((a, b) => b.sc - a.sc || b.n2 - a.n2);
+      L.sort((a, b) => b.sc - a.sc || b.n2 - a.n2); L.far = far;
       simC = { k: ck, L }; return L;
     }
     // ★ 잘 먹힌 것 · 써 본 것 · 봉돌 (출조마다 한 번씩 셈)
@@ -7458,7 +7459,7 @@ const TideHarm = (() => {
     function simHTML(n) {
       const md = spNow(), N = BK_N[md] || '에기', L = simFind(n);
       const head = `<div class="block-head"><h2>지난번 이런 날엔</h2><span class="hint">내 기록 · ${SPECIES[md] ? SPECIES[md].full : ''}</span></div>`;
-      if (!L.length) return head + '<p class="sim-none">비슷한 날 기록이 쌓이면 여기 보여요. 물때·철·출항지가 비슷했던 내 출조를 모아 보여줘요.</p>';
+      if (!L.length) return head + (L.far ? '<p class="sim-none">이 바다 기록은 아직 없어요. 다른 바다 기록은 물살·물색이 달라서 섞지 않아요.</p>' : '<p class="sim-none">비슷한 날 기록이 쌓이면 여기 보여요. 같은 바다에서 물때·철이 비슷했던 내 출조를 모아 보여줘요.</p>');
       const T = L.slice(0, 5), sm = simSum(T), y0 = ymd(today).y;
       const row = x => { const cd = x.cd; return `<li><b>${cd.y !== y0 ? cd.y + '년 ' : ''}${cd.m}월 ${cd.d}일${cd.boat ? ' · ' + esc(cd.boat) : ''} · ${cd.tot}마리</b><span>${[cd.mul, cd.wt != null ? `수온 ${cd.wt.toFixed(1)}℃` : '', seaTxt(x.sq), cd.port ? esc(cd.port) : '', sinkTxt(cd.sink), cd.egi.filter(e => e.s).map(starTxt).join(' ')].filter(Boolean).join(' · ')}</span><em>${x.why.join(' · ')}</em></li>`; };
       const pick = sm.star.length ? `<div class="sim-row"><span class="k">★ 잘 먹힌 ${N}</span><span class="v">${sm.star.map(([nm, q]) => `<i>${simIc(q)}${esc(nm)} ${q.c}번</i>`).join('')}</span></div>`
@@ -9581,7 +9582,7 @@ const TideHarm = (() => {
 
 <script>
 if ('serviceWorker' in navigator) addEventListener('load', () => {
-  const sw = navigator.serviceWorker, VER = '250d91a1'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
+  const sw = navigator.serviceWorker, VER = '31ddb0a2'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
   // 화면에 손을 대기 시작했는지 (쓰는 중에는 새로 열지 않으려고)
   ['pointerdown', 'keydown'].forEach(t => addEventListener(t, () => { touched = true; }, { capture: true, passive: true }));
   const reload = () => {
