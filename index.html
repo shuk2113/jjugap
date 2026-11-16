@@ -313,7 +313,22 @@ html.mv-on .app *{animation-play-state:paused !important} html.mv-hide .app{visi
 .mv-grab i{width:40px; height:5px; border-radius:3px; background:var(--ink-2); opacity:.32}
 .mv-grab:focus-visible{outline:2px solid #2F7DF6; outline-offset:-4px; border-radius:18px 18px 0 0}
 .mv-panel{position:relative; flex:none; max-height:46vh; overflow-y:auto; padding:2px 14px calc(12px + env(safe-area-inset-bottom, 0px)); overscroll-behavior:contain}
-.mv-panel.sized{max-height:none} .mv-drag .mv-scale, .mv-drag .mv-attr{transition:none}
+.mv-panel.sized{max-height:none} .mv-drag .mv-scale, .mv-drag .mv-attr, .mv-drag .mv-area{transition:none}
+/* 이 일대 지난 기록: 지도 아래 판 바로 위 조용한 한 줄 (누르면 화면 전체 카드) */
+.mv-area{position:absolute; left:10px; bottom:42px; z-index:1; transform:translate3d(0,calc(-1 * var(--sheet-h, 0px)),0); transition:transform .28s cubic-bezier(.2,.85,.25,1); max-width:calc(100% - 104px); display:flex; align-items:center; gap:6px; min-height:36px; padding:6px 12px 6px 10px; border:1px solid var(--line); border-radius:18px; background:var(--card); color:var(--ink); font:inherit; font-size:calc(12.5px * var(--k)); font-weight:700; text-align:left; box-shadow:0 4px 14px rgba(0,0,0,.18); -webkit-tap-highlight-color:transparent}
+.mv-area span{display:flex; flex-direction:column; min-width:0} .mv-area b, .mv-area small{overflow:hidden; text-overflow:ellipsis; white-space:nowrap} .mv-area b{font-weight:800} .mv-area small{font-size:calc(12px * var(--k)); font-weight:700; color:var(--accent, #2F7DF6)} .mv-area i{flex:none; font-style:normal; color:var(--ink-2)}
+.mv-areab{display:flex; align-items:center; gap:6px; width:100%; margin:10px 0 2px; padding:11px 12px; border:1px solid var(--line); border-radius:14px; background:var(--card); color:var(--ink); font:inherit; font-size:calc(13px * var(--k)); font-weight:700; text-align:left}
+.mv-areab span{flex:1; min-width:0} .mv-areab i{flex:none; font-style:normal; color:var(--ink-2)}
+.ar-sub{margin:0 2px 10px; font-size:calc(12.5px * var(--k)); color:var(--ink-2); line-height:1.5}
+.ar-now{display:flex; flex-direction:column; gap:2px; padding:12px 14px; border-radius:14px; background:var(--card); border:1px solid var(--line)}
+.ar-now small{font-size:calc(11.5px * var(--k)); color:var(--ink-2); font-weight:700} .ar-now b{font-size:calc(15.5px * var(--k))}
+.ar-lad{display:flex; flex-direction:column; gap:6px}
+.ar-r{display:grid; grid-template-columns:7.2em 3.6em 1fr; align-items:center; gap:8px; padding:10px 12px; border-radius:12px; border:1px solid var(--line); background:var(--card); font-size:calc(12.5px * var(--k))}
+.ar-r .k{font-weight:700; line-height:1.25} .ar-r .k small{display:block; font-weight:500; color:var(--ink-2); font-size:calc(11px * var(--k))}
+.ar-r b{font-size:calc(16px * var(--k))} .ar-r .v{color:var(--ink-2); font-size:calc(11.5px * var(--k)); line-height:1.4}
+.ar-r.on{border:2px solid var(--accent, #2F7DF6); padding:9px 11px} .ar-r .v em{font-style:normal; font-weight:800; color:var(--accent, #2F7DF6)}
+.ar-r.none b{color:var(--ink-2); font-weight:500; font-size:calc(12.5px * var(--k))}
+.ar-eg{display:flex; flex-direction:column; gap:6px} .ar-eg div{padding:10px 12px; border-radius:12px; border:1px solid var(--line); background:var(--card); font-size:calc(13px * var(--k)); line-height:1.5} .ar-eg small{display:block; color:var(--ink-2); font-size:calc(11.5px * var(--k)); font-weight:700}
 .mv-panel .mv-where, .mv-panel .mv-h{touch-action:none}
 .mv-sknow{display:flex; align-items:center; gap:5px; flex-wrap:wrap; margin-left:auto}
 .mv-sknow .lb{font-size:calc(12px * var(--k)); font-weight:700; color:var(--ink-2); margin-right:2px}
@@ -1372,6 +1387,7 @@ window.jjFunFont = function () { if (document.getElementById('fun-font')) return
     <div class="mv-scale" id="mv-scale"><i></i><span></span></div>
     <div class="mv-attr">지도 © OpenStreetMap 기여자</div>
     <button class="mv-fab" id="mv-save" type="button" aria-label="포인트 저장 (꾹 누르면 자리를 옮길 수 있어요)"><span><b><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21.3s-6.6-5.9-6.6-11.3a6.6 6.6 0 0 1 13.2 0c0 5.4-6.6 11.3-6.6 11.3z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M12 7v6M9 10h6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg></b><em>포인트 저장</em></span></button>
+    <button class="mv-area" id="mv-area" type="button" hidden></button>
     <div class="mv-toast" id="mv-toast" hidden></div>
     <div class="mv-snack" id="mv-snack" role="status" hidden><span></span><button type="button">되돌리기</button></div>
     <button class="mv-auto" id="mv-auto" type="button" aria-label="5분 머문 곳 자동 기록 켜기·끄기"><i></i><span>자동 기록 켜짐</span></button>
@@ -4869,6 +4885,7 @@ const TideHarm = (() => {
       return true;
     }
     function drawNow() {
+      { const ab = document.getElementById('mv-area'); if (ab && !ab.hidden && mode !== 'info') ab.hidden = true; }   // 판이 정보 말고 다른 걸 보여 주면 한 줄은 숨김
       if (!isOpen || !W) return;
       fxItems = [];
       const C = mapColors(), font = fontC || (fontC = getComputedStyle(document.body).fontFamily);
@@ -5338,10 +5355,18 @@ const TideHarm = (() => {
       try { navigator.vibrate && navigator.vibrate(15); } catch (_) {}
       toast(`${n}호로 바꿨어요 · ${i.stand || (i.rising ? '들물' : '날물')} · 조류 ${i.pct}%`); paintPanel(true);
     }
+    // 이 일대 지난 기록 한 줄: 5km 안에 지난 출조가 있으면 판 바로 위에 (조용히 · 누르면 카드)
+    function areaChip(here) {
+      const el = $('mv-area'); if (!el) return;
+      let D = null; try { D = here && points.length ? areaData(here) : null; } catch (_) { D = null; }
+      if (!D || !D.trips.length) { el.hidden = true; return; }
+      const t = `<span><b>${esc(D.l1)}</b>${D.l2 ? `<small>${esc(D.l2)}</small>` : ''}</span><i aria-hidden="true">›</i>`; if (el.innerHTML !== t) el.innerHTML = t;
+      el.setAttribute('aria-label', D.line.replace(/^\S+ /, '') + ' · 누르면 자세히'); el.hidden = false;
+    }
     function paintPanel(force) {
       if (!isOpen) return;
       const nowMs = Date.now(); if (!force && nowMs - lastPanel < 900) return; lastPanel = nowMs;
-      if (mode === 'save' || mode === 'list' || mode === 'set' || mode === 'detail' || mode === 'pick' || mode === 'move' || mode === 'sum') return;
+      if (mode === 'save' || mode === 'list' || mode === 'set' || mode === 'detail' || mode === 'pick' || mode === 'move' || mode === 'sum') { areaChip(null); return; }
       if (viewMode && !me) {
         panel.innerHTML = recSummary() + `<p class="mv-tip">선상 모드를 켜지 않고 기록만 보는 중이에요. ‘내 위치로’를 누르면 지금 자리를 한 번만 찍어 보여 주고, 지도를 길게 누르면 그 자리의 물때·조류를 볼 수 있어요.</p>`;
         return;
@@ -5358,6 +5383,7 @@ const TideHarm = (() => {
         : ` 조류: 가장 가까운 조류예보 지점 값${c.d > 8 ? ` (${kmTxt(c.d)} 떨어져 다를 수 있어요)` : ''}.`) : '')
         + (i.wtModel ? ' 수온: 모델 예측이라 관측과 1℃쯤 다를 수 있어요.' : '') + (SP ? ' 화살표: 진한 것 조류예보 지점, 옅은 것 모델.' : '')
         + ' 낚시 정보 확인용이며 항해·안전에는 쓰지 마세요.';
+      areaChip(me);
       const skRow = skNowRow();   // 선상 모드에서 봉돌이 둘 이상이면 좌표 자리에 '봉돌' 단추 (판을 내려 둬도 보이게)
       panel.innerHTML = (viewMode ? recSummary() : '') + `
         <div class="mv-where"><b>${esc(whereTxt(me, i.k))}</b>${skRow || `<span>${dm(me.lat, 'N', 'S')} ${dm(me.lon, 'E', 'W')}</span>`}</div>
@@ -7611,6 +7637,107 @@ const TideHarm = (() => {
       bookEl.setAttribute('aria-label', `${N} 도감`);
       bookEl.innerHTML = `<div class="cv-in">${head}${body}</div>`;
     }
+    // ---------- 이 일대 지난 기록: 낚시한 자리(포인트) 5km 안의 내 지난 출조 · 봉돌은 물살 세기별, 에기 ★는 시간대·물색·비별 (추천이 아니라 내 기록)
+    const AR_KM = 5, AR_SEA = 30, AR_BAND = [['물살 약함', '~30%'], ['물살 보통', '30~60%'], ['물살 셈', '60%~']];
+    const arBand = pct => pct == null ? null : pct < 30 ? 0 : pct < 60 ? 1 : 2;
+    const arTm = t => { const h = kstMin(t) / 60; return h < 7 ? 'dawn' : h < 12 ? 'am' : 'pm'; };
+    const arDoy = t => { const d = new Date(t + 9 * 3600000); return Math.floor((d - Date.UTC(d.getUTCFullYear(), 0, 1)) / DAY); };
+    const arTk = p => [kstDay(p.t), p.boat || '', p.depName || ''].join('|');
+    function arStage(k, t) {   // 그 시각 물 단계: 앞뒤 만조·간조 사이를 셋으로 나눠 초·중·끝 들물/날물
+      if (!k || !TideHarm.STATIONS[k]) return null;
+      const n = kstDay(t), ex = [n - 1, n, n + 1].flatMap(d => TideHarm.extremes(k, d)).sort((a, b) => a.ms - b.ms);
+      let a = null, b = null; for (const e of ex) { if (e.ms <= t) a = e; else { b = e; break; } }
+      if (!a || !b) return null;
+      const f = (t - a.ms) / (b.ms - a.ms), rising = b.type === 'H';
+      return { rising, txt: (f < 1 / 3 ? '초' : f < 2 / 3 ? '중' : '끝') + (rising ? '들물' : '날물') };
+    }
+    let arC = null;
+    function areaData(here, at = Date.now()) {
+      const md = spNow(), S = sumsAll(), tdy = kstDay(at);
+      const key = [here.lat.toFixed(3), here.lon.toFixed(3), Math.floor(at / 300000), md, points.length, (localStorage.getItem(SUM_KEY) || '').length].join('|');
+      if (arC && arC.key === key) return arC.D;
+      const near = [], sea = [];
+      for (const p of points) {
+        if ((p.sp || 'jg') !== md || kstDay(p.t) === tdy || p.lat == null) continue;
+        const d = distKm(here, p); if (d <= AR_SEA) { sea.push(p); if (d <= AR_KM) near.push(p); }
+      }
+      const i = infoAt(here, at), now = { pct: i.pct != null ? i.pct : null, rising: i.rising, mul: i.dd.name, lv: i.dd.lv, k: i.k, st: arStage(i.k, at), tm: arTm(at), band: arBand(i.pct), at };
+      const skOf = p => { const T = S[arTk(p)] || {}; return p.sk || (p.sink && p.sink.length === 1 ? p.sink[0] : 0) || (!(p.sink && p.sink.length) && T.sink && T.sink.length === 1 ? T.sink[0] : 0); };
+      const lad = pool => { const B = [new Map(), new Map(), new Map()]; let n = 0;
+        for (const p of pool) { const b = arBand(p.pct), k = skOf(p); if (b == null || !k) continue; n++; const o = B[b].get(k) || { n: k, k: 0, c: 0, g: 0 }; o.k++; o.c += caughtOf(p); if (p.good) o.g++; B[b].set(k, o); }
+        return { n, rows: B.map(M => [...M.values()].sort((a, b) => (b.g * 3 + b.c + b.k * 0.5) - (a.g * 3 + a.c + a.k * 0.5))[0] || null) }; };
+      let L = lad(near), wide = false; if (L.n < 2) { const L2 = lad(sea); if (L2.n > L.n) { L = L2; wide = true; } }
+      // 출조별로 묶기 (이 일대 자리만)
+      const trips = new Map(); for (const p of near) { const k = arTk(p); if (!trips.has(k)) trips.set(k, []); trips.get(k).push(p); }
+      const star = { tm: new Map(), water: { clear: new Map(), mid: new Map(), murky: new Map() }, rain: new Map() };
+      const add = (M, e) => { const nm = egiName(e); if (nm) M.set(nm, (M.get(nm) || 0) + 1); };
+      const T = [];
+      for (const [k, pts] of trips) {
+        const Sk = S[k] || {}, sea0 = tripSea(k), ptEgi = pts.flatMap(p => (p.egi || []).filter(e => e.s));
+        const st = [...(Sk.egi || []).filter(e => e.s), ...ptEgi.filter(e => !(Sk.egi || []).some(x => x.c === e.c))];
+        for (const e of st) { for (const q of e.tm || []) { if (!star.tm.has(q)) star.tm.set(q, new Map()); add(star.tm.get(q), e); } if (sea0.water && star.water[sea0.water]) add(star.water[sea0.water], e); if (sea0.rain || sea0.rainPrev) add(star.rain, e); }
+        const rep = pts.filter(p => p.pct != null).sort((a, b) => ((a.rising === now.rising ? 0 : 40) + Math.abs(a.pct - (now.pct ?? a.pct))) - ((b.rising === now.rising ? 0 : 40) + Math.abs(b.pct - (now.pct ?? b.pct))))[0] || pts[0];
+        const dp = now.pct != null && rep.pct != null ? Math.abs(rep.pct - now.pct) : 99;
+        const dl = Math.abs(lunC(kstDay(rep.t)) - lunC(kstDay(at))), dd = Math.abs(arDoy(rep.t) - arDoy(at));
+        const sc = (rep.rising === now.rising ? 2 : 0) + (dp <= 15 ? 3 : dp <= 30 ? 1 : 0) + (Math.min(dl, 15 - dl) <= 1 ? 1 : 0) + (Math.min(dd, 365 - dd) <= 20 ? 1 : 0) + (arTm(rep.t) === now.tm ? 1 : 0);
+        const sks = [...new Set(pts.map(skOf).filter(Boolean))].sort((a, b) => a - b);
+        T.push({ k, t: pts[0].t, pts, rep, sc, st, sea: sea0, sks: sks.length ? sks : (Sk.sink || []).slice().sort((a, b) => a - b), c: pts.reduce((a, p) => a + caughtOf(p), 0), boat: pts[0].boat || '' });
+      }
+      T.sort((a, b) => b.sc - a.sc || b.t - a.t);
+      const top = M => [...(M || new Map()).entries()].sort((a, b) => b[1] - a[1]);
+      const D = { here, now, near: near.length, trips: T, lad: L, wide, star, top };
+      // 한 줄: 물살 비슷할 때 봉돌 → 없으면 지금 시간대 ★ → 없으면 횟수만
+      const r = now.band != null && !wide ? L.rows[now.band] : null, tmS = top(star.tm.get(now.tm))[0];
+      D.l1 = `${md === 'jg' ? '🦑' : '🐟'} 이 일대 지난 기록 ${T.length}번`; D.l2 = r ? `물살 비슷할 땐 ${r.n}호` : tmS ? `${TM_N[now.tm]}엔 ${tmS[0]}★` : '';
+      D.line = D.l1 + (D.l2 ? ' · ' + D.l2 : '');
+      arC = { key, D }; return D;
+    }
+    let arS = null, arEl = null;
+    function areaOpen(here, title) {
+      const D = areaData(here); if (!D.trips.length) return;
+      if (!arEl) {
+        arEl = document.createElement('div'); arEl.className = 'cardv bookv'; arEl.id = 'arv'; arEl.hidden = true;
+        arEl.setAttribute('role', 'dialog'); arEl.setAttribute('aria-modal', 'true'); arEl.setAttribute('aria-label', '이 일대 지난 기록');
+        document.body.appendChild(arEl);
+        arEl.addEventListener('click', e => { const b = e.target.closest('[data-b]'); if (b && b.dataset.b === 'x') areaClose(); });
+      }
+      arS = { here, title }; arEl.hidden = false; document.documentElement.classList.add('cv-lock');
+      if (useHist) { try { history.pushState({ arv: 1 }, ''); } catch (_) {} }
+      areaRender(D); arEl.scrollTop = 0;
+    }
+    function areaClose(fromPop) {
+      if (!arS) return; arS = null; arEl.hidden = true;
+      if (!cardS && !portS && !bookS) document.documentElement.classList.remove('cv-lock');
+      if (useHist && !fromPop && history.state && history.state.arv) { skipPop = true; history.back(); }
+    }
+    function areaRender(D) {
+      const n = D.now, T = D.trips, md = spNow(), egiN = BK_N[md] || '에기', L = D.lad;
+      const head = `<div class="cv-h"><button type="button" class="cv-x" data-b="x" aria-label="닫기"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button><b>이 일대 지난 기록</b></div>`;
+      let h = `<p class="ar-sub">${esc(arS.title || whereTxt(D.here, n.k))} · 반경 ${AR_KM}km · 내 출조 ${T.length}번${T.length === 1 ? ' — 1번뿐이라 참고만 해 주세요' : ''}</p>`;
+      h += `<div class="ar-now"><small>지금 물살${arS.title ? ' (이 자리)' : ''}</small><b>${esc(n.mul)} · ${n.st ? n.st.txt : (n.rising ? '들물' : '날물')}${n.pct != null ? ` · 조류 ${n.pct}%` : ''}</b></div>`;
+      // 봉돌 사다리
+      h += `<p class="bk-h4">봉돌 · 물살 세기별</p>`;
+      if (!L.n) h += `<p class="bk-none">아직 자리별 봉돌 기록이 없어요. 선상 모드의 '봉돌' 단추나 출조 정리의 자리마다 봉돌 칸에 남기면 여기 채워져요.</p>`;
+      else {
+        h += `<div class="ar-lad">` + AR_BAND.map(([nm, rg], b) => { const r = L.rows[b], on = n.band === b;
+          return `<div class="ar-r${on ? ' on' : ''}${r ? '' : ' none'}"><span class="k">${nm}<small>${rg}</small></span><b>${r ? r.n + '호' : '기록 없음'}</b><span class="v">${on ? '<em>◀ 지금</em> ' : ''}${r ? `자리 ${r.k}곳 · ${r.c}마리${r.g ? ` · 👍${r.g}` : ''}` : ''}</span></div>`; }).join('') + `</div>`;
+        if (D.wide) h += `<p class="bk-none">이 일대 봉돌 기록이 적어서 같은 바다(${AR_SEA}km 안) 기록까지 넣어 봤어요.</p>`;
+      }
+      // 에기 ★
+      const tmR = D.top(D.star.tm.get(n.tm)), wr = ['clear', 'mid', 'murky'].map(w => [w, D.top(D.star.water[w])]).filter(x => x[1].length), rn = D.top(D.star.rain);
+      const nm = A => A.slice(0, 2).map(([x, c]) => `${esc(x)}★${c > 1 ? ` ${c}번` : ''}`).join(' · ');
+      h += `<p class="bk-h4">${egiN} ★ · 잘 먹혔던 때</p>`;
+      if (!tmR.length && !wr.length && !rn.length) h += `<p class="bk-none">이 일대 출조에서 ★ 표시한 ${egiN}가 아직 없어요. 출조 정리에서 잘 먹힌 ${egiN}에 ★를 눌러 두면 여기 모여요.</p>`;
+      else h += `<div class="ar-eg">` + (tmR.length ? `<div><small>지금 시간대 · ${TM_N[n.tm]}</small>${nm(tmR)}</div>` : '')
+        + (wr.length ? `<div><small>물색별 — 물을 보고 골라 보세요</small>${wr.map(([w, A]) => `${WATER_N[w]}할 땐 ${nm(A)}`.replace('맑음할', '맑을').replace('보통할', '보통일').replace('탁함할', '탁할')).join('<br>')}</div>` : '')
+        + (rn.length ? `<div><small>비 온 날 · 다음 날</small>${nm(rn)}</div>` : '') + `</div>`;
+      // 비슷했던 출조
+      h += `<p class="bk-h4">비슷했던 출조 <span style="font-weight:500;color:var(--ink-2)">· 물살·물때·철이 가까운 순</span></p>`;
+      h += T.slice(0, 3).map(x => { const st = arStage(x.rep.port || nearest(x.rep).k, x.rep.t);
+        return `<div class="bk-tr"><b>${x.st.length ? '★' : ''}</b><div>${bkDay(x.t)}${x.boat ? ' · ' + esc(x.boat) : ''} · 이 일대 ${x.c}마리<br><span>${[x.rep.mul, st ? st.txt : '', x.rep.pct != null ? `조류 ${x.rep.pct}%` : '', seaTxt(x.sea), x.st.length ? x.st.map(starTxt).join(' ') : '', x.sks.length ? `봉돌 ${x.sks.join('·')}호` : ''].filter(Boolean).join(' · ')}</span></div></div>`; }).join('');
+      h += `<p class="bk-none">내 기록을 모아 보여 주는 거예요. 물살·물색은 그날 바다를 보고 판단해 주세요.</p>`;
+      arEl.innerHTML = `<div class="cv-in">${head}${h}</div>`;
+    }
     function cardClick(e) {
       const b = e.target.closest('[data-c]'); if (!b || !cardS) return; const c = b.dataset.c, s = cardS;
       if (c === 'x') return cardClose();
@@ -8427,7 +8554,7 @@ const TideHarm = (() => {
     function showDetail(id, ask) {
       sheetAtLeast('open');
       const p = points.find(q => q.id === id); if (!p) { mode = 'info'; selId = null; paintPanel(true); return; }
-      mode = 'detail'; selId = id; const S = TideHarm.STATIONS[p.port];
+      mode = 'detail'; selId = id; const S = TideHarm.STATIONS[p.port]; areaChip(null);
       panel.innerHTML = `
         <div class="mv-h"><b>${when(p.t)} 포인트</b><span>${p.auto ? '자동 기록 · ' : ''}${p.virtual ? '가상 위치' : `GPS ±${p.acc}m`}${p.edited ? ' · 고침' : ''}</span></div>
         <div class="mv-grid">
@@ -8442,6 +8569,7 @@ const TideHarm = (() => {
           ${p.sink || p.egi ? `<div class="mv-c wide"><small>채비</small><b>${esc(rigTxt(p))}</b></div>` : ''}
           ${p.good ? '<div class="mv-c wide"><small>출조 정리</small><b>👍 잘 나온 곳</b></div>' : ''}
         </div>
+        ${(() => { let D = null; try { D = areaData(p); } catch (_) {} return D && D.trips.length ? `<button type="button" class="mv-areab" data-act="area" data-id="${p.id}"><span>${esc(D.line)}</span><i aria-hidden="true">›</i></button>` : ''; })()}
         <p class="mv-note">${p.stayFrom ? `${ampm(kstMin(p.stayFrom))}~${ampm(kstMin(p.stayTo || p.t))} 머문 곳 · ` : ''}${p.memo ? esc(p.memo) + ' · ' : ''}${dm(p.lat, 'N', 'S')} ${dm(p.lon, 'E', 'W')}${p.wind == null ? '' : ` · 바람 ${p.wind}m/s`}${p.wave == null ? '' : ` · 파도 ${p.wave.toFixed(1)}m`}</p>
         <div class="mv-btns">${ask ? `<button class="del" data-act="del-yes" data-id="${p.id}">정말 지우기</button><button data-act="pick" data-id="${p.id}">그대로 두기</button>`
           : `<button class="pri" data-act="edit" data-id="${p.id}">고치기</button><button data-act="list">목록</button><button class="del" data-act="del" data-id="${p.id}">지우기</button><button data-act="back">닫기</button>`}</div>`;
@@ -8475,6 +8603,7 @@ const TideHarm = (() => {
       if (a === 'swdel') return delPoint(b.dataset.id, b.closest('.mv-row'));
       if (rigTap(a, b)) { if (mode === 'sum') skPaint(); return; }
       if (a === 'sk-now') return skNowTap(+b.dataset.n);
+      if (a === 'area') { const p = points.find(q => q.id === b.dataset.id); if (p) areaOpen({ lat: p.lat, lon: p.lon }, `${when(p.t)} 포인트 근처`); return; }
       if (a === 'sk-row') return skRowTap(b.dataset.id);
       if (a === 'sum') return openSum(b.dataset.k, false);
       if (a === 'card') return cardOpen(b.dataset.k);
@@ -8684,6 +8813,8 @@ const TideHarm = (() => {
       refreshList();
     }
     pill.onclick = () => setAuto(!autoOn);
+    new MutationObserver(() => { const ab = $('mv-area'); if (ab && !ab.hidden && mode !== 'info') ab.hidden = true; }).observe(panel, { childList: true });   // 목록·저장 판 등을 열면 한 줄은 숨김
+    { const ab = $('mv-area'); if (ab) ab.onclick = () => { if (me) areaOpen({ lat: me.lat, lon: me.lon }, me.virtual ? '길게 눌러 정한 자리' : ''); }; }
     // 가만히 있으면 GPS 소식이 뜸해질 수 있어 25초 넘게 없으면 한 번 물어본다
     setInterval(() => {
       boardTimeCheck();
@@ -9250,10 +9381,10 @@ const TideHarm = (() => {
     // 앱을 열면 조금 뒤 지도용 자료도 받아 둔다 (바다 위에서 인터넷이 끊겨도 저장해 둔 것으로 보이게)
     if (!inFrame) setTimeout(loadSpots, 3500);
     if (!inFrame) setTimeout(() => (window.requestIdleCallback || (f => setTimeout(f, 0)))(() => loadLand(), { timeout: 4000 }), 5000);
-    addEventListener('popstate', () => { if (skipPop) { skipPop = false; return; } if (bookS) { if (bookS.sel && !(history.state && history.state.bookd)) { bookS.sel = null; bookRender(); } else if (!(history.state && history.state.bookv)) bookClose(true); return; } if (portS) { portClose(true); return; } if (cardS) { cardClose(true); return; } if (isOpen) close(true); });
-    document.addEventListener('keydown', e => { if (e.key !== 'Escape') return; if (portS) portClose(); else if (cardS) cardClose(); else if (isOpen) close(); });
+    addEventListener('popstate', () => { if (skipPop) { skipPop = false; return; } if (arS) { if (!(history.state && history.state.arv)) areaClose(true); return; } if (bookS) { if (bookS.sel && !(history.state && history.state.bookd)) { bookS.sel = null; bookRender(); } else if (!(history.state && history.state.bookv)) bookClose(true); return; } if (portS) { portClose(true); return; } if (cardS) { cardClose(true); return; } if (isOpen) close(true); });
+    document.addEventListener('keydown', e => { if (e.key !== 'Escape') return; if (arS) areaClose(); else if (portS) portClose(); else if (cardS) cardClose(); else if (isOpen) close(); });
     // 안드로이드 앱의 뒤로 단추: 저절로 열린 판(출조 정리·카드 등)은 웹 화면의 '뒤로 가기'가 건너뛰어 앱이 꺼지므로, 앱이 먼저 물어본다
-    window.jjugapBack = () => { if (window.jjugapRigEd && window.jjugapRigEd()) return true; const s = history.state; if (s && (s.bookv || s.mapv || s.cardv || s.portv || s.stSheet || s.pcal || s.palv || s.spv)) { history.back(); return true; } return false; };
+    window.jjugapBack = () => { if (window.jjugapRigEd && window.jjugapRigEd()) return true; const s = history.state; if (s && (s.arv || s.bookv || s.mapv || s.cardv || s.portv || s.stSheet || s.pcal || s.palv || s.spv)) { history.back(); return true; } return false; };
     { const pb = $('pk-btn'); if (pb) pb.onclick = async () => portOpen(await portIdxFor(tideSt)); }
     // 바다 위(인터넷 약함)에서도 열리게: 지금 출항지의 항구 자료를 미리 받아 둔다 (sw.js 가 저장)
     let portWarmK = '';
@@ -9667,7 +9798,7 @@ const TideHarm = (() => {
 
 <script>
 if ('serviceWorker' in navigator) addEventListener('load', () => {
-  const sw = navigator.serviceWorker, VER = '5b687ee2'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
+  const sw = navigator.serviceWorker, VER = 'bfb6209c'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
   // 화면에 손을 대기 시작했는지 (쓰는 중에는 새로 열지 않으려고)
   ['pointerdown', 'keydown'].forEach(t => addEventListener(t, () => { touched = true; }, { capture: true, passive: true }));
   const reload = () => {
