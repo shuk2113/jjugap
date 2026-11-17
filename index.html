@@ -8777,6 +8777,8 @@ const TideHarm = (() => {
       // 마지막으로 달린 뒤 처음 위치부터 = 이 자리에 온 시각 (흘러도 같은 자리)
       let k = track.length - 1; while (k > 0 && !track[k - 1].run && !track[k].run) k--;
       if (track[k].run) { stayFrom = t; autoPill(); return; }   // 아직 달리는 중
+      // '달림'은 20초 늦게 풀리므로, 그사이 이미 천천히 움직이던 위치까지 거슬러 올라가 도착한 순간을 찾는다
+      while (k > 0 && track[k - 1].run && track[k].t - track[k - 1].t >= 1000 && distKm(track[k - 1], track[k]) * 1000 / ((track[k].t - track[k - 1].t) / 1000) < DRIFT_V) k--;
       stayFrom = track[k].t;
       const dt = (t - stayFrom) / 1000, slow = dt <= 0 || distKm(track[k], fix) * 1000 / dt < DRIFT_V;   // 천천히 나아가며 끄는 중이 아니라 흘리는 중
       if (t - stayFrom >= STAY_MS && slow) recordStay(track.slice(k), stayFrom, t);
@@ -8784,7 +8786,9 @@ const TideHarm = (() => {
     }
     if (window.__JJ_TEST) window.__jjFeed = f => autoFeed(f);   // 시험용 (평소엔 없음)
     function recordStay(seg, from, t) {
-      const lat = seg.reduce((a, q) => a + q.lat, 0) / seg.length, lon = seg.reduce((a, q) => a + q.lon, 0) / seg.length, c = { lat, lon };
+      // 자리는 '도착한 곳': 머물기 시작한 뒤 처음 30초 위치를 GPS 정확도로 가중 평균 (5분 동안 흘러간 가운데가 아니라)
+      const head = seg.filter(q => q.t - seg[0].t <= 30000), wq = q => 1 / Math.pow(Math.max(q.acc || 10, 5), 2), W = head.reduce((a, q) => a + wq(q), 0);
+      const lat = head.reduce((a, q) => a + q.lat * wq(q), 0) / W, lon = head.reduce((a, q) => a + q.lon * wq(q), 0) / W, c = { lat, lon };
       stay = { lat, lon, from, last: t, id: null };
       if (onLand(lat, lon) === true || nearAnyPort(c)) { stay.skip = true; return; }   // 항구(500m 안)나 육지에서 기다린 것은 빼기
       // 머무는 동안 직접 저장한 포인트가 있으면 그것으로 (겹쳐 남기지 않는다)
@@ -9815,7 +9819,7 @@ const TideHarm = (() => {
 
 <script>
 if ('serviceWorker' in navigator) addEventListener('load', () => {
-  const sw = navigator.serviceWorker, VER = '6a5c624c'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
+  const sw = navigator.serviceWorker, VER = '6cb21736'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
   // 화면에 손을 대기 시작했는지 (쓰는 중에는 새로 열지 않으려고)
   ['pointerdown', 'keydown'].forEach(t => addEventListener(t, () => { touched = true; }, { capture: true, passive: true }));
   const reload = () => {
