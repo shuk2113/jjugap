@@ -4967,6 +4967,15 @@ const TideHarm = (() => {
           const dk = D0.lat.toFixed(4) + ',' + D0.lon.toFixed(4), o = depMarks.get(dk);
           if (!o) depMarks.set(dk, { x: sx, y: sy, n: p0.p.depName || (p0.p.dep && TideHarm.STATIONS[p0.p.dep] ? short(p0.p.dep) : ''), D0, A, col: tr.color }); else if (A > o.A) { o.A = A; o.col = tr.color; }
         }
+        // 흘림 길: 도착한 자리(포인트) → 흘러간 끝까지 가는 점선 화살표 (어느 쪽으로 흘렀는지)
+        for (const o of xy) {
+          const p = o.p; if (p.eLat == null || distKm(p, { lat: p.eLat, lon: p.eLon }) > 3) continue;
+          const [ex, ey] = toS(p.eLon, p.eLat), dx = ex - o.x, dy = ey - o.y, L = Math.hypot(dx, dy); if (L < o.r + 10) continue;
+          const ux = dx / L, uy = dy / L, bx = o.x + ux * (o.r + 2), by = o.y + uy * (o.r + 2);
+          ctx.globalAlpha = A * 0.85; ctx.strokeStyle = tr.color; ctx.lineWidth = 2; ctx.setLineDash([2, 4]);
+          ctx.beginPath(); ctx.moveTo(bx, by); ctx.lineTo(ex, ey); ctx.stroke(); ctx.setLineDash([]);
+          ctx.beginPath(); ctx.moveTo(ex - ux * 7 - uy * 4.5, ey - uy * 7 + ux * 4.5); ctx.lineTo(ex, ey); ctx.lineTo(ex - ux * 7 + uy * 4.5, ey - uy * 7 - ux * 4.5); ctx.stroke();
+        }
         // 뱃길: 바다색 테두리 → 출조 색 선 → 흰 화살 무늬
         if (xy.length > 1) {
           const path = () => { ctx.beginPath(); xy.forEach((o, i) => (i ? ctx.lineTo(o.x, o.y) : ctx.moveTo(o.x, o.y))); };
@@ -8768,9 +8777,14 @@ const TideHarm = (() => {
       track.push({ lat: fix.lat, lon: fix.lon, t, acc: fix.acc || 0, run }); while (track.length > 2 && t - track[1].t > 30 * 60000) track.shift();
       if (stay) {
         if (!moved && !run && distKm(stay, fix) * 1000 <= DRIFT_MAX) {   // 흘리는 중: 같은 자리
-          stay.last = t;
-          if (stay.id && t - (stay.saved || 0) > 60000) { const p = points.find(q => q.id === stay.id); if (p) { p.stayTo = t; stay.saved = t; savePts(); } }
+          stay.last = t; stay.e = { lat: fix.lat, lon: fix.lon };   // 흘러간 끝
+          if (stay.id && t - (stay.saved || 0) > 60000) { const p = points.find(q => q.id === stay.id); if (p) { p.stayTo = t; p.eLat = +fix.lat.toFixed(6); p.eLon = +fix.lon.toFixed(6); stay.saved = t; savePts(); } }
           autoPill(); return;
+        }
+        if (run && stay.e) {   // 흘림 끝 = 달리기 시작하기 직전 자리 ('달림'은 20초 늦게 알아채므로 빠르게 움직인 위치는 거슬러 뺀다)
+          let j = track.length - 1; const sp = (a, b) => b.t - a.t >= 1000 ? distKm(a, b) * 1000 / ((b.t - a.t) / 1000) : 0;
+          while (j > 0 && t - track[j - 1].t <= 120000 && sp(track[j - 1], track[j]) >= DRIFT_V) j--;
+          if (j < track.length - 1) stay.e = { lat: track[j].lat, lon: track[j].lon };
         }
         endStay(); track = [track[track.length - 1]];   // 달려서 옮겼다 → 새 자리를 다시 센다
       }
@@ -8804,7 +8818,7 @@ const TideHarm = (() => {
       if (NAT) { try { NAT.saved(`${ampm(kstMin(t))} · 5분 머문 곳을 포인트로 남겼어요`); } catch (_) {} }
     }
     function endStay() {
-      if (stay && stay.id) { const p = points.find(q => q.id === stay.id); if (p && p.stayFrom) { p.stayTo = stay.last; savePts(); } }
+      if (stay && stay.id) { const p = points.find(q => q.id === stay.id); if (p && p.stayFrom) { p.stayTo = stay.last; if (stay.e) { p.eLat = +stay.e.lat.toFixed(6); p.eLon = +stay.e.lon.toFixed(6); } savePts(); } }
       stay = null;
     }
     // 직접 저장한 포인트가 지금 머무는 자리면, 먼저 남긴 자동 기록은 이 포인트로 합친다
@@ -9819,7 +9833,7 @@ const TideHarm = (() => {
 
 <script>
 if ('serviceWorker' in navigator) addEventListener('load', () => {
-  const sw = navigator.serviceWorker, VER = '6cb21736'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
+  const sw = navigator.serviceWorker, VER = '43b447e2'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
   // 화면에 손을 대기 시작했는지 (쓰는 중에는 새로 열지 않으려고)
   ['pointerdown', 'keydown'].forEach(t => addEventListener(t, () => { touched = true; }, { capture: true, passive: true }));
   const reload = () => {
