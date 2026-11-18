@@ -4144,8 +4144,9 @@ const TideHarm = (() => {
         };
         const kOf = lv => d.K ? d.K[lv] : d.kc ? coastOf(d.L[lv], d.kc[lv]) : null;
         // 단계(멀리 볼수록 거친 자료)마다 땅·해안선·갯벌·물. 큰 자료라 한 번에 다 만들면 폰이 잠깐 멈칫한다 → 한 조각씩 만들고 사이사이 쉬어 간다
-        const N = d.L.length, bm = { L: [], K: (d.K || d.kc) ? [] : null, F: [], W: [], lab: d.lab, th: d.lv || [2400] };
+        const N = d.L.length, bm = { L: [], K: (d.K || d.kc) ? [] : null, F: [], W: [], B: null, lab: d.lab, th: d.lv || [2400] };
         const steps = [];
+        if (d.B) steps.push(() => { const ar = (d.B.a || []).map(r => [r]); bm.B = { l: build([...(d.B.l || []).map(r => [r]), ...ar], true), a: build(ar) }; });   // 방파제: 선(면은 테두리도) · 면 채우기
         for (let i = 0; i < N; i++) {
           steps.push(() => { bm.L[i] = build(d.L[i]); });
           if (bm.K) steps.push(() => { bm.K[i] = build(kOf(i).map(l => [l]), true); });
@@ -4282,7 +4283,7 @@ const TideHarm = (() => {
       const lands = vis(basemap.L[lod]), flats = vis(basemap.F[lod]), waters = vis(basemap.W[lod]);
       const merge = cs => { if (cs.length === 1) return cs[0].p; const pp = new Path2D(); for (const c of cs) pp.addPath(c.p); return pp; };
       const landP = merge(lands), coastP = basemap.K ? merge(vis(basemap.K[lod])) : landP;   // 해안선(K)은 칸 경계선을 뺀 진짜 바닷가만
-      if (mapSty !== 'base' && msBase(g, R, landP, coastP, flats.length ? merge(flats) : null, waters.length ? merge(waters) : null, wr, lr)) { dpLayer(g, R, landP, vx0, vx1, vy0, vy1); return; }   // 지도 모양
+      if (mapSty !== 'base' && msBase(g, R, landP, coastP, flats.length ? merge(flats) : null, waters.length ? merge(waters) : null, wr, lr)) { dpLayer(g, R, landP, vx0, vx1, vy0, vy1); const so = STYS.find(o => o[0] === mapSty); bwLayer(g, R, landP, vx0, vx1, vy0, vy1, so ? so[3] : C.land, 'rgba(0,0,0,.28)'); return; }   // 지도 모양
       g.save(); g.setTransform(R * v.s, 0, 0, R * v.s, R * (BM + W / 2 - v.lon * KX * v.s), R * (BM + H / 2 + v.lat * v.s));
       g.lineJoin = 'round'; g.lineCap = 'round';
       // 해안 가까운 얕은 물: 육지 둘레를 넓게 두 번 그어 바깥으로 갈수록 옅어지게
@@ -4300,6 +4301,7 @@ const TideHarm = (() => {
       if (waters.length) { const wp = merge(waters); g.fillStyle = C.sea; g.fill(wp, 'evenodd'); g.lineWidth = 0.7 * lr / v.s; g.stroke(wp); }
       g.restore();
       dpLayer(g, R, landP, vx0, vx1, vy0, vy1);   // 수심 색칠 (켰을 때만)
+      bwLayer(g, R, landP, vx0, vx1, vy0, vy1, C.land, C.coast);   // 바다 위 방파제·도류제
     }
     // ---------- 섬·만·항구 이름표: 늘 같은 자리에 박혀 있게
     // 섬 이름은 섬 가운데, 항구 이름은 항구 점 오른쪽에 붙어서 지도와 함께만 움직인다 (위치·방향을 바꾸지 않는다).
@@ -5362,6 +5364,20 @@ const TideHarm = (() => {
       }
       dpUp.set(key, { im, sig }); while (dpUp.size > 10) dpUp.delete(dpUp.keys().next().value);
       return im;
+    }
+    // 바다 위 방파제·도류제: 육지 자료(해안선)에 없는 것만 보이게 바다 부분에만 육지 색 띠로 (실제 폭 약 22m, 화면에서 최소 1.8점) · 가까이 볼 때만
+    const BW_MIN_S = 1200;
+    function bwLayer(g, R, landP, vx0, vx1, vy0, vy1, fill, edge) {
+      const B = basemap && basemap.B; if (!B || v.s < BW_MIN_S) return;
+      const vis = cs => cs.filter(c => c.x1 >= vx0 && c.x0 <= vx1 && c.y1 >= vy0 && c.y0 <= vy1);
+      const Lc = vis(B.l), Ac = vis(B.a); if (!Lc.length && !Ac.length) return;
+      g.save(); g.setTransform(R * v.s, 0, 0, R * v.s, R * (BM + W / 2 - v.lon * KX * v.s), R * (BM + H / 2 + v.lat * v.s));
+      const clip = new Path2D(); clip.rect(vx0, vy0, vx1 - vx0, vy1 - vy0); clip.addPath(landP); g.clip(clip, 'evenodd');
+      g.lineJoin = 'round'; g.lineCap = 'round';
+      const U = 1 / v.s, w = Math.max(1.8, 22 / 111320 * v.s);
+      g.strokeStyle = edge; g.fillStyle = edge; g.lineWidth = (w + 1.4) * U; for (const c of Lc) g.stroke(c.p); for (const c of Ac) g.fill(c.p, 'evenodd');
+      g.strokeStyle = fill; g.fillStyle = fill; g.lineWidth = w * U; for (const c of Lc) g.stroke(c.p); for (const c of Ac) g.fill(c.p, 'evenodd');
+      g.restore();
     }
     // 바탕 그림(renderBase) 마지막에: 보이는 조각을 한 장으로 이어 붙여 바다 부분(육지 밖)에만
     function dpLayer(g, R, landP, vx0, vx1, vy0, vy1) {
@@ -10091,7 +10107,7 @@ const TideHarm = (() => {
 
 <script>
 if ('serviceWorker' in navigator) addEventListener('load', () => {
-  const sw = navigator.serviceWorker, VER = '1f203428'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
+  const sw = navigator.serviceWorker, VER = '8fd312c0'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
   // 화면에 손을 대기 시작했는지 (쓰는 중에는 새로 열지 않으려고)
   ['pointerdown', 'keydown'].forEach(t => addEventListener(t, () => { touched = true; }, { capture: true, passive: true }));
   const reload = () => {
