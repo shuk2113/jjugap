@@ -18,19 +18,27 @@ jobs:
         run: |
           python3 - <<'PY'
           import json, urllib.parse, urllib.request, time
-          b = '35.10,125.30,38.10,127.40'   # 앱 바다 지도(basemap) 범위
-          q = f"""[out:json][timeout:180];
+          def get(b):
+              q = f"""[out:json][timeout:90];
           way["man_made"~"^(breakwater|groyne)$"]({b});
           out tags geom;"""
-          data = urllib.parse.urlencode({'data': q}).encode(); r = None
-          for url in ['https://overpass-api.de/api/interpreter', 'https://overpass.kumi.systems/api/interpreter']:
-              for k in range(2):
-                  try:
-                      r = urllib.request.urlopen(urllib.request.Request(url, data=data, headers={'User-Agent': 'jjugap-map'}), timeout=200).read(); break
-                  except Exception as e:
-                      print('실패', url, e); time.sleep(10)
-              if r: break
-          j = json.loads(r); out = []
+              data = urllib.parse.urlencode({'data': q}).encode()
+              for k in range(4):
+                  for url in ['https://overpass-api.de/api/interpreter', 'https://overpass.kumi.systems/api/interpreter', 'https://maps.mail.ru/osm/tools/overpass/api/interpreter']:
+                      try:
+                          return json.loads(urllib.request.urlopen(urllib.request.Request(url, data=data, headers={'User-Agent': 'jjugap-map'}), timeout=120).read())['elements']
+                      except Exception as e:
+                          print('실패', b, url, e); time.sleep(8)
+              raise SystemExit('못 받음 ' + b)
+          els = {}
+          la = 35.10
+          while la < 38.09:   # 앱 바다 지도(basemap) 범위를 조각으로 나눠서
+              lo = 125.30
+              while lo < 127.39:
+                  for e in get(f'{la:.2f},{lo:.2f},{min(38.10, la + 0.6):.2f},{min(127.40, lo + 0.7):.2f}'): els[e['id']] = e
+                  lo += 0.7; time.sleep(3)
+              la += 0.6
+          j = {'elements': list(els.values())}; out = []
           for e in j['elements']:
               g = e.get('geometry') or []
               if len(g) < 2: continue
