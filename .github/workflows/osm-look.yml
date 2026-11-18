@@ -1,0 +1,58 @@
+# 지도 손질용: OpenStreetMap(Overpass)에서 한 범위의 시설(방파제·방조제·도류제 등)을 찾아 기록에 보여 준다 (손으로만)
+name: 지도 자료 찾아보기
+
+on:
+  workflow_dispatch:
+    inputs:
+      bbox:
+        description: '남,서,북,동 (예: 35.93,126.40,36.05,126.56)'
+        type: string
+        default: '35.93,126.40,36.05,126.56'
+
+permissions:
+  contents: read
+
+jobs:
+  look:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: 찾기
+        env:
+          BBOX: ${{ inputs.bbox }}
+        run: |
+          python3 - <<'PY'
+          import json, os, urllib.parse, urllib.request
+          b = os.environ['BBOX']
+          q = f"""[out:json][timeout:60];
+          (
+            nwr["man_made"~"breakwater|groyne|pier|dyke|embankment|quay|lighthouse|beacon|tower|platform|offshore_platform"]({b});
+            nwr["waterway"~"dam|weir|dock"]({b});
+            nwr["natural"~"coastline|reef|rock|bare_rock|islet|shoal|sand|beach"]({b});
+            nwr["place"~"island|islet"]({b});
+            nwr["seamark:type"]({b});
+            nwr["landuse"~"industrial|construction|port"]({b});
+            nwr["construction"]({b});
+          );
+          out tags geom;"""
+          data = urllib.parse.urlencode({'data': q}).encode()
+          for url in ['https://overpass-api.de/api/interpreter', 'https://overpass.kumi.systems/api/interpreter']:
+              try:
+                  r = urllib.request.urlopen(urllib.request.Request(url, data=data, headers={'User-Agent': 'jjugap-map-check'}), timeout=90).read(); break
+              except Exception as e:
+                  print('실패', url, e)
+          j = json.loads(r)
+          print('개수', len(j['elements']))
+          for e in j['elements']:
+              t = e.get('tags', {})
+              g = e.get('geometry') or ([{'lat': e['lat'], 'lon': e['lon']}] if 'lat' in e else [])
+              if e['type'] == 'relation':
+                  g = [p for m in e.get('members', []) for p in (m.get('geometry') or [])]
+              if not g: continue
+              la = [p['lat'] for p in g]; lo = [p['lon'] for p in g]
+              # 대략 길이(km)
+              L = 0
+              for a, c in zip(g, g[1:]): L += ((a['lat'] - c['lat']) * 111.2) ** 2 + ((a['lon'] - c['lon']) * 90.0) ** 2 and (((a['lat'] - c['lat']) * 111.2) ** 2 + ((a['lon'] - c['lon']) * 90.0) ** 2) ** 0.5
+              keys = {k: v for k, v in t.items() if k in ('man_made', 'waterway', 'natural', 'place', 'name', 'name:ko', 'name:en', 'seamark:type', 'landuse', 'construction', 'barrier', 'layer', 'area', 'description', 'note')}
+              print(json.dumps({'id': f"{e['type']}/{e['id']}", 'tags': keys, 'n': len(g), 'lat': [round(min(la), 5), round(max(la), 5)], 'lon': [round(min(lo), 5), round(max(lo), 5)], 'km': round(L, 2)}, ensure_ascii=False))
+          PY
