@@ -59,9 +59,23 @@ def pick(o, *names):
     return None
 
 
+CANDS = ['https://apis.data.go.kr/1192136/waterDepth/GetWaterDepthApiService',
+         'https://apis.data.go.kr/1192136/waterDepth/getWaterDepth',
+         'https://apis.data.go.kr/1192136/waterDepth/GetWaterDepthService',
+         'https://apis.data.go.kr/1192136/waterDepth']
+
+
 def test():
+    global URL
     if not KEY: print('인증키 없음'); return 1
-    txt = call(35.95, 35.97, 126.40, 126.43, rows=5)
+    txt = None
+    for u in CANDS:
+        URL = u
+        try:
+            txt = call(35.95, 35.97, 126.40, 126.43, rows=5, tries=1); print('주소 OK:', u); break
+        except Exception as e:
+            print('주소 실패:', u, '·', str(e)[:300].replace('\n', ' '))
+    if txt is None: return 1
     print('응답 앞부분:', mask(txt[:900]))
     try:
         it, total, _ = items_of(txt)
