@@ -94,7 +94,7 @@ def fetch_tile(ti, tj):
         for o in it:
             y = pick(o, 'lat', 'latitude', 'y')
             x = pick(o, 'lot', 'lon', 'lng', 'longitude', 'x')
-            z = pick(o, 'depth', 'dep', 'wtrdep', 'wdepth', 'dpth', 'z', 'val', 'value')
+            z = pick(o, 'dpwt', 'depth', 'dep', 'wtrdep', 'wdepth', 'dpth', 'z', 'val', 'value')
             try: pts.append((float(y), float(x), float(z)))
             except (TypeError, ValueError): pass
         if not it or page * 300 >= (total or 0): break
