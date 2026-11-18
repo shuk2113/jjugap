@@ -2,8 +2,6 @@
 name: 수심 자료 만들기
 
 on:
-  schedule:
-    - cron: '37 18 * * *'   # 한국 새벽 3시 37분: 하루 호출 한도로 끊겼으면 이어서 받기 (다 받았으면 바로 끝)
   workflow_dispatch:
     inputs:
       mode:
