@@ -1,0 +1,52 @@
+# 지도에 없는 바다 위 방파제·도류제(OpenStreetMap man_made=breakwater|groyne)를 받아 .github/data/osm_breakwaters.json 으로 저장 (손으로만)
+# © OpenStreetMap 기여자 (ODbL)
+name: 지도 방파제 자료 받기
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+      - name: 받기
+        run: |
+          python3 - <<'PY'
+          import json, urllib.parse, urllib.request, time
+          b = '35.10,125.30,38.10,127.40'   # 앱 바다 지도(basemap) 범위
+          q = f"""[out:json][timeout:180];
+          way["man_made"~"^(breakwater|groyne)$"]({b});
+          out tags geom;"""
+          data = urllib.parse.urlencode({'data': q}).encode(); r = None
+          for url in ['https://overpass-api.de/api/interpreter', 'https://overpass.kumi.systems/api/interpreter']:
+              for k in range(2):
+                  try:
+                      r = urllib.request.urlopen(urllib.request.Request(url, data=data, headers={'User-Agent': 'jjugap-map'}), timeout=200).read(); break
+                  except Exception as e:
+                      print('실패', url, e); time.sleep(10)
+              if r: break
+          j = json.loads(r); out = []
+          for e in j['elements']:
+              g = e.get('geometry') or []
+              if len(g) < 2: continue
+              c = [[round(p['lon'], 6), round(p['lat'], 6)] for p in g]
+              t = e.get('tags', {})
+              out.append({'id': e['id'], 'k': t.get('man_made'), 'area': t.get('area') == 'yes' or (c[0] == c[-1] and len(c) >= 4), 'name': t.get('name', ''), 'c': c})
+          json.dump({'src': '© OpenStreetMap 기여자 (ODbL)', 'when': time.strftime('%Y-%m-%d'), 'ways': out}, open('.github/data/osm_breakwaters.json', 'w'), ensure_ascii=False, separators=(',', ':'))
+          print('방파제', len(out), '· 점', sum(len(w['c']) for w in out))
+          for w in out:
+              if w['id'] == 376785391: print('비응 앞:', json.dumps(w, ensure_ascii=False))
+          PY
+      - name: 저장
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add .github/data/osm_breakwaters.json
+          git diff --cached --quiet && exit 0
+          git commit -m "지도 방파제 자료 (OpenStreetMap)"
+          for i in 1 2 3; do git pull --rebase -q origin main && git push -q origin HEAD:main && break; sleep 5; done
