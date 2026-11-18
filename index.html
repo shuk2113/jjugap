@@ -324,6 +324,11 @@ html.mv-on .app *{animation-play-state:paused !important} html.mv-hide .app{visi
 .mv-dseg{display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:5px; margin-top:8px}
 .mv-dseg button{padding:9px 2px; border-radius:10px; border:1px solid var(--line); background:var(--card); color:var(--ink); font:inherit; font-size:calc(12px * var(--k)); font-weight:700; line-height:1.2; word-break:keep-all}
 .mv-dseg button.on{background:var(--ink); color:var(--card); border-color:var(--ink)}
+.mv-dkey{display:flex; flex-direction:column; align-items:flex-start; gap:5px; margin-top:10px; font-size:calc(11px * var(--k)); font-weight:600; color:var(--ink-2); font-variant-numeric:tabular-nums; line-height:1.3}
+.mv-dkey .bar{display:flex; border-radius:5px; overflow:hidden; height:12px; box-shadow:0 0 0 1px var(--line)} .mv-dkey .bar i{width:calc(40px * var(--k))}
+.mv-dkey .gr{display:block; width:calc(200px * var(--k)); height:12px; border-radius:5px; box-shadow:0 0 0 1px var(--line)}
+.mv-dkey .nums{display:flex; margin-top:-2px} .mv-dkey .nums span{width:calc(40px * var(--k))} .mv-dkey .nums.g{justify-content:space-between; width:calc(200px * var(--k))} .mv-dkey .nums.g span{width:auto}
+.mv-dkey small{font-size:calc(10.5px * var(--k)); font-weight:500}
 /* 이 일대 지난 기록: 지도 아래 판 바로 위 조용한 한 줄 (누르면 화면 전체 카드) */
 .mv-area{position:absolute; left:10px; bottom:42px; z-index:1; transform:translate3d(0,calc(-1 * var(--sheet-h, 0px)),0); transition:transform .28s cubic-bezier(.2,.85,.25,1); max-width:calc(100% - 104px); display:flex; align-items:center; gap:6px; min-height:36px; padding:6px 12px 6px 10px; border:1px solid var(--line); border-radius:18px; background:var(--card); color:var(--ink); font:inherit; font-size:calc(12.5px * var(--k)); font-weight:700; text-align:left; box-shadow:0 4px 14px rgba(0,0,0,.18); -webkit-tap-highlight-color:transparent}
 .mv-area span{display:flex; flex-direction:column; min-width:0} .mv-area b, .mv-area small{overflow:hidden; text-overflow:ellipsis; white-space:nowrap} .mv-area b{font-weight:800} .mv-area small{font-size:calc(12px * var(--k)); font-weight:700; color:var(--accent, #2F7DF6)} .mv-area i{flex:none; font-style:normal; color:var(--ink-2)}
@@ -5094,8 +5099,8 @@ const TideHarm = (() => {
       const len = nice.filter(m => m / mPerPx <= 96).pop() || 50;
       $('mv-scale').firstElementChild.style.width = Math.round(len / mPerPx) + 'px';
       $('mv-scale').lastElementChild.textContent = len >= 1000 ? `${len / 1000}km` : `${len}m`;
-      dpLegend(C);
-      { const at = $('mv-attr'), t = `지도 © OpenStreetMap 기여자${dpShown || !$('mv-dleg').hidden ? ' · 수심 국립해양조사원' : ''}`; if (at && at.textContent !== t) at.textContent = t; }
+      dpLegend();
+      { const at = $('mv-attr'), t = `지도 © OpenStreetMap 기여자${dpShown || dpVis ? ' · 수심 국립해양조사원' : ''}`; if (at && at.textContent !== t) at.textContent = t; }
       fxPlace(); fxDraw(performance.now(), fxIdle()); fxKick();
     }
     // 작은 그림판: 지도에 그린 것과 겹치는 자리(포인트·왕관·파란 점)는 비워서, 원래처럼 그 밑에 깔린 것으로 보이게
@@ -5403,29 +5408,21 @@ const TideHarm = (() => {
       g.drawImage(dpMos, (DPI.lon0 + tj0 * T - DPI.dx / 2) * KX, -(DPI.lat0 + (ti1 + 1) * T - DPI.dy / 2), (tj1 - tj0 + 1) * T * KX, (ti1 - ti0 + 1) * T);
       g.restore();
     }
-    // 지도 아래 작은 안내 (색칠을 켰고 보이는 곳에 수심 자료가 있을 때만)
-    let dlegK = '';
-    function dpLegend(C) {
-      const el = $('mv-dleg'); if (!el) return;
+    // 수심 색 안내는 지도 위에 두지 않는다 (거슬려서) → 지도 설정의 '수심 색칠' 아래에만. 지도에는 색칠이 보이는지만 기억 (출처 글씨)
+    let dpVis = false;
+    function dpLegend() {
       const inBox = DPI && v.lat > DPI.lat0 - 0.1 && v.lat < DPI.lat0 + DPI.nt[0] * DPI.tile + 0.1 && v.lon > DPI.lon0 - 0.2 && v.lon < DPI.lon0 + DPI.nt[1] * DPI.tile + 0.2;
-      const sty = DP_STY[mapSet.dp] && inBox && v.s >= DP_MIN_S ? mapSet.dp : '', k = `${sty}|${C.sea}`;
-      if (k === dlegK) { dpLegPos(); return; } dlegK = k;
-      if (!sty) { el.hidden = true; return; }
-      const sea = rgbOf(C.sea), dk = dpDarkSea(), mixA = c => (c ? [0, 1, 2].map(q => Math.round(sea[q] * (1 - c[3]) + c[q] * c[3])) : sea), mix = c => `rgb(${mixA(c).join(',')})`;
-      // 바탕 없이 막대 + 아래 작은 숫자 (지도를 덜 가리게 · 글씨는 바다색에 맞춰 밝게/어둡게 테두리)
-      el.classList.toggle('dk', dk); el.classList.toggle('lt', !dk);
-      if (sty === 'shade') el.innerHTML = `<span>바닥 굴곡 · 밝은 쪽 솟음 · 어두운 쪽 골</span>`;
-      else if (sty === 'band') el.innerHTML = `<span class="bar">${DP_BAND.map(b => `<i style="background:${mix(dpCol(b[0] + 0.1, 'band', dk))}"></i>`).join('')}</span><span class="nums"><span>0</span><span>5</span><span>10</span><span>20</span><span>30m</span></span>`;
-      else el.innerHTML = `<span class="gr" style="background:linear-gradient(90deg,${Array.from({ length: 9 }, (_, q) => mix(dpCol(0.6 + q * 5, 'smooth', dk))).join(',')})"></span><span class="nums g"><span>0</span><span>10</span><span>20</span><span>30</span><span>40m</span></span>`;
-      el.setAttribute('aria-label', sty === 'shade' ? '바닥 굴곡: 밝은 쪽 솟은 곳, 어두운 쪽 골' : '수심 색 안내 (평균 물높이 기준)');
-      el.hidden = false; dlegB = -1; dpLegPos();
+      dpVis = !!(DP_STY[mapSet.dp] && inBox && v.s >= DP_MIN_S);
     }
-    // '이 일대 지난 기록' 한 줄이 떠 있으면 그 위로 비켜 선다 (겹치지 않게)
-    let dlegB = -1;
-    function dpLegPos() {
-      const el = $('mv-dleg'), a = $('mv-area'); if (!el || el.hidden) return;
-      const b = a && !a.hidden ? 42 + a.offsetHeight + 6 : 46;
-      if (b !== dlegB) { dlegB = b; el.style.bottom = b + 'px'; }
+    const dpLegPos = () => {};
+    function dpKeyHtml(sty) {   // 설정에 보이는 색 안내 (지금 지도 바다색 위에 얹은 색 그대로)
+      if (!DP_STY[sty]) return '';
+      const sea = rgbOf(mapColors().sea), dk = dpDarkSea(), mix = c => `rgb(${(c ? [0, 1, 2].map(q => Math.round(sea[q] * (1 - c[3]) + c[q] * c[3])) : sea).join(',')})`;
+      let h;
+      if (sty === 'shade') h = `<span>밝은 쪽은 솟은 곳, 어두운 쪽은 패인 곳(골)이에요.</span>`;
+      else if (sty === 'band') h = `<span class="bar">${DP_BAND.map(b => `<i style="background:${mix(dpCol(b[0] + 0.1, 'band', dk))}"></i>`).join('')}</span><span class="nums"><span>0</span><span>5</span><span>10</span><span>20</span><span>30m</span></span>`;
+      else h = `<span class="gr" style="background:linear-gradient(90deg,${Array.from({ length: 9 }, (_, q) => mix(dpCol(0.6 + q * 5, 'smooth', dk))).join(',')})"></span><span class="nums g"><span>0</span><span>10</span><span>20</span><span>30</span><span>40m</span></span>`;
+      return `<div class="mv-dkey">${h}<small>평균 물높이 기준 · 지도를 꾹 누르면 그 자리 수심이 숫자로 떠요</small></div>`;
     }
     // 꾹 누른 자리 말풍선 · 선상 모드 내 위치 옆 숫자 (지금 물 높이를 더한 값)
     let dpBub = null, dpMeC = null;
@@ -8672,7 +8669,7 @@ const TideHarm = (() => {
           : sw('noti-tog', notiOn, '앱을 나가면 알림줄에 바로가기', '알림에서 바로 선상 모드·포인트 저장', 'noti', '선상 모드를 켠 채 나가면 알림이 생겨요. 누르면 선상 모드로, \'포인트 저장\'을 누르면 바로 저장 화면이 열려요.'))
         + `</div>`
         + `<p class="mv-setg">지도</p><div class="mv-setc"><button type="button" class="mv-row-btn" data-act="sty-open">지도 모양<span>${esc(styName(mapSty))} ›</span></button>`
-        + `<div class="mv-dset"><div class="h"><b>수심 색칠</b><small>국립해양조사원 수심 · 서해 중부(인천~군산·부안 앞바다)</small></div><div class="mv-dseg" role="group" aria-label="수심 색칠">${DP_OPTS.map(([k, n]) => `<button type="button" data-act="dp-sty" data-v="${k}" class="${(mapSet.dp || 'off') === k ? 'on' : ''}" aria-pressed="${(mapSet.dp || 'off') === k}">${n}</button>`).join('')}</div></div>`
+        + `<div class="mv-dset"><div class="h"><b>수심 색칠</b><small>국립해양조사원 수심 · 서해 중부(인천~군산·부안 앞바다)</small></div><div class="mv-dseg" role="group" aria-label="수심 색칠">${DP_OPTS.map(([k, n]) => `<button type="button" data-act="dp-sty" data-v="${k}" class="${(mapSet.dp || 'off') === k ? 'on' : ''}" aria-pressed="${(mapSet.dp || 'off') === k}">${n}</button>`).join('')}</div>${dpKeyHtml(mapSet.dp)}</div>`
         + sw('dpme-tog', mapSet.dpMe !== false, '내 위치 수심 숫자', '선상 모드에서 파란 점 옆에 ‘약 7m’', 'dpme', '선상 모드에서 GPS로 움직일 때 내 위치 옆에 지금 수심을 작게 보여요. 지도를 꾹 누르면 그 자리 수심이 말풍선으로 떠요. 지도 수심(평균 물높이 기준)에 지금 물 높이를 더한 값이에요. 국립해양조사원 격자 수심(150m 간격)이라 작은 여는 안 보이고, 덕적도 위쪽~연평도 쪽은 자료가 없어요. 해도가 아니니 항해·안전에는 쓰지 마세요.')
         + sw('mapcl-tog', mapSet.cl, '멀리 보면 묶기', '멀리 볼 때 가까운 기록을 동그라미 하나로', 'mapcl', '출조가 4번 넘게 보일 때 지도를 멀리 보면, 가까운 포인트끼리 동그라미 하나로 묶고 총 마릿수를 적어요. 제일 많이 잡은 곳은 금색이에요. 동그라미를 톡 하면 그 자리로 확대돼요. 끄면 멀리 볼 때도 경로와 포인트가 그대로 보여요.')
         + sw('mapqz-tog', mapSet.qz, '한 손 확대·축소', '두 번 톡 한 뒤 위아래로 끌기', 'mapqz', '지도를 톡 한 번 누르고, 바로 한 번 더 누른 채 손가락을 떼지 않고 아래로 끌면 확대, 위로 끌면 축소돼요. 끄면 두 번 톡은 확대만 해요.')
@@ -8885,7 +8882,7 @@ const TideHarm = (() => {
       if (a === 'rec-all') { dayFilter = null; const all = points.slice(); if (all.length) fitPts(all); if (mode === 'list') showList(); else paintPanel(true); return draw(); }
       if (a === 'noti-tog') return setNoti(!notiOn);
       if (a === 'sty-open') { selId = null; mode = 'info'; paintPanel(true); setMode('peek'); return setTimeout(styOpen, 280); }   // 판을 접어 지도가 보이게 한 뒤
-      if (a === 'dp-sty') { mapSet.dp = DP_STY[b.dataset.v] ? b.dataset.v : 'off'; mapSetSave(); bkey = ''; dlegK = ''; draw(); return showSet(); }
+      if (a === 'dp-sty') { mapSet.dp = DP_STY[b.dataset.v] ? b.dataset.v : 'off'; mapSetSave(); bkey = ''; draw(); return showSet(); }
       if (a === 'dpme-tog') { mapSet.dpMe = mapSet.dpMe === false; mapSetSave(); draw(); return showSet(); }
       if (a === 'mapcl-tog' || a === 'mapqz-tog' || a === 'mapzb-tog') { const k = a.slice(3, 5); mapSet[k] = !mapSet[k]; mapSetSave(); draw(); return showSet(); }
       if (a === 'bubble-tog') { try { NAT.setBubble(!natBubble()); } catch (_) {} return setTimeout(refreshList, 300); }
@@ -10119,7 +10116,7 @@ const TideHarm = (() => {
 
 <script>
 if ('serviceWorker' in navigator) addEventListener('load', () => {
-  const sw = navigator.serviceWorker, VER = 'fe842d7e'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
+  const sw = navigator.serviceWorker, VER = '7231272c'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
   // 화면에 손을 대기 시작했는지 (쓰는 중에는 새로 열지 않으려고)
   ['pointerdown', 'keydown'].forEach(t => addEventListener(t, () => { touched = true; }, { capture: true, passive: true }));
   const reload = () => {
