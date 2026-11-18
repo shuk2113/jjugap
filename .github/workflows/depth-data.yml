@@ -1,0 +1,56 @@
+# 서해 중부 연안 수심 조각 만들기 (국립해양조사원 BADA2024 · 150m) — 손으로 한 번(또는 이어서) 돌린다.
+name: 수심 자료 만들기
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: 'test = 응답 모양만 보기 · full = 받아서 앱 칸에 저장'
+        type: choice
+        options: [test, full]
+        default: test
+      only:
+        description: '한 조각만 (예: 35.90_126.40) · 비우면 전체'
+        type: string
+        default: ''
+
+permissions:
+  contents: write
+
+concurrency:
+  group: depth-data
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 340
+    steps:
+      - uses: actions/checkout@v5
+      - name: 앱 칸(gh-pages) 받기
+        if: ${{ inputs.mode == 'full' }}
+        uses: actions/checkout@v5
+        with:
+          ref: gh-pages
+          path: site
+      - name: 응답 모양 보기
+        if: ${{ inputs.mode == 'test' }}
+        env:
+          DATA_GO_KR_KEY: ${{ secrets.DATA_GO_KR_KEY }}
+        run: python3 .github/scripts/depth.py --test
+      - name: 수심 받기
+        if: ${{ inputs.mode == 'full' }}
+        env:
+          DATA_GO_KR_KEY: ${{ secrets.DATA_GO_KR_KEY }}
+        run: |
+          if [ -n "${{ inputs.only }}" ]; then python3 .github/scripts/depth.py site/data --only "${{ inputs.only }}"; else python3 .github/scripts/depth.py site/data; fi
+      - name: 앱 칸에 올리기
+        if: ${{ inputs.mode == 'full' && always() }}
+        working-directory: site
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/depth || true
+          git diff --cached --quiet && exit 0
+          git commit -m "수심 조각 (국립해양조사원 BADA2024)"
+          for i in 1 2 3; do git pull --rebase -q origin gh-pages && git push -q origin HEAD:gh-pages && break; sleep 5; done
