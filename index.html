@@ -344,17 +344,6 @@ html.mv-on .app *{animation-play-state:paused !important} html.mv-hide .app{visi
 .mv-grid{display:grid; grid-template-columns:1fr 1fr; gap:6px; margin:10px 0 8px}
 .mv-c{padding:7px 10px; border-radius:12px; background:var(--well); min-width:0}
 .mv-c.wide{grid-column:1 / -1}
-.mv-c.tap{position:relative; cursor:pointer} .mv-c.tap::after{content:'›'; position:absolute; right:9px; top:5px; color:var(--ink-2); font-size:calc(14px * var(--k)); font-weight:700}
-.mv-c.tap small{padding-right:12px} .mv-c i.ok{color:var(--calm)} .mv-c i.warn{color:var(--mid); font-weight:700} .mv-c i.bad{color:var(--strong); font-weight:700}
-.ar-now i{font-style:normal; font-size:calc(11.5px * var(--k)); color:var(--ink-2); line-height:1.45; font-weight:500}
-.dp-pe{display:flex; gap:6px; margin:2px 0 8px} .dp-pe button{flex:1; padding:9px 0; border-radius:11px; border:1px solid var(--line); background:var(--card); font:inherit; font-size:calc(13px * var(--k)); font-weight:700; color:var(--ink)}
-.dp-pe button.on{background:var(--ink); color:var(--card); border-color:var(--ink)}
-.dp-tb{display:flex; flex-direction:column; gap:4px; margin-top:8px}
-.dp-r{display:grid; grid-template-columns:5.2em 1fr 1fr; gap:6px; align-items:center; padding:8px 12px; border-radius:11px; border:1px solid var(--line); background:var(--card); font-size:calc(12.5px * var(--k)); font-variant-numeric:tabular-nums}
-.dp-r.h{background:none; border:0; padding:0 12px; color:var(--ink-2); font-size:calc(11px * var(--k)); font-weight:700}
-.dp-r b{font-size:calc(14px * var(--k))} .dp-r b em{font-style:normal; font-size:calc(10.5px * var(--k)); color:var(--accent, #2F7DF6); margin-left:3px}
-.dp-r .ok{color:var(--calm); font-weight:700} .dp-r .warn{color:var(--mid); font-weight:700} .dp-r .bad{color:var(--strong); font-weight:700}
-.dp-r.on{border:2px solid var(--accent, #2F7DF6); padding:7px 11px}
 .mv-c small{display:block; font-size:calc(10.5px * var(--k)); color:var(--ink-2); font-weight:500} .mv-c b{display:block; font-size:calc(13.5px * var(--k)); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; font-variant-numeric:tabular-nums}
 .mv-c i{display:block; margin-top:1px; font-style:normal; font-size:calc(10.5px * var(--k)); line-height:1.35; color:var(--ink-2); word-break:keep-all; font-variant-numeric:tabular-nums; font-weight:500}
 .mv-note{margin:0 0 10px; font-size:calc(11.5px * var(--k)); line-height:1.5; color:var(--ink-2); word-break:keep-all; font-weight:500}
@@ -5186,149 +5175,6 @@ const TideHarm = (() => {
       }
       return spotsP;
     }
-    // ---------- 수심: 국립해양조사원 BADA2024 격자 수심(150m 간격 · 평균해수면 아래 m · 공공누리 제1유형)
-    // data/depth/index.json + 조각(0.1도 = 위도 5초 72칸 × 경도 6초 60칸, int16 10cm 단위, zlib). 받은 조각은 앱을 새로 받아도
-    // 지워지지 않는 저장 칸(jjdepth-1)에 두어 바다 위에서 인터넷이 없어도 보이게 한다. 해도가 아니라 참고용.
-    const DP_CACHE = 'jjdepth-1', DP_NONE = -32768;
-    let DPI = null, dpiSt = 'idle', dpiAt = 0, dpPre = '';
-    const dpT = new Map(), dpL = new Map(), dpF = new Map();   // 풀어 둔 조각 · 받는 중 · 못 받은 시각
-    const dpBox = () => (window.caches ? caches.open(DP_CACHE).catch(() => null) : Promise.resolve(null));
-    function dpIndex() {
-      if (dpiSt === 'loading' || (DPI && Date.now() - dpiAt < 6 * 3600000) || (dpiSt === 'err' && Date.now() - dpiAt < 60000)) return;
-      dpiSt = 'loading'; dpiAt = Date.now();
-      const U = 'data/depth/index.json';
-      new Promise((res, rej) => { const t = setTimeout(() => rej(new Error('slow')), 5000);
-        fetch(U, { cache: 'no-cache' }).then(r => { clearTimeout(t); if (!r.ok) throw new Error(r.status); res(r); }).catch(e => { clearTimeout(t); rej(e); }); })
-        .then(async r => { const c = await dpBox(); if (c) c.put(U, r.clone()).catch(() => {}); return r.json(); })
-        .catch(async () => { const c = await dpBox(), h = c && await c.match(U).catch(() => null); if (!h) throw new Error('none'); return h.json(); })
-        .then(j => { if (!j || !j.tiles || !j.nt) throw new Error('bad'); DPI = { ...j, none: new Set(j.none || []), dy: j.tile / j.ny, dx: j.tile / j.nx }; dpiSt = 'ok'; dpiAt = Date.now(); dpDone(); })
-        .catch(() => { dpiSt = DPI ? 'ok' : 'err'; dpiAt = Date.now(); dpDone(); });
-    }
-    const dpDone = () => { paintPanel(true); if (dpS) dpRender(); };
-    const dpName = (ti, tj) => `${Math.round((DPI.lat0 + ti * DPI.tile) * 10)}_${Math.round((DPI.lon0 + tj * DPI.tile) * 10)}`;
-    async function dpGet(nm, n) {   // 저장해 둔 조각 먼저, 없으면 받아서 저장
-      const U = `data/depth/${nm}.bin?n=${n}`, c = await dpBox();
-      let r = c && await c.match(U).catch(() => null);
-      if (!r) { r = await fetch(U); if (!r.ok) throw new Error(r.status); if (c) await c.put(U, r.clone()).catch(() => {}); }
-      return r;
-    }
-    async function dpFetch(nm, n) {
-      if (typeof DecompressionStream !== 'function') throw new Error('no-ds');
-      const r = await dpGet(nm, n);
-      return new Int16Array(await new Response(r.body.pipeThrough(new DecompressionStream('deflate'))).arrayBuffer());
-    }
-    function dpTile(ti, tj) {   // Int16Array · null(바다 자료 없는 조각) · undefined(받는 중) · false(못 받음)
-      if (ti < 0 || tj < 0 || ti >= DPI.nt[0] || tj >= DPI.nt[1]) return null;
-      const nm = dpName(ti, tj), n = DPI.tiles[nm];
-      if (!n) return null;
-      if (dpT.has(nm)) { const a = dpT.get(nm); dpT.delete(nm); dpT.set(nm, a); return a; }
-      if (Date.now() - (dpF.get(nm) || 0) < 60000) return false;
-      if (!dpL.has(nm)) dpL.set(nm, dpFetch(nm, n).then(a => { dpT.set(nm, a); while (dpT.size > 40) dpT.delete(dpT.keys().next().value); dpF.delete(nm); })
-        .catch(() => { dpF.set(nm, Date.now()); }).finally(() => { dpL.delete(nm); dpDone(); }));
-      return undefined;
-    }
-    function depthRaw(p) {   // 지도 수심 (m, 평균해수면 아래 +) · 둘레 네 칸을 거리로 섞는다
-      if (!p) return { st: 'none' };
-      dpIndex();
-      if (!DPI) return { st: dpiSt === 'err' ? 'err' : 'load' };
-      const gi = (p.lat - DPI.lat0) / DPI.dy, gj = (p.lon - DPI.lon0) / DPI.dx;
-      if (!(gi >= 0 && gj >= 0 && gi <= DPI.nt[0] * DPI.ny - 1 && gj <= DPI.nt[1] * DPI.nx - 1)) return { st: 'out' };
-      const i0 = Math.floor(gi), j0 = Math.floor(gj), fi = gi - i0, fj = gj - j0;
-      let sw = 0, sv = 0, wait = false, fail = false;
-      const node = (I, J) => {   // 칸 값(10cm) · null(없음) — 받는 중·못 받음은 표시만
-        const a = dpTile(Math.floor(I / DPI.ny), Math.floor(J / DPI.nx));
-        if (a === undefined) { wait = true; return null; } if (a === false) { fail = true; return null; } if (!a) return null;
-        const v = a[(I % DPI.ny) * DPI.nx + (J % DPI.nx)]; return v === DP_NONE ? null : v;
-      };
-      for (const [di, dj, w] of [[0, 0, (1 - fi) * (1 - fj)], [0, 1, (1 - fi) * fj], [1, 0, fi * (1 - fj)], [1, 1, fi * fj]]) {
-        const v = node(i0 + di, j0 + dj); if (v == null) continue;
-        sw += w; sv += w * v;
-      }
-      if (wait) return { st: 'load' };
-      if (sw < 0.3) {   // 조각 가장자리에 빈 칸이 드물게 있어서: 가장 가까운 칸 둘레 한 칸(약 150m) 안 값으로
-        const I = Math.round(gi), J = Math.round(gj); let n = 0, t = 0;
-        for (let di = -1; di <= 1; di++) for (let dj = -1; dj <= 1; dj++) { if (I + di < 0 || J + dj < 0) continue; const v = node(I + di, J + dj); if (v != null) { n++; t += v; } }
-        if (wait) return { st: 'load' };
-        if (n >= 2) return { st: 'ok', d: t / n / 10 };
-        return { st: fail ? 'err' : 'land' };
-      }
-      return { st: 'ok', d: sv / sw / 10 };
-    }
-    // 그 시각 그 자리 수심 = 지도 수심(평균해수면 아래) + 그때 물 높이(평균해수면보다 위 +)
-    function depthAt(p, t, m) {
-      const r = depthRaw(p); if (r.st !== 'ok') return r;
-      if (m === undefined) m = spotTide(p);
-      let dz, msl;
-      if (m) { msl = m.msl; dz = (m.at(t).h - msl) / 100; } else { const k = nearest(p).k; msl = TideHarm.STATIONS[k].z0; dz = (TideHarm.heightAt(k, t) - msl) / 100; }
-      return { st: 'ok', dmap: r.d, dz, dn: r.d + dz, msl };
-    }
-    // 출조 때 한 번: 이 자리 둘레 80km 조각을 미리 받아 둔다 (2개씩 천천히 · 이미 받은 건 건너뜀)
-    function dpPrefetch(c) {
-      if (!DPI || !c || inFrame || navigator.onLine === false || typeof DecompressionStream !== 'function') return;
-      const key = `${DPI.v}|${c.lat.toFixed(1)},${c.lon.toFixed(1)}`; if (dpPre === key) return; dpPre = key;
-      try { const o = JSON.parse(localStorage.getItem('jjukgap-dpre') || 'null'); if (o && o.v === DPI.v && distKm(o, c) < 30) return; } catch (_) {}
-      const L = Object.keys(DPI.tiles).map(nm => { const [a, b] = nm.split('_').map(Number); return [distKm({ lat: a / 10 + DPI.tile / 2, lon: b / 10 + DPI.tile / 2 }, c), nm]; })
-        .filter(x => x[0] <= 80).sort((x, y) => x[0] - y[0]);
-      let k = 0, done = 0, ok = 0;
-      const next = () => {
-        if (k >= L.length) return;
-        const nm = L[k++][1];
-        dpGet(nm, DPI.tiles[nm]).then(() => { ok++; }).catch(() => {}).finally(() => {
-          if (++done === L.length && ok === L.length) { try { localStorage.setItem('jjukgap-dpre', JSON.stringify({ v: DPI.v, lat: c.lat, lon: c.lon })); } catch (_) {} }
-          setTimeout(next, 150);
-        });
-      };
-      next(); next();
-    }
-    // 최근 3분 GPS로 배가 흐르는 속도 (이동 중이거나 기록이 짧으면 없음)
-    function boatVel() {
-      if (!onBoard || !me || me.virtual || !autoOn) return null;
-      const t = Date.now(), Q = track.filter(q => t - q.t <= 180000);
-      if (Q.length < 2 || Q.some(q => q.run)) return null;
-      const a = Q[0], b = Q[Q.length - 1], dt = (b.t - a.t) / 1000; if (dt < 50) return null;
-      const n = (b.lat - a.lat) * 111195, e = (b.lon - a.lon) * 111195 * Math.cos(a.lat * Math.PI / 180), sp = Math.hypot(e, n) / dt;
-      return sp > 2 ? null : { e: e / dt, n: n / dt, sp };
-    }
-    // 봉돌이 바닥을 지키는 한계 (가설 계산): 줄·쇼크리더·에기가 받는 물 힘 ≤ 봉돌이 바닥을 누르는 마찰
-    //   버티는 물살 v = √(μ·W물속 / k),  k = ½ρ·Cd·(원줄 굵기 × 수심×1.2 + 쇼크리더 굵기 × 1.5m) + 에기 2개 × ½ρ·1.0·(3cm)²
-    //   줄이 받는 물살: 봉돌은 바닥에 머물고 배는 흐르니, 줄 높이 z(0~1)에서 물에 대한 줄 속도 = 배 속도·z − 조류 → 길이로 제곱 평균
-    //   = √(|배|²/3 − 배·조류 + |조류|²).  배 GPS가 없으면 배가 조류 따라 흐른다고 보고 |조류|/√3
-    const PE_D = { '0.8': 0.148e-3, '1.0': 0.165e-3 }, SK_LAD = [8, 10, 12, 14, 16, 18, 20, 25, 30, 40, 50], PE_KEY = 'jjukgap-pe';
-    const peNow = () => { let v = null; try { v = localStorage.getItem(PE_KEY); } catch (_) {} return PE_D[v] ? v : '1.0'; };
-    const knS = (ms, d = 1) => (ms * 100 / KN).toFixed(d);
-    function holdV(ho, depth, pe) {
-      const rho = 1025, Cd = 1.2, L = Math.max(3, depth * 1.2), nE = 2;
-      const k = 0.5 * rho * Cd * (PE_D[pe] * L + 0.33e-3 * 1.5) + nE * 0.5 * rho * 1.0 * 0.03 * 0.03;
-      const W = (ho * 3.75 * (1 - 1.025 / 11.3) + nE * 10) / 1000 * 9.81;
-      return Math.sqrt(0.6 * W / k);
-    }
-    function loadV(i) {   // 줄이 받는 물살 (m/s)
-      const c = i.cur; if (!c) return null;
-      const cs = c.sp / 100, r = c.dir * Math.PI / 180, ce = cs * Math.sin(r), cn = cs * Math.cos(r), b = boatVel();
-      if (!b) return { v: cs / Math.sqrt(3), cs, b: null };
-      return { v: Math.sqrt(Math.max(0, (b.e * b.e + b.n * b.n) / 3 - (b.e * ce + b.n * cn) + cs * cs)), cs, b };
-    }
-    const skNeed = (depth, v, pe) => SK_LAD.find(n => holdV(n, depth, pe) >= v) || 0;
-    const holdCls = r => (r >= 1.1 ? 'ok' : r >= 0.95 ? 'warn' : 'bad');
-    const dpMsg = st => (st === 'load' ? '받는 중…' : st === 'out' ? '이 바다 자료 없음' : st === 'land' ? '자료 없는 곳' : inFrame ? '설치한 앱에서 보여요' : '못 받았어요');
-    const dTxt = d => (d < 10 ? d.toFixed(1) : String(Math.round(d)));
-    const sgnM = z => `${z >= 0 ? '+' : '−'}${Math.abs(z).toFixed(1)}m`;
-    function dpCells(i) {
-      const pe = peNow();
-      let a = `<b>${dpMsg(i.dst)}</b>`, b = '<b>–</b>';
-      if (i.dst === 'ok') {
-        a = i.dnow < 0.3 ? `<b>물 빠짐 · 갯벌</b><i>평균 ${dTxt(i.dmap)}m · 지금 물 ${sgnM(i.dz)}</i>` : `<b>약 ${dTxt(i.dnow)}m</b><i>평균 ${dTxt(i.dmap)}m · 지금 물 ${sgnM(i.dz)}</i>`;
-        const L = i.dnow >= 0.3 ? loadV(i) : null;
-        if (i.dnow >= 0.3 && !L) b = '<b>조류 자료 없음</b>';
-        else if (L) {
-          const need = skNeed(i.dnow, L.v, pe), cur = onBoard && me && !me.virtual ? skAt(Date.now()) : 0;
-          b = `<b>${need ? `${need}호 이상` : '50호로도 떠요'}</b>`;
-          if (cur) { const c = holdCls(holdV(cur, i.dnow, pe) / Math.max(L.v, 0.01)); b += `<i class="${c}">지금 ${cur}호 · ${c === 'ok' ? '바닥 지킴' : c === 'warn' ? '아슬아슬' : '가벼울 수 있어요'}</i>`; }
-          else b += `<i>줄이 받는 물살 ${knS(L.v)}노트</i>`;
-        }
-      }
-      return `<div class="mv-c tap" data-act="dp-open"><small>수심 · 참고</small>${a}</div><div class="mv-c tap" data-act="dp-open"><small>바닥 지킬 봉돌 · PE${pe}</small>${b}</div>`;
-    }
     // 이 자리 물 높이: 가까운 바다 격자 3곳(8km 안)을 거리로 섞는다. 격자마다 '기준 관측소 예측 × 조고비, 조시차만큼 늦춤'
     function spotTide(p) {
       if (!SP) return null;
@@ -5345,7 +5191,7 @@ const TideHarm = (() => {
           for (const q of parts) { const r = TideHarm.atSt(q.ref.m, ms - q.js); h += q.w * (q.msl + q.jogo * (r.h - q.ref.msl)); dh += q.w * q.jogo * r.dh; }
           return { h, dh };
         };
-        m = { at, d: use[0].d, ref: parts[0].ref.name, ex: new Map(), msl: parts.reduce((a, q) => a + q.w * q.msl, 0) };
+        m = { at, d: use[0].d, ref: parts[0].ref.name, ex: new Map() };
       }
       if (spCache.size > 80) spCache.clear();
       spCache.set(key, m);
@@ -5471,8 +5317,6 @@ const TideHarm = (() => {
         i.stand = ne ? (ne.type === 'H' ? '만조 · 정조' : '간조 · 정조') : null;
         i.spot = { d: m.d, ref: m.ref };
       }
-      const D = depthAt(p, now, m); i.dst = D.st;
-      if (D.st === 'ok') { i.dmap = D.dmap; i.dz = D.dz; i.dnow = D.dn; i.msl = D.msl; }
       // 조류: 조류예보 지점이 8km 안이면 그 표 값, 아니면 이 자리 모델 예측(ROMS), 둘 다 없으면 먼 지점 표 값
       const cc = spotCur(p), rc = seaCell(p, 8), ro = rc && romsAt(rc.c, now);
       if (cc && (cc.d <= 8 || !ro)) {
@@ -5547,10 +5391,8 @@ const TideHarm = (() => {
       const csrc = (c ? (c.model ? ' 조류: 수치예측모델(ROMS) 값 — 시각은 잘 맞지만 세기는 다를 수 있어요.'
         : ` 조류: 가장 가까운 조류예보 지점 값${c.d > 8 ? ` (${kmTxt(c.d)} 떨어져 다를 수 있어요)` : ''}.`) : '')
         + (i.wtModel ? ' 수온: 모델 예측이라 관측과 1℃쯤 다를 수 있어요.' : '') + (SP ? ' 화살표: 진한 것 조류예보 지점, 옅은 것 모델.' : '')
-        + (i.dst === 'ok' ? ' 수심: 국립해양조사원 BADA2024 격자 수심(150m)에 지금 물 높이를 더한 참고값 — 해도가 아니에요.' : '')
         + ' 낚시 정보 확인용이며 항해·안전에는 쓰지 마세요.';
       areaChip(me);
-      if (onBoard && !me.virtual && DPI) dpPrefetch(me);
       const skRow = skNowRow();   // 선상 모드에서 봉돌이 둘 이상이면 좌표 자리에 '봉돌' 단추 (판을 내려 둬도 보이게)
       panel.innerHTML = (viewMode ? recSummary() : '') + `
         <div class="mv-where"><b>${esc(whereTxt(me, i.k))}</b>${skRow || `<span>${dm(me.lat, 'N', 'S')} ${dm(me.lon, 'E', 'W')}</span>`}</div>
@@ -5564,7 +5406,6 @@ const TideHarm = (() => {
           <div class="mv-c"><small>바람 · 파도${i.wxSpot != null ? ' · 이 바다' : ''}</small><b>${i.wind == null ? '예보 없음' : `${i.vec == null ? '' : wxDir(i.vec).replace(/풍$/, '') + ' '}${i.wind}m/s${i.wave == null ? '' : ` · ${i.wave.toFixed(1)}m`}`}</b></div>
           <div class="mv-c"><small>수온${i.wtName ? ` · ${esc(i.wtName)}` : ''}</small><b>${i.wt == null ? '자료 없음' : `${i.wt.toFixed(1)}℃`}</b>${i.wtModel && i.wtObs ? `<i>관측 ${esc(i.wtObs.name)} ${i.wtObs.w.toFixed(1)}℃ · ${kmTxt(i.wtObs.d)}</i>` : ''}</div>
           <div class="mv-c"><small>다음 최강 조류</small><b>${c && c.peak ? `${tod(c.peak.ms)} · ${knTxt(c.peak.sp)}` : '–'}</b></div>
-          ${dpCells(i)}
         </div>
         <p class="mv-note">${skRow ? `${dm(me.lat, 'N', 'S')} ${dm(me.lon, 'E', 'W')} · ` : ''}${src}${csrc}${wx}</p>`;
     }
@@ -7906,56 +7747,6 @@ const TideHarm = (() => {
       h += `<p class="bk-none">내 기록을 모아 보여 주는 거예요. 물살·물색은 그날 바다를 보고 판단해 주세요.</p>`;
       arEl.innerHTML = `<div class="cv-in">${head}${h}</div>`;
     }
-    let dpS = null, dpEl = null;
-    function dpOpen() {
-      if (!me) return;
-      if (!dpEl) {
-        dpEl = document.createElement('div'); dpEl.className = 'cardv bookv'; dpEl.id = 'dpv'; dpEl.hidden = true;
-        dpEl.setAttribute('role', 'dialog'); dpEl.setAttribute('aria-modal', 'true'); dpEl.setAttribute('aria-label', '수심 · 봉돌 계산');
-        document.body.appendChild(dpEl);
-        dpEl.addEventListener('click', e => {
-          const b = e.target.closest('[data-b]'); if (!b) return;
-          if (b.dataset.b === 'x') return dpClose();
-          if (b.dataset.b === 'pe') { try { localStorage.setItem(PE_KEY, b.dataset.v); } catch (_) {} dpRender(); paintPanel(true); }
-        });
-      }
-      dpS = { t: Date.now() }; dpEl.hidden = false; document.documentElement.classList.add('cv-lock');
-      if (useHist) { try { history.pushState({ dpv: 1 }, ''); } catch (_) {} }
-      dpRender(); dpEl.scrollTop = 0;
-    }
-    function dpClose(fromPop) {
-      if (!dpS) return; dpS = null; dpEl.hidden = true;
-      if (!cardS && !portS && !bookS && !arS) document.documentElement.classList.remove('cv-lock');
-      if (useHist && !fromPop && history.state && history.state.dpv) { skipPop = true; history.back(); }
-    }
-    function dpRender() {
-      if (!dpS || !dpEl || !me) return;
-      const i = infoAt(me), pe = peNow(), now = Date.now(), d0 = dayStartOf(Math.floor((now + 9 * 3600000) / DAY));
-      const tod = ms => { const k = Math.floor((ms - d0) / DAY); return `${k === 1 ? '내일 ' : k > 1 ? '모레 ' : ''}${ampm((ms - d0) / 60000 - k * 1440)}`; };
-      const head = `<div class="cv-h"><button type="button" class="cv-x" data-b="x" aria-label="닫기"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button><b>수심 · 봉돌 계산</b></div>`;
-      let h = `<p class="ar-sub">${esc(whereTxt(me, i.k))}${me.virtual ? ' (지도에서 가정한 자리)' : ''} · 자료로 셈한 가설이에요</p>`;
-      if (i.dst !== 'ok') h += `<p class="bk-none">수심: ${dpMsg(i.dst)}${i.dst === 'out' ? ' — 지금은 서해 중부(인천~군산·부안 앞바다)만 넣어 두었어요.' : ''}</p>`;
-      else {
-        const ex = i.ex, exD = ex ? i.dmap + (ex.h - i.msl) / 100 : null;
-        h += `<div class="ar-now"><small>지금 수심 (참고)</small><b>${i.dnow < 0.3 ? '물 빠짐 · 갯벌' : `약 ${dTxt(i.dnow)}m`}</b><i>평균 물높이일 때 ${dTxt(i.dmap)}m · 지금 물은 평균보다 ${sgnM(i.dz)}${ex ? `<br>다음 ${ex.type === 'H' ? '만조' : '간조'}(${tod(ex.ms)}) 땐 ${exD < 0.3 ? '물 빠짐' : `약 ${dTxt(exD)}m`}` : ''}</i></div>`;
-        h += `<p class="bk-h4">봉돌 · 바닥을 지키는지</p>`;
-        h += `<div class="dp-pe" role="group" aria-label="원줄 굵기">${['0.8', '1.0'].map(v => `<button type="button" data-b="pe" data-v="${v}" class="${v === pe ? 'on' : ''}" aria-pressed="${v === pe}">원줄 PE ${v}호</button>`).join('')}</div>`;
-        const L = i.dnow >= 0.3 ? loadV(i) : null;
-        if (!L) h += `<p class="bk-none">${i.dnow < 0.3 ? '물이 빠진 곳이라 계산하지 않았어요.' : '이 자리 조류 자료가 없어 계산하지 못했어요.'}</p>`;
-        else {
-          const cur = onBoard && !me.virtual ? skAt(now) : 0;
-          h += `<div class="ar-now"><small>줄이 받는 물살</small><b>${knS(L.v, 2)}노트</b><i>조류 ${knS(L.cs)}노트${L.b ? ` · 배 흐름(GPS 3분) ${knS(L.b.sp)}노트` : ' · 배가 조류 따라 흐른다고 봤어요'}</i></div>`;
-          h += `<div class="dp-tb"><div class="dp-r h"><span>봉돌</span><span>버티는 물살</span><span>지금 물살엔</span></div>` + SK_LAD.filter(n => n <= 40).map(n => {
-            const hv = holdV(n, i.dnow, pe), c = holdCls(hv / Math.max(L.v, 0.01));
-            return `<div class="dp-r${n === cur ? ' on' : ''}"><b>${n}호${n === cur ? '<em>지금</em>' : ''}</b><span>${knS(hv, 2)}노트</span><span class="${c}">${c === 'ok' ? '바닥 지킴' : c === 'warn' ? '아슬아슬' : '뜰 수 있어요'}</span></div>`;
-          }).join('') + `</div>`;
-          h += `<p class="bk-none">‘버티는 물살’보다 ‘줄이 받는 물살’이 세면 봉돌이 바닥에서 들려 끌려요. 봉돌을 2호 올려도 버티는 물살은 5%쯤만 늘어요.</p>`;
-        }
-      }
-      h += `<p class="bk-none">계산 가정: 에기 2개(봉돌 쪽 1 · 가짓줄 1) · 쇼크리더 4호 1.5m · 물속 줄 길이 = 수심의 1.2배 · 바닥 마찰 0.6. 선장님 말씀과 다르면 바닥 닿는 느낌을 같이 보세요.</p>`;
-      h += `<p class="bk-none">수심: 국립해양조사원 BADA2024 격자 수심(150m 간격, 공공누리 제1유형)에 지금 물 높이(해양조사원 TideBED)를 더했어요. 해도가 아니니 항해·안전에는 쓰지 마세요.</p>`;
-      dpEl.innerHTML = `<div class="cv-in">${head}${h}</div>`;
-    }
     function cardClick(e) {
       const b = e.target.closest('[data-c]'); if (!b || !cardS) return; const c = b.dataset.c, s = cardS;
       if (c === 'x') return cardClose();
@@ -8788,7 +8579,7 @@ const TideHarm = (() => {
           ${p.good ? '<div class="mv-c wide"><small>출조 정리</small><b>👍 잘 나온 곳</b></div>' : ''}
         </div>
         ${(() => { let D = null; try { D = areaData(p); } catch (_) {} return D && D.trips.length ? `<button type="button" class="mv-areab" data-act="area" data-id="${p.id}"><span>${esc(D.line)}</span><i aria-hidden="true">›</i></button>` : ''; })()}
-        <p class="mv-note">${p.stayFrom ? `${ampm(kstMin(p.stayFrom))}~${ampm(kstMin(p.stayTo || p.t))} 머문 곳 · ` : ''}${p.memo ? esc(p.memo) + ' · ' : ''}${dm(p.lat, 'N', 'S')} ${dm(p.lon, 'E', 'W')}${(() => { const D = depthAt(p, p.t); return D.st === 'ok' && D.dn >= 0.3 ? ` · 그때 수심 약 ${dTxt(D.dn)}m` : ''; })()}${p.wind == null ? '' : ` · 바람 ${p.wind}m/s`}${p.wave == null ? '' : ` · 파도 ${p.wave.toFixed(1)}m`}</p>
+        <p class="mv-note">${p.stayFrom ? `${ampm(kstMin(p.stayFrom))}~${ampm(kstMin(p.stayTo || p.t))} 머문 곳 · ` : ''}${p.memo ? esc(p.memo) + ' · ' : ''}${dm(p.lat, 'N', 'S')} ${dm(p.lon, 'E', 'W')}${p.wind == null ? '' : ` · 바람 ${p.wind}m/s`}${p.wave == null ? '' : ` · 파도 ${p.wave.toFixed(1)}m`}</p>
         <div class="mv-btns">${ask ? `<button class="del" data-act="del-yes" data-id="${p.id}">정말 지우기</button><button data-act="pick" data-id="${p.id}">그대로 두기</button>`
           : `<button class="pri" data-act="edit" data-id="${p.id}">고치기</button><button data-act="list">목록</button><button class="del" data-act="del" data-id="${p.id}">지우기</button><button data-act="back">닫기</button>`}</div>`;
       draw();
@@ -8821,7 +8612,6 @@ const TideHarm = (() => {
       if (a === 'swdel') return delPoint(b.dataset.id, b.closest('.mv-row'));
       if (rigTap(a, b)) { if (mode === 'sum') skPaint(); return; }
       if (a === 'sk-now') return skNowTap(+b.dataset.n);
-      if (a === 'dp-open') return dpOpen();
       if (a === 'area') { const p = points.find(q => q.id === b.dataset.id); if (p) areaOpen({ lat: p.lat, lon: p.lon }, `${when(p.t)} 포인트 근처`); return; }
       if (a === 'sk-row') return skRowTap(b.dataset.id);
       if (a === 'sum') return openSum(b.dataset.k, false);
@@ -9145,7 +8935,6 @@ const TideHarm = (() => {
     // GPS 한 번마다: 바다에 나갔는지, 항구·육지에 돌아와 얼마나 있었는지 (시각은 GPS 시각으로 → 화면이 꺼져 있던 동안 모인 것도 순서대로)
     function boardFeed(fix) {
       if (!onBoard || !board || !fix || fix.virtual || !(fix.acc <= 100)) return;
-      try { dpIndex(); if (DPI) dpPrefetch(fix); } catch (_) {}
       const t = fix.t || Date.now(), land = onLand(fix.lat, fix.lon), inPort = land === true || nearAnyPort(fix);
       if (inPort) {
         seaFrom = 0;
@@ -9627,10 +9416,10 @@ const TideHarm = (() => {
     // 앱을 열면 조금 뒤 지도용 자료도 받아 둔다 (바다 위에서 인터넷이 끊겨도 저장해 둔 것으로 보이게)
     if (!inFrame) setTimeout(loadSpots, 3500);
     if (!inFrame) setTimeout(() => (window.requestIdleCallback || (f => setTimeout(f, 0)))(() => loadLand(), { timeout: 4000 }), 5000);
-    addEventListener('popstate', () => { if (skipPop) { skipPop = false; return; } if (dpS) { if (!(history.state && history.state.dpv)) dpClose(true); return; } if (arS) { if (!(history.state && history.state.arv)) areaClose(true); return; } if (bookS) { if (bookS.sel && !(history.state && history.state.bookd)) { bookS.sel = null; bookRender(); } else if (!(history.state && history.state.bookv)) bookClose(true); return; } if (portS) { portClose(true); return; } if (cardS) { cardClose(true); return; } if (isOpen) close(true); });
+    addEventListener('popstate', () => { if (skipPop) { skipPop = false; return; } if (arS) { if (!(history.state && history.state.arv)) areaClose(true); return; } if (bookS) { if (bookS.sel && !(history.state && history.state.bookd)) { bookS.sel = null; bookRender(); } else if (!(history.state && history.state.bookv)) bookClose(true); return; } if (portS) { portClose(true); return; } if (cardS) { cardClose(true); return; } if (isOpen) close(true); });
     document.addEventListener('keydown', e => { if (e.key !== 'Escape') return; if (arS) areaClose(); else if (portS) portClose(); else if (cardS) cardClose(); else if (isOpen) close(); });
     // 안드로이드 앱의 뒤로 단추: 저절로 열린 판(출조 정리·카드 등)은 웹 화면의 '뒤로 가기'가 건너뛰어 앱이 꺼지므로, 앱이 먼저 물어본다
-    window.jjugapBack = () => { if (window.jjugapRigEd && window.jjugapRigEd()) return true; const s = history.state; if (s && (s.dpv || s.arv || s.bookv || s.mapv || s.cardv || s.portv || s.stSheet || s.pcal || s.palv || s.spv)) { history.back(); return true; } return false; };
+    window.jjugapBack = () => { if (window.jjugapRigEd && window.jjugapRigEd()) return true; const s = history.state; if (s && (s.arv || s.bookv || s.mapv || s.cardv || s.portv || s.stSheet || s.pcal || s.palv || s.spv)) { history.back(); return true; } return false; };
     { const pb = $('pk-btn'); if (pb) pb.onclick = async () => portOpen(await portIdxFor(tideSt)); }
     // 바다 위(인터넷 약함)에서도 열리게: 지금 출항지의 항구 자료를 미리 받아 둔다 (sw.js 가 저장)
     let portWarmK = '';
@@ -10044,7 +9833,7 @@ const TideHarm = (() => {
 
 <script>
 if ('serviceWorker' in navigator) addEventListener('load', () => {
-  const sw = navigator.serviceWorker, VER = 'f14028d0'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
+  const sw = navigator.serviceWorker, VER = '5d8b9a56'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
   // 화면에 손을 대기 시작했는지 (쓰는 중에는 새로 열지 않으려고)
   ['pointerdown', 'keydown'].forEach(t => addEventListener(t, () => { touched = true; }, { capture: true, passive: true }));
   const reload = () => {

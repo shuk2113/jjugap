@@ -1,5 +1,5 @@
 // 쭈갑이 물때 오프라인 지원: 앱 화면은 인터넷이 되면 새로 받고, 안 되면 저장해 둔 것으로 연다
-const CACHE = 'jjugap-f14028d0';
+const CACHE = 'jjugap-5d8b9a56';
 const CORE = ['./', './index.html', './manifest.webmanifest', './icon-192.png', './icon-512.png', './icon-180.png', './sc-save.png', './sc-map.png', './badge-96.png', './data/basemap.json', './data/spots.json', './data/ports.json'];
 const FIXED = ['/data/basemap.json', '/data/spots.json', '/data/ports.json', '/data/coast.json'];   // 앱과 함께 바뀌는 고정 자료 (바다 지도, 이 자리 계산 자료)
 // 새 버전을 받을 때는 브라우저가 묵혀 둔 사본(깃허브는 10분)을 건너뛰고 서버에서 바로 받는다
@@ -22,7 +22,6 @@ self.addEventListener('fetch', e => {
   const req = e.request; if (req.method !== 'GET') return;
   const url = new URL(req.url);
   if (url.origin === location.origin && url.pathname.includes('/app/')) return;   // 안드로이드 앱 파일은 저장해 두지 않는다 (늘 새것을 받게)
-  if (url.origin === location.origin && url.pathname.includes('/data/depth/')) return;   // 수심 조각은 앱이 따로(지워지지 않는 칸에) 저장한다
   const fixed = url.origin === location.origin && FIXED.find(f => url.pathname.endsWith(f));
   if (fixed) {
     // 해안선·이 자리 계산 자료는 앱을 새로 받을 때만 바뀌니 저장해 둔 것을 먼저 (바다 위에서 인터넷이 없어도 보이게)
