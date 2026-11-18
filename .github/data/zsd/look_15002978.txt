@@ -1,0 +1,9 @@
+page 159301 bytes · uddi ['uddi:96d28555-681c-457b-a509-c3417fe00b74']
+js: fileDataDown('15002978', 'uddi:96d28555-681c-457b-a509-c3417fe00b74', '','1', '3')">
+select uddi:96d28555-681c-457b-a509-c3417fe00b74: {"dataSetFileDetailInfo":{"rn":"","searchCondition1":"","searchCondition2":"","searchCondition3":"","searchCondition1Array":null,"searchCondition2Array":null,"searchCondition3Array":null,"searchKeyword1":"","searchKeyword2":"","searchKeyword3":"","searchKeywordFrom1":"","searchKeywordTo1":"","search
+받음 7020791 bytes · attachment; filename="2024ë_í´ìíê²½_ì ë³´.hwpx"
+zip: mimetype, version.xml, Contents/header.xml, BinData/image1.bmp, BinData/image2.gif, BinData/image3.jpg, BinData/image4.jpg, BinData/image5.jpg, BinData/image6.jpg, BinData/image7.bmp
+글자 utf-8-sig · 줄 1
+> application/hwp+zip
+항목: application/hwp+zip
+전체 0 · 서해 0 · 서해 투명도 있음 0 · 서해 정점 0 · 기간 [] ~ []
