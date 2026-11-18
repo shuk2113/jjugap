@@ -313,7 +313,15 @@ html.mv-on .app *{animation-play-state:paused !important} html.mv-hide .app{visi
 .mv-grab i{width:40px; height:5px; border-radius:3px; background:var(--ink-2); opacity:.32}
 .mv-grab:focus-visible{outline:2px solid #2F7DF6; outline-offset:-4px; border-radius:18px 18px 0 0}
 .mv-panel{position:relative; flex:none; max-height:46vh; overflow-y:auto; padding:2px 14px calc(12px + env(safe-area-inset-bottom, 0px)); overscroll-behavior:contain}
-.mv-panel.sized{max-height:none} .mv-drag .mv-scale, .mv-drag .mv-attr, .mv-drag .mv-area{transition:none}
+.mv-panel.sized{max-height:none} .mv-drag .mv-scale, .mv-drag .mv-attr, .mv-drag .mv-area, .mv-drag .mv-dleg{transition:none}
+.mv-dleg{position:absolute; left:10px; bottom:46px; transform:translate3d(0,calc(-1 * var(--sheet-h, 0px)),0); transition:transform .28s cubic-bezier(.2,.85,.25,1); padding:5px 8px 4px; border-radius:9px; background:var(--map-card, var(--card)); color:var(--map-ink, var(--ink)); font-size:calc(9.5px * var(--k)); font-weight:700; line-height:1.3; pointer-events:none; box-shadow:0 1px 4px rgba(0,0,0,.2)}
+.mv-dleg[hidden]{display:none} .mv-dleg small{display:block; font-weight:500; opacity:.85}
+.mv-dleg .sw{display:flex; margin:3px 0 1px; border-radius:3px; overflow:hidden; height:8px; width:140px} .mv-dleg .sw i{flex:1}
+.mv-dleg .lb{display:grid; grid-template-columns:repeat(5,1fr); width:140px; font-weight:500; opacity:.85; font-variant-numeric:tabular-nums} .mv-dleg .lb.g{display:flex; justify-content:space-between}
+.mv-dset{padding:10px 12px 12px} .mv-dset .h b{display:block; font-size:calc(14px * var(--k))} .mv-dset .h small{display:block; margin-top:1px; font-size:calc(11.5px * var(--k)); color:var(--ink-2); font-weight:500}
+.mv-dseg{display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:5px; margin-top:8px}
+.mv-dseg button{padding:9px 2px; border-radius:10px; border:1px solid var(--line); background:var(--card); color:var(--ink); font:inherit; font-size:calc(12px * var(--k)); font-weight:700; line-height:1.2; word-break:keep-all}
+.mv-dseg button.on{background:var(--ink); color:var(--card); border-color:var(--ink)}
 /* 이 일대 지난 기록: 지도 아래 판 바로 위 조용한 한 줄 (누르면 화면 전체 카드) */
 .mv-area{position:absolute; left:10px; bottom:42px; z-index:1; transform:translate3d(0,calc(-1 * var(--sheet-h, 0px)),0); transition:transform .28s cubic-bezier(.2,.85,.25,1); max-width:calc(100% - 104px); display:flex; align-items:center; gap:6px; min-height:36px; padding:6px 12px 6px 10px; border:1px solid var(--line); border-radius:18px; background:var(--card); color:var(--ink); font:inherit; font-size:calc(12.5px * var(--k)); font-weight:700; text-align:left; box-shadow:0 4px 14px rgba(0,0,0,.18); -webkit-tap-highlight-color:transparent}
 .mv-area span{display:flex; flex-direction:column; min-width:0} .mv-area b, .mv-area small{overflow:hidden; text-overflow:ellipsis; white-space:nowrap} .mv-area b{font-weight:800} .mv-area small{font-size:calc(12px * var(--k)); font-weight:700; color:var(--accent, #2F7DF6)} .mv-area i{flex:none; font-style:normal; color:var(--ink-2)}
@@ -1385,7 +1393,8 @@ window.jjFunFont = function () { if (document.getElementById('fun-font')) return
       <button id="mv-pnm" class="mini" type="button" aria-pressed="false" aria-label="항구 이름 숨기기"><svg viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="4.9" r="2.1"/><path d="M12 7v13.4M8.6 10.3h6.8M4.9 13.4c.6 4.2 3.6 7 7.1 7s6.5-2.8 7.1-7M3.4 14.8l1.5-1.4 1.6 1.3M17.5 14.7l1.6-1.3 1.5 1.4"/></g><path class="sl" d="M4 20L20 4" stroke="var(--card)" stroke-width="5" stroke-linecap="round"/><path class="sl" d="M4 20L20 4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
     </div>
     <div class="mv-scale" id="mv-scale"><i></i><span></span></div>
-    <div class="mv-attr">지도 © OpenStreetMap 기여자</div>
+    <div class="mv-dleg" id="mv-dleg" hidden></div>
+    <div class="mv-attr" id="mv-attr">지도 © OpenStreetMap 기여자</div>
     <button class="mv-fab" id="mv-save" type="button" aria-label="포인트 저장 (꾹 누르면 자리를 옮길 수 있어요)"><span><b><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21.3s-6.6-5.9-6.6-11.3a6.6 6.6 0 0 1 13.2 0c0 5.4-6.6 11.3-6.6 11.3z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M12 7v6M9 10h6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg></b><em>포인트 저장</em></span></button>
     <button class="mv-area" id="mv-area" type="button" hidden></button>
     <div class="mv-toast" id="mv-toast" hidden></div>
@@ -4240,7 +4249,7 @@ const TideHarm = (() => {
     // 지금 화면에서 본 바탕 그림의 배율·위치
     const baseXf = () => { const k = v.s / bv.s; return { k, tx: W / 2 * (1 - k) + (bv.lon - v.lon) * KX * v.s, ty: H / 2 * (1 - k) - (bv.lat - v.lat) * v.s }; };
     function renderBase(C, font) {
-      const okey = [W, H, dpr, C.sea, C.land, C.shallow, landState, mapSty].join('|');
+      const okey = [W, H, dpr, C.sea, C.land, C.shallow, landState, mapSty, mapSet.dp].join('|');
       // 손으로 움직이는 중에 새로 그릴 때는 낮은 해상도로 빠르게 (이름표는 따로 또렷하게 그리니 흐려 보이지 않는다). 손을 떼면 또렷하게 다시
       const R = interacting ? Math.min(dpr, 1.25) : dpr;
       const key = [v.lon, v.lat, v.s, okey, R].join('|');
@@ -4273,7 +4282,7 @@ const TideHarm = (() => {
       const lands = vis(basemap.L[lod]), flats = vis(basemap.F[lod]), waters = vis(basemap.W[lod]);
       const merge = cs => { if (cs.length === 1) return cs[0].p; const pp = new Path2D(); for (const c of cs) pp.addPath(c.p); return pp; };
       const landP = merge(lands), coastP = basemap.K ? merge(vis(basemap.K[lod])) : landP;   // 해안선(K)은 칸 경계선을 뺀 진짜 바닷가만
-      if (mapSty !== 'base' && msBase(g, R, landP, coastP, flats.length ? merge(flats) : null, waters.length ? merge(waters) : null, wr, lr)) return;   // 지도 모양
+      if (mapSty !== 'base' && msBase(g, R, landP, coastP, flats.length ? merge(flats) : null, waters.length ? merge(waters) : null, wr, lr)) { dpLayer(g, R, landP, vx0, vx1, vy0, vy1); return; }   // 지도 모양
       g.save(); g.setTransform(R * v.s, 0, 0, R * v.s, R * (BM + W / 2 - v.lon * KX * v.s), R * (BM + H / 2 + v.lat * v.s));
       g.lineJoin = 'round'; g.lineCap = 'round';
       // 해안 가까운 얕은 물: 육지 둘레를 넓게 두 번 그어 바깥으로 갈수록 옅어지게
@@ -4290,6 +4299,7 @@ const TideHarm = (() => {
       // 방조제 안 호수·저수지·큰 강은 물빛으로 (가장자리는 해안선처럼 가늘게)
       if (waters.length) { const wp = merge(waters); g.fillStyle = C.sea; g.fill(wp, 'evenodd'); g.lineWidth = 0.7 * lr / v.s; g.stroke(wp); }
       g.restore();
+      dpLayer(g, R, landP, vx0, vx1, vy0, vy1);   // 수심 색칠 (켰을 때만)
     }
     // ---------- 섬·만·항구 이름표: 늘 같은 자리에 박혀 있게
     // 섬 이름은 섬 가운데, 항구 이름은 항구 점 오른쪽에 붙어서 지도와 함께만 움직인다 (위치·방향을 바꾸지 않는다).
@@ -4541,7 +4551,7 @@ const TideHarm = (() => {
     }
     // ---------- 기록이 많아져도 지도가 깔끔하게: 골라 보기(오른쪽 '겹친 종이' 단추) · 멀리 보면 묶기 · 한 손 확대·축소
     const MAP_SET = 'jjukgap-map-set';   // { cl: 묶기, qz: 한 손 확대·축소, zb: + − 단추 }
-    const mapSet = (() => { const d = { cl: true, qz: true, zb: false }; try { return { ...d, ...(JSON.parse(localStorage.getItem(MAP_SET) || '{}') || {}) }; } catch (_) { return d; } })();
+    const mapSet = (() => { const d = { cl: true, qz: true, zb: false, dp: 'off', dpMe: true }; try { return { ...d, ...(JSON.parse(localStorage.getItem(MAP_SET) || '{}') || {}) }; } catch (_) { return d; } })();
     const mapSetSave = () => { try { localStorage.setItem(MAP_SET, JSON.stringify(mapSet)); } catch (_) {} $('mv-map').classList.toggle('zbtn', !!mapSet.zb); };
     $('mv-map').classList.toggle('zbtn', !!mapSet.zb);
     let flt = 'all'; try { const q = localStorage.getItem('jjukgap-map-flt'); if (['r3', 'mul', 'season', 'all'].includes(q)) flt = q; } catch (_) {}
@@ -4887,7 +4897,7 @@ const TideHarm = (() => {
     function drawNow() {
       { const ab = document.getElementById('mv-area'); if (ab && !ab.hidden && mode !== 'info') ab.hidden = true; }   // 판이 정보 말고 다른 걸 보여 주면 한 줄은 숨김
       if (!isOpen || !W) return;
-      fxItems = [];
+      fxItems = []; let dpShown = false;
       const C = mapColors(), font = fontC || (fontC = getComputedStyle(document.body).fontFamily);
       renderBase(C, font);
       const { k, tx, ty } = baseXf();
@@ -5062,6 +5072,8 @@ const TideHarm = (() => {
         if (!me.virtual) fxItems.push({ g: 0, x, y });   // 물결은 위 그림판에서 (fxDraw)
         ctx.fillStyle = me.virtual ? '#8A5CF6' : ME; ctx.strokeStyle = '#FFFFFF'; ctx.lineWidth = 3;
         ctx.beginPath(); ctx.arc(x, y, 7.5, 0, 2 * Math.PI); ctx.fill(); ctx.stroke();
+        if (!me.virtual && onBoard && mapSet.dpMe !== false) { const D = dpMeVal(); if (D.st === 'ok') { dpPill(x + 11, y + 12, D.dn < 0.3 ? '물 빠짐' : `약 ${dTxt(D.dn)}m`, font, C); dpShown = true; } }   // 선상 모드: 지금 수심
+        if (me.virtual && dpBub && dpBub.lat === me.lat && dpBub.lon === me.lon) { dpBubble(x, y, font, C); dpShown = true; }   // 꾹 누른 자리 말풍선
       }
       // 출항지 고르기: 가운데 + 표시
       if (mode === 'pick') {
@@ -5078,6 +5090,8 @@ const TideHarm = (() => {
       const len = nice.filter(m => m / mPerPx <= 96).pop() || 50;
       $('mv-scale').firstElementChild.style.width = Math.round(len / mPerPx) + 'px';
       $('mv-scale').lastElementChild.textContent = len >= 1000 ? `${len / 1000}km` : `${len}m`;
+      dpLegend(C);
+      { const at = $('mv-attr'), t = `지도 © OpenStreetMap 기여자${dpShown || !$('mv-dleg').hidden ? ' · 수심 국립해양조사원' : ''}`; if (at && at.textContent !== t) at.textContent = t; }
       fxPlace(); fxDraw(performance.now(), fxIdle()); fxKick();
     }
     // 작은 그림판: 지도에 그린 것과 겹치는 자리(포인트·왕관·파란 점)는 비워서, 원래처럼 그 밑에 깔린 것으로 보이게
@@ -5175,6 +5189,244 @@ const TideHarm = (() => {
       }
       return spotsP;
     }
+    // ---------- 수심: 국립해양조사원 BADA2024 격자 수심(150m 간격 · 평균해수면 아래 m · 공공누리 제1유형)
+    // data/depth/index.json + 조각(0.1도 = 위도 5초 72칸 × 경도 6초 60칸, int16 10cm 단위, zlib). 받은 조각은 앱을 새로 받아도
+    // 지워지지 않는 저장 칸(jjdepth-1)에 두어 바다 위에서 인터넷이 없어도 보이게 한다. 해도가 아니라 참고용.
+    const DP_CACHE = 'jjdepth-1', DP_NONE = -32768;
+    let DPI = null, dpiSt = 'idle', dpiAt = 0, dpPre = '';
+    const dpT = new Map(), dpL = new Map(), dpF = new Map();   // 풀어 둔 조각 · 받는 중 · 못 받은 시각
+    const dpBox = () => (window.caches ? caches.open(DP_CACHE).catch(() => null) : Promise.resolve(null));
+    function dpIndex() {
+      if (dpiSt === 'loading' || (DPI && Date.now() - dpiAt < 6 * 3600000) || (dpiSt === 'err' && Date.now() - dpiAt < 60000)) return;
+      dpiSt = 'loading'; dpiAt = Date.now();
+      const U = 'data/depth/index.json';
+      new Promise((res, rej) => { const t = setTimeout(() => rej(new Error('slow')), 5000);
+        fetch(U, { cache: 'no-cache' }).then(r => { clearTimeout(t); if (!r.ok) throw new Error(r.status); res(r); }).catch(e => { clearTimeout(t); rej(e); }); })
+        .then(async r => { const c = await dpBox(); if (c) c.put(U, r.clone()).catch(() => {}); return r.json(); })
+        .catch(async () => { const c = await dpBox(), h = c && await c.match(U).catch(() => null); if (!h) throw new Error('none'); return h.json(); })
+        .then(j => { if (!j || !j.tiles || !j.nt) throw new Error('bad'); DPI = { ...j, none: new Set(j.none || []), dy: j.tile / j.ny, dx: j.tile / j.nx }; dpiSt = 'ok'; dpiAt = Date.now(); dpDone(); })
+        .catch(() => { dpiSt = DPI ? 'ok' : 'err'; dpiAt = Date.now(); dpDone(); });
+    }
+    let dpSoonT = 0;
+    const dpDone = () => { clearTimeout(dpSoonT); dpSoonT = setTimeout(() => { if (DP_STY[mapSet.dp]) bkey = ''; draw(); }, 150); };   // 조각이 여러 개 들어와도 한 번에 다시 그리기
+    const dpName = (ti, tj) => `${Math.round((DPI.lat0 + ti * DPI.tile) * 10)}_${Math.round((DPI.lon0 + tj * DPI.tile) * 10)}`;
+    async function dpGet(nm, n) {   // 저장해 둔 조각 먼저, 없으면 받아서 저장
+      const U = `data/depth/${nm}.bin?n=${n}`, c = await dpBox();
+      let r = c && await c.match(U).catch(() => null);
+      if (!r) { r = await fetch(U); if (!r.ok) throw new Error(r.status); if (c) await c.put(U, r.clone()).catch(() => {}); }
+      return r;
+    }
+    async function dpFetch(nm, n) {
+      if (typeof DecompressionStream !== 'function') throw new Error('no-ds');
+      const r = await dpGet(nm, n);
+      return new Int16Array(await new Response(r.body.pipeThrough(new DecompressionStream('deflate'))).arrayBuffer());
+    }
+    function dpTile(ti, tj) {   // Int16Array · null(바다 자료 없는 조각) · undefined(받는 중) · false(못 받음)
+      if (ti < 0 || tj < 0 || ti >= DPI.nt[0] || tj >= DPI.nt[1]) return null;
+      const nm = dpName(ti, tj), n = DPI.tiles[nm];
+      if (!n) return null;
+      if (dpT.has(nm)) { const a = dpT.get(nm); dpT.delete(nm); dpT.set(nm, a); return a; }
+      if (Date.now() - (dpF.get(nm) || 0) < 60000) return false;
+      if (!dpL.has(nm)) dpL.set(nm, dpFetch(nm, n).then(a => { dpT.set(nm, a); while (dpT.size > 320) dpT.delete(dpT.keys().next().value); dpF.delete(nm); })
+        .catch(() => { dpF.set(nm, Date.now()); }).finally(() => { dpL.delete(nm); dpDone(); }));
+      return undefined;
+    }
+    function depthRaw(p) {   // 지도 수심 (m, 평균해수면 아래 +) · 둘레 네 칸을 거리로 섞는다
+      if (!p) return { st: 'none' };
+      dpIndex();
+      if (!DPI) return { st: dpiSt === 'err' ? 'err' : 'load' };
+      const gi = (p.lat - DPI.lat0) / DPI.dy, gj = (p.lon - DPI.lon0) / DPI.dx;
+      if (!(gi >= 0 && gj >= 0 && gi <= DPI.nt[0] * DPI.ny - 1 && gj <= DPI.nt[1] * DPI.nx - 1)) return { st: 'out' };
+      const i0 = Math.floor(gi), j0 = Math.floor(gj), fi = gi - i0, fj = gj - j0;
+      let sw = 0, sv = 0, wait = false, fail = false;
+      const node = (I, J) => {   // 칸 값(10cm) · null(없음) — 받는 중·못 받음은 표시만
+        const a = dpTile(Math.floor(I / DPI.ny), Math.floor(J / DPI.nx));
+        if (a === undefined) { wait = true; return null; } if (a === false) { fail = true; return null; } if (!a) return null;
+        const v = a[(I % DPI.ny) * DPI.nx + (J % DPI.nx)]; return v === DP_NONE ? null : v;
+      };
+      for (const [di, dj, w] of [[0, 0, (1 - fi) * (1 - fj)], [0, 1, (1 - fi) * fj], [1, 0, fi * (1 - fj)], [1, 1, fi * fj]]) {
+        const v = node(i0 + di, j0 + dj); if (v == null) continue;
+        sw += w; sv += w * v;
+      }
+      if (wait) return { st: 'load' };
+      if (sw < 0.3) {   // 조각 가장자리에 빈 칸이 드물게 있어서: 가장 가까운 칸 둘레 한 칸(약 150m) 안 값으로
+        const I = Math.round(gi), J = Math.round(gj); let n = 0, t = 0;
+        for (let di = -1; di <= 1; di++) for (let dj = -1; dj <= 1; dj++) { if (I + di < 0 || J + dj < 0) continue; const v = node(I + di, J + dj); if (v != null) { n++; t += v; } }
+        if (wait) return { st: 'load' };
+        if (n >= 2) return { st: 'ok', d: t / n / 10 };
+        return { st: fail ? 'err' : 'land' };
+      }
+      return { st: 'ok', d: sv / sw / 10 };
+    }
+    // 그 시각 그 자리 수심 = 지도 수심(평균해수면 아래) + 그때 물 높이(평균해수면보다 위 +)
+    function depthAt(p, t, m) {
+      const r = depthRaw(p); if (r.st !== 'ok') return r;
+      if (m === undefined) m = spotTide(p);
+      let dz, msl;
+      if (m) { msl = m.msl; dz = (m.at(t).h - msl) / 100; } else { const k = nearest(p).k; msl = TideHarm.STATIONS[k].z0; dz = (TideHarm.heightAt(k, t) - msl) / 100; }
+      return { st: 'ok', dmap: r.d, dz, dn: r.d + dz, msl };
+    }
+    // 출조 때 한 번: 이 자리 둘레 80km 조각을 미리 받아 둔다 (2개씩 천천히 · 이미 받은 건 건너뜀)
+    function dpPrefetch(c) {
+      if (!DPI || !c || inFrame || navigator.onLine === false || typeof DecompressionStream !== 'function') return;
+      const key = `${DPI.v}|${c.lat.toFixed(1)},${c.lon.toFixed(1)}`; if (dpPre === key) return; dpPre = key;
+      try { const o = JSON.parse(localStorage.getItem('jjukgap-dpre') || 'null'); if (o && o.v === DPI.v && distKm(o, c) < 30) return; } catch (_) {}
+      const L = Object.keys(DPI.tiles).map(nm => { const [a, b] = nm.split('_').map(Number); return [distKm({ lat: a / 10 + DPI.tile / 2, lon: b / 10 + DPI.tile / 2 }, c), nm]; })
+        .filter(x => x[0] <= 80).sort((x, y) => x[0] - y[0]);
+      let k = 0, done = 0, ok = 0;
+      const next = () => {
+        if (k >= L.length) return;
+        const nm = L[k++][1];
+        dpGet(nm, DPI.tiles[nm]).then(() => { ok++; }).catch(() => {}).finally(() => {
+          if (++done === L.length && ok === L.length) { try { localStorage.setItem('jjukgap-dpre', JSON.stringify({ v: DPI.v, lat: c.lat, lon: c.lon })); } catch (_) {} }
+          setTimeout(next, 150);
+        });
+      };
+      next(); next();
+    }
+    // ---------- 지도 수심 색칠 (지도 설정 · 처음엔 끔): 단계 색 · 부드러운 색 · 바닥 굴곡
+    // 조각마다 바다색 위에 얹을 반투명 색(얕을수록 밝게, 깊을수록 진하게)을 한 번 만들어 두고, 보이는 조각을 한 장으로 이어 붙여
+    // 육지를 뺀 바다 부분에만 부드럽게 늘려 그린다 (지도 모양·테마가 달라도 그 바다색 위에서 깊이가 보이게). 평균 물높이 기준.
+    const DP_STY = { band: 1, smooth: 1, shade: 1 }, DP_OPTS = [['off', '끔'], ['band', '단계 색'], ['smooth', '부드러운 색'], ['shade', '바닥 굴곡']], DP_MIN_S = 700;
+    const DPW = [255, 255, 255], DPN = [8, 44, 66], DPK = [0, 12, 20];
+    const DP_BAND = [[0.5, DPW, 0.40], [5, DPW, 0.20], [10, DPN, 0.05], [20, DPN, 0.20], [30, DPN, 0.34]];   // 밝은 바다 위
+    const DP_BANDK = [[0.5, DPW, 0.30], [5, DPW, 0.15], [10, DPW, 0.04], [20, DPK, 0.26], [30, DPK, 0.44]];   // 어두운 바다 위 (깊은 곳을 더 어둡게)
+    const dpOv = new Map(); let dpMos = null;
+    const rgbOf = c => { c = String(c || '').trim(); let m = c.match(/^#([0-9a-f]{3,8})$/i);
+      if (m) { let h = m[1]; if (h.length === 3) h = h.replace(/./g, x => x + x); return [0, 2, 4].map(i => parseInt(h.slice(i, i + 2), 16)); }
+      m = c.match(/rgba?\(([^)]+)\)/); return m ? m[1].split(',').slice(0, 3).map(Number) : [128, 160, 170]; };
+    const dpDarkSea = () => { const [r, g, b] = rgbOf(mapColors().sea); return (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255 < 0.35; };
+    function dpCol(d, sty, dk) {   // 그 깊이에 얹을 색 [r,g,b,a]
+      if (!(d >= 0.5)) return null;
+      if (sty === 'band') { const B = dk ? DP_BANDK : DP_BAND; let o = B[0]; for (const b of B) if (d >= b[0]) o = b; return [...o[1], o[2]]; }
+      const t = Math.sqrt(Math.min(d, 40) / 40);
+      return t < 0.35 ? [...DPW, (dk ? 0.34 : 0.45) * (1 - t / 0.35)] : [...(dk ? DPK : DPN), (dk ? 0.50 : 0.42) * (t - 0.35) / 0.65];
+    }
+    const dpNode = (I, J) => {   // 받아 둔 조각에서 칸 값(m) · 없으면 null (새로 받지는 않음)
+      if (I < 0 || J < 0) return null;
+      const a = dpT.get(dpName(Math.floor(I / DPI.ny), Math.floor(J / DPI.nx))); if (!a) return null;
+      const v0 = a[(I % DPI.ny) * DPI.nx + (J % DPI.nx)]; return v0 === DP_NONE ? null : v0 / 10;
+    };
+    function dpOverlay(ti, tj, sty) {
+      const a = dpTile(ti, tj); if (!a) return null;
+      const dk = dpDarkSea(), nm = dpName(ti, tj), key = `${nm}|${sty}|${dk ? 1 : 0}`, ny = DPI.ny, nx = DPI.nx;
+      let sig = '';
+      if (sty === 'shade') sig = [[-1, 0], [1, 0], [0, -1], [0, 1]].map(([x, y]) => (dpTile(ti + x, tj + y) ? 1 : 0)).join('');   // 옆 조각이 들어오면 경계 그림자를 다시
+      const o = dpOv.get(key); if (o && o.sig === sig) return o.im;
+      const im = new ImageData(nx, ny), px = im.data, I0 = ti * ny, J0 = tj * nx;
+      for (let i = 0; i < ny; i++) for (let j = 0; j < nx; j++) {
+        const v0 = a[i * nx + j]; if (v0 === DP_NONE) continue;
+        const d = v0 / 10, k = ((ny - 1 - i) * nx + j) * 4;
+        let c;
+        if (sty === 'shade') {
+          if (!(d >= 0.5)) continue;
+          const z = (I, J) => { const q = dpNode(I, J); return q == null ? d : q; };
+          const ve = 8, gx = (z(I0 + i, J0 + j - 1) - z(I0 + i, J0 + j + 1)) / 300 * ve, gy = (z(I0 + i - 1, J0 + j) - z(I0 + i + 1, J0 + j)) / 308 * ve;   // 높이 = −수심
+          const n = Math.hypot(gx, gy, 1), L = (-gx * -0.542 + -gy * 0.542 + 0.643) / n, dl = (L - 0.643) * 1.8;   // 북서쪽 위에서 비추는 빛
+          const t = Math.sqrt(Math.min(d, 40) / 40), tc = dk ? DPK : DPN, at = (dk ? 0.2 : 0.14) * t, as = Math.min(dk ? 0.5 : 0.45, Math.abs(dl) * (dl > 0 && dk ? 0.75 : 1)), sc = dl > 0 ? DPW : [0, 18, 28];
+          const A = as + at * (1 - as); if (A < 0.01) continue;
+          c = [0, 1, 2].map(q => (sc[q] * as + tc[q] * at * (1 - as)) / A); c.push(A);
+        } else c = dpCol(d, sty, dk);
+        if (!c) continue;
+        px[k] = c[0]; px[k + 1] = c[1]; px[k + 2] = c[2]; px[k + 3] = Math.round(c[3] * 255);
+      }
+      dpOv.set(key, { im, sig }); while (dpOv.size > 320) dpOv.delete(dpOv.keys().next().value);
+      return im;
+    }
+    const dpUp = new Map();
+    function dpOverlayUp(ti, tj, f) {   // 단계 색을 가까이 볼 때: 한 칸을 f×f로 나눠 수심을 이어 붙인(쌍선형) 뒤 색칠 → 경계가 계단처럼 보이지 않게
+      const a = dpTile(ti, tj); if (!a) return null;
+      const dk = dpDarkSea(), nm = dpName(ti, tj), ny = DPI.ny, nx = DPI.nx;
+      const sig = [-1, 0, 1].flatMap(x => [-1, 0, 1].map(y => (dpTile(ti + x, tj + y) ? 1 : 0))).join(''), key = `${nm}|${f}|${dk ? 1 : 0}`;
+      const o = dpUp.get(key); if (o && o.sig === sig) { dpUp.delete(key); dpUp.set(key, o); return o.im; }
+      const w = nx * f, h = ny * f, im = new ImageData(w, h), px = im.data, I0 = ti * ny, J0 = tj * nx, B = dk ? DP_BANDK : DP_BAND;
+      const EW = nx + 2, E = new Float32Array((ny + 2) * EW);   // 둘레 한 칸(옆 조각)까지 붙인 수심 칸 (없음 = NaN)
+      for (let i = -1; i <= ny; i++) for (let j = -1; j <= nx; j++) {
+        let z; if (i >= 0 && j >= 0 && i < ny && j < nx) { const q = a[i * nx + j]; z = q === DP_NONE ? NaN : q / 10; } else { const q = dpNode(I0 + i, J0 + j); z = q == null ? NaN : q; }
+        E[(i + 1) * EW + j + 1] = z;
+      }
+      for (let r = 0; r < h; r++) {
+        const gi = (h - 1 - r + 0.5) / f - 0.5, i0 = Math.floor(gi), fi = gi - i0, ra = (i0 + 1) * EW + 1, rb = ra + EW;
+        for (let q = 0; q < w; q++) {
+          const gj = (q + 0.5) / f - 0.5, j0 = Math.floor(gj), fj = gj - j0;
+          let sw = 0, sv = 0, z, ww;
+          z = E[ra + j0]; ww = (1 - fi) * (1 - fj); if (z === z) { sw += ww; sv += ww * z; }
+          z = E[ra + j0 + 1]; ww = (1 - fi) * fj; if (z === z) { sw += ww; sv += ww * z; }
+          z = E[rb + j0]; ww = fi * (1 - fj); if (z === z) { sw += ww; sv += ww * z; }
+          z = E[rb + j0 + 1]; ww = fi * fj; if (z === z) { sw += ww; sv += ww * z; }
+          if (sw < 0.5) continue;
+          const d = sv / sw; if (!(d >= 0.5)) continue;
+          let b = B[0]; for (const x of B) if (d >= x[0]) b = x;
+          const k = (r * w + q) * 4; px[k] = b[1][0]; px[k + 1] = b[1][1]; px[k + 2] = b[1][2]; px[k + 3] = Math.round(b[2] * 255);
+        }
+      }
+      dpUp.set(key, { im, sig }); while (dpUp.size > 10) dpUp.delete(dpUp.keys().next().value);
+      return im;
+    }
+    // 바탕 그림(renderBase) 마지막에: 보이는 조각을 한 장으로 이어 붙여 바다 부분(육지 밖)에만
+    function dpLayer(g, R, landP, vx0, vx1, vy0, vy1) {
+      const sty = mapSet.dp; if (!DP_STY[sty] || v.s < DP_MIN_S) return;
+      dpIndex(); if (!DPI) return;
+      const T = DPI.tile, ny = DPI.ny, nx = DPI.nx, la0 = -vy1, la1 = -vy0, lo0 = vx0 / KX, lo1 = vx1 / KX;
+      const ti0 = Math.max(0, Math.floor((la0 - DPI.lat0) / T)), ti1 = Math.min(DPI.nt[0] - 1, Math.floor((la1 - DPI.lat0) / T));
+      const tj0 = Math.max(0, Math.floor((lo0 - DPI.lon0) / T)), tj1 = Math.min(DPI.nt[1] - 1, Math.floor((lo1 - DPI.lon0) / T));
+      if (ti0 > ti1 || tj0 > tj1) return;
+      const f = sty === 'band' ? Math.max(1, Math.min(8, 2 ** Math.round(Math.log2(Math.max(1, DPI.dy * v.s / 2))))) : 1;   // 한 칸이 화면에서 2점보다 크면 잘게 (1·2·4·8배만: 확대하는 동안 자주 다시 만들지 않게)
+      const MW = (tj1 - tj0 + 1) * nx * f, MH = (ti1 - ti0 + 1) * ny * f; if (MW * MH > 4e6) return;
+      if (!dpMos) dpMos = document.createElement('canvas');
+      if (dpMos.width !== MW || dpMos.height !== MH) { dpMos.width = MW; dpMos.height = MH; }
+      const mg = dpMos.getContext('2d'); mg.clearRect(0, 0, MW, MH);
+      let any = false;
+      for (let ti = ti0; ti <= ti1; ti++) for (let tj = tj0; tj <= tj1; tj++) { const im = f > 1 ? dpOverlayUp(ti, tj, f) : dpOverlay(ti, tj, sty); if (im) { mg.putImageData(im, (tj - tj0) * nx * f, (ti1 - ti) * ny * f); any = true; } }
+      if (!any) return;
+      g.save(); g.setTransform(R * v.s, 0, 0, R * v.s, R * (BM + W / 2 - v.lon * KX * v.s), R * (BM + H / 2 + v.lat * v.s));
+      const clip = new Path2D(); clip.rect(vx0, vy0, vx1 - vx0, vy1 - vy0); clip.addPath(landP); g.clip(clip, 'evenodd');
+      g.imageSmoothingEnabled = true; g.imageSmoothingQuality = 'high';
+      g.drawImage(dpMos, (DPI.lon0 + tj0 * T - DPI.dx / 2) * KX, -(DPI.lat0 + (ti1 + 1) * T - DPI.dy / 2), (tj1 - tj0 + 1) * T * KX, (ti1 - ti0 + 1) * T);
+      g.restore();
+    }
+    // 지도 아래 작은 안내 (색칠을 켰고 보이는 곳에 수심 자료가 있을 때만)
+    let dlegK = '';
+    function dpLegend(C) {
+      const el = $('mv-dleg'); if (!el) return;
+      const inBox = DPI && v.lat > DPI.lat0 - 0.1 && v.lat < DPI.lat0 + DPI.nt[0] * DPI.tile + 0.1 && v.lon > DPI.lon0 - 0.2 && v.lon < DPI.lon0 + DPI.nt[1] * DPI.tile + 0.2;
+      const sty = DP_STY[mapSet.dp] && inBox && v.s >= DP_MIN_S ? mapSet.dp : '', k = `${sty}|${C.sea}`;
+      if (k === dlegK) return; dlegK = k;
+      if (!sty) { el.hidden = true; return; }
+      const sea = rgbOf(C.sea), dk = dpDarkSea(), mix = c => (c ? `rgb(${[0, 1, 2].map(q => Math.round(sea[q] * (1 - c[3]) + c[q] * c[3])).join(',')})` : `rgb(${sea.join(',')})`);
+      if (sty === 'shade') el.innerHTML = `바닥 굴곡<small>밝은 쪽 솟은 곳 · 어두운 쪽 골</small>`;
+      else if (sty === 'band') el.innerHTML = `수심 · 평균 물높이 (m)<span class="sw">${DP_BAND.map(b => `<i style="background:${mix(dpCol(b[0] + 0.1, 'band', dk))}"></i>`).join('')}</span><span class="lb"><span>0</span><span>5</span><span>10</span><span>20</span><span>30+</span></span>`;
+      else el.innerHTML = `수심 · 평균 물높이 (m)<span class="sw" style="background:linear-gradient(90deg,${Array.from({ length: 9 }, (_, q) => mix(dpCol(0.6 + q * 5, 'smooth', dk))).join(',')})"></span><span class="lb g"><span>0</span><span>10</span><span>20</span><span>30</span><span>40+</span></span>`;
+      el.hidden = false;
+    }
+    // 꾹 누른 자리 말풍선 · 선상 모드 내 위치 옆 숫자 (지금 물 높이를 더한 값)
+    let dpBub = null, dpMeC = null;
+    const dTxt = d => (d < 10 ? d.toFixed(1) : String(Math.round(d)));
+    function dpMeVal() {
+      const k = `${me.lat.toFixed(4)},${me.lon.toFixed(4)}`, t = Date.now();
+      if (dpMeC && dpMeC.k === k && t - dpMeC.t < 20000 && dpMeC.st !== 'load') return dpMeC;
+      const D = depthAt(me, t); dpMeC = { k, t, st: D.st, dn: D.dn }; return dpMeC;
+    }
+    function dpPill(x, y, t, font, C) {
+      ctx.save(); ctx.font = `700 11px ${font}`; const w = ctx.measureText(t).width + 12;
+      ctx.shadowColor = 'rgba(0,0,0,.22)'; ctx.shadowBlur = 4; ctx.shadowOffsetY = 1; ctx.fillStyle = C.card;
+      ctx.beginPath(); ctx.roundRect ? ctx.roundRect(x, y - 9, w, 18, 9) : ctx.rect(x, y - 9, w, 18); ctx.fill(); ctx.restore();
+      ctx.fillStyle = C.ink; ctx.font = `700 11px ${font}`; ctx.textBaseline = 'middle'; ctx.fillText(t, x + 6, y + 0.5); ctx.textBaseline = 'alphabetic';
+    }
+    function dpBubble(x, y, font, C) {
+      const D = depthAt(dpBub, Date.now());
+      let a = '수심 약', b;
+      if (D.st === 'ok') { if (D.dn < 0.3) { a = '지금은'; b = '물 빠짐'; } else b = `${dTxt(D.dn)}m`; }
+      else { a = '수심'; b = D.st === 'load' ? '받는 중…' : D.st === 'err' ? (inFrame ? '앱에서 보여요' : '못 받았어요') : '자료 없음'; }
+      ctx.save(); ctx.font = `700 15px ${font}`; const wb = ctx.measureText(b).width; ctx.font = `500 10.5px ${font}`; const wa = ctx.measureText(a).width;
+      const w = Math.max(wa, wb) + 22, h = 40, bx = Math.round(x - w / 2), by = Math.round(y - 16 - h);
+      ctx.shadowColor = 'rgba(0,0,0,.25)'; ctx.shadowBlur = 8; ctx.shadowOffsetY = 2; ctx.fillStyle = '#FFFFFF';
+      ctx.beginPath(); ctx.roundRect ? ctx.roundRect(bx, by, w, h, 12) : ctx.rect(bx, by, w, h); ctx.moveTo(x - 6, by + h - 0.5); ctx.lineTo(x, by + h + 6); ctx.lineTo(x + 6, by + h - 0.5); ctx.fill(); ctx.restore();
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillStyle = '#5A6B6C'; ctx.font = `500 10.5px ${font}`; ctx.fillText(a, x, by + 12);
+      ctx.fillStyle = '#12282A'; ctx.font = `700 15px ${font}`; ctx.fillText(b, x, by + 27);
+      ctx.textAlign = 'start'; ctx.textBaseline = 'alphabetic';
+    }
     // 이 자리 물 높이: 가까운 바다 격자 3곳(8km 안)을 거리로 섞는다. 격자마다 '기준 관측소 예측 × 조고비, 조시차만큼 늦춤'
     function spotTide(p) {
       if (!SP) return null;
@@ -5191,7 +5443,7 @@ const TideHarm = (() => {
           for (const q of parts) { const r = TideHarm.atSt(q.ref.m, ms - q.js); h += q.w * (q.msl + q.jogo * (r.h - q.ref.msl)); dh += q.w * q.jogo * r.dh; }
           return { h, dh };
         };
-        m = { at, d: use[0].d, ref: parts[0].ref.name, ex: new Map() };
+        m = { at, d: use[0].d, ref: parts[0].ref.name, ex: new Map(), msl: parts.reduce((a, q) => a + q.w * q.msl, 0) };
       }
       if (spCache.size > 80) spCache.clear();
       spCache.set(key, m);
@@ -5393,6 +5645,7 @@ const TideHarm = (() => {
         + (i.wtModel ? ' 수온: 모델 예측이라 관측과 1℃쯤 다를 수 있어요.' : '') + (SP ? ' 화살표: 진한 것 조류예보 지점, 옅은 것 모델.' : '')
         + ' 낚시 정보 확인용이며 항해·안전에는 쓰지 마세요.';
       areaChip(me);
+      if (onBoard && !me.virtual) { try { dpIndex(); if (DPI) dpPrefetch(me); } catch (_) {} }
       const skRow = skNowRow();   // 선상 모드에서 봉돌이 둘 이상이면 좌표 자리에 '봉돌' 단추 (판을 내려 둬도 보이게)
       panel.innerHTML = (viewMode ? recSummary() : '') + `
         <div class="mv-where"><b>${esc(whereTxt(me, i.k))}</b>${skRow || `<span>${dm(me.lat, 'N', 'S')} ${dm(me.lon, 'E', 'W')}</span>`}</div>
@@ -8391,6 +8644,8 @@ const TideHarm = (() => {
           : sw('noti-tog', notiOn, '앱을 나가면 알림줄에 바로가기', '알림에서 바로 선상 모드·포인트 저장', 'noti', '선상 모드를 켠 채 나가면 알림이 생겨요. 누르면 선상 모드로, \'포인트 저장\'을 누르면 바로 저장 화면이 열려요.'))
         + `</div>`
         + `<p class="mv-setg">지도</p><div class="mv-setc"><button type="button" class="mv-row-btn" data-act="sty-open">지도 모양<span>${esc(styName(mapSty))} ›</span></button>`
+        + `<div class="mv-dset"><div class="h"><b>수심 색칠</b><small>국립해양조사원 수심 · 서해 중부(인천~군산·부안 앞바다)</small></div><div class="mv-dseg" role="group" aria-label="수심 색칠">${DP_OPTS.map(([k, n]) => `<button type="button" data-act="dp-sty" data-v="${k}" class="${(mapSet.dp || 'off') === k ? 'on' : ''}" aria-pressed="${(mapSet.dp || 'off') === k}">${n}</button>`).join('')}</div></div>`
+        + sw('dpme-tog', mapSet.dpMe !== false, '내 위치 수심 숫자', '선상 모드에서 파란 점 옆에 ‘약 7m’', 'dpme', '선상 모드에서 GPS로 움직일 때 내 위치 옆에 지금 수심을 작게 보여요. 지도를 꾹 누르면 그 자리 수심이 말풍선으로 떠요. 지도 수심(평균 물높이 기준)에 지금 물 높이를 더한 값이에요. 국립해양조사원 격자 수심(150m 간격)이라 작은 여는 안 보이고, 덕적도 위쪽~연평도 쪽은 자료가 없어요. 해도가 아니니 항해·안전에는 쓰지 마세요.')
         + sw('mapcl-tog', mapSet.cl, '멀리 보면 묶기', '멀리 볼 때 가까운 기록을 동그라미 하나로', 'mapcl', '출조가 4번 넘게 보일 때 지도를 멀리 보면, 가까운 포인트끼리 동그라미 하나로 묶고 총 마릿수를 적어요. 제일 많이 잡은 곳은 금색이에요. 동그라미를 톡 하면 그 자리로 확대돼요. 끄면 멀리 볼 때도 경로와 포인트가 그대로 보여요.')
         + sw('mapqz-tog', mapSet.qz, '한 손 확대·축소', '두 번 톡 한 뒤 위아래로 끌기', 'mapqz', '지도를 톡 한 번 누르고, 바로 한 번 더 누른 채 손가락을 떼지 않고 아래로 끌면 확대, 위로 끌면 축소돼요. 끄면 두 번 톡은 확대만 해요.')
         + sw('mapzb-tog', mapSet.zb, '+ − 단추 보이기', '오른쪽에 확대·축소 단추', 'mapzb', '지도 오른쪽에 확대(+)·축소(−) 단추를 보여요. 손가락으로 확대·축소하는 것보다 단추가 편할 때 켜요.')
@@ -8602,6 +8857,8 @@ const TideHarm = (() => {
       if (a === 'rec-all') { dayFilter = null; const all = points.slice(); if (all.length) fitPts(all); if (mode === 'list') showList(); else paintPanel(true); return draw(); }
       if (a === 'noti-tog') return setNoti(!notiOn);
       if (a === 'sty-open') { selId = null; mode = 'info'; paintPanel(true); setMode('peek'); return setTimeout(styOpen, 280); }   // 판을 접어 지도가 보이게 한 뒤
+      if (a === 'dp-sty') { mapSet.dp = DP_STY[b.dataset.v] ? b.dataset.v : 'off'; mapSetSave(); bkey = ''; dlegK = ''; draw(); return showSet(); }
+      if (a === 'dpme-tog') { mapSet.dpMe = mapSet.dpMe === false; mapSetSave(); draw(); return showSet(); }
       if (a === 'mapcl-tog' || a === 'mapqz-tog' || a === 'mapzb-tog') { const k = a.slice(3, 5); mapSet[k] = !mapSet[k]; mapSetSave(); draw(); return showSet(); }
       if (a === 'bubble-tog') { try { NAT.setBubble(!natBubble()); } catch (_) {} return setTimeout(refreshList, 300); }
       if (a === 'move') return showMove();
@@ -8935,6 +9192,7 @@ const TideHarm = (() => {
     // GPS 한 번마다: 바다에 나갔는지, 항구·육지에 돌아와 얼마나 있었는지 (시각은 GPS 시각으로 → 화면이 꺼져 있던 동안 모인 것도 순서대로)
     function boardFeed(fix) {
       if (!onBoard || !board || !fix || fix.virtual || !(fix.acc <= 100)) return;
+      try { dpIndex(); if (DPI) dpPrefetch(fix); } catch (_) {}   // 수심 조각 미리 받기 (바다에서 인터넷이 끊겨도 보이게)
       const t = fix.t || Date.now(), land = onLand(fix.lat, fix.lon), inPort = land === true || nearAnyPort(fix);
       if (inPort) {
         seaFrom = 0;
@@ -9468,13 +9726,14 @@ const TideHarm = (() => {
     cv.addEventListener('pointerdown', e => {
       cv.setPointerCapture(e.pointerId); const r = cv.getBoundingClientRect(), x = e.clientX - r.left, y = e.clientY - r.top;
       ptrs.set(e.pointerId, { x, y });
+      if (dpBub) { dpBub = null; draw(); }   // 수심 말풍선은 다른 곳을 누르거나 지도를 움직이면 사라진다
       if (ptrs.size === 1) {
         g = { x0: x, y0: y, lon: v.lon, lat: v.lat, moved: false, pinch: null };
         if (mapSet.qz && Date.now() - lastTap < 320 && Math.hypot(x - lastTapX, y - lastTapY) < 48) g.qz = { y0: y, s: v.s, c: toG(x, y), x, y };   // 두 번째 톡: 끌면 한 손 확대·축소
         clearTimeout(pressT);
         if (mode !== 'pick') pressT = setTimeout(() => {   // 길게 누르기: 그 자리를 내 위치로 가정
           if (!g || g.moved || g.qz || ptrs.size !== 1) return;
-          const p = toG(g.x0, g.y0); me = { lat: p.lat, lon: p.lon, acc: 0, virtual: true }; follow = false; $('mv-me').classList.remove('on');
+          const p = toG(g.x0, g.y0); me = { lat: p.lat, lon: p.lon, acc: 0, virtual: true }; follow = false; $('mv-me').classList.remove('on'); dpBub = { lat: p.lat, lon: p.lon };
           setGps('가상 위치 (길게 눌러 지정) · ‘내 위치로’를 누르면 GPS로', 'warn'); try { navigator.vibrate && navigator.vibrate(15); } catch (_) {}
           g.moved = true; mode = 'info'; selId = null; paintPanel(true); draw(); toast('이 자리를 내 위치로 가정했어요');
         }, 600);
@@ -9833,7 +10092,7 @@ const TideHarm = (() => {
 
 <script>
 if ('serviceWorker' in navigator) addEventListener('load', () => {
-  const sw = navigator.serviceWorker, VER = '5d8b9a56'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
+  const sw = navigator.serviceWorker, VER = 'bc311dc8'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
   // 화면에 손을 대기 시작했는지 (쓰는 중에는 새로 열지 않으려고)
   ['pointerdown', 'keydown'].forEach(t => addEventListener(t, () => { touched = true; }, { capture: true, passive: true }));
   const reload = () => {
