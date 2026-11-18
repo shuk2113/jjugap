@@ -1,0 +1,32 @@
+# 바닷물 투명도 실측 자료(공공데이터포털 파일데이터) 받아 보기 — 형식·범위 확인용 (손으로만)
+# 자료: 해양수산부_공동활용체계_정선해양관측정보 (이용허락범위 제한 없음) 등
+name: 투명도 자료 살펴보기
+
+on:
+  workflow_dispatch:
+    inputs:
+      pks:
+        description: '공공데이터포털 파일데이터 번호 (쉼표로)'
+        default: '15147989,15002978'
+
+permissions:
+  contents: write
+
+jobs:
+  look:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v5
+      - name: 받아 보기
+        env:
+          PKS: ${{ github.event.inputs.pks }}
+        run: python3 .github/scripts/zsd_look.py
+      - name: 저장
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add .github/data/zsd || true
+          git diff --cached --quiet && exit 0
+          git commit -m "투명도 자료 살펴본 결과"
+          for i in 1 2 3; do git pull --rebase -q origin main && git push -q origin HEAD:main && break; sleep 5; done
