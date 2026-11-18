@@ -332,6 +332,7 @@ html.mv-on .app *{animation-play-state:paused !important} html.mv-hide .app{visi
 /* 이 일대 지난 기록: 지도 아래 판 바로 위 조용한 한 줄 (누르면 화면 전체 카드) */
 .mv-area{position:absolute; left:10px; bottom:42px; z-index:1; transform:translate3d(0,calc(-1 * var(--sheet-h, 0px)),0); transition:transform .28s cubic-bezier(.2,.85,.25,1); max-width:calc(100% - 104px); display:flex; align-items:center; gap:6px; min-height:36px; padding:6px 12px 6px 10px; border:1px solid var(--line); border-radius:18px; background:var(--card); color:var(--ink); font:inherit; font-size:calc(12.5px * var(--k)); font-weight:700; text-align:left; box-shadow:0 4px 14px rgba(0,0,0,.18); -webkit-tap-highlight-color:transparent}
 .mv-area span{display:flex; flex-direction:column; min-width:0} .mv-area b, .mv-area small{overflow:hidden; text-overflow:ellipsis; white-space:nowrap} .mv-area b{font-weight:800} .mv-area small{font-size:calc(12px * var(--k)); font-weight:700; color:var(--accent, #2F7DF6)} .mv-area i{flex:none; font-style:normal; color:var(--ink-2)}
+.mv-area small.warn{color:var(--strong)} .mv-plan{bottom:42px}
 .mv-areab{display:flex; align-items:center; gap:6px; width:100%; margin:10px 0 2px; padding:11px 12px; border:1px solid var(--line); border-radius:14px; background:var(--card); color:var(--ink); font:inherit; font-size:calc(13px * var(--k)); font-weight:700; text-align:left}
 .mv-areab span{flex:1; min-width:0} .mv-areab i{flex:none; font-style:normal; color:var(--ink-2)}
 .ar-sub{margin:0 2px 10px; font-size:calc(12.5px * var(--k)); color:var(--ink-2); line-height:1.5}
@@ -756,6 +757,28 @@ a.mv-row-btn{text-decoration:none; gap:10px} .mv-row-btn span{font-size:calc(20p
 .bk-h4{margin:14px 2px 6px; font-size:calc(13.5px * var(--k)); font-weight:800}
 .bk-tr{display:flex; gap:8px; align-items:baseline; padding:10px 2px; border-top:1px solid var(--line); font-size:calc(13px * var(--k))} .bk-tr b{flex:none; width:1.2em; color:#E0A100} .bk-tr span{color:var(--ink-2); font-size:calc(12px * var(--k))}
 .bk-none{margin:8px 2px; font-size:calc(13px * var(--k)); line-height:1.6; color:var(--ink-2)}
+.pl-go{display:flex; align-items:center; gap:10px; width:100%; padding:14px; border:1px solid var(--line); border-radius:18px; background:var(--card); color:var(--ink); font:inherit; text-align:left}
+.pl-go span{flex:1; min-width:0} .pl-go b{display:block; font-size:calc(14.5px * var(--k))} .pl-go small{display:block; margin-top:2px; font-size:calc(12px * var(--k)); color:var(--ink-2); font-weight:500} .pl-go i{font-style:normal; color:var(--ink-2); font-size:calc(18px * var(--k))}
+.pl-open{align-self:flex-start; padding:7px 12px; border:1px solid var(--line); border-radius:999px; background:var(--well); color:var(--ink); font:inherit; font-size:calc(12.5px * var(--k)); font-weight:700}
+.pl-mv{display:flex; align-items:center; gap:6px} .pl-egi{width:calc(40px * var(--k)); height:auto; flex:none}
+.pl-set{display:flex; flex-direction:column; gap:10px; padding:12px 14px; border:1px solid var(--line); border-radius:16px; background:var(--card); margin-bottom:10px}
+.pl-l{display:grid; grid-template-columns:5.4em 1fr; gap:8px; align-items:start; font-size:calc(13px * var(--k))} .pl-l .k{color:var(--ink-2); font-weight:700; padding-top:6px}
+.pl-l .v b{display:block} .pl-l .v small{display:block; color:var(--ink-2); font-size:calc(11.5px * var(--k)); margin-top:1px}
+.pl-ports, .pl-btns{display:flex; flex-wrap:wrap; gap:5px} .pl-btns{margin-top:6px}
+.pl-ports button, .pl-btns button{padding:6px 11px; border:1px solid var(--line); border-radius:999px; background:var(--well); color:var(--ink); font:inherit; font-size:calc(12.5px * var(--k)); font-weight:700}
+.pl-ports button.on{background:var(--ink); color:var(--card); border-color:var(--ink)}
+.pl-tm{display:flex; align-items:center; gap:6px} .pl-tm select{padding:6px 8px; border:1px solid var(--line); border-radius:10px; background:var(--well); color:var(--ink); font:inherit; font-weight:700}
+.pl-hours{display:flex; flex-direction:column; gap:5px}
+.pl-hr{display:grid; grid-template-columns:2.7em 1fr 4.4em; gap:8px; align-items:center; width:100%; padding:9px 10px; border:1px solid var(--line); border-radius:14px; background:var(--card); color:var(--ink); font:inherit; text-align:left}
+.pl-hr.on{border:2px solid var(--accent, #2F7DF6); padding:8px 9px}
+.pl-hr .t{font-weight:800; font-size:calc(14px * var(--k))} .pl-hr .m{display:flex; flex-direction:column; gap:3px; min-width:0}
+.pl-hr .l1{font-weight:700; font-size:calc(12.5px * var(--k)); word-break:keep-all} .pl-hr .l2{display:block; color:var(--ink-2); font-size:calc(11.5px * var(--k)); line-height:1.55; word-break:keep-all} .pl-hr .l2 .lv{display:inline-block; margin-right:5px; vertical-align:1px}
+.pl-hr .l3{display:flex; align-items:center; gap:6px; font-size:calc(12.5px * var(--k))} .pl-hr .l3 b{font-weight:700; min-width:0; word-break:keep-all}
+.pl-hr .lv{flex:none; font-style:normal; padding:2px 7px; border-radius:7px; font-size:calc(11px * var(--k)); font-weight:800}
+.pl-hr .sk{text-align:center} .pl-hr .sk b{display:block; font-size:calc(14px * var(--k)); font-weight:800; word-break:keep-all} .pl-hr .sk small{display:block; color:var(--ink-2); font-size:calc(10.5px * var(--k))}
+.pl-hr .why{display:block; margin-top:4px; padding-top:6px; border-top:1px dashed var(--line); color:var(--ink-2); font-size:calc(11.5px * var(--k)); line-height:1.5}
+.pl-save{display:flex; flex-direction:column; gap:6px; margin:12px 0 4px} .pl-save button{padding:13px; border:1px solid var(--line); border-radius:14px; background:var(--card); color:var(--ink); font:inherit; font-size:calc(14px * var(--k)); font-weight:800}
+.pl-save button.pri{background:var(--accent, #2F7DF6); color:#fff; border-color:transparent} .pl-save small{color:var(--ink-2); font-size:calc(11.5px * var(--k)); line-height:1.5}
 .sim-card{display:flex; flex-direction:column; gap:8px; padding:14px; border:1px solid var(--line); border-radius:18px; background:var(--card)}
 .sim-top{margin:0; font-size:calc(15px * var(--k)); font-weight:800} .sim-top span{font-weight:600; color:var(--ink-2); font-size:calc(13px * var(--k))}
 .sim-row{display:flex; align-items:center; gap:8px; font-size:calc(13px * var(--k))} .sim-row .k{flex:none; width:6.4em; color:var(--ink-2); font-weight:700}
@@ -1299,6 +1322,7 @@ window.jjFunFont = function () { if (document.getElementById('fun-font')) return
     <p class="advice" id="advice"><b id="adv-now"></b><span class="adv-rest" id="adv-rest"><span id="adv-day"></span><span class="adv-wx" id="adv-wx"></span></span></p>
   </section>
 
+  <section class="block plan-sec" id="plan-sec" hidden></section>
   <section class="block sim-sec" id="sim-sec" hidden></section>
 
   <section class="block" id="wt-section">
@@ -1404,6 +1428,7 @@ window.jjFunFont = function () { if (document.getElementById('fun-font')) return
     <div class="mv-attr" id="mv-attr">지도 © OpenStreetMap 기여자</div>
     <button class="mv-fab" id="mv-save" type="button" aria-label="포인트 저장 (꾹 누르면 자리를 옮길 수 있어요)"><span><b><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21.3s-6.6-5.9-6.6-11.3a6.6 6.6 0 0 1 13.2 0c0 5.4-6.6 11.3-6.6 11.3z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M12 7v6M9 10h6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg></b><em>포인트 저장</em></span></button>
     <button class="mv-area" id="mv-area" type="button" hidden></button>
+    <button class="mv-area mv-plan" id="mv-plan" type="button" hidden></button>
     <div class="mv-toast" id="mv-toast" hidden></div>
     <div class="mv-snack" id="mv-snack" role="status" hidden><span></span><button type="button">되돌리기</button></div>
     <button class="mv-auto" id="mv-auto" type="button" aria-label="5분 머문 곳 자동 기록 켜기·끄기"><i></i><span>자동 기록 켜짐</span></button>
@@ -1989,7 +2014,11 @@ const TideHarm = (() => {
     simPaint();
   }
   // 지난번 이런 날엔 (기록 쪽에서 window.jjugapSim 을 채운다)
-  function simPaint() { const el = $('sim-sec'); if (!el) return; let h = ''; try { h = window.jjugapSim ? window.jjugapSim(sel) : ''; } catch (_) {} el.innerHTML = h; el.hidden = !h; }
+  function simPaint() { const el = $('sim-sec'); if (!el) return; let h = ''; try { h = window.jjugapSim ? window.jjugapSim(sel) : ''; } catch (_) {} el.innerHTML = h; el.hidden = !h; planPaint(); }
+  // 출조 시뮬레이션 칸 (고른 날 · 출조 계획)
+  function planPaint() { const el = $('plan-sec'); if (!el) return; let h = ''; try { h = window.jjugapPlan ? window.jjugapPlan(sel) : ''; } catch (_) {} el.innerHTML = h; el.hidden = !h; }
+  window.jjugapPlanPaint = planPaint;
+  { const el = $('plan-sec'); if (el) el.addEventListener('click', e => { const b = e.target.closest('[data-plo]'); if (b && window.jjugapPlanOpen) window.jjugapPlanOpen(+b.dataset.plo); }); }
 
   // ── 물 높이: 바다 그림이 고른 시각의 실제 물 높이 · 물 흐름 · 하늘(낮밤)을 보여준다 (인천) ──
   const R = Math.PI / 180;
@@ -4904,7 +4933,7 @@ const TideHarm = (() => {
       return true;
     }
     function drawNow() {
-      { const ab = document.getElementById('mv-area'); if (ab && !ab.hidden && mode !== 'info') ab.hidden = true; }   // 판이 정보 말고 다른 걸 보여 주면 한 줄은 숨김
+      { const ab = document.getElementById('mv-area'); if (ab && !ab.hidden && mode !== 'info') ab.hidden = true; const pb = document.getElementById('mv-plan'); if (pb && !pb.hidden && mode !== 'info') pb.hidden = true; }   // 판이 정보 말고 다른 걸 보여 주면 한 줄은 숨김
       if (!isOpen || !W) return;
       fxItems = []; let dpShown = false;
       const C = mapColors(), font = fontC || (fontC = getComputedStyle(document.body).fontFamily);
@@ -5217,7 +5246,7 @@ const TideHarm = (() => {
         .catch(() => { dpiSt = DPI ? 'ok' : 'err'; dpiAt = Date.now(); dpDone(); });
     }
     let dpSoonT = 0;
-    const dpDone = () => { clearTimeout(dpSoonT); dpSoonT = setTimeout(() => { if (DP_STY[mapSet.dp]) bkey = ''; draw(); }, 150); };   // 조각이 여러 개 들어와도 한 번에 다시 그리기
+    const dpDone = () => { clearTimeout(dpSoonT); dpSoonT = setTimeout(() => { if (DP_STY[mapSet.dp]) bkey = ''; draw(); if (isOpen && mode === 'info' && onBoard) paintPanel(true); }, 150); };   // 배 위 한 줄도 수심이 들어오면 바로   // 조각이 여러 개 들어와도 한 번에 다시 그리기
     const dpName = (ti, tj) => `${Math.round((DPI.lat0 + ti * DPI.tile) * 10)}_${Math.round((DPI.lon0 + tj * DPI.tile) * 10)}`;
     async function dpGet(nm, n) {   // 저장해 둔 조각 먼저, 없으면 받아서 저장
       const U = `data/depth/${nm}.bin?n=${n}`, c = await dpBox();
@@ -5452,6 +5481,373 @@ const TideHarm = (() => {
       ctx.fillStyle = '#12282A'; ctx.font = `700 15px ${font}`; ctx.fillText(b, x, by + 27);
       ctx.textAlign = 'start'; ctx.textBaseline = 'alphabetic';
     }
+    // ---------- 출조 시뮬레이션 (출조 전에, 미리 알 수 있는 정보만으로): 시간별 바다 상황 → 에기 색 · 예상 봉돌 — 모두 가설
+    // 근거: 쭈꾸미(λmax 486nm)·갑오징어(498nm) 시각 색소(Govardovskii 템플릿), 바다빛 감쇠(물·녹은 유기물·흙), 해 높이·구름,
+    //       물 탁함(들물·날물 · 갯벌 · 물살 · 파도 · 비), 국립해양조사원 수심 + 그 시각 물 높이, 조류예보 표, 봉돌 바닥 버팀 계산
+    const SIM_L = Array.from({ length: 61 }, (_, i) => 400 + i * 5);
+    const simMap = f => SIM_L.map(f);
+    const simGov = lm => simMap(L => {
+      const x = lm / L, a = 0.8795 + 0.0459 * Math.exp(-((lm - 300) ** 2) / 11940);
+      const al = 1 / (Math.exp(69.7 * (a - x)) + Math.exp(28 * (0.922 - x)) + Math.exp(-14.9 * (1.104 - x)) + 0.674), lb = 189 + 0.315 * lm, bw = -40.5 + 0.195 * lm;
+      return al + 0.26 * Math.exp(-(((L - lb) / bw) ** 2));
+    });
+    const SIM_S = { jj: simGov(486), gp: simGov(498) }, SIM_V = simMap(L => Math.exp(-0.5 * ((L - 555) / 45) ** 2));
+    const simIp = (x, X, Y) => { if (x <= X[0]) return Y[0]; for (let i = 1; i < X.length; i++) if (x <= X[i]) return Y[i - 1] + (Y[i] - Y[i - 1]) * (x - X[i - 1]) / (X[i] - X[i - 1]); return Y[Y.length - 1]; };
+    const SIM_AW = simMap(L => simIp(L, [400, 450, 500, 550, 600, 650, 700], [0.03, 0.02, 0.03, 0.07, 0.24, 0.35, 0.65]));
+    const sLg = (c, w) => simMap(L => 1 / (1 + Math.exp(-(L - c) / w))), sGa = (c, w) => simMap(L => Math.exp(-0.5 * ((L - c) / w) ** 2));
+    const sAdd = (...a) => SIM_L.map((_, i) => a.reduce((s, x) => s + (typeof x === 'number' ? x : x[i]), 0));
+    const sMul = (k, a) => a.map(x => k * x);
+    const SIM_REF = {   // 에기 천 반사율 (근사)
+      빨강: sAdd(0.05, sMul(0.65, sLg(595, 12))), 퍼플: sAdd(0.08, sMul(0.35, sGa(430, 30)), sMul(0.30, sLg(620, 20))), 검정: sAdd(0.05),
+      흰: sAdd(0.80), 민트: sAdd(0.10, sMul(0.60, sGa(505, 40))), 블루: sAdd(0.06, sMul(0.55, sGa(460, 35))),
+      핑크: sAdd(0.30, sMul(0.45, sLg(590, 15)), sMul(-0.15, sGa(540, 40))).map(x => Math.max(0, Math.min(1, x))), 레몬: sAdd(0.06, sMul(0.75, sLg(510, 15))),
+      초록: sAdd(0.06, sMul(0.45, sGa(525, 35))), 갈색: sAdd(0.06, sMul(0.12, sLg(600, 30))), 야광: sAdd(0.80) };
+    const SIM_GLOW = sGa(520, 30), SIM_SIDE = 0.35, SIM_BG = 0.25, SIM_GCD = 0.05;
+    // 족보: 바닥 빛 단계 · 날씨 · 해 → [머리, 몸통, 테이프, 단색, 대안]
+    const SIM_RULE = {
+      깜깜: ['빨강', '야광', '', '야광 단색', ''],
+      어둑맑: ['빨강', '흰', '무지개', '고추장', '민트 몸통 · 수박'], 어둑흐: ['빨강', '민트', '무지개', '고추장', '수박 · 퍼플 머리'],
+      어둑비: ['빨강', '흰', '무지개', '고추장 · 핑크', '퍼플 머리 + 핑크 몸통 · 몸통은 밝게 (몸통까지 어두우면 11/5 입질 끊김)'], 어둑새: ['빨강', '야광', '무지개', '고추장', '흐리거나 비면 야광 몸통 꼭'],
+      보통: ['빨강', '민트', '은박', '고추장', '블루 몸통'], 밝음: ['빨강', '흰', '은박', '고추장 · 검정 · 갈색', '민트·블루 몸통'] };
+    const SIM_SK = [10, 12, 14, 16, 18, 20, 25];   // 챙겨 가는 봉돌
+    // 그 자리 해 높이(도): 날짜 n(한국 날짜 번호) · 시각 t(ms)
+    function simSun(p, t) {
+      const d = new Date(t), N = Math.floor((t - Date.UTC(d.getUTCFullYear(), 0, 1)) / DAY) + 1, R = Math.PI / 180;
+      const g = 2 * Math.PI / 365 * (N - 1 + (d.getUTCHours() + d.getUTCMinutes() / 60 - 12) / 24);
+      const dec = 0.006918 - 0.399912 * Math.cos(g) + 0.070257 * Math.sin(g) - 0.006758 * Math.cos(2 * g) + 0.000907 * Math.sin(2 * g) - 0.002697 * Math.cos(3 * g) + 0.00148 * Math.sin(3 * g);
+      const eq = 229.18 * (0.000075 + 0.001868 * Math.cos(g) - 0.032077 * Math.sin(g) - 0.014615 * Math.cos(2 * g) - 0.040849 * Math.sin(2 * g));
+      const tst = ((d.getUTCHours() * 60 + d.getUTCMinutes()) + eq + 4 * p.lon) % 1440, ha = (tst / 4 - 180) * R;
+      return Math.asin(Math.sin(p.lat * R) * Math.sin(dec) + Math.cos(p.lat * R) * Math.cos(dec) * Math.cos(ha)) / R;
+    }
+    // 그 시각 날씨 (단기 예보 시간별 → 중기 예보 오전/오후 → 모름)
+    function simWx(k, n, h) {
+      const st = typeof WX !== 'undefined' && WX && WX.stations && WX.stations[wxOf(k)]; if (!st) return { src: 'none' };
+      const fc = st.fc || {};
+      for (const dh of [0, 1, -1, 2, -2]) {
+        const q = fc[wxYmd(n) + String(h + dh).padStart(2, '0')]; if (!q) continue;
+        return { src: 'short', wind: q[0], dir: q[1], wave: q[2], sky: q[3], rain: isRain(q), pop: q[5] };
+      }
+      const md = WX.mid && st.mid && WX.mid[st.mid] && WX.mid[st.mid].days[wxYmd(n)];
+      const part = md && (h < 12 ? md.am || md.d : md.pm || md.d);
+      if (part) { const w = part[0] || ''; return { src: 'mid', wind: null, dir: null, wave: part[1] ?? part[2], sky: /흐/.test(w) ? 4 : /구름/.test(w) ? 3 : 1, rain: /비|소나기/.test(w), txt: w }; }
+      return { src: 'none' };
+    }
+    // 이 자리 둘레 4km에서 물 빠지면 드러나는 곳(수심 2m 안) 비율 → 물이 탁해지기 쉬운 정도 (갯벌·강어귀)
+    // 이 자리가 원래 얼마나 탁해지기 쉬운가 (0~1): 둘레 4km 갯벌(수심 2m 안) 비율 · 얕은 바다 · 큰 강어귀(금강·한강·아산만·새만금 수문)와의 거리
+    const SIM_RIV = [[35.995, 126.62, 25, '금강 하구'], [37.75, 126.52, 30, '한강·염하'], [36.95, 126.85, 25, '아산만'], [35.80, 126.45, 15, '새만금 수문']];
+    function simFlat(p, info) {
+      let base = 0.2, why = [];
+      if (DPI) {
+        let n = 0, f = 0, w = 0, sd = 0; const r = 4 / 111.2;
+        for (let dy = -r; dy <= r; dy += DPI.dy * 2) for (let dx = -r / KX; dx <= r / KX; dx += DPI.dx * 2) {
+          if ((dy * dy + dx * dx * KX * KX) > r * r) continue;
+          const R0 = depthRaw({ lat: p.lat + dy, lon: p.lon + dx }); if (R0.st === 'load') w++; if (R0.st !== 'ok') continue;
+          n++; sd += Math.max(0, R0.d); if (R0.d < 2) f++;
+        }
+        if (info) info.wait = w;
+        if (n) { const fl = f / n, md = sd / n; base += 0.35 * fl + 0.25 * Math.max(0, Math.min(1, (15 - md) / 15)); if (fl > 0.1) why.push('둘레 갯벌'); if (md < 12) why.push(`둘레 평균 수심 ${Math.round(md)}m`); }
+      }
+      for (const [la, lo, rr, nm] of SIM_RIV) { const d = distKm(p, { lat: la, lon: lo }); if (d < rr) { base += 0.2 * (1 - d / rr); why.push(`${nm} ${Math.round(d)}km`); } }
+      if (info) info.why = why;
+      return Math.min(0.8, base);
+    }
+    function simStage(m, k, t) {   // 그 시각 물 단계 (이 자리 만조·간조 → 없으면 출항지)
+      const n0 = kstDay(t), exs = m ? [n0 - 1, n0, n0 + 1].flatMap(n => spotExt(m, n)) : [n0 - 1, n0, n0 + 1].flatMap(n => TideHarm.extremes(k, n));
+      let a = null, b = null; for (const e of exs) { if (e.ms <= t) a = e; else if (!b) b = e; }
+      if (!a || !b) return { txt: '', flood: true, f: 0.5, stand: false };
+      const near = [a, b].find(e => Math.abs(e.ms - t) <= 25 * 60000), f = (t - a.ms) / (b.ms - a.ms), flood = a.type === 'L';
+      if (near) return { txt: near.type === 'H' ? '만조 · 정조' : '간조 · 정조', flood: near.type === 'H', f, stand: near.type };
+      return { txt: `${f < 1 / 3 ? '초' : f < 2 / 3 ? '중' : '끝'} ${flood ? '들물' : '날물'}`, flood, f, stand: false };
+    }
+    // 바닥에서 에기가 보이는 거리 (m): 그 색의 옆면 밝기와 뒤쪽 물빛의 대비 → 문턱보다 크면 대비가 시야 감쇠로 줄어드는 거리
+    function simSee(ez, sp, ref, glow, cBeam, lux) {
+      const S = SIM_S[sp], Qbg = S.reduce((s, v, i) => s + v * ez[i], 0) * SIM_BG / Math.PI;
+      let Q = S.reduce((s, v, i) => s + v * ez[i] * ref[i], 0) * SIM_SIDE / Math.PI;
+      if (glow) Q += SIM_GCD * S.reduce((s, v, i) => s + v * SIM_GLOW[i], 0) / SIM_V.reduce((s, v, i) => s + v * SIM_GLOW[i], 0);
+      const C = Q / Math.max(Qbg, 1e-12) - 1, Cth = 0.15 * Math.max(1, Math.sqrt(0.05 / Math.max(lux * SIM_BG / Math.PI, 1e-9)));
+      return Math.abs(C) > Cth ? Math.log(Math.abs(C) / Cth) / cBeam : 0;
+    }
+    // 봉돌 (가설 · 11/17 비응항 실제 16·18·20호에 맞춤)
+    //  흘림 낚시라 채비는 바닥에 멈춰 있지 않고 배 밑을 따라 끌려간다 → 줄이 덜 눕게 해 바닥을 느끼는 무게.
+    //  배는 겉물보다 바람 쪽으로 더 밀리고(바람의 4.5~6% · 적어도 0.5노트), 바닥 물은 겉물보다 느리다(조류의 45%만큼).
+    //  줄 절반 + 에기 2개·봉돌이 옆으로 받는 물 힘 → 물리로는 속도²만큼 무거워져야 하지만,
+    //  실제로는 선장이 배를 잡아 주고 물 약한 곳을 찾아가니 '두 배 빠르면 두 배 무겁게'로 줄였다.
+    const SIM_PE = { '0.8': 0.148e-3, '1.0': 0.165e-3 }, SIM_B = 0.45, SIM_U0 = 0.25;
+    function simDrag(depth, ut, ub, pe) {   // 옆으로 받는 물 힘(g) · ut 배-겉물 · ub 채비-바닥 물 (m/s)
+      const rho = 1025, Ll = Math.max(3, depth * 1.15), u2 = (ut * ut + ut * ub + ub * ub) / 3;
+      return (0.5 * rho * (0.0021 + 1.2 * 0.33e-3 * 1.5) * ub * ub + 0.25 * rho * 1.2 * SIM_PE[pe] * Ll * u2) / 9.81 * 1000;
+    }
+    const SIM_REFG = simDrag(11, 0.28, Math.hypot(0.28, SIM_B * 0.18), '1.0');   // 11/17 아침: 수심 11m · 조류 0.35노트 · 바람 5m/s = 18호
+    const simHo = (depth, ut, ub, pe) => 18 * Math.sqrt(simDrag(depth, Math.max(SIM_U0, ut), Math.max(SIM_U0, ub), pe) / SIM_REFG);
+    const simPick = h => SIM_SK.find(n => n >= h * 0.93) || 0;   // 7% 안쪽이면 가벼운 쪽 (21호 셈 → 20호) · 0 = 25호로도 모자람
+    // 한 시각 셈
+    function simHour(ctx, t) {
+      const { p, k, n, m, cc, sp, pe, flat } = ctx, h = Math.round((t - dayStartOf(n)) / 3600000);
+      const wx = ctx.wx ? ctx.wx(h) : simWx(k, n, h);
+      const st = simStage(m, k, t), D = depthAt(p, t, m), depth = D.st === 'ok' ? Math.max(0.5, D.dn) : null;
+      let cur = null; if (cc) { const q = curNow(cc.c, t); cur = { sp: q.sp / 100, dir: q.dir, pct: Math.round(Math.min(1, q.sp / cc.c.mx) * 100), name: cc.c.name, d: cc.d }; }
+      // 물 탁함 0~1: 갯벌·강어귀 + 날물(탁한 연안 물)/들물(맑은 바깥 물) + 센 물살(바닥 흙이 뜸) + 파도 + 비
+      const rainNow = !!wx.rain, rainBefore = ctx.rainHours.some(x => x < h);
+      let T = flat;
+      T += st.stand === 'H' ? -0.12 : st.stand === 'L' ? 0.12 : st.flood ? -0.12 * Math.min(1, st.f * 1.5) : 0.14 * Math.min(1, st.f * 1.5);
+      if (cur && depth != null && depth < 25) T += 0.15 * cur.pct / 100;
+      if (wx.wave != null && depth != null && depth < 15) T += Math.min(0.15, 0.1 * wx.wave);
+      if (rainBefore || rainNow) T += 0.12; if (ctx.rainYday) T += 0.06;
+      T = Math.max(0, Math.min(1, T));
+      const Kd = SIM_L.map((L, i) => 1.1 * SIM_AW[i] + (0.08 + 0.3 * T) * Math.exp(-0.015 * (L - 440)) + (0.25 + 1.0 * T) * Math.sqrt(440 / L));
+      const el = simSun(p, t), cf = rainNow ? 0.15 : wx.sky === 1 ? 1 : wx.sky === 3 ? 0.55 : wx.sky === 4 ? 0.3 : 0.45;
+      const Es = (el > 0 ? 120000 * Math.sin(el * Math.PI / 180) ** 1.2 : 400 * 10 ** (el / 2.3)) * cf;
+      const tint = SIM_L.map(L => (L / 550) ** (el < 0 ? -1.5 : -0.4)), tv = tint.reduce((s, x, i) => s + x * SIM_V[i], 0);
+      const zd = depth == null ? 12 : depth, ez0 = tint.map((x, i) => x / tv * Es * Math.exp(-Kd[i] * zd)), lux0 = ez0.reduce((s, x, i) => s + x * SIM_V[i], 0);
+      const ov = ctx.luxOv ? ctx.luxOv[h] : null, f = ov != null && lux0 > 0 ? ov / lux0 : 1, ez = ez0.map(x => x * f), lux = lux0 * f;   // 앞뒤 시각과 고른 바닥 빛
+      const light = lux < 0.1 ? '깜깜' : lux < 5 ? '어둑' : lux < 50 ? '보통' : '밝음';
+      const key = light !== '어둑' ? light : rainNow ? '어둑비' : (el < 12 && h < 12) ? '어둑새' : wx.sky === 1 ? '어둑맑' : '어둑흐';
+      let [head, body, tape, one, alt] = SIM_RULE[key]; const cBeam = 3.5 * Math.min(...Kd);
+      // 비 그친 뒤 흐린 낮: 톤을 낮추지 않고 고추장·무지개 그대로 (내 기록: 비 온 뒤 오후에도 밝은 톤이 먹힘 · 11/5 톤다운하자 입질 끊김)
+      const after = rainBefore && !rainNow && (key === '어둑흐' || key === '어둑맑' || key === '보통');
+      if (after) { head = '빨강'; body = '흰'; tape = '무지개'; one = '고추장'; alt = '핑크 · 만세기'; }
+      const see = Math.max(simSee(ez, sp, SIM_REF[body], body === '야광', cBeam, lux), simSee(ez, sp, SIM_REF[head], false, cBeam, lux));   // 머리·몸통 중 더 잘 보이는 쪽
+      // 예상 봉돌: 배가 바람에 덜 밀리면(4.5%) 가벼운 쪽 · 많이 밀리면(6%) 무거운 쪽 (바람 세기를 모르면 3~8m/s)
+      //  바람과 조류의 방향은 선장이 흘리는 길에 따라 달라지니 섞어서(제곱 합) 본다 · 배를 잡아 두면(물닻·엔진) held
+      let sink = null;
+      if (cur && depth != null) {
+        const cs = cur.sp, wss = wx.wind != null ? [wx.wind] : [3, 8], us = [];
+        for (const ws of wss) for (const a of [0.045, 0.06]) { const ut = Math.max(SIM_U0, a * ws); us.push([ut, Math.hypot(ut, SIM_B * cs)]); }
+        sink = Object.fromEntries(['0.8', '1.0'].map(q => { const v = us.map(([ut, ub]) => simHo(depth, ut, ub, q)), a = Math.min(...v), b = Math.max(...v);
+          return [q, { lo: simPick(a), hi: simPick(b), held: simPick(simHo(depth, cs, (1 - SIM_B) * cs, q)), ho: [Math.round(a * 10) / 10, Math.round(b * 10) / 10] }]; }));
+      }
+      return { t, h, wx, st, depth, tideDz: D.st === 'ok' ? D.dz : null, cur, el, lux, light, T, after, water: T < 0.35 ? '맑은 편' : T < 0.6 ? '보통' : '탁한 편', key, head, body, tape, one, alt, see, sink };
+    }
+    const simSkTxt = s => { if (!s) return '–'; const { lo, hi } = s; if (!lo || (!hi && lo >= 25)) return '25호↑'; if (!hi) return `${lo}호~25호↑`; return lo === hi ? `${lo}호` : `${lo}~${hi}호`; };
+    // 하루 셈: { k(출항지), p(낚시할 자리), n(날짜), h0~h1(시), sp('jj'|'gp'), pe } → 준비(자료 받기)까지 기다린 뒤
+    async function simRun(o) {
+      await loadSpots(); dpIndex();
+      for (let i = 0; i < 40 && !DPI && dpiSt !== 'err'; i++) await new Promise(r => setTimeout(r, 150));
+      if (DPI) for (let i = 0; i < 60; i++) { const q = {}; simFlat(o.p, q); if (!q.wait && depthRaw(o.p).st !== 'load') break; await new Promise(r => setTimeout(r, 150)); }   // 둘레 수심 조각이 다 들어올 때까지
+      const m = spotTide(o.p), cc = spotCur(o.p), n = o.n;
+      const rainHours = [], wx = o.wx;
+      for (let h = 0; h <= 23; h++) { const w = wx ? wx(h) : simWx(o.k, n, h); if (w.rain) rainHours.push(h); }
+      const st = typeof WX !== 'undefined' && WX && WX.stations && WX.stations[wxOf(o.k)];
+      const rainYday = o.rainYday != null ? o.rainYday : !!(st && st.rain && st.rain[wxYmd(n - 1)]);
+      const fi = {}, ctx = { p: o.p, k: o.k, n, m, cc, sp: o.sp || 'jj', pe: o.pe || '1.0', flat: simFlat(o.p, fi), rainHours, rainYday, wx };
+      let hours = []; for (let h = o.h0 ?? 6; h <= (o.h1 ?? 17); h++) hours.push(simHour(ctx, dayStartOf(n) + h * 3600000));
+      // 바닥 빛이 문턱(0.1·5·50lux) 근처에서 한 시간씩 오락가락하면 색이 들쭉날쭉 → 앞뒤 시각과 고르게 (로그로 1:2:1)
+      if (hours.length > 2) { const lg = hours.map(x => Math.log(Math.max(1e-5, x.lux))), L = lg.length; ctx.luxOv = {};
+        hours.forEach((x, i) => { ctx.luxOv[x.h] = Math.exp((lg[Math.max(0, i - 1)] + 2 * lg[i] + lg[Math.min(L - 1, i + 1)]) / 4); }); hours = hours.map(x => simHour(ctx, x.t)); }
+      const exs = m ? spotExt(m, n) : TideHarm.extremes(o.k, n);
+      return { o, flat: ctx.flat, flatWhy: fi.why || [], spot: !!m, cur: cc ? { name: cc.c.name, d: cc.d } : null, exs, dd: dayData(n), hours };
+    }
+    if (window.__JJ_TEST) window.__jjSim = { simRun, simHour, simSun, simHo, simPick, simDrag, simSkTxt };
+    // ---------- 출조 계획: 고른 날(출조 전)을 미리 셈해 시간별 에기 색 · 예상 봉돌 → 저장해 두면 바다에서도 (인터넷 없이) 본다
+    const PLAN_KEY = 'jjukgap-plans', PL_WD = ['일', '월', '화', '수', '목', '금', '토'];
+    const PL_COL = { 빨강: '#D7262E', 검정: '#1E1E1E', 퍼플: '#6B3FA0', 흰: '#F4F4F4', 민트: '#5FD3C6', 블루: '#2F6FD6', 야광: '#CFF5A8', 핑크: '#F27BB0', 레몬: '#F2E14C', 초록: '#3FA34D', 갈색: '#6B4A2E' };
+    const PL_LV = { 깜깜: ['#1D2433', '#FFFFFF'], 어둑: ['#4B5A6E', '#FFFFFF'], 보통: ['#7F9BB3', '#12282A'], 밝음: ['#D9E8F2', '#12282A'] };
+    const planAll = () => { const o = loadJ(PLAN_KEY, {}); return o && typeof o === 'object' && !Array.isArray(o) ? o : {}; };
+    const planGet = n => { const P = planAll()[n]; return P && Array.isArray(P.hours) ? P : null; };
+    function planPut(P) { const o = planAll(); o[P.n] = P; for (const k of Object.keys(o).map(Number).sort((a, b) => b - a).slice(6)) delete o[k]; saveJ(PLAN_KEY, o); }
+    const plEgi = (h, b, tape) => `<svg class="pl-egi" viewBox="0 0 46 20" aria-hidden="true"><path d="M4 10Q4 4 12 4L18 4L18 16L12 16Q4 16 4 10Z" fill="${PL_COL[h] || '#999'}" stroke="#00000044"/><path d="M18 4L36 5Q42 10 36 15L18 16Z" fill="${PL_COL[b] || '#ccc'}" stroke="#00000044"/>${tape === '무지개' ? '<rect x="20" y="9" width="18" height="2.6" fill="url(#pl-rb)"/>' : tape === '은박' ? '<rect x="20" y="9" width="18" height="2.6" fill="#C9D3D8"/>' : ''}<path d="M36 7L44 4M36 10L45 10M36 13L44 16" stroke="#8a9aa0" stroke-width="1.2"/></svg>`;
+    const PL_DEFS = '<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><linearGradient id="pl-rb" x1="0" x2="1"><stop offset="0" stop-color="#ff5a5a"/><stop offset=".33" stop-color="#ffd84a"/><stop offset=".66" stop-color="#4ad0ff"/><stop offset="1" stop-color="#b06bff"/></linearGradient></defs></svg>';
+    const plEgiTxt = x => `${x.head} 머리 · ${x.body} 몸통${x.tape ? ` + ${x.tape}` : ''}`;
+    const plDate = n => { const v = ymd(n); return `${v.m}월 ${v.d}일 (${PL_WD[v.w]})`; };
+    // 낚시할 자리: 그 출항지에서 최근 낚시한 자리(최근 3번 출조 포인트 가운데) → 없으면 출항지 앞바다에서 수심 6m 넘는 가장 가까운 곳
+    function planArea(k) {
+      const S = TideHarm.STATIONS[k]; if (!S) return null;
+      const by = new Map();
+      for (const p of points) {
+        if (!(p.port === k || p.dep === k || (distKm(p, S) <= 25 && nearest(p).k === k))) continue;
+        const key = [kstDay(p.t), p.boat || '', p.depName || ''].join('|'); if (!by.has(key)) by.set(key, []); by.get(key).push(p);
+      }
+      const trips = [...by.values()].sort((a, b) => b[0].t - a[0].t).slice(0, 3);
+      if (trips.length) {
+        let sw = 0, la = 0, lo = 0; for (const tr of trips) for (const p of tr) { const w = 1 + caughtOf(p); sw += w; la += w * p.lat; lo += w * p.lon; }
+        return { lat: la / sw, lon: lo / sw, how: 'past', n: trips.length };
+      }
+      for (let r = 1; r <= 12; r++) for (let a = 0; a < 360; a += 22.5) {
+        const q = { lat: S.lat + r / 111.2 * Math.cos(a * Math.PI / 180), lon: S.lon + r / 111.2 / KX * Math.sin(a * Math.PI / 180) }, d = depthRaw(q);
+        if (d.st === 'ok' && d.d >= 6) return { ...q, how: 'port' };
+      }
+      return { lat: S.lat, lon: S.lon, how: 'port' };
+    }
+    const plSk = (x, pe) => (x.sink ? simSkTxt(x.sink[pe]) : '–');
+    const plKn = ms => `${(ms * 100 / KN).toFixed(1)}노트`;
+    const plWx = w => { if (!w || w.src === 'none') return '날씨 모름'; const s = w.rain ? '비' : ({ 1: '맑음', 3: '구름많음', 4: '흐림' }[w.sky] || ''); return w.wind != null ? `${s} · ${w.dir != null ? wxDir(w.dir).replace(/풍$/, '') : ''}풍 ${Math.round(w.wind)}m/s` : s; };
+    // 저장용으로 줄인 한 시각
+    const planRow = x => ({ h: x.h, st: x.st.txt, d: x.depth != null ? Math.round(x.depth * 10) / 10 : null, c: x.cur ? Math.round(x.cur.sp * 100) / 100 : null, wx: plWx(x.wx), src: x.wx.src, water: x.water, light: x.light, lux: Math.round(x.lux * 100) / 100,
+      head: x.head, body: x.body, tape: x.tape, one: x.one, alt: x.alt, ...(x.after ? { after: 1 } : {}), see: Math.round(x.see * 10) / 10, sink: x.sink ? { '0.8': x.sink['0.8'], '1.0': x.sink['1.0'] } : null, T: Math.round(x.T * 100) / 100 });
+    let plS = null, plEl = null;
+    function planOpen(n) {
+      if (!plEl) {
+        plEl = document.createElement('div'); plEl.className = 'cardv bookv'; plEl.id = 'plv'; plEl.hidden = true;
+        plEl.setAttribute('role', 'dialog'); plEl.setAttribute('aria-modal', 'true'); plEl.setAttribute('aria-label', '출조 시뮬레이션');
+        document.body.appendChild(plEl);
+        plEl.addEventListener('click', planClick); plEl.addEventListener('change', planChange);
+      }
+      const P = planGet(n);
+      plS = { n, k: P && TideHarm.STATIONS[P.k] ? P.k : tideSt, p: P ? P.p : null, how: P ? P.how : null, h0: P ? P.h0 : 6, h1: P ? P.h1 : 17, pe: P ? P.pe : '1.0', res: null, busy: false, open: new Set(), saved: !!P, run: 0 };
+      plEl.hidden = false; document.documentElement.classList.add('cv-lock');
+      if (useHist) { try { history.pushState({ plv: 1 }, ''); } catch (_) {} }
+      planCalc(); plEl.scrollTop = 0;
+    }
+    function planClose(fromPop) {
+      if (!plS) return; plS = null; plEl.hidden = true;
+      if (!cardS && !portS && !bookS && !arS) document.documentElement.classList.remove('cv-lock');
+      if (useHist && !fromPop && history.state && history.state.plv) { skipPop = true; history.back(); }
+      try { planPaintMain(); } catch (_) {}
+    }
+    async function planCalc() {
+      const s = plS; if (!s) return; const run = ++s.run; s.busy = true; planRender();
+      try {
+        await loadSpots(); dpIndex();
+        for (let i = 0; i < 40 && !DPI && dpiSt !== 'err'; i++) await new Promise(r => setTimeout(r, 150));
+        if (!s.p || s.how !== 'pick') { let A = null; for (let i = 0; i < 20; i++) { A = planArea(s.k); if (A && (A.how === 'past' || depthRaw(A).st !== 'load')) break; await new Promise(r => setTimeout(r, 150)); } if (A) { s.p = { lat: A.lat, lon: A.lon }; s.how = A.how; s.nTrips = A.n || 0; } }
+        const R = await simRun({ k: s.k, p: s.p, n: s.n, h0: s.h0, h1: s.h1, sp: 'jj', pe: s.pe });
+        if (plS !== s || run !== s.run) return;
+        s.res = R;
+      } catch (e) { if (plS === s) s.err = String(e && e.message || e); }
+      if (plS === s && run === s.run) { s.busy = false; planRender(); }
+    }
+    function planClick(e) {
+      const b = e.target.closest('[data-pl]'); if (!b || !plS) return; const a = b.dataset.pl, s = plS;
+      if (a === 'x') return planClose();
+      if (a === 'port') { if (b.dataset.k === s.k) return; s.k = b.dataset.k; s.how = null; s.p = null; s.saved = false; return planCalc(); }
+      if (a === 'pe') { s.pe = b.dataset.v; s.saved = false; return planRender(); }
+      if (a === 'row') { const h = +b.dataset.h; if (s.open.has(h)) s.open.delete(h); else s.open.add(h); return planRender(); }
+      if (a === 'auto') { s.how = null; s.p = null; s.saved = false; return planCalc(); }
+      if (a === 'pick') {
+        const at = s.p || TideHarm.STATIONS[s.k]; plEl.hidden = true;
+        return openAreaPick(g => { if (!plS) return; plEl.hidden = false; s.p = { lat: g.lat, lon: g.lon }; s.how = 'pick'; s.saved = false; planCalc(); }, at, () => { if (plS) plEl.hidden = false; });
+      }
+      if (a === 'save') {
+        const R = s.res; if (!R) return;
+        planPut({ n: s.n, k: s.k, p: s.p, how: s.how, h0: s.h0, h1: s.h1, pe: s.pe, t: Date.now(), dd: R.dd.name, exs: R.exs.map(x => [x.ms, x.type]), cur: R.cur ? R.cur.name : '', hours: R.hours.map(planRow) });
+        s.saved = true; planRender(); try { planPaintMain(); } catch (_) {}
+        return mainToast ? mainToast('출조 계획을 저장했어요 · 바다에서 선상 모드 지도에 보여요') : null;
+      }
+    }
+    function planChange(e) {
+      const t = e.target; if (!plS || !t.dataset || !t.dataset.pl) return;
+      if (t.dataset.pl === 'h0') plS.h0 = Math.min(+t.value, plS.h1 - 1);
+      if (t.dataset.pl === 'h1') plS.h1 = Math.max(+t.value, plS.h0 + 1);
+      plS.saved = false; planCalc();
+    }
+    function planRender() {
+      const s = plS; if (!s || !plEl) return;
+      const head = `<div class="cv-h"><button type="button" class="cv-x" data-pl="x" aria-label="닫기"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button><b>출조 시뮬레이션</b><span>${plDate(s.n)}</span></div>`;
+      let h = PL_DEFS + `<p class="ar-sub">미리 알 수 있는 정보(물때·조류·수심·해·예보)로 그날을 시간별로 셈한 <b>가설</b>이에요. 좋은 날을 고르는 게 아니라, 고른 날을 미리 알아 두는 용도예요.</p>`;
+      h += `<div class="pl-set"><div class="pl-l"><span class="k">출항지</span><span class="pl-ports">${myStations().map(k => `<button type="button" data-pl="port" data-k="${k}" class="${k === s.k ? 'on' : ''}" aria-pressed="${k === s.k}">${esc(short(k))}</button>`).join('')}</span></div>`;
+      const where = s.p ? esc(whereTxt(s.p, s.k)) : '찾는 중…', howT = s.how === 'past' ? `이 항구에서 최근 낚시한 자리 가운데${s.nTrips ? ` (출조 ${s.nTrips}번)` : ''}` : s.how === 'pick' ? '지도에서 고른 자리' : '이 항구 기록이 없어 출항지 앞바다로 잡았어요';
+      h += `<div class="pl-l"><span class="k">낚시할 자리</span><span class="v"><b>${where}</b><small>${howT}</small><span class="pl-btns"><button type="button" data-pl="pick">지도에서 고르기</button>${s.how === 'pick' ? '<button type="button" data-pl="auto">자동으로</button>' : ''}</span></span></div>`;
+      const opt = (a, b, v) => Array.from({ length: b - a + 1 }, (_, i) => a + i).map(x => `<option value="${x}"${x === v ? ' selected' : ''}>${String(x).padStart(2, '0')}시</option>`).join('');
+      h += `<div class="pl-l"><span class="k">시간</span><span class="v pl-tm"><select data-pl="h0" aria-label="시작 시각">${opt(3, 14, s.h0)}</select> ~ <select data-pl="h1" aria-label="끝 시각">${opt(8, 20, s.h1)}</select></span></div>`;
+      h += `<div class="pl-l"><span class="k">원줄</span><span class="pl-ports">${['0.8', '1.0'].map(v => `<button type="button" data-pl="pe" data-v="${v}" class="${v === s.pe ? 'on' : ''}" aria-pressed="${v === s.pe}">PE ${v}호</button>`).join('')}</span></div></div>`;
+      const R = s.res;
+      if (s.busy && !R) h += `<p class="bk-none">셈하는 중…</p>`;
+      else if (!R) h += `<p class="bk-none">${s.err ? '셈하지 못했어요. 인터넷이 될 때 한 번 열어 주세요.' : ''}</p>`;
+      else {
+        const srcs = new Set(R.hours.map(x => x.wx.src));
+        const wsrc = srcs.has('short') ? '시간별 단기 예보' : srcs.has('mid') ? '오전·오후 중기 예보' : '예보 없음 — 날씨는 반쯤 흐린 날로 가정';
+        const ex = R.exs.map(x => `${x.type === 'H' ? '만조' : '간조'} ${ampm((x.ms - dayStartOf(s.n)) / 60000)}`).join(' · ');
+        h += `<div class="ar-now"><small>${esc(R.dd.name)} · ${esc(wsrc)}</small><b>${esc(ex)}</b><i>조류: ${R.cur ? `${esc(R.cur.name)} 조류예보 지점 (${kmTxt(R.cur.d)})${R.cur.d > 3 ? ' · 떨어진 곳이라 실제 물살과 다를 수 있어요 (배 위에서 GPS로 다시 셈)' : ''}` : '가까운 조류예보 지점이 없어 봉돌은 셈하지 못해요'}${R.flatWhy && R.flatWhy.length ? ` · 물이 탁해지기 쉬운 곳: ${esc(R.flatWhy.join(', '))}` : ''}</i></div>`;
+        h += `<p class="bk-h4">시간별 · 에기 색과 예상 봉돌 <span style="font-weight:500;color:var(--ink-2)">· 줄을 누르면 근거</span></p><div class="pl-hours">`;
+        for (const x of R.hours) {
+          const lv = PL_LV[x.light], on = s.open.has(x.h);
+          h += `<button type="button" class="pl-hr${on ? ' on' : ''}" data-pl="row" data-h="${x.h}" aria-expanded="${on}"><span class="t">${x.h}시</span><span class="m"><span class="l1">${esc(x.st.txt)} · 수심 ${x.depth != null ? Math.round(x.depth) + 'm' : '–'} · 조류 ${x.cur ? plKn(x.cur.sp) : '–'}</span><span class="l2"><i class="lv" style="background:${lv[0]};color:${lv[1]}">${x.light}</i>${esc(plWx(x.wx))} · <span style="white-space:nowrap">물색 ${x.water}</span></span>`
+            + `<span class="l3">${plEgi(x.head, x.body, x.tape)}<b>${esc(plEgiTxt(x))}</b></span>`
+            + (on ? `<span class="why">바닥 빛 ${x.lux < 0.01 ? '거의 없음(0.01lux 아래)' : `약 ${x.lux < 0.1 ? x.lux.toFixed(2) : x.lux < 10 ? x.lux.toFixed(1) : Math.round(x.lux)}lux`} · 해 높이 ${Math.round(x.el)}° · 에기가 보이는 거리 약 ${x.see.toFixed(1)}m<br>물 탁함 ${Math.round(x.T * 100)}% (${x.st.flood ? '들물이라 바깥 물' : '날물이라 연안 물'}${x.wx.rain ? ' · 비' : ''}${x.cur && x.cur.pct > 40 ? ' · 센 물살' : ''})<br>단색: ${esc(x.one)}${x.alt ? ` · 대안: ${esc(x.alt)}` : ''}${x.after ? '<br>비 그친 뒤라 톤을 낮추지 않음 (내 기록 11/5)' : ''}${x.sink ? `<br>봉돌: 배가 바람에 덜 밀리면 ${simSkTxt({ lo: x.sink[s.pe].lo, hi: x.sink[s.pe].lo })} · 많이 밀리면 ${simSkTxt({ lo: x.sink[s.pe].hi, hi: x.sink[s.pe].hi })} · 배를 잡아 두면(물닻·엔진) ${simSkTxt({ lo: x.sink[s.pe].held, hi: x.sink[s.pe].held })}<br>봉돌 무게는 11/17 비응항 내 기록(16·18·20호)에 맞춘 가설` : ''}</span>` : '')
+            + `</span><span class="sk"><b>${plSk(x, s.pe)}</b><small>봉돌</small></span></button>`;
+        }
+        h += `</div>`;
+        h += `<div class="pl-save"><button type="button" class="${s.saved ? '' : 'pri'}" data-pl="save">${s.saved ? '저장됨 · 다시 저장' : '이 계획 저장하기'}</button><small>${s.saved ? '선상 모드 지도에 그 시간 계획과 지금 물살에 맞는 봉돌이 한 줄로 보여요.' : '저장하면 바다에서 인터넷이 없어도 보이고, 선상 모드 지도에 한 줄로 떠요.'}</small></div>`;
+        h += `<p class="bk-none">계산 근거: 쭈꾸미·갑오징어 눈(청록색에 민감, 색이 아니라 밝기 대비로 봄)과 바닷속 빛 줄어듦으로 바닥 밝기를 셈하고, 족보의 바닥 빛 4단계 규칙으로 색을 골랐어요. 봉돌은 줄·쇼크리더(4호 1.5m)·에기 2개가 받는 물 힘과 봉돌이 바닥을 누르는 힘을 비교했어요. 배가 실제로 흐르는 속도는 미리 알 수 없어서, 바다에서는 선상 모드가 GPS로 다시 셈해 알려 줘요.</p>`;
+        h += `<p class="bk-none">자료: 국립해양조사원 조석·조류 예측·격자 수심(BADA2024) · 기상청 예보. 해도가 아니니 항해·안전에는 쓰지 마세요.</p>`;
+      }
+      plEl.innerHTML = `<div class="cv-in">${head}${h}</div>`;
+    }
+    // 첫 화면 '출조 시뮬레이션' 칸 (고른 날이 오늘이거나 앞날일 때 · 쭈갑일 때)
+    function planHTML(n) {
+      if (spNow() !== 'jg' || n < kstDay(Date.now())) return '';
+      const P = planGet(n);
+      const head = `<div class="block-head"><h2>출조 시뮬레이션</h2><span class="hint">가설 · 미리 셈</span></div>`;
+      if (!P) return head + `<button type="button" class="pl-go" data-plo="${n}"><span><b>이날 시간별 에기 색 · 봉돌 미리 보기</b><small>물때·조류·수심·해·예보로 셈해요</small></span><i aria-hidden="true">›</i></button>`;
+      const grp = [['새벽', x => x.h < 8], ['오전', x => x.h >= 8 && x.h < 12], ['오후', x => x.h >= 12]];
+      const rows = grp.map(([nm, f]) => {
+        const L = P.hours.filter(f); if (!L.length) return '';
+        const cnt = new Map(); for (const x of L) { const k = `${x.head}|${x.body}|${x.tape}`; cnt.set(k, (cnt.get(k) || 0) + 1); }
+        const [k0] = [...cnt].sort((a, b) => b[1] - a[1])[0], [hh, bb, tt] = k0.split('|');
+        const lo = Math.min(...L.map(x => (x.sink && x.sink[P.pe].lo) || 99)), hi = Math.max(...L.map(x => (x.sink && (x.sink[P.pe].hi || 99)) || 0));
+        const sk = lo === 99 ? '–' : simSkTxt({ lo: lo === 99 ? 0 : lo, hi: hi === 99 ? 0 : hi });
+        return `<div class="sim-row"><span class="k">${nm}</span><span class="v pl-mv">${plEgi(hh, bb, tt)}<span>${esc(hh)}·${esc(bb)}${tt ? `+${esc(tt)}` : ''} · 봉돌 ${sk}</span></span></div>`;
+      }).join('');
+      return head + PL_DEFS + `<div class="sim-card"><p class="sim-top">저장한 계획 · ${esc(short(P.k))} · ${String(P.h0).padStart(2, '0')}~${P.h1}시 <span>· PE ${P.pe}</span></p>${rows}<button type="button" class="pl-open" data-plo="${n}">계획 자세히 보기 ›</button></div>`;
+    }
+    function planPaintMain() { try { window.jjugapPlanPaint && window.jjugapPlanPaint(); } catch (_) {} }
+    window.jjugapPlan = planHTML; window.jjugapPlanOpen = n => planOpen(n);
+    // ---------- 배 위 한 줄 (선상 모드 지도): 이 시간 계획 + 지금 실제로 배가 흐르는 속도(GPS)로 다시 셈한 봉돌
+    function boatVel() {   // 최근 3분 GPS로 배가 흐르는 속도 (자동 기록이 켜져 있을 때 · 이동 중이면 없음)
+      if (!onBoard || !me || me.virtual || !autoOn) return null;
+      const t = Date.now(), Q = track.filter(q => t - q.t <= 180000);
+      if (Q.length < 2 || Q.some(q => q.run)) return null;
+      const a = Q[0], b = Q[Q.length - 1], dt = (b.t - a.t) / 1000; if (dt < 50) return null;
+      const n = (b.lat - a.lat) * 111195, e = (b.lon - a.lon) * 111195 * Math.cos(a.lat * Math.PI / 180), sp = Math.hypot(e, n) / dt;
+      return sp > 2 ? null : { e: e / dt, n: n / dt, sp };
+    }
+    let lvC = null;
+    function liveCalc(at) {   // 20초마다 · 자리가 바뀌면 다시
+      const k0 = `${me.lat.toFixed(3)},${me.lon.toFixed(3)}`;
+      if (lvC && lvC.k === k0 && at - lvC.t < 20000) return lvC.v;
+      const n = kstDay(at), h = Math.floor((at - dayStartOf(n)) / 3600000), P = planGet(n), pe = P ? P.pe : '1.0';
+      let row = P ? P.hours.find(r => r.h === h) || null : null, live = null;
+      if (!row && SP) {   // 계획이 없거나 계획 시간 밖: 지금 이 자리로 바로 셈 (색만 참고)
+        try { const m = spotTide(me), cc = spotCur(me), k = tripPortK(); live = simHour({ p: me, k, n, m, cc, sp: 'jj', pe, flat: lvFlat(me), rainHours: [], rainYday: false }, at); } catch (_) { live = null; }
+      }
+      // 봉돌: 지금 자리 수심(물 높이 반영) · 조류 · 배 속도(GPS)
+      let sk = null;
+      const cc = SP && spotCur(me), D = depthAt(me, at), depth = D.st === 'ok' ? Math.max(0.5, D.dn) : null;
+      if (cc && depth != null) {
+        const q = curNow(cc.c, at), cs = q.sp / 100, r = q.dir * Math.PI / 180, c = [cs * Math.sin(r), cs * Math.cos(r)], b = boatVel();
+        // 배-겉물 = 배 속도 − 조류 · 채비-바닥 물 = 배 속도 − 바닥 물(조류의 55%) · GPS가 없으면 물 따라 흐른다고 본다
+        const ut = b ? Math.hypot(b.e - c[0], b.n - c[1]) : SIM_U0, ub = b ? Math.hypot(b.e - (1 - SIM_B) * c[0], b.n - (1 - SIM_B) * c[1]) : Math.hypot(SIM_U0, SIM_B * cs);
+        const ho = simHo(depth, ut, ub, pe);
+        sk = { need: simPick(ho), ho, b, depth, cur: skAt(at) };
+      }
+      const val = { n, h, P, row, live, sk, pe };
+      lvC = SP && DPI && D.st !== 'load' ? { k: k0, t: at, v: val } : null;   // 자료가 아직 덜 들어왔으면 다음에 다시
+      return val;
+    }
+    let lvFlatC = null;
+    const lvFlat = p => { const k = `${p.lat.toFixed(2)},${p.lon.toFixed(2)}`; if (lvFlatC && lvFlatC.k === k) return lvFlatC.v; const v = simFlat(p); lvFlatC = { k, v }; return v; };
+    const tripPortK = () => { const t = tripFor(Date.now()); const S = Object.keys(TideHarm.STATIONS).find(k => TideHarm.STATIONS[k].name === t.depName); return S || (me ? nearest(me).k : tideSt); };
+    function planChip(here) {
+      const el = $('mv-plan'); if (!el) return;
+      if (!here || !onBoard || here.virtual || mode !== 'info' || spNow() !== 'jg') { if (!el.hidden) { el.hidden = true; planChipPos(); } return; }
+      let L = null; try { L = liveCalc(Date.now()); } catch (_) { L = null; }
+      const R = L && (L.row || L.live); if (!L || (!R && !L.sk)) { if (!el.hidden) { el.hidden = true; planChipPos(); } return; }
+      const l1 = R ? `${L.row ? `${L.h}시 계획` : '지금 셈'} · ${R.head}·${R.body}${R.tape ? `+${R.tape}` : ''}` : `${L.h}시 · 봉돌`;
+      let l2 = '';
+      const s = L.sk;
+      if (s) {   // 짧게: '계획 10~16호 · 14호 → 18호로 · 배 1.0노트'
+        const bt = s.b ? ` · 배 ${(s.b.sp * 100 / KN).toFixed(1)}노트` : '';
+        let now;
+        if (!s.need) now = '지금 25호↑';
+        else if (s.cur) { const r = s.cur / Math.max(s.ho, 1); now = r >= 1 ? `지금 ${s.cur}호 OK` : r >= 0.9 ? `${s.cur}호 아슬 → ${s.need}호` : `${s.cur}호 → ${s.need}호로`; }
+        else now = `지금 ${s.need}호면 됨`;
+        const pl = L.row && L.row.sink ? simSkTxt(L.row.sink[L.pe]) : '';
+        l2 = (pl && pl !== '–' ? `계획 ${pl} · ` : '') + now + bt;
+      }
+      const warn = s && s.cur && s.need && s.cur < s.ho * 0.9;
+      const t = `<span><b>${esc(l1)}</b>${l2 ? `<small class="${warn ? 'warn' : ''}">${esc(l2)}</small>` : ''}</span><i aria-hidden="true">›</i>`;
+      if (el.innerHTML !== t) el.innerHTML = t;
+      el.setAttribute('aria-label', `${l1}. ${l2}. 누르면 출조 계획`);
+      if (el.hidden) { el.hidden = false; } planChipPos();
+    }
+    let plcB = -1;
+    function planChipPos() {
+      const el = $('mv-plan'), a = $('mv-area'); if (!el) return;
+      const b = a && !a.hidden ? 42 + a.offsetHeight + 6 : 42;
+      if (b !== plcB) { plcB = b; el.style.bottom = b + 'px'; }
+    }
+
+
     // 이 자리 물 높이: 가까운 바다 격자 3곳(8km 안)을 거리로 섞는다. 격자마다 '기준 관측소 예측 × 조고비, 조시차만큼 늦춤'
     function spotTide(p) {
       if (!SP) return null;
@@ -5645,14 +6041,14 @@ const TideHarm = (() => {
     function areaChip(here) {
       const el = $('mv-area'); if (!el) return;
       let D = null; try { D = here && points.length ? areaData(here) : null; } catch (_) { D = null; }
-      if (!D || !D.trips.length) { el.hidden = true; dpLegPos(); return; }
+      if (!D || !D.trips.length) { el.hidden = true; dpLegPos(); planChipPos(); return; }
       const t = `<span><b>${esc(D.l1)}</b>${D.l2 ? `<small>${esc(D.l2)}</small>` : ''}</span><i aria-hidden="true">›</i>`; if (el.innerHTML !== t) el.innerHTML = t;
-      el.setAttribute('aria-label', D.line.replace(/^\S+ /, '') + ' · 누르면 자세히'); el.hidden = false; dpLegPos();
+      el.setAttribute('aria-label', D.line.replace(/^\S+ /, '') + ' · 누르면 자세히'); el.hidden = false; dpLegPos(); planChipPos();
     }
     function paintPanel(force) {
       if (!isOpen) return;
       const nowMs = Date.now(); if (!force && nowMs - lastPanel < 900) return; lastPanel = nowMs;
-      if (mode === 'save' || mode === 'list' || mode === 'set' || mode === 'detail' || mode === 'pick' || mode === 'move' || mode === 'sum') { areaChip(null); return; }
+      if (mode === 'save' || mode === 'list' || mode === 'set' || mode === 'detail' || mode === 'pick' || mode === 'move' || mode === 'sum') { areaChip(null); planChip(null); return; }
       if (viewMode && !me) {
         panel.innerHTML = recSummary() + `<p class="mv-tip">선상 모드를 켜지 않고 기록만 보는 중이에요. ‘내 위치로’를 누르면 지금 자리를 한 번만 찍어 보여 주고, 지도를 길게 누르면 그 자리의 물때·조류를 볼 수 있어요.</p>`;
         return;
@@ -5669,7 +6065,7 @@ const TideHarm = (() => {
         : ` 조류: 가장 가까운 조류예보 지점 값${c.d > 8 ? ` (${kmTxt(c.d)} 떨어져 다를 수 있어요)` : ''}.`) : '')
         + (i.wtModel ? ' 수온: 모델 예측이라 관측과 1℃쯤 다를 수 있어요.' : '') + (SP ? ' 화살표: 진한 것 조류예보 지점, 옅은 것 모델.' : '')
         + ' 낚시 정보 확인용이며 항해·안전에는 쓰지 마세요.';
-      areaChip(me);
+      areaChip(me); planChip(me);
       if (onBoard && !me.virtual) { try { dpIndex(); if (DPI) dpPrefetch(me); } catch (_) {} }
       const skRow = skNowRow();   // 선상 모드에서 봉돌이 둘 이상이면 좌표 자리에 '봉돌' 단추 (판을 내려 둬도 보이게)
       panel.innerHTML = (viewMode ? recSummary() : '') + `
@@ -9132,6 +9528,7 @@ const TideHarm = (() => {
     pill.onclick = () => setAuto(!autoOn);
     new MutationObserver(() => { const ab = $('mv-area'); if (ab && !ab.hidden && mode !== 'info') ab.hidden = true; }).observe(panel, { childList: true });   // 목록·저장 판 등을 열면 한 줄은 숨김
     { const ab = $('mv-area'); if (ab) ab.onclick = () => { if (me) areaOpen({ lat: me.lat, lon: me.lon }, me.virtual ? '길게 눌러 정한 자리' : ''); }; }
+    { const pb = $('mv-plan'); if (pb) pb.onclick = () => planOpen(kstDay(Date.now())); }   // 배 위 한 줄 → 오늘 출조 계획
     // 가만히 있으면 GPS 소식이 뜸해질 수 있어 25초 넘게 없으면 한 번 물어본다
     setInterval(() => {
       boardTimeCheck();
@@ -9631,7 +10028,7 @@ const TideHarm = (() => {
         ref: Math.round(mx * 0.92), dmin: Math.round(dg / 28.9841042 * 60), amp: Math.round(Math.hypot(co[0], co[1]) / Math.hypot(I[4], I[5]) * 100) / 100, wx, defs: SP.defs };
     }
     // ---------- 지도에서 출항지 고르기: 지도를 움직여 가운데 + 표시를 배 타는 곳에 맞추고 이름을 붙인다
-    let pickCb = null, portsList = null;
+    let pickCb = null, portsList = null, pickKind = 'port', pickCancel = null;
     function paintPick() {
       panel.innerHTML = `
         <div class="mv-h"><b>출항지로 쓸 곳 고르기</b><span>지도를 움직여 맞추기</span></div>
@@ -9639,7 +10036,16 @@ const TideHarm = (() => {
         <input class="mv-memo" id="mv-pick-name" maxlength="20" placeholder="이름 (예: 시화방조제 중간선착장)" autocomplete="off">
         <div class="mv-btns"><button class="pri" data-act="pick-ok">여기를 출항지로</button><button data-act="pick-no">취소</button></div>`;
     }
+    function openAreaPick(cb, at, cancel) {   // 출조 시뮬레이션: 낚시할 자리
+      pickKind = 'area'; pickCb = cb; pickCancel = cancel || null; open({ pick: true }); mode = 'pick'; follow = false; $('mv-me').classList.remove('on');
+      v.s = Math.max(v.s, 5000); placeAt(at.lon, at.lat, focusY()); sheetAtLeast('open');
+      panel.innerHTML = `<div class="mv-h"><b>낚시할 자리 고르기</b><span>지도를 움직여 맞추기</span></div>
+        <p class="mv-note">지도를 끌어서 가운데 <b>+</b> 표시를 배가 갈 만한 바다에 맞춰 주세요. 대략이면 충분해요.</p>
+        <div class="mv-btns"><button class="pri" data-act="pick-ok">여기로</button><button data-act="pick-no">취소</button></div>`;
+      draw();
+    }
     function openPick(cb) {
+      pickKind = 'port'; pickCancel = null;
       pickCb = cb; open({ pick: true }); mode = 'pick'; follow = false; $('mv-me').classList.remove('on');
       const S = TideHarm.STATIONS[tideSt]; v.s = Math.max(v.s, 9000); placeAt(S.lon, S.lat, focusY());
       sheetAtLeast('open'); paintPick(); draw();
@@ -9648,8 +10054,9 @@ const TideHarm = (() => {
     panel.addEventListener('click', e => {
       const b = e.target.closest('[data-act="pick-ok"], [data-act="pick-no"]'); if (!b || mode !== 'pick') return;
       e.stopImmediatePropagation();
-      if (b.dataset.act === 'pick-no') { mode = 'info'; pickCb = null; close(); return; }
+      if (b.dataset.act === 'pick-no') { const cc = pickCancel; mode = 'info'; pickCb = null; pickCancel = null; close(); if (cc) cc(); return; }
       const g = toG(W / 2, focusY()), cb = pickCb;
+      if (pickKind === 'area') { mode = 'info'; pickCb = null; pickCancel = null; close(); if (cb) cb({ lat: g.lat, lon: g.lon }); return; }
       let name = (($('mv-pick-name') || {}).value || '').trim(), sub = '';
       const nearP = (portsList || []).map(r => ({ r, d: distKm(g, { lat: r[1], lon: r[2] }) })).sort((a, b) => a.d - b.d)[0];
       if (nearP && nearP.d < 3) sub = nearP.r[3];
@@ -9688,7 +10095,7 @@ const TideHarm = (() => {
       if (!onBoard) { stopGps(); endStay(); track = []; }
       if (viewMode && me && !me.virtual && !onBoard) me = null;   // '내 기록'에서 한 번 찍어 본 위치는 남기지 않는다
       viewMode = false; dayFilter = null;
-      if (mode === 'pick') { mode = 'info'; pickCb = null; }
+      if (mode === 'pick') { const cc = pickCancel; mode = 'info'; pickCb = null; pickCancel = null; if (cc) setTimeout(cc, 0); }   // 뒤로 가기로 닫으면 '취소'처럼
       if (useHist && !fromPop && history.state && history.state.mapv) { skipPop = true; history.back(); }
       paintBoardBtn();
       if (onBoard) setTimeout(holdTip, 450);   // 지도가 닫히고 나서
@@ -9699,10 +10106,10 @@ const TideHarm = (() => {
     // 앱을 열면 조금 뒤 지도용 자료도 받아 둔다 (바다 위에서 인터넷이 끊겨도 저장해 둔 것으로 보이게)
     if (!inFrame) setTimeout(loadSpots, 3500);
     if (!inFrame) setTimeout(() => (window.requestIdleCallback || (f => setTimeout(f, 0)))(() => loadLand(), { timeout: 4000 }), 5000);
-    addEventListener('popstate', () => { if (skipPop) { skipPop = false; return; } if (arS) { if (!(history.state && history.state.arv)) areaClose(true); return; } if (bookS) { if (bookS.sel && !(history.state && history.state.bookd)) { bookS.sel = null; bookRender(); } else if (!(history.state && history.state.bookv)) bookClose(true); return; } if (portS) { portClose(true); return; } if (cardS) { cardClose(true); return; } if (isOpen) close(true); });
+    addEventListener('popstate', () => { if (skipPop) { skipPop = false; return; } if (plS && plEl && !plEl.hidden) { if (!(history.state && history.state.plv)) planClose(true); return; } if (arS) { if (!(history.state && history.state.arv)) areaClose(true); return; } if (bookS) { if (bookS.sel && !(history.state && history.state.bookd)) { bookS.sel = null; bookRender(); } else if (!(history.state && history.state.bookv)) bookClose(true); return; } if (portS) { portClose(true); return; } if (cardS) { cardClose(true); return; } if (isOpen) close(true); });
     document.addEventListener('keydown', e => { if (e.key !== 'Escape') return; if (arS) areaClose(); else if (portS) portClose(); else if (cardS) cardClose(); else if (isOpen) close(); });
     // 안드로이드 앱의 뒤로 단추: 저절로 열린 판(출조 정리·카드 등)은 웹 화면의 '뒤로 가기'가 건너뛰어 앱이 꺼지므로, 앱이 먼저 물어본다
-    window.jjugapBack = () => { if (window.jjugapRigEd && window.jjugapRigEd()) return true; const s = history.state; if (s && (s.arv || s.bookv || s.mapv || s.cardv || s.portv || s.stSheet || s.pcal || s.palv || s.spv)) { history.back(); return true; } return false; };
+    window.jjugapBack = () => { if (window.jjugapRigEd && window.jjugapRigEd()) return true; const s = history.state; if (s && (s.plv || s.arv || s.bookv || s.mapv || s.cardv || s.portv || s.stSheet || s.pcal || s.palv || s.spv)) { history.back(); return true; } return false; };
     { const pb = $('pk-btn'); if (pb) pb.onclick = async () => portOpen(await portIdxFor(tideSt)); }
     // 바다 위(인터넷 약함)에서도 열리게: 지금 출항지의 항구 자료를 미리 받아 둔다 (sw.js 가 저장)
     let portWarmK = '';
@@ -10116,7 +10523,7 @@ const TideHarm = (() => {
 
 <script>
 if ('serviceWorker' in navigator) addEventListener('load', () => {
-  const sw = navigator.serviceWorker, VER = '7231272c'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
+  const sw = navigator.serviceWorker, VER = '21f340a0'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
   // 화면에 손을 대기 시작했는지 (쓰는 중에는 새로 열지 않으려고)
   ['pointerdown', 'keydown'].forEach(t => addEventListener(t, () => { touched = true; }, { capture: true, passive: true }));
   const reload = () => {
