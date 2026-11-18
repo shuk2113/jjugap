@@ -11,7 +11,7 @@ permissions:
 jobs:
   fetch:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@v5
       - name: 받기
@@ -35,7 +35,9 @@ jobs:
           while la < 38.09:   # 앱 바다 지도(basemap) 범위를 조각으로 나눠서
               lo = 125.30
               while lo < 127.39:
-                  for e in get(f'{la:.2f},{lo:.2f},{min(38.10, la + 0.6):.2f},{min(127.40, lo + 0.7):.2f}'): els[e['id']] = e
+                  bb = f'{la:.2f},{lo:.2f},{min(38.10, la + 0.6):.2f},{min(127.40, lo + 0.7):.2f}'; t0 = time.time(); got = get(bb)
+                  for e in got: els[e['id']] = e
+                  print('조각', bb, len(got), f'{time.time() - t0:.0f}초', flush=True)
                   lo += 0.7; time.sleep(3)
               la += 0.6
           j = {'elements': list(els.values())}; out = []
