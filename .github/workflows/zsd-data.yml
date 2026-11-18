@@ -1,0 +1,26 @@
+# 서해 정점별 · 달별 투명도 실측 요약 받기 (손으로만)
+# 자료: 국립수산과학원 정선해양관측정보 — 공공데이터포털 파일데이터 15147989 (이용허락범위 제한 없음)
+name: 투명도 실측 요약 받기
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v5
+      - name: 받아서 요약
+        run: python3 .github/scripts/zsd_nifs.py
+      - name: 저장
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add .github/data/zsd/nifs_zsd.json
+          git diff --cached --quiet && exit 0
+          git commit -m "서해 투명도 실측 요약 (국립수산과학원 정선해양관측)"
+          for i in 1 2 3; do git pull --rebase -q origin main && git push -q origin HEAD:main && break; sleep 5; done
