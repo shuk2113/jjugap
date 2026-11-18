@@ -2,6 +2,8 @@
 name: 수심 자료 만들기
 
 on:
+  schedule:
+    - cron: '37 18 * * *'   # 한국 새벽 3시 37분: 하루 호출 한도로 끊겼으면 이어서 받기 (다 받았으면 바로 끝)
   workflow_dispatch:
     inputs:
       mode:
@@ -28,7 +30,7 @@ jobs:
     steps:
       - uses: actions/checkout@v5
       - name: 앱 칸(gh-pages) 받기
-        if: ${{ inputs.mode == 'full' }}
+        if: ${{ github.event_name == 'schedule' || inputs.mode == 'full' }}
         uses: actions/checkout@v5
         with:
           ref: gh-pages
@@ -39,13 +41,14 @@ jobs:
           DATA_GO_KR_KEY: ${{ secrets.DATA_GO_KR_KEY }}
         run: python3 .github/scripts/depth.py --test
       - name: 수심 받기
-        if: ${{ inputs.mode == 'full' }}
+        if: ${{ github.event_name == 'schedule' || inputs.mode == 'full' }}
         env:
           DATA_GO_KR_KEY: ${{ secrets.DATA_GO_KR_KEY }}
         run: |
+          if [ -f site/data/depth/index.json ] && python3 -c "import json,sys;d=json.load(open('site/data/depth/index.json'));n=d['nt'][0]*d['nt'][1];sys.exit(0 if len(d['tiles'])+len(d['none'])>=n else 1)"; then echo '다 받았음'; exit 0; fi
           if [ -n "${{ inputs.only }}" ]; then python3 .github/scripts/depth.py site/data --only "${{ inputs.only }}"; else python3 .github/scripts/depth.py site/data; fi
       - name: 앱 칸에 올리기
-        if: ${{ inputs.mode == 'full' && always() }}
+        if: ${{ (github.event_name == 'schedule' || inputs.mode == 'full') && always() }}
         working-directory: site
         run: |
           git config user.name "github-actions[bot]"

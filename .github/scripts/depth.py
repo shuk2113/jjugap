@@ -13,7 +13,7 @@
 import json, math, os, re, struct, sys, time, urllib.error, urllib.parse, urllib.request, zlib
 
 KEY = re.sub(r'\s+', '', os.environ.get('DATA_GO_KR_KEY', ''))
-URL = 'https://apis.data.go.kr/1192136/waterDepth'
+URL = 'https://apis.data.go.kr/1192136/waterDepth/GetWaterDepthApiService'
 # 범위: 인천·경기만 ~ 군산·부안 앞바다 (섬 포함, 해안에서 바깥으로 60~80km)
 LAT0, LAT1, LON0, LON1 = 35.50, 37.80, 125.30, 126.95
 TILE = 0.10   # 조각 크기(도) — 한 조각 약 11km × 9km
@@ -59,40 +59,42 @@ def pick(o, *names):
     return None
 
 
-CANDS = ['https://apis.data.go.kr/1192136/waterDepth/GetWaterDepthApiService',
-         'https://apis.data.go.kr/1192136/waterDepth/getWaterDepth',
-         'https://apis.data.go.kr/1192136/waterDepth/GetWaterDepthService',
-         'https://apis.data.go.kr/1192136/waterDepth']
-
-
 def test():
-    global URL
     if not KEY: print('인증키 없음'); return 1
-    txt = None
-    for u in CANDS:
-        URL = u
-        try:
-            txt = call(35.95, 35.97, 126.40, 126.43, rows=5, tries=1); print('주소 OK:', u); break
-        except Exception as e:
-            print('주소 실패:', u, '·', str(e)[:300].replace('\n', ' '))
-    if txt is None: return 1
+    try:
+        txt = call(35.95, 35.97, 126.40, 126.43, rows=12, tries=1)
+    except Exception as e:
+        print('실패:', str(e)[:400].replace('\n', ' ')); return 1
     print('응답 앞부분:', mask(txt[:900]))
     try:
         it, total, _ = items_of(txt)
         print('총 개수:', total, '· 받은 개수:', len(it))
         if it: print('첫 항목 키:', list(it[0].keys()), '· 값:', it[0])
+        for o in it[1:5]: print('  ', o)
     except Exception as e:
         print('JSON 읽기 실패:', e)
     return 0
 
 
-def fetch_tile(la, lo):
+DY, DX = 1 / 720, 1 / 600        # 앱 격자: 위도 5초(약 154m) · 경도 6초(약 150m)
+NY, NX = round(TILE / DY), round(TILE / DX)   # 한 조각 72 × 60 칸
+NONE = -32768
+
+
+def tname(ti, tj):
+    return f'{round((LAT0 + ti * TILE) * 10)}_{round((LON0 + tj * TILE) * 10)}'
+
+
+def fetch_tile(ti, tj):
+    la, lo = LAT0 + ti * TILE, LON0 + tj * TILE
     pts, page, total = [], 1, None
     while True:
         it, tot, _ = items_of(call(la, la + TILE, lo, lo + TILE, page=page))
         total = tot if total is None else total
         for o in it:
-            y, x, z = pick(o, 'lat', 'latitude', 'y'), pick(o, 'lot', 'lon', 'lng', 'longitude', 'x'), pick(o, 'depth', 'dep', 'wtrdep', 'z', 'val', 'value')
+            y = pick(o, 'lat', 'latitude', 'y')
+            x = pick(o, 'lot', 'lon', 'lng', 'longitude', 'x')
+            z = pick(o, 'depth', 'dep', 'wtrdep', 'wdepth', 'dpth', 'z', 'val', 'value')
             try: pts.append((float(y), float(x), float(z)))
             except (TypeError, ValueError): pass
         if not it or page * 300 >= (total or 0): break
@@ -100,53 +102,57 @@ def fetch_tile(la, lo):
     return pts, total or 0
 
 
-def pack(pts, la, lo):
-    """점들을 규칙 격자로: 위도 간격 dy, 경도 간격 dx 를 점들에서 알아내 int16(10cm 단위)로."""
-    if not pts: return None
-    ys = sorted({round(p[0], 5) for p in pts}); xs = sorted({round(p[1], 5) for p in pts})
-    def step(v):
-        d = [b - a for a, b in zip(v, v[1:]) if b - a > 1e-6]
-        d.sort(); return d[len(d) // 2] if d else TILE
-    dy, dx = step(ys), step(xs)
-    ny, nx = int(round(TILE / dy)) + 1, int(round(TILE / dx)) + 1
-    g = [-32768] * (ny * nx)
+def pack(pts, ti, tj):
+    """점들을 앱 격자 칸에 평균으로 담고(조각 밖 점은 버림), 빈 칸은 이웃 3칸 이상이 있으면 이웃 평균으로 메운다.
+    저장: int16(10cm 단위, 평균해수면 아래 +) NY×NX, 없음 = -32768, zlib."""
+    sm = [0.0] * (NY * NX); cn = [0] * (NY * NX)
+    y0, x0 = LAT0 + ti * TILE, LON0 + tj * TILE
     for y, x, z in pts:
-        i, j = int(round((y - la) / dy)), int(round((x - lo) / dx))
-        if 0 <= i < ny and 0 <= j < nx:
-            g[i * nx + j] = max(-32767, min(32767, int(round(z * 10))))
-    raw = struct.pack('<4d2H', la, lo, dy, dx, ny, nx) + struct.pack(f'<{ny * nx}h', *g)
-    return zlib.compress(raw, 9), ny, nx, dy, dx
+        i, j = int((y - y0) / DY + 0.5), int((x - x0) / DX + 0.5)
+        if 0 <= i < NY and 0 <= j < NX and -100 < z < 12000:
+            sm[i * NX + j] += z; cn[i * NX + j] += 1
+    g = [round(sm[k] / cn[k] * 10) if cn[k] else NONE for k in range(NY * NX)]
+    fill = []
+    for i in range(NY):
+        for j in range(NX):
+            if g[i * NX + j] != NONE: continue
+            nb = [g[a * NX + b] for a in (i - 1, i, i + 1) for b in (j - 1, j, j + 1)
+                  if 0 <= a < NY and 0 <= b < NX and (a, b) != (i, j) and g[a * NX + b] != NONE]
+            if len(nb) >= 3: fill.append((i * NX + j, round(sum(nb) / len(nb))))
+    for k, v in fill: g[k] = v
+    g = [max(-32767, min(32767, v)) if v != NONE else NONE for v in g]
+    n = sum(1 for v in g if v != NONE)
+    return zlib.compress(struct.pack(f'<{NY * NX}h', *g), 9), n
 
 
 def main(out, only=None):
     if not KEY: print('인증키 없음'); return 1
-    os.makedirs(os.path.join(out, 'depth'), exist_ok=True)
-    idx_path = os.path.join(out, 'depth', 'index.json')
-    idx = json.load(open(idx_path)) if os.path.exists(idx_path) else {'tiles': {}}
-    idx.update({'src': '국립해양조사원 BADA2024 격자 수심(150m) · 공공누리 제1유형', 'datum': 'msl', 'unit': 'dm', 'tile': TILE,
-                'box': [LAT0, LAT1, LON0, LON1], 'fmt': 'zlib(<4d2H header: lat0,lon0,dlat,dlon,ny,nx> + int16[ny*nx], -32768=없음)'})
+    d = os.path.join(out, 'depth'); os.makedirs(d, exist_ok=True)
+    idx_path = os.path.join(d, 'index.json')
+    idx = json.load(open(idx_path)) if os.path.exists(idx_path) else {}
+    idx.setdefault('tiles', {}); idx.setdefault('none', [])
+    idx.update({'src': '국립해양조사원 BADA2024 격자 수심(150m) · 공공누리 제1유형', 'datum': '평균해수면', 'unit': 'dm',
+                'lat0': LAT0, 'lon0': LON0, 'tile': TILE, 'ny': NY, 'nx': NX, 'nt': [round((LAT1 - LAT0) / TILE), round((LON1 - LON0) / TILE)]})
     n_calls = 0
-    la = LAT0
-    while la < LAT1 - 1e-9:
-        lo = LON0
-        while lo < LON1 - 1e-9:
-            name = f'{la:.2f}_{lo:.2f}'
-            if (only and name != only) or (not only and name in idx['tiles']):
-                lo += TILE; continue
-            pts, total = fetch_tile(la, lo); n_calls += max(1, math.ceil(total / 300))
-            if pts:
-                blob, ny, nx, dy, dx = pack(pts, la, lo)
-                open(os.path.join(out, 'depth', name + '.bin'), 'wb').write(blob)
-                idx['tiles'][name] = {'n': len(pts), 'ny': ny, 'nx': nx}
-                print(f'{name}: 점 {len(pts)}개 → {len(blob) // 1024}KB')
+    for ti in range(idx['nt'][0]):
+        for tj in range(idx['nt'][1]):
+            name = tname(ti, tj)
+            if only and name != only: continue
+            if not only and (name in idx['tiles'] or name in idx['none']): continue
+            pts, total = fetch_tile(ti, tj); n_calls += max(1, math.ceil(total / 300))
+            blob, n = pack(pts, ti, tj) if pts else (None, 0)
+            if n:
+                open(os.path.join(d, name + '.bin'), 'wb').write(blob)
+                idx['tiles'][name] = n
+                print(f'{name}: 점 {len(pts)}개 → 칸 {n}개 · {len(blob) // 1024}KB')
             else:
-                idx['tiles'][name] = {'n': 0}   # 육지뿐이거나 자료 없음
-                print(f'{name}: 자료 없음')
-            json.dump(idx, open(idx_path, 'w'), ensure_ascii=False)
+                if name not in idx['none']: idx['none'].append(name)
+                print(f'{name}: 바다 자료 없음')
+            idx['v'] = int(time.time())
+            json.dump(idx, open(idx_path, 'w'), ensure_ascii=False, separators=(',', ':'))
             if n_calls > 9000: print('하루 호출 한도 가까움 — 여기까지 저장, 다음에 이어서'); return 0
-            lo += TILE
-        la += TILE
-    print('끝 · 호출', n_calls)
+    left = idx['nt'][0] * idx['nt'][1] - len(idx['tiles']) - len(idx['none'])
+    print('끝 · 호출', n_calls, '· 남은 조각', left)
     return 0
 
 
