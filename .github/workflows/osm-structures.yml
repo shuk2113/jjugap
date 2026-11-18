@@ -47,6 +47,7 @@ jobs:
               c = [[round(p['lon'], 6), round(p['lat'], 6)] for p in g]
               t = e.get('tags', {})
               out.append({'id': e['id'], 'k': t.get('man_made'), 'area': t.get('area') == 'yes' or (c[0] == c[-1] and len(c) >= 4), 'name': t.get('name', ''), 'c': c})
+          import os; os.makedirs('.github/data', exist_ok=True)
           json.dump({'src': '© OpenStreetMap 기여자 (ODbL)', 'when': time.strftime('%Y-%m-%d'), 'ways': out}, open('.github/data/osm_breakwaters.json', 'w'), ensure_ascii=False, separators=(',', ':'))
           print('방파제', len(out), '· 점', sum(len(w['c']) for w in out))
           for w in out:
