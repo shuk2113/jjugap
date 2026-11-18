@@ -314,10 +314,10 @@ html.mv-on .app *{animation-play-state:paused !important} html.mv-hide .app{visi
 .mv-grab:focus-visible{outline:2px solid #2F7DF6; outline-offset:-4px; border-radius:18px 18px 0 0}
 .mv-panel{position:relative; flex:none; max-height:46vh; overflow-y:auto; padding:2px 14px calc(12px + env(safe-area-inset-bottom, 0px)); overscroll-behavior:contain}
 .mv-panel.sized{max-height:none} .mv-drag .mv-scale, .mv-drag .mv-attr, .mv-drag .mv-area, .mv-drag .mv-dleg{transition:none}
-.mv-dleg{position:absolute; left:10px; bottom:46px; transform:translate3d(0,calc(-1 * var(--sheet-h, 0px)),0); transition:transform .28s cubic-bezier(.2,.85,.25,1); padding:5px 8px 4px; border-radius:9px; background:var(--map-card, var(--card)); color:var(--map-ink, var(--ink)); font-size:calc(9.5px * var(--k)); font-weight:700; line-height:1.3; pointer-events:none; box-shadow:0 1px 4px rgba(0,0,0,.2)}
-.mv-dleg[hidden]{display:none} .mv-dleg small{display:block; font-weight:500; opacity:.85}
-.mv-dleg .sw{display:flex; margin:3px 0 1px; border-radius:3px; overflow:hidden; height:8px; width:140px} .mv-dleg .sw i{flex:1}
-.mv-dleg .lb{display:grid; grid-template-columns:repeat(5,1fr); width:140px; font-weight:500; opacity:.85; font-variant-numeric:tabular-nums} .mv-dleg .lb.g{display:flex; justify-content:space-between}
+.mv-dleg{position:absolute; left:10px; bottom:46px; transform:translate3d(0,calc(-1 * var(--sheet-h, 0px)),0); transition:transform .28s cubic-bezier(.2,.85,.25,1), bottom .2s; display:flex; align-items:center; gap:4px; padding:3px 6px; border-radius:8px; background:var(--map-card, var(--card)); color:var(--map-ink, var(--ink)); font-size:calc(9px * var(--k)); font-weight:700; line-height:1; white-space:nowrap; pointer-events:none; opacity:.93; box-shadow:0 1px 3px rgba(0,0,0,.18); font-variant-numeric:tabular-nums}
+.mv-dleg[hidden]{display:none}
+.mv-dleg .sw{display:flex; border-radius:3px; overflow:hidden; height:calc(13px * var(--k))} .mv-dleg .sw i{display:flex; align-items:center; justify-content:center; width:calc(18px * var(--k)); font-style:normal; font-size:calc(8.5px * var(--k)); font-weight:800}
+.mv-dleg .gr{display:block; width:calc(64px * var(--k)); height:calc(9px * var(--k)); border-radius:3px}
 .mv-dset{padding:10px 12px 12px} .mv-dset .h b{display:block; font-size:calc(14px * var(--k))} .mv-dset .h small{display:block; margin-top:1px; font-size:calc(11.5px * var(--k)); color:var(--ink-2); font-weight:500}
 .mv-dseg{display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:5px; margin-top:8px}
 .mv-dseg button{padding:9px 2px; border-radius:10px; border:1px solid var(--line); background:var(--card); color:var(--ink); font:inherit; font-size:calc(12px * var(--k)); font-weight:700; line-height:1.2; word-break:keep-all}
@@ -5407,13 +5407,22 @@ const TideHarm = (() => {
       const el = $('mv-dleg'); if (!el) return;
       const inBox = DPI && v.lat > DPI.lat0 - 0.1 && v.lat < DPI.lat0 + DPI.nt[0] * DPI.tile + 0.1 && v.lon > DPI.lon0 - 0.2 && v.lon < DPI.lon0 + DPI.nt[1] * DPI.tile + 0.2;
       const sty = DP_STY[mapSet.dp] && inBox && v.s >= DP_MIN_S ? mapSet.dp : '', k = `${sty}|${C.sea}`;
-      if (k === dlegK) return; dlegK = k;
+      if (k === dlegK) { dpLegPos(); return; } dlegK = k;
       if (!sty) { el.hidden = true; return; }
-      const sea = rgbOf(C.sea), dk = dpDarkSea(), mix = c => (c ? `rgb(${[0, 1, 2].map(q => Math.round(sea[q] * (1 - c[3]) + c[q] * c[3])).join(',')})` : `rgb(${sea.join(',')})`);
-      if (sty === 'shade') el.innerHTML = `바닥 굴곡<small>밝은 쪽 솟은 곳 · 어두운 쪽 골</small>`;
-      else if (sty === 'band') el.innerHTML = `수심 · 평균 물높이 (m)<span class="sw">${DP_BAND.map(b => `<i style="background:${mix(dpCol(b[0] + 0.1, 'band', dk))}"></i>`).join('')}</span><span class="lb"><span>0</span><span>5</span><span>10</span><span>20</span><span>30+</span></span>`;
-      else el.innerHTML = `수심 · 평균 물높이 (m)<span class="sw" style="background:linear-gradient(90deg,${Array.from({ length: 9 }, (_, q) => mix(dpCol(0.6 + q * 5, 'smooth', dk))).join(',')})"></span><span class="lb g"><span>0</span><span>10</span><span>20</span><span>30</span><span>40+</span></span>`;
-      el.hidden = false;
+      const sea = rgbOf(C.sea), dk = dpDarkSea(), mixA = c => (c ? [0, 1, 2].map(q => Math.round(sea[q] * (1 - c[3]) + c[q] * c[3])) : sea), mix = c => `rgb(${mixA(c).join(',')})`;
+      const ink = c => { const [r, g, b] = mixA(c); return (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255 < 0.5 ? '#FFFFFF' : '#12282A'; };
+      // 작게 한 줄로 (지도를 덜 가리게)
+      if (sty === 'shade') el.innerHTML = `바닥 굴곡 · 밝은 쪽 솟음 · 어두운 쪽 골`;
+      else if (sty === 'band') el.innerHTML = `수심<span class="sw">${DP_BAND.map((b, q) => { const c = dpCol(b[0] + 0.1, 'band', dk); return `<i style="background:${mix(c)};color:${ink(c)}">${['0', '5', '10', '20', '30+'][q]}</i>`; }).join('')}</span>m`;
+      else el.innerHTML = `수심 0<span class="gr" style="background:linear-gradient(90deg,${Array.from({ length: 9 }, (_, q) => mix(dpCol(0.6 + q * 5, 'smooth', dk))).join(',')})"></span>40m+`;
+      el.hidden = false; dlegB = -1; dpLegPos();
+    }
+    // '이 일대 지난 기록' 한 줄이 떠 있으면 그 위로 비켜 선다 (겹치지 않게)
+    let dlegB = -1;
+    function dpLegPos() {
+      const el = $('mv-dleg'), a = $('mv-area'); if (!el || el.hidden) return;
+      const b = a && !a.hidden ? 42 + a.offsetHeight + 6 : 46;
+      if (b !== dlegB) { dlegB = b; el.style.bottom = b + 'px'; }
     }
     // 꾹 누른 자리 말풍선 · 선상 모드 내 위치 옆 숫자 (지금 물 높이를 더한 값)
     let dpBub = null, dpMeC = null;
@@ -5636,9 +5645,9 @@ const TideHarm = (() => {
     function areaChip(here) {
       const el = $('mv-area'); if (!el) return;
       let D = null; try { D = here && points.length ? areaData(here) : null; } catch (_) { D = null; }
-      if (!D || !D.trips.length) { el.hidden = true; return; }
+      if (!D || !D.trips.length) { el.hidden = true; dpLegPos(); return; }
       const t = `<span><b>${esc(D.l1)}</b>${D.l2 ? `<small>${esc(D.l2)}</small>` : ''}</span><i aria-hidden="true">›</i>`; if (el.innerHTML !== t) el.innerHTML = t;
-      el.setAttribute('aria-label', D.line.replace(/^\S+ /, '') + ' · 누르면 자세히'); el.hidden = false;
+      el.setAttribute('aria-label', D.line.replace(/^\S+ /, '') + ' · 누르면 자세히'); el.hidden = false; dpLegPos();
     }
     function paintPanel(force) {
       if (!isOpen) return;
@@ -10107,7 +10116,7 @@ const TideHarm = (() => {
 
 <script>
 if ('serviceWorker' in navigator) addEventListener('load', () => {
-  const sw = navigator.serviceWorker, VER = '8fd312c0'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
+  const sw = navigator.serviceWorker, VER = '269a0a4f'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
   // 화면에 손을 대기 시작했는지 (쓰는 중에는 새로 열지 않으려고)
   ['pointerdown', 'keydown'].forEach(t => addEventListener(t, () => { touched = true; }, { capture: true, passive: true }));
   const reload = () => {
