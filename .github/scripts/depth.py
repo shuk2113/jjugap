@@ -10,7 +10,7 @@
   python3 depth.py --test               # 작은 범위 한 번 불러 응답 모양만 보기
   python3 depth.py OUT_DIR [--only TILE] # 전체(또는 한 조각) 받아 OUT_DIR/depth/ 에 저장
 """
-import json, math, os, re, struct, sys, time, urllib.parse, urllib.request, zlib
+import json, math, os, re, struct, sys, time, urllib.error, urllib.parse, urllib.request, zlib
 
 KEY = re.sub(r'\s+', '', os.environ.get('DATA_GO_KR_KEY', ''))
 URL = 'https://apis.data.go.kr/1192136/waterDepth'
@@ -24,14 +24,19 @@ def mask(s):
 
 
 def call(ymin, ymax, xmin, xmax, page=1, rows=300, tries=4):
-    q = {'serviceKey': KEY, 'type': 'json', 'ymin': f'{ymin:.4f}', 'ymax': f'{ymax:.4f}',
+    q = {'type': 'json', 'ymin': f'{ymin:.4f}', 'ymax': f'{ymax:.4f}',
          'xmin': f'{xmin:.4f}', 'xmax': f'{xmax:.4f}', 'pageNo': page, 'numOfRows': rows}
-    url = URL + '?' + urllib.parse.urlencode(q, safe='%')
+    url = f'{URL}?serviceKey={KEY}&' + urllib.parse.urlencode(q, safe='')   # 다른 수집과 같은 방식(키는 그대로)
     err = None
     for i in range(tries):
         try:
             with urllib.request.urlopen(url, timeout=40) as r:
                 return r.read().decode('utf-8', 'replace')
+        except urllib.error.HTTPError as e:
+            body = e.read().decode('utf-8', 'replace')[:400]
+            err = f'HTTP {e.code} · {body}'
+            if e.code in (400, 401, 403): break
+            time.sleep(2 + 3 * i)
         except Exception as e:
             err = e; time.sleep(2 + 3 * i)
     raise RuntimeError(mask(str(err)))
