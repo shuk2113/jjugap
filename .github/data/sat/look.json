@@ -1,0 +1,828 @@
+{
+ "when": "2026-11-19T01:44:44.551255Z",
+ "robots https://www.nosc.go.kr": {
+  "ok": true,
+  "code": 200,
+  "url": "https://www.nosc.go.kr/robots.txt",
+  "len": 1439,
+  "ct": "text/plain",
+  "cl": "1439",
+  "body": "User-agent: facebookexternalhit\r\nDisallow: /\r\n\r\nUser-agent: facebookexternalhit/1.1\r\nDisallow: /\r\n\r\nUser-agent: meta-externalagent\r\nDisallow: /\r\n\r\n\r\nUser-agent: Apache-HttpClient\r\nDisallow: /\r\n\r\n\r\nUser-agent: Bytespider\r\nDisallow: /\r\n\r\n\r\nUser-agent: DataForSeoBot/1.0\r\nDisallow: /\r\n\r\nUser-agent: DataForSeoBot\r\nDisallow: /\r\n\r\nUser-agent: bingbot/2.0\r\nDisallow: /\r\n\r\nUser-agent: bingbot\r\nDisallow: /\r\n\r\n\r\nUser-agent: Bingbot\r\nDisallow: /\r\n\r\nUser-agent: Go-http-client\r\nDisallow: /\r\n\r\n\r\nUser-agent: ImagesiftBot\r\nDisallow: /\r\n\r\nUser-agent: www.sogou.com\r\nDisallow: /\r\n\r\nUser-agent: Meta-WebIndexer\r\nDisallow: /\r\n\r\nUser-agent: meta-webindexer\r\nDisallow: /\r\n\r\nUser-agent: meta-webindexer/1.1\r\nDisallow: /\r\n\r\nUser-agent: AliyunSecBot/Aliyun\r\nDisallow: /\r\n\r\nUser-agent: Amazonbot\r\nDisallow: /\r\n\r\nUser-agent: Googlebot\r\nDisallow: /search/actionUnitySearch.do\r\nDisallow: /eng/search/actionUnitySearch.do\r\nDisallow: /board/actionBoardListBoard0009.do\r\nDisallow: /board/actionBoardListBoard0018.do\r\nDisallow: /board/actionBoardListBoard0017.do\r\nDisallow: /board/actionBoardListBoard0002.do\r\nDisallow: /board/actionBoardListBoard0005.do\r\nDisallow: /board/actionBoardListBoard0022.do\r\nDisallow: /board/actionBoardListBoard0003.do\r\nDisallow: /board/actionBoardListBoard0020.do\r\nDisallow: /eng/board/actionBoardListBoard0011.do\r\nDisallow: /eng/board/actionBoardListBoard0012.do\r\n\r\nUser-agent: *\r\nAllow: /\r\nSitemap: https://www.nosc.go.kr/sitemap.xml\r\n\r\n"
+ },
+ "robots https://nosc.go.kr": {
+  "ok": true,
+  "code": 200,
+  "url": "https://nosc.go.kr/robots.txt",
+  "len": 1439,
+  "ct": "text/plain",
+  "cl": "1439",
+  "body": "User-agent: facebookexternalhit\r\nDisallow: /\r\n\r\nUser-agent: facebookexternalhit/1.1\r\nDisallow: /\r\n\r\nUser-agent: meta-externalagent\r\nDisallow: /\r\n\r\n\r\nUser-agent: Apache-HttpClient\r\nDisallow: /\r\n\r\n\r\nUser-agent: Bytespider\r\nDisallow: /\r\n\r\n\r\nUser-agent: DataForSeoBot/1.0\r\nDisallow: /\r\n\r\nUser-agent: DataForSeoBot\r\nDisallow: /\r\n\r\nUser-agent: bingbot/2.0\r\nDisallow: /\r\n\r\nUser-agent: bingbot\r\nDisallow: /\r\n\r\n\r\nUser-agent: Bingbot\r\nDisallow: /\r\n\r\nUser-agent: Go-http-client\r\nDisallow: /\r\n\r\n\r\nUser-agent: ImagesiftBot\r\nDisallow: /\r\n\r\nUser-agent: www.sogou.com\r\nDisallow: /\r\n\r\nUser-agent: Meta-WebIndexer\r\nDisallow: /\r\n\r\nUser-agent: meta-webindexer\r\nDisallow: /\r\n\r\nUser-agent: meta-webindexer/1.1\r\nDisallow: /\r\n\r\nUser-agent: AliyunSecBot/Aliyun\r\nDisallow: /\r\n\r\nUser-agent: Amazonbot\r\nDisallow: /\r\n\r\nUser-agent: Googlebot\r\nDisallow: /search/actionUnitySearch.do\r\nDisallow: /eng/search/actionUnitySearch.do\r\nDisallow: /board/actionBoardListBoard0009.do\r\nDisallow: /board/actionBoardListBoard0018.do\r\nDisallow: /board/actionBoardListBoard0017.do\r\nDisallow: /board/actionBoardListBoard0002.do\r\nDisallow: /board/actionBoardListBoard0005.do\r\nDisallow: /board/actionBoardListBoard0022.do\r\nDisallow: /board/actionBoardListBoard0003.do\r\nDisallow: /board/actionBoardListBoard0020.do\r\nDisallow: /eng/board/actionBoardListBoard0011.do\r\nDisallow: /eng/board/actionBoardListBoard0012.do\r\n\r\nUser-agent: *\r\nAllow: /\r\nSitemap: https://www.nosc.go.kr/sitemap.xml\r\n\r\n"
+ },
+ "robots https://coastwatch.noaa.gov": {
+  "ok": true,
+  "code": 200,
+  "url": "https://coastwatch.noaa.gov/robots.txt",
+  "len": 1422,
+  "ct": "text/plain",
+  "cl": "1422",
+  "body": "#\n# robots.txt\n#\n# This file is to prevent the crawling and indexing of certain parts\n# of your site by web crawlers and spiders run by sites like Yahoo!\n# and Google. By telling these \"robots\" where not to go on your site,\n# you save bandwidth and server resources.\n#\n# This file will be ignored unless it is at the root of your host:\n# Used:    http://example.com/robots.txt\n# Ignored: http://example.com/site/robots.txt\n#\n# For more information about the robots.txt standard, see:\n# http://www.robotstxt.org/robotstxt.html\n\nUser-agent: *\nCrawl-delay: 10\nSitemap: https://coastwatch.noaa.gov/sitemap.xml\n# CSS, JS, Images\nAllow: /misc/*.css$\nAllow: /misc/*.css?\nAllow: /misc/*.js$\nAllow: /misc/*.js?\nAllow: /misc/*.gif\nAllow: /misc/*.jpg\nAllow: /misc/*.jpeg\nAllow: /misc/*.png\nAllow: /modules/*.css$\nAllow: /modules/*.css?\nAllow: /modules/*.js$\nAllow: /modules/*.js?\nAllow: /modules/*.gif\nAllow: /modules/*.jpg\nAllow: /modules/*.jpeg\nAllow: /modules/*.png\nAllow: /profiles/*.css$\nAllow: /profiles/*.css?\nAllow: /profiles/*.js$\nAllow: /profiles/*.js?\nAllow: /profiles/*.gif\nAllow: /profiles/*.jpg\nAllow: /profiles/*.jpeg\nAllow: /profiles/*.png\nAllow: /themes/*.css$\nAllow: /themes/*.css?\nAllow: /themes/*.js$\nAllow: /themes/*.js?\nAllow: /themes/*.gif\nAllow: /themes/*.jpg\nAllow: /themes/*.jpeg\nAllow: /themes/*.png\n# Directories\nDisallow: /thredds/\nDisallow: /erddap/\n# Files\n# Paths (clean URLs)\n# Paths (no clean URLs)\n"
+ },
+ "robots https://coastwatch.pfeg.noaa.gov": {
+  "ok": true,
+  "code": 200,
+  "url": "https://coastwatch.pfeg.noaa.gov/robots.txt",
+  "len": 828,
+  "ct": "text/plain; charset=UTF-8",
+  "cl": "828",
+  "body": "User-Agent: *\nDisallow: /anonymous/ \nDisallow: /cgi-bin/ \nDisallow: /files/ \nDisallow: /erddap/files/ \nDisallow: /download/ \nDisallow: /processed/ \nDisallow: /icons/ \nDisallow: /oldhtml/ \nDisallow: /preview/ \nDisallow: /cwbrowse/cwatch-web/cgi-bin/ \nDisallow: /cdrom/\nDisallow: /coastwatch/\nDisallow: /cwexperimental/\nDisallow: /*?\nDisallow: /*?*\nDisallow: /*.asc*\nDisallow: /*.csv*\nDisallow: /*.dods*\nDisallow: /*.esriAscii*\nDisallow: /*.esriCsv*\nDisallow: /*.geoJson*\nDisallow: /*.htmlTable*\nDisallow: /*.json*\nDisallow: /*.mat*\nDisallow: /*.nc*\nDisallow: /*.odvTxt*\nDisallow: /*.tsv*\nDisallow: /*.xhtml*\nDisallow: /*.geotif*\nDisallow: /*.itx*\nDisallow: /*.kml*\nDisallow: /*.pdf*\nDisallow: /*.png*\nDisallow: /*.large*\nDisallow: /*.small*\nDisallow: /*.transparentPng*\nSitemap: http://coastwatch.pfeg.noaa.gov/erddap/sitemap.xml"
+ },
+ "nosc main": {
+  "ok": true,
+  "code": 200,
+  "url": "https://www.nosc.go.kr/main.do",
+  "len": 82462,
+  "ct": "text/html;charset=utf-8",
+  "cl": ""
+ },
+ "nosc links": [
+  "/boardContents/actionBoardContentsCons0003.do;jsessionid=4F26FCC9B504B853B73F10D7453C891D.noscwasroute22",
+  "/boardContents/actionBoardContentsCons0014.do;jsessionid=4F26FCC9B504B853B73F10D7453C891D.noscwasroute22",
+  "/boardContents/actionBoardContentsCons0015.do;jsessionid=4F26FCC9B504B853B73F10D7453C891D.noscwasroute22",
+  "/boardContents/actionBoardContentsCons0016.do;jsessionid=4F26FCC9B504B853B73F10D7453C891D.noscwasroute22",
+  "/boardContents/actionBoardContentsCons0017.do;jsessionid=4F26FCC9B504B853B73F10D7453C891D.noscwasroute22",
+  "/boardContents/actionBoardContentsCons0036.do;jsessionid=4F26FCC9B504B853B73F10D7453C891D.noscwasroute22",
+  "/boardContents/actionBoardContentsCons0037.do;jsessionid=4F26FCC9B504B853B73F10D7453C891D.noscwasroute22",
+  "/boardContents/actionBoardContentsCons0038.do;jsessionid=4F26FCC9B504B853B73F10D7453C891D.noscwasroute22",
+  "/boardContents/actionBoardContentsCons0042.do;jsessionid=4F26FCC9B504B853B73F10D7453C891D.noscwasroute22",
+  "/opendap/;jsessionid=4F26FCC9B504B853B73F10D7453C891D.noscwasroute22",
+  "/program/actionGociDownload.do;jsessionid=4F26FCC9B504B853B73F10D7453C891D.noscwasroute22",
+  "/program/actionGociFdDownload.do;jsessionid=4F26FCC9B504B853B73F10D7453C891D.noscwasroute22",
+  "/program/opendapSearch.do;jsessionid=4F26FCC9B504B853B73F10D7453C891D.noscwasroute22",
+  "/wd/zTreeView.do;jsessionid=4F26FCC9B504B853B73F10D7453C891D.noscwasroute22",
+  "https://nosc.go.kr/opendap/"
+ ],
+ "nosc main snips": [],
+ "page /boardContents/actionBoardContentsCons0008.do": {
+  "ok": true,
+  "code": 200,
+  "url": "https://www.nosc.go.kr/boardContents/actionBoardContentsCons0008.do",
+  "len": 95864,
+  "ct": "text/html;charset=utf-8",
+  "cl": "",
+  "title": "국립해양조사원 국가해양위성센터",
+  "heads": [
+   "해양위성 소개",
+   "최신 위성영상",
+   "다운로드",
+   "자료실",
+   "센터알림",
+   "센터소개",
+   "다운로드",
+   "OPEN API",
+   "개요",
+   "1.1. 목적",
+   "1.2. API 호출 절차",
+   "1.3. 사용 제한"
+  ],
+  "snips": [
+   "> 3) 관리자는 필요한 경우, 경우에 따라 API 사용을 제한하거나 인증키를 삭제합니다. 1.3. 사용 제한 - 상업적 이용이 불가능한 API에 대해 상업적으로 활용한 경우 - 또는 트래픽 초과로 인해 시스템이 부하가 발생할 경우 관리자가 사용을 제한할 수 있습니다. - API는 부하를 고려하여 일일 20000건으로 제한되어 있습니다. - API요청 건수를 늘리고자",
+   "리자는 필요한 경우, 경우에 따라 API 사용을 제한하거나 인증키를 삭제합니다. 1.3. 사용 제한 - 상업적 이용이 불가능한 API에 대해 상업적으로 활용한 경우 - 또는 트래픽 초과로 인해 시스템이 부하가 발생할 경우 관리자가 사용을 제한할 수 있습니다. - API는 부하를 고려하여 일일 20000건으로 제한되어 있습니다. - API요청 건수를 늘리고자 하는 사용자 또는 활용기관은 관리자와",
+   "298962\",\"image_upperleft_longitude\":\"138.78926\",\"institution\":\"KIOST, Korea Ocean Satellite Center\",\"instrument\":\"GOCI-II\",\"keywords\":\"\",\"keywords_vocabulary\":\"\",\"latitude_of_projection_origin\":null,\"license\":\"\",\"longitude_of_projection_origin\":\"128.2\",\"naming_authority\":\"kr.ac.kiost.kosc\",\"nominal_satellite_height\":\"42164000\",\"number_of_columns\":\"2780\",\"number_of_lines\":\"2780\",\"number_of_total_bands\":nu"
+  ]
+ },
+ "page /boardContents/actionBoardContentsCons0030.do": {
+  "ok": true,
+  "code": 200,
+  "url": "https://www.nosc.go.kr/boardContents/actionBoardContentsCons0030.do",
+  "len": 172985,
+  "ct": "text/html; charset=utf-8",
+  "cl": "172985",
+  "title": "",
+  "heads": [],
+  "snips": []
+ },
+ "page /boardContents/actionBoardContentsCons0031.do": {
+  "ok": false,
+  "err": "URLError(ConnectionRefusedError(111, 'Connection refused'))",
+  "title": "",
+  "heads": [],
+  "snips": []
+ },
+ "page /boardContents/actionBoardContentsCons0032.do": {
+  "ok": true,
+  "code": 200,
+  "url": "https://www.nosc.go.kr/boardContents/actionBoardContentsCons0032.do",
+  "len": 172985,
+  "ct": "text/html; charset=utf-8",
+  "cl": "172985",
+  "title": "",
+  "heads": [],
+  "snips": []
+ },
+ "page /boardContents/actionBoardContentsCons0033.do": {
+  "ok": true,
+  "code": 200,
+  "url": "https://www.nosc.go.kr/boardContents/actionBoardContentsCons0033.do",
+  "len": 172985,
+  "ct": "text/html; charset=utf-8",
+  "cl": "172985",
+  "title": "",
+  "heads": [],
+  "snips": []
+ },
+ "page /boardContents/actionBoardContentsCons0034.do": {
+  "ok": false,
+  "err": "URLError(TimeoutError('timed out'))",
+  "title": "",
+  "heads": [],
+  "snips": []
+ },
+ "page /boardContents/actionBoardContentsCons0035.do": {
+  "ok": true,
+  "code": 200,
+  "url": "https://www.nosc.go.kr/boardContents/actionBoardContentsCons0035.do",
+  "len": 172985,
+  "ct": "text/html; charset=utf-8",
+  "cl": "172985",
+  "title": "",
+  "heads": [],
+  "snips": []
+ },
+ "page /boardContents/actionBoardContentsCons0036.do": {
+  "ok": true,
+  "code": 200,
+  "url": "https://www.nosc.go.kr/boardContents/actionBoardContentsCons0036.do",
+  "len": 72311,
+  "ct": "text/html;charset=utf-8",
+  "cl": "",
+  "title": "개발자가이드 - 국립해양조사원 국가해양위성센터",
+  "heads": [
+   "해양위성 소개",
+   "최신 위성영상",
+   "다운로드",
+   "자료실",
+   "센터알림",
+   "센터소개",
+   "센터소개",
+   "센터비전",
+   "추진전략"
+  ],
+  "snips": []
+ },
+ "page /boardContents/actionBoardContentsCons0037.do": {
+  "ok": true,
+  "code": 200,
+  "url": "https://www.nosc.go.kr/boardContents/actionBoardContentsCons0037.do",
+  "len": 74836,
+  "ct": "text/html;charset=utf-8",
+  "cl": "",
+  "title": "센터비전 - 국립해양조사원 국가해양위성센터",
+  "heads": [
+   "해양위성 소개",
+   "최신 위성영상",
+   "다운로드",
+   "자료실",
+   "센터알림",
+   "센터소개",
+   "해양위성 소개",
+   "정지궤도 해양위성 소개",
+   "GOCI-II, Geostationary Ocean Color Imager-II",
+   "주요 임무",
+   "LA(Local Area) 촬영 영역",
+   "FD(Full Disk) 촬영 영역"
+  ],
+  "snips": []
+ },
+ "page /program/actionGociDownload.do": {
+  "ok": true,
+  "code": 200,
+  "url": "https://www.nosc.go.kr/program/actionGociDownload.do",
+  "len": 120331,
+  "ct": "text/html;charset=utf-8",
+  "cl": "",
+  "title": "정지궤도 해양위성 소개 - 국립해양조사원 국가해양위성센터",
+  "heads": [
+   "해양위성 소개",
+   "최신 위성영상",
+   "다운로드",
+   "자료실",
+   "센터알림",
+   "센터소개",
+   "다운로드",
+   "한반도 주변(Local Area)",
+   "이미지 없음"
+  ],
+  "snips": []
+ },
+ "page /wd/zTreeView.do": {
+  "ok": true,
+  "code": 200,
+  "url": "https://www.nosc.go.kr/wd/zTreeView.do",
+  "len": 54340,
+  "ct": "text/html;charset=UTF-8",
+  "cl": "",
+  "title": "국립해양조사원 국가해양위성센터",
+  "heads": [
+   ""
+  ],
+  "snips": []
+ },
+ "page /opendap/": {
+  "ok": true,
+  "code": 200,
+  "url": "https://www.nosc.go.kr/opendap/",
+  "len": 10046,
+  "ct": "text/html",
+  "cl": "",
+  "title": "OPeNDAP Hyrax: Contents of /",
+  "heads": [
+   "Contents of /",
+   "National Ocean Satellite Center      Questions? Contact Support"
+  ],
+  "snips": []
+ },
+ "opendap https://www.nosc.go.kr/opendap/hyrax/GOCI-II/2026/11/18/L2/contents.html": {
+  "ok": true,
+  "code": 200,
+  "url": "https://www.nosc.go.kr/opendap/hyrax/GOCI-II/2026/11/18/L2/contents.html",
+  "len": 16835,
+  "ct": "text/html",
+  "cl": "",
+  "dirs": [
+   "GK2_GC2_L2_20261118_001530",
+   "GK2_GC2_L2_20261118_011530",
+   "GK2_GC2_L2_20261118_021530",
+   "GK2_GC2_L2_20261118_031530",
+   "GK2_GC2_L2_20261118_041530",
+   "GK2_GC2_L2_20261118_051530",
+   "GK2_GC2_L2_20261118_061630",
+   "GK2_GC2_L2_20261118_071530",
+   "GK2_GC2_L2_20261118_081530",
+   "GK2_GC2_L2_20261118_231630"
+  ],
+  "head": ""
+ },
+ "dir GK2_GC2_L2_20261118_051530": {
+  "ok": true,
+  "code": 200,
+  "url": "https://www.nosc.go.kr/opendap/hyrax/GOCI-II/2026/11/18/L2/GK2_GC2_L2_20261118_051530/contents.html",
+  "len": 1433868,
+  "ct": "text/html",
+  "cl": "",
+  "n": 221,
+  "zsd": [
+   "GK2B_GOCI2_L2_20261118_051530_LA_S000_Zsd.nc",
+   "GK2B_GOCI2_L2_20261118_051530_LA_S001_Zsd.nc",
+   "GK2B_GOCI2_L2_20261118_051530_LA_S002_Zsd.nc",
+   "GK2B_GOCI2_L2_20261118_051530_LA_S003_Zsd.nc",
+   "GK2B_GOCI2_L2_20261118_051530_LA_S004_Zsd.nc",
+   "GK2B_GOCI2_L2_20261118_051530_LA_S005_Zsd.nc",
+   "GK2B_GOCI2_L2_20261118_051530_LA_S006_Zsd.nc",
+   "GK2B_GOCI2_L2_20261118_051530_LA_S007_Zsd.nc",
+   "GK2B_GOCI2_L2_20261118_051530_LA_S008_Zsd.nc",
+   "GK2B_GOCI2_L2_20261118_051530_LA_S009_Zsd.nc",
+   "GK2B_GOCI2_L2_20261118_051530_LA_S010_Zsd.nc",
+   "GK2B_GOCI2_L2_20261118_051530_LA_S011_Zsd.nc",
+   "GK2B_GOCI2_L2_20261118_051530_LA_Zsd.nc"
+  ],
+  "kd": [
+   "GK2B_GOCI2_L2_20261118_051530_LA_Kd.nc",
+   "GK2B_GOCI2_L2_20261118_051530_LA_S000_Kd.nc",
+   "GK2B_GOCI2_L2_20261118_051530_LA_S001_Kd.nc",
+   "GK2B_GOCI2_L2_20261118_051530_LA_S002_Kd.nc"
+  ],
+  "tss": [
+   "GK2B_GOCI2_L2_20261118_051530_LA_S000_TSS.nc",
+   "GK2B_GOCI2_L2_20261118_051530_LA_S001_TSS.nc",
+   "GK2B_GOCI2_L2_20261118_051530_LA_S002_TSS.nc",
+   "GK2B_GOCI2_L2_20261118_051530_LA_S003_TSS.nc"
+  ],
+  "sizes": [
+   [
+    "GK2B_GOCI2_L2_20261118_051530_LA_Kd.nc",
+    "42G"
+   ],
+   [
+    "GK2B_GOCI2_L2_20261118_051530_LA_Kd.nc",
+    "4 M"
+   ],
+   [
+    "GK2B_GOCI2_L2_20261118_051530_LA_Kd.nc",
+    "4 M"
+   ],
+   [
+    "GK2B_GOCI2_L2_20261118_051530_LA_S000_Kd.nc",
+    "41G"
+   ],
+   [
+    "GK2B_GOCI2_L2_20261118_051530_LA_S000_Kd.nc",
+    "4 M"
+   ],
+   [
+    "GK2B_GOCI2_L2_20261118_051530_LA_S000_Kd.nc",
+    "4 M"
+   ],
+   [
+    "GK2B_GOCI2_L2_20261118_051530_LA_S000_TSS.nc",
+    "03G"
+   ],
+   [
+    "GK2B_GOCI2_L2_20261118_051530_LA_S000_TSS.nc",
+    "4 M"
+   ],
+   [
+    "GK2B_GOCI2_L2_20261118_051530_LA_S000_TSS.nc",
+    "4 M"
+   ],
+   [
+    "GK2B_GOCI2_L2_20261118_051530_LA_S000_Zsd.nc",
+    "43G"
+   ],
+   [
+    "GK2B_GOCI2_L2_20261118_051530_LA_S000_Zsd.nc",
+    "4 M"
+   ],
+   [
+    "GK2B_GOCI2_L2_20261118_051530_LA_S000_Zsd.nc",
+    "4 M"
+   ],
+   [
+    "GK2B_GOCI2_L2_20261118_051530_LA_S001_Kd.nc",
+    "01G"
+   ],
+   [
+    "GK2B_GOCI2_L2_20261118_051530_LA_S001_Kd.nc",
+    "4 M"
+   ],
+   [
+    "GK2B_GOCI2_L2_20261118_051530_LA_S001_Kd.nc",
+    "4 M"
+   ],
+   [
+    "GK2B_GOCI2_L2_20261118_051530_LA_S001_TSS.nc",
+    "12G"
+   ],
+   [
+    "GK2B_GOCI2_L2_20261118_051530_LA_S001_TSS.nc",
+    "4 M"
+   ],
+   [
+    "GK2B_GOCI2_L2_20261118_051530_LA_S001_TSS.nc",
+    "4 M"
+   ],
+   [
+    "GK2B_GOCI2_L2_20261118_051530_LA_S001_Zsd.nc",
+    "28G"
+   ],
+   [
+    "GK2B_GOCI2_L2_20261118_051530_LA_S001_Zsd.nc",
+    "4 M"
+   ]
+  ],
+  "sample": [
+   "GK2B_GOCI2_L2_20261118_051530_LA_AC.nc",
+   "GK2B_GOCI2_L2_20261118_051530_LA_CDOM.nc",
+   "GK2B_GOCI2_L2_20261118_051530_LA_CF.nc",
+   "GK2B_GOCI2_L2_20261118_051530_LA_Chl.nc",
+   "GK2B_GOCI2_L2_20261118_051530_LA_FA.nc",
+   "GK2B_GOCI2_L2_20261118_051530_LA_FGI.nc",
+   "GK2B_GOCI2_L2_20261118_051530_LA_IOP.nc",
+   "GK2B_GOCI2_L2_20261118_051530_LA_Kd.nc",
+   "GK2B_GOCI2_L2_20261118_051530_LA_LSSS.nc",
+   "GK2B_GOCI2_L2_20261118_051530_LA_MF.nc",
+   "GK2B_GOCI2_L2_20261118_051530_LA_PP.nc",
+   "GK2B_GOCI2_L2_20261118_051530_LA_RI.nc",
+   "GK2B_GOCI2_L2_20261118_051530_LA_S000_AC.nc",
+   "GK2B_GOCI2_L2_20261118_051530_LA_S000_CDOM.nc",
+   "GK2B_GOCI2_L2_20261118_051530_LA_S000_CF.nc",
+   "GK2B_GOCI2_L2_20261118_051530_LA_S000_Chl.nc",
+   "GK2B_GOCI2_L2_20261118_051530_LA_S000_FA.nc",
+   "GK2B_GOCI2_L2_20261118_051530_LA_S000_FGI.nc",
+   "GK2B_GOCI2_L2_20261118_051530_LA_S000_IOP.nc",
+   "GK2B_GOCI2_L2_20261118_051530_LA_S000_Kd.nc",
+   "GK2B_GOCI2_L2_20261118_051530_LA_S000_LSSS.nc",
+   "GK2B_GOCI2_L2_20261118_051530_LA_S000_MF.nc",
+   "GK2B_GOCI2_L2_20261118_051530_LA_S000_PP.nc",
+   "GK2B_GOCI2_L2_20261118_051530_LA_S000_RI.nc",
+   "GK2B_GOCI2_L2_20261118_051530_LA_S000_SI.nc",
+   "GK2B_GOCI2_L2_20261118_051530_LA_S000_SRL.nc",
+   "GK2B_GOCI2_L2_20261118_051530_LA_S000_SSC.nc",
+   "GK2B_GOCI2_L2_20261118_051530_LA_S000_TSS.nc",
+   "GK2B_GOCI2_L2_20261118_051530_LA_S000_Zsd.nc",
+   "GK2B_GOCI2_L2_20261118_051530_LA_S001_AC.nc"
+  ]
+ },
+ ".das GK2B_GOCI2_L2_20261118_051530_LA_Zsd.nc": {
+  "ok": true,
+  "code": 200,
+  "url": "https://www.nosc.go.kr/opendap/hyrax/GOCI-II/2026/11/18/L2/GK2_GC2_L2_20261118_051530/GK2B_GOCI2_L2_20261118_051530_LA_Zsd.nc.das",
+  "len": 6045,
+  "ct": "text/plain",
+  "cl": "",
+  "body": "Attributes {\n    HDF5_ROOT_GROUP {\n        navigation_data {\n            String Dataset \"latitude\", \"longitude\";\n        }\n        geophysical_data {\n            String Dataset \"Zsd\", \"flag\";\n        }\n        String Dataset \"number_of_lines\", \"pixels_per_line\";\n    }\n    H5_GLOBAL {\n        String HDF5_OBJ_FULLPATH \"H5_GLOBAL\";\n        String prime_meridian_name \"Greenwich\";\n        String keywords_vocabulary \"\";\n        String processing_end \"20261118070428\";\n        Float64 semi_minor_axis 6356752.2999999998;\n        String reference_ellipsoid_name \"WGS 84\";\n        String platform \"GK-2B\";\n        Float32 false_northing 0.;\n        String processing_level \"L2\";\n        Float64 earth_radius 6378137.;\n        String projection_type \"GEOS\";\n        Float64 time_synchro_obt 848250943.19605994;\n        Float64 perspective_point_height 35786000.;\n        String observation_end_time \"20261118_053514\";\n        Float32 latitude_of_projection_origin 0.;\n        String reference \"\";\n        String slot_acquisition_time \"20261118_051543\";\n        Float32 earth_ellipsoid_center 0., 0., 0.;\n        Float64 semi_major_axis 6378137.;\n        String comment \"\";\n        String grid_mapping_name \"geostationary\";\n        Float32 sub_longitude 0.;\n        String summary \"GK2B GOCI-II Level-2 Data\";\n        String product_version \"\";\n        String horizontal_datum_name \"WGS 1984\";\n        String publisher_url \"http://www.nosc.go.kr\";\n        String geospatial_lat_resolution \"250 meters\";\n        String history \"input:Kd,AC__output:Zsd\";\n        String time_synchro_utc \"20261118_051543\";\n        String processing_start \"20261118070345\";\n        String creator_name \"KOSC\";\n        String standard_name_vocabulary \"CF Standard Name Table v72\";\n        String creator_email \"kosc@kiost.ac.kr\";\n        String geographic_crs_name \"WGS 84\";\n        String geospatial_lon_units \"degree_east\";\n        String license \"\";\n        String observation_start_time \"20261118_051543\";\n        String publisher_name \"KHOA-NOSC\";\n        String naming_authority \"kr.ac.kiost.kosc\";\n        String creator_url \"http://kosc.kiost.ac.kr\";\n        String publisher_email \"\";\n        Float32 false_easting 0.;\n        Int32 number_of_total_bands 12;\n        String keywords \"\";\n        Float32 longitude_of_projection_origin 128.1999969;\n        String geospatial_lat_units \"degree_north\";\n        String acknowledgement \"\";\n        String observation_mode \"LA\";\n        String Conventions \"CF-1.6 ACDD-1.3\";\n        String title \"GK2B GOCI-II Level-2 Data\";\n        String institution \"KIOST, Korea Ocean Satellite Center\";\n        Float64 nominal_satellite_height 42164000.;\n        String geospatial_lon_resolution \"250 meters\";\n        String instrument \"GOCI-II\";\n        String _NCProperties \"version=2,netcdf=4.7.4,hdf5=1.12.0,\";\n        Float64 image_lowerright_longitude 143.37819771493378;\n        Float64 geospatial_lat_max 49.157861338972324;\n        Float64 geospatial_lat_min 23.170049246737953;\n        Float64 image_upperleft_latitude 48.832775115981292;\n        Float64 image_center_longitude 130.3061757196275;\n        String product_name \"GK2B_GOCI2_L2_20261118_051530_LA_Zsd.nc\";\n        Float64 geospatial_lon_max 150.85478840824564;\n        Float64 geospatial_lon_min 111.60403110529657;\n        Float64 image_center_latitude 34.310933455032448;\n        Float64 image_lowerright_latitude 23.334696869781443;\n        String id \"GK2B_GOCI2_L2_20261118_051530_LA_Zsd.nc\";\n        Float64 image_upperleft_longitude 111.60403110529657;\n    }\n    /navigation_data/ {\n        String HDF5_OBJ_FULLPATH \"/navigation_data/\";\n    }\n    /navigation_data/latitude {\n        String HDF5_OBJ_FULLPATH \"/navigation_data/latitude\";\n        Int32 _Netcdf4Coordinates 0, 1;\n        Float32 _FillValue -999.;\n        Float32 add_offset 0.;\n        String long_name \"Latitude\";\n        Float32 scale_factor 1.;\n        String standard_name \"latitude\";\n        String units \"degrees_north\";\n        Float32 valid_max 90.;\n        Float32 valid_min -90.;\n    }\n    /navigation_data/longitude {\n        String HDF5_OBJ_FULLPATH \"/navigation_data/longitude\";\n        Int32 _Netcdf4Coordinates 0, 1;\n        Float32 _FillValue -999.;\n        Float32 add_offset 0.;\n        String long_name \"Longitude\";\n        Float32 scale_factor 1.;\n        String standard_name \"longitude\";\n        String units \"degrees_east\";\n        Float32 valid_max 180.;\n        Float32 valid_min -180.;\n    }\n    /geophysical_data/ {\n        String HDF5_OBJ_FULLPATH \"/geophysical_data/\";\n    }\n    /geophysical_data/Zsd {\n        String HDF5_OBJ_FULLPATH \"/geophysical_data/Zsd\";\n        Int32 _Netcdf4Coordinates 0, 1;\n        Float32 _FillValue -999.;\n        Float32 add_offset 0.;\n        String long_name \"Secchi depth of sea water, Zhongping Lee\\342\\200\\231s semi-analytic algorithm\";\n        String reference \"Lee, Z., Shang, S., Hu, C., Du, K., Weidemann, A., Hou, W., ... & Lin, G. (2015). Secchi disk depth: A new theory and mechanistic model for underwater visibility. Remote sensing of environment, 169, 139-149.\";\n        Float32 scale_factor 1.;\n        String standard_name \"secchi_depth_of_sea_water\";\n        String units \"m\";\n        Float32 valid_max 100.;\n        Float32 valid_min 0.;\n    }\n    /geophysical_data/flag {\n        String HDF5_OBJ_FULLPATH \"/geophysical_data/flag\";\n        Int32 _Netcdf4Coordinates 0, 1;\n        Byte flag_masks 1, 2, 4, 8, 16, 32, 64, 128;\n        String flag_meanings \"Cloud_or_Ice Land AC_Fail a_Fail bb_Fail Kd_Fail Zsd_Fail reserved8\";\n    }\n    /number_of_lines {\n        String HDF5_OBJ_FULLPATH \"/number_of_lines\";\n        String CLASS \"DIMENSION_SCALE\";\n        String NAME \"This is a netCDF dimension but not a netCDF variable.      8000\";\n        Int32 _Netcdf4Dimid 0;\n    }\n    /pixels_per_line {\n        String HDF5_OBJ_FULLPATH \"/pixels_per_line\";\n        String CLASS \"DIMENSION_SCALE\";\n        String NAME \"This is a netCDF dimension but not a netCDF variable.     10"
+ },
+ ".dds GK2B_GOCI2_L2_20261118_051530_LA_Zsd.nc": {
+  "ok": true,
+  "code": 200,
+  "url": "https://www.nosc.go.kr/opendap/hyrax/GOCI-II/2026/11/18/L2/GK2_GC2_L2_20261118_051530/GK2B_GOCI2_L2_20261118_051530_LA_Zsd.nc.dds",
+  "len": 325,
+  "ct": "text/plain",
+  "cl": "",
+  "body": "Dataset {\n    Float32 /navigation_data/latitude[8000][10500];\n    Float32 /navigation_data/longitude[8000][10500];\n    Float32 /geophysical_data/Zsd[8000][10500];\n    Byte /geophysical_data/flag[8000][10500];\n    Float32 /number_of_lines[8000];\n    Float32 /pixels_per_line[10500];\n} GK2B_GOCI2_L2_20261118_051530_LA_Zsd.nc;\n"
+ },
+ "erddap https://coastwatch.noaa.gov/erddap": {
+  "ok": false,
+  "err": "robots 금지 · 안 읽음",
+  "rows": [
+   "JSONDecodeError('Expecting value: line 1 column 1 (char 0)')",
+   ""
+  ]
+ },
+ "erddap https://coastwatch.pfeg.noaa.gov/erddap": {
+  "ok": true,
+  "code": 200,
+  "url": "https://coastwatch.pfeg.noaa.gov/erddap/search/advanced.json?page=1&searchFor=kd490&minLat=34&maxLat=38&minLon=124&maxLon=127&itemsPerPage=60",
+  "len": 61897,
+  "ct": "application/json;charset=UTF-8",
+  "cl": "",
+  "rows": [
+   [
+    "noaacwNPPN20S3AkdSCIDINEOF2kmDaily",
+    "Kd490 (Gap-filled DINEOF), NOAA S-NPP NOAA-20 VIIRS and Copernicus S-3A OLCI, Science Quality, Global 2km, 2018-recent, Daily",
+    "",
+    {
+     "license": "These data were produced by NOAA and are not subject to copyright protection in the United States. NOAA waives any potential copyright and related rights in these data worldwide through the Creative Commons Zero 1.0 Universal Public Domain Dedication (CC0-1.0)",
+     "time_coverage_end": "2026-11-05T12:00:00Z",
+     "title": "Kd490 (Gap-filled DINEOF), NOAA S-NPP NOAA-20 VIIRS and Copernicus S-3A OLCI, Science Quality, Global 2km, 2018-recent, Daily"
+    }
+   ],
+   [
+    "nesdisNPPN20S3AkdSCIDINEOFDaily",
+    "Kd490 (Gap-filled DINEOF), NOAA S-NPP NOAA-20 VIIRS and Copernicus S-3A OLCI, Science Quality, Global 9km, 2018-recent, Daily",
+    "",
+    {
+     "license": "CC0-1.0. The data may be used and redistributed for free but is not intended for legal use, since it may contain inaccuracies. Neither the data contributor, CoastWatch, NOAA, nor the US Government, nor any of their employees or contractors, make any warranty, express or implied, including warranties of merchantability and fitness for a particular purpose, or assumes any legal liability for the accuracy, completeness, or usefulness, of this information.",
+     "time_coverage_end": "2026-11-05T12:00:00Z",
+     "title": "Kd490 (Gap-filled DINEOF), NOAA S-NPP NOAA-20 VIIRS and Copernicus S-3A OLCI, Science Quality, Global 9km, 2018-recent, Daily"
+    }
+   ],
+   [
+    "nesdisVHNkd490Daily",
+    "Kd490, NOAA S-NPP VIIRS, Near Real-Time, Global 4km, Level 3, 2017 to 2026-11-02,  Daily",
+    "",
+    {
+     "geospatial_lat_resolution": "0.03750000000000001",
+     "license": "The data may be used and redistributed for free but is not intended\nfor legal use, since it may contain inaccuracies. Neither the data\nContributor, ERD, NOAA, nor the United States Government, nor any\nof their employees or contractors, makes any warranty, express or\nimplied, including warranties of merchantability and fitness for a\nparticular purpose, or assumes any legal liability for the accuracy,\ncompleteness, or usefulness, of this information.",
+     "time_coverage_end": "2026-11-12T12:00:00Z",
+     "title": "Kd490, NOAA S-NPP VIIRS, Near Real-Time, Global 4km, Level 3, 2017 to 2026-11-02,  Daily"
+    }
+   ],
+   [
+    "nesdisVHNkd490Daily_Lon0360",
+    "Kd490, NOAA S-NPP VIIRS, Near Real-Time, Global 4km, Level 3, 2017 to 2026-11-02,  Daily, Lon0360",
+    "",
+    {
+     "geospatial_lat_resolution": "0.03750000000000001",
+     "license": "The data may be used and redistributed for free but is not intended\nfor legal use, since it may contain inaccuracies. Neither the data\nContributor, ERD, NOAA, nor the United States Government, nor any\nof their employees or contractors, makes any warranty, express or\nimplied, including warranties of merchantability and fitness for a\nparticular purpose, or assumes any legal liability for the accuracy,\ncompleteness, or usefulness, of this information.",
+     "time_coverage_end": "2026-11-12T12:00:00Z",
+     "title": "Kd490, NOAA S-NPP VIIRS, Near Real-Time, Global 4km, Level 3, 2017 to 2026-11-02,  Daily, Lon0360"
+    }
+   ],
+   [
+    "nesdisVHNkd490Weekly",
+    "Kd490, NOAA S-NPP VIIRS, Near Real-Time, Global 4km, Level 3, 2017 to 2026-11-02,  Weekly",
+    "",
+    {
+     "geospatial_lat_resolution": "0.03750000000000001",
+     "license": "The data may be used and redistributed for free but is not intended\nfor legal use, since it may contain inaccuracies. Neither the data\nContributor, ERD, NOAA, nor the United States Government, nor any\nof their employees or contractors, makes any warranty, express or\nimplied, including warranties of merchantability and fitness for a\nparticular purpose, or assumes any legal liability for the accuracy,\ncompleteness, or usefulness, of this information.",
+     "time_coverage_end": "2026-11-06T12:00:00Z",
+     "title": "Kd490, NOAA S-NPP VIIRS, Near Real-Time, Global 4km, Level 3, 2017 to 2026-11-02,  Weekly"
+    }
+   ],
+   [
+    "nesdisVHNkd490Weekly_Lon0360",
+    "Kd490, NOAA S-NPP VIIRS, Near Real-Time, Global 4km, Level 3, 2017 to 2026-11-02,  Weekly, Lon0360",
+    "",
+    {
+     "geospatial_lat_resolution": "0.03750000000000001",
+     "license": "The data may be used and redistributed for free but is not intended\nfor legal use, since it may contain inaccuracies. Neither the data\nContributor, ERD, NOAA, nor the United States Government, nor any\nof their employees or contractors, makes any warranty, express or\nimplied, including warranties of merchantability and fitness for a\nparticular purpose, or assumes any legal liability for the accuracy,\ncompleteness, or usefulness, of this information.",
+     "time_coverage_end": "2026-11-06T12:00:00Z",
+     "title": "Kd490, NOAA S-NPP VIIRS, Near Real-Time, Global 4km, Level 3, 2017 to 2026-11-02,  Weekly, Lon0360"
+    }
+   ],
+   [
+    "nesdisVHNSQkd490Daily",
+    "Kd490, NOAA S-NPP VIIRS, Science Quality, Global 4km, Level 3, 2012 to 2026-11-02, Daily",
+    ""
+   ],
+   [
+    "nesdisVHNSQkd490Daily_Lon0360",
+    "Kd490, NOAA S-NPP VIIRS, Science Quality, Global 4km, Level 3, 2012 to 2026-11-02, Daily, Lon0360",
+    "",
+    {
+     "geospatial_lat_resolution": "0.0375",
+     "license": "https://science.nasa.gov/earth-science/earth-science-data/data-information-policy/\nThe data may be used and redistributed for free but is not intended\nfor legal use, since it may contain inaccuracies. Neither the data\nContributor, ERD, NOAA, nor the United States Government, nor any\nof their employees or contractors, makes any warranty, express or\nimplied, including warranties of merchantability and fitness for a\nparticular purpose, or assumes any legal liability for the accuracy,\ncompleteness, or usefulness, of this information.",
+     "time_coverage_end": "2026-11-06T12:00:00Z",
+     "title": "Kd490, NOAA S-NPP VIIRS, Science Quality, Global 4km, Level 3, 2012 to 2026-11-02, Daily, Lon0360"
+    }
+   ],
+   [
+    "nesdisVHNSQkd490Monthly",
+    "Kd490, NOAA S-NPP VIIRS, Science Quality, Global 4km, Level 3, 2012 to 2026-11-02, Monthly",
+    "",
+    {
+     "geospatial_lat_resolution": "0.0375",
+     "license": "https://science.nasa.gov/earth-science/earth-science-data/data-information-policy/\nThe data may be used and redistributed for free but is not intended\nfor legal use, since it may contain inaccuracies. Neither the data\nContributor, ERD, NOAA, nor the United States Government, nor any\nof their employees or contractors, makes any warranty, express or\nimplied, including warranties of merchantability and fitness for a\nparticular purpose, or assumes any legal liability for the accuracy,\ncompleteness, or usefulness, of this information.\n\nPlease acknowledge the use of these data with the following statement: \"These data were provided by NOAA's Center for Satellite Applications  and  Research (STAR) and the CoastWatch program.\" To reference these data as a citation in a paper, please follow the instructions in the license and at this link: https://coastwatch.noaa.gov/erddap/information.html#citeDataset",
+     "time_coverage_end": "2026-09-01T12:00:00Z",
+     "title": "Kd490, NOAA S-NPP VIIRS, Science Quality, Global 4km, Level 3, 2012 to 2026-11-02, Monthly"
+    }
+   ],
+   [
+    "nesdisVHNSQkd490Monthly_Lon0360",
+    "Kd490, NOAA S-NPP VIIRS, Science Quality, Global 4km, Level 3, 2012 to 2026-11-02, Monthly, Lon0360",
+    "",
+    {
+     "geospatial_lat_resolution": "0.0375",
+     "license": "https://science.nasa.gov/earth-science/earth-science-data/data-information-policy/\nThe data may be used and redistributed for free but is not intended\nfor legal use, since it may contain inaccuracies. Neither the data\nContributor, ERD, NOAA, nor the United States Government, nor any\nof their employees or contractors, makes any warranty, express or\nimplied, including warranties of merchantability and fitness for a\nparticular purpose, or assumes any legal liability for the accuracy,\ncompleteness, or usefulness, of this information.\n\nPlease acknowledge the use of these data with the following statement: \"These data were provided by NOAA's Center for Satellite Applications  and  Research (STAR) and the CoastWatch program.\" To reference these data as a citation in a paper, please follow the instructions in the license and at this link: https://coastwatch.noaa.gov/erddap/information.html#citeDataset",
+     "time_coverage_end": "2026-09-01T12:00:00Z",
+     "title": "Kd490, NOAA S-NPP VIIRS, Science Quality, Global 4km, Level 3, 2012 to 2026-11-02, Monthly, Lon0360"
+    }
+   ],
+   [
+    "nesdisVHNSQkd490Weekly",
+    "Kd490, NOAA S-NPP VIIRS, Science Quality, Global 4km, Level 3, 2012 to 2026-11-02, Weekly",
+    "",
+    {
+     "geospatial_lat_resolution": "0.0375",
+     "license": "https://science.nasa.gov/earth-science/earth-science-data/data-information-policy/\nThe data may be used and redistributed for free but is not intended\nfor legal use, since it may contain inaccuracies. Neither the data\nContributor, ERD, NOAA, nor the United States Government, nor any\nof their employees or contractors, makes any warranty, express or\nimplied, including warranties of merchantability and fitness for a\nparticular purpose, or assumes any legal liability for the accuracy,\ncompleteness, or usefulness, of this information.\n\nPlease acknowledge the use of these data with the following statement: \"These data were provided by NOAA's Center for Satellite Applications  and  Research (STAR) and the CoastWatch program.\" To reference these data as a citation in a paper, please follow the instructions in the license and at this link: https://coastwatch.noaa.gov/erddap/information.html#citeDataset",
+     "time_coverage_end": "2026-10-08T12:00:00Z",
+     "title": "Kd490, NOAA S-NPP VIIRS, Science Quality, Global 4km, Level 3, 2012 to 2026-11-02, Weekly"
+    }
+   ],
+   [
+    "nesdisVHNSQkd490Weekly_Lon0360",
+    "Kd490, NOAA S-NPP VIIRS, Science Quality, Global 4km, Level 3, 2012 to 2026-11-02, Weekly, Lon0360",
+    "",
+    {
+     "geospatial_lat_resolution": "0.0375",
+     "license": "https://science.nasa.gov/earth-science/earth-science-data/data-information-policy/\nThe data may be used and redistributed for free but is not intended\nfor legal use, since it may contain inaccuracies. Neither the data\nContributor, ERD, NOAA, nor the United States Government, nor any\nof their employees or contractors, makes any warranty, express or\nimplied, including warranties of merchantability and fitness for a\nparticular purpose, or assumes any legal liability for the accuracy,\ncompleteness, or usefulness, of this information.\n\nPlease acknowledge the use of these data with the following statement: \"These data were provided by NOAA's Center for Satellite Applications  and  Research (STAR) and the CoastWatch program.\" To reference these data as a citation in a paper, please follow the instructions in the license and at this link: https://coastwatch.noaa.gov/erddap/information.html#citeDataset",
+     "time_coverage_end": "2026-10-08T12:00:00Z",
+     "title": "Kd490, NOAA S-NPP VIIRS, Science Quality, Global 4km, Level 3, 2012 to 2026-11-02, Weekly, Lon0360"
+    }
+   ],
+   [
+    "erdMH1kd4901day_R2022NRT",
+    "Diffuse Attenuation K490, Aqua MODIS, NPP, L3SMI, Global, 4km, R2022 NRT, 2003-present (1 Day Composite)",
+    "",
+    {
+     "geospatial_lat_resolution": "0.04166666589488307",
+     "license": "https://science.nasa.gov/earth-science/earth-science-data/data-information-policy/",
+     "time_coverage_end": "2026-11-17T12:00:00Z",
+     "title": "Diffuse Attenuation K490, Aqua MODIS, NPP, L3SMI, Global, 4km, R2022 NRT, 2003-present (1 Day Composite)"
+    }
+   ],
+   [
+    "erdMH1kd4908day_R2022NRT",
+    "Diffuse Attenuation K490, Aqua MODIS, NPP, L3SMI, Global, 4km, R2022 NRT, 2003-present (8 Day Composite)",
+    "",
+    {
+     "geospatial_lat_resolution": "0.04166666589488307",
+     "license": "https://science.nasa.gov/earth-science/earth-science-data/data-information-policy/",
+     "time_coverage_end": "2026-11-13T00:00:00Z",
+     "title": "Diffuse Attenuation K490, Aqua MODIS, NPP, L3SMI, Global, 4km, R2022 NRT, 2003-present (8 Day Composite)"
+    }
+   ],
+   [
+    "erdMH1kd490mday_R2022NRT",
+    "Diffuse Attenuation K490, Aqua MODIS, NPP, L3SMI, Global, 4km, R2022 NRT, 2003-present (Monthly Composite)",
+    "",
+    {
+     "geospatial_lat_resolution": "0.04166666589488307",
+     "license": "https://science.nasa.gov/earth-science/earth-science-data/data-information-policy/",
+     "time_coverage_end": "2026-10-16T00:00:00Z",
+     "title": "Diffuse Attenuation K490, Aqua MODIS, NPP, L3SMI, Global, 4km, R2022 NRT, 2003-present (Monthly Composite)"
+    }
+   ],
+   [
+    "erdMH1kd4901day_R2022SQ",
+    "Diffuse Attenuation K490, Aqua MODIS, NPP, L3SMI, Global, 4km, R2022 SQ, 2003-present (1 Day Composite)",
+    "",
+    {
+     "geospatial_lat_resolution": "0.04166666589488307",
+     "license": "https://science.nasa.gov/earth-science/earth-science-data/data-information-policy/",
+     "time_coverage_end": "2025-10-31T12:00:00Z",
+     "title": "Diffuse Attenuation K490, Aqua MODIS, NPP, L3SMI, Global, 4km, R2022 SQ, 2003-present (1 Day Composite)"
+    }
+   ],
+   [
+    "erdMH1kd4908day_R2022SQ",
+    "Diffuse Attenuation K490, Aqua MODIS, NPP, L3SMI, Global, 4km, R2022 SQ, 2003-present (8 Day Composite)",
+    "",
+    {
+     "geospatial_lat_resolution": "0.04166666589488307",
+     "license": "https://science.nasa.gov/earth-science/earth-science-data/data-information-policy/",
+     "time_coverage_end": "2025-10-28T00:00:00Z",
+     "title": "Diffuse Attenuation K490, Aqua MODIS, NPP, L3SMI, Global, 4km, R2022 SQ, 2003-present (8 Day Composite)"
+    }
+   ],
+   [
+    "erdMH1kd490mday_R2022SQ",
+    "Diffuse Attenuation K490, Aqua MODIS, NPP, L3SMI, Global, 4km, R2022 SQ, 2003-present (Monthly Composite)",
+    "",
+    {
+     "geospatial_lat_resolution": "0.04166666589488307",
+     "license": "https://science.nasa.gov/earth-science/earth-science-data/data-information-policy/",
+     "time_coverage_end": "2025-10-16T00:00:00Z",
+     "title": "Diffuse Attenuation K490, Aqua MODIS, NPP, L3SMI, Global, 4km, R2022 SQ, 2003-present (Monthly Composite)"
+    }
+   ],
+   [
+    "erdMH1kd4901day",
+    "Diffuse Attenuation K490, Aqua MODIS, NPP, L3SMI, Global, 4km, Science Quality, 2003-2022 (1 Day Composite)",
+    "",
+    {
+     "geospatial_lat_resolution": "0.04166666589488307",
+     "license": "https://science.nasa.gov/earth-science/earth-science-data/data-information-policy/\nThe data may be used and redistributed for free but is not intended\nfor legal use, since it may contain inaccuracies. Neither the data\nContributor, ERD, NOAA, nor the United States Government, nor any\nof their employees or contractors, makes any warranty, express or\nimplied, including warranties of merchantability and fitness for a\nparticular purpose, or assumes any legal liability for the accuracy,\ncompleteness, or usefulness, of this information.",
+     "time_coverage_end": "2022-07-26T12:00:00Z",
+     "title": "Diffuse Attenuation K490, Aqua MODIS, NPP, L3SMI, Global, 4km, Science Quality, 2003-2022 (1 Day Composite)"
+    }
+   ],
+   [
+    "erdMH1kd4908day",
+    "Diffuse Attenuation K490, Aqua MODIS, NPP, L3SMI, Global, 4km, Science Quality, 2003-2022 (8 Day Composite)",
+    "",
+    {
+     "geospatial_lat_resolution": "0.04166666589488307",
+     "license": "https://science.nasa.gov/earth-science/earth-science-data/data-information-policy/\nThe data may be used and redistributed for free but is not intended\nfor legal use, since it may contain inaccuracies. Neither the data\nContributor, ERD, NOAA, nor the United States Government, nor any\nof their employees or contractors, makes any warranty, express or\nimplied, including warranties of merchantability and fitness for a\nparticular purpose, or assumes any legal liability for the accuracy,\ncompleteness, or usefulness, of this information.",
+     "time_coverage_end": "2022-05-29T00:00:00Z",
+     "title": "Diffuse Attenuation K490, Aqua MODIS, NPP, L3SMI, Global, 4km, Science Quality, 2003-2022 (8 Day Composite)"
+    }
+   ],
+   [
+    "erdMH1kd490mday",
+    "Diffuse Attenuation K490, Aqua MODIS, NPP, L3SMI, Global, 4km, Science Quality, 2003-2022 (Monthly Composite)",
+    "",
+    {
+     "geospatial_lat_resolution": "0.04166666589488307",
+     "license": "https://science.nasa.gov/earth-science/earth-science-data/data-information-policy/\nThe data may be used and redistributed for free but is not intended\nfor legal use, since it may contain inaccuracies. Neither the data\nContributor, ERD, NOAA, nor the United States Government, nor any\nof their employees or contractors, makes any warranty, express or\nimplied, including warranties of merchantability and fitness for a\nparticular purpose, or assumes any legal liability for the accuracy,\ncompleteness, or usefulness, of this information.",
+     "time_coverage_end": "2022-05-16T00:00:00Z",
+     "title": "Diffuse Attenuation K490, Aqua MODIS, NPP, L3SMI, Global, 4km, Science Quality, 2003-2022 (Monthly Composite)"
+    }
+   ],
+   [
+    "erdMH1kd4901day_Lon0360",
+    "Diffuse Attenuation K490, Aqua MODIS, NPP, L3SMI, Global, 4km, Science Quality, 2003-2022 (1 Day Composite), Lon0360",
+    "",
+    {
+     "geospatial_lat_resolution": "0.04166666589488307",
+     "license": "https://science.nasa.gov/earth-science/earth-science-data/data-information-policy/\nThe data may be used and redistributed for free but is not intended\nfor legal use, since it may contain inaccuracies. Neither the data\nContributor, ERD, NOAA, nor the United States Government, nor any\nof their employees or contractors, makes any warranty, express or\nimplied, including warranties of merchantability and fitness for a\nparticular purpose, or assumes any legal liability for the accuracy,\ncompleteness, or usefulness, of this information.",
+     "time_coverage_end": "2022-07-26T12:00:00Z",
+     "title": "Diffuse Attenuation K490, Aqua MODIS, NPP, L3SMI, Global, 4km, Science Quality, 2003-2022 (1 Day Composite), Lon0360"
+    }
+   ],
+   [
+    "erdMH1kd4908day_Lon0360",
+    "Diffuse Attenuation K490, Aqua MODIS, NPP, L3SMI, Global, 4km, Science Quality, 2003-2022 (8 Day Composite), Lon0360",
+    "",
+    {
+     "geospatial_lat_resolution": "0.04166666589488307",
+     "license": "https://science.nasa.gov/earth-science/earth-science-data/data-information-policy/\nThe data may be used and redistributed for free but is not intended\nfor legal use, since it may contain inaccuracies. Neither the data\nContributor, ERD, NOAA, nor the United States Government, nor any\nof their employees or contractors, makes any warranty, express or\nimplied, including warranties of merchantability and fitness for a\nparticular purpose, or assumes any legal liability for the accuracy,\ncompleteness, or usefulness, of this information.",
+     "time_coverage_end": "2022-05-29T00:00:00Z",
+     "title": "Diffuse Attenuation K490, Aqua MODIS, NPP, L3SMI, Global, 4km, Science Quality, 2003-2022 (8 Day Composite), Lon0360"
+    }
+   ],
+   [
+    "erdMH1kd490mday_Lon0360",
+    "Diffuse Attenuation K490, Aqua MODIS, NPP, L3SMI, Global, 4km, Science Quality, 2003-2022 (Monthly Composite), Lon0360",
+    "",
+    {
+     "geospatial_lat_resolution": "0.04166666589488307",
+     "license": "https://science.nasa.gov/earth-science/earth-science-data/data-information-policy/\nThe data may be used and redistributed for free but is not intended\nfor legal use, since it may contain inaccuracies. Neither the data\nContributor, ERD, NOAA, nor the United States Government, nor any\nof their employees or contractors, makes any warranty, express or\nimplied, including warranties of merchantability and fitness for a\nparticular purpose, or assumes any legal liability for the accuracy,\ncompleteness, or usefulness, of this information.",
+     "time_coverage_end": "2022-05-16T00:00:00Z",
+     "title": "Diffuse Attenuation K490, Aqua MODIS, NPP, L3SMI, Global, 4km, Science Quality, 2003-2022 (Monthly Composite), Lon0360"
+    }
+   ],
+   [
+    "erdVH2018k4908day",
+    "VIIRSN, Suomi-NPP, Level-3 SMI, NASA, Global, 4km, K490, R2018, 2012-present, 8-Day",
+    "",
+    {
+     "geospatial_lat_resolution": "0.04166666589488307",
+     "license": "https://science.nasa.gov/earth-science/earth-science-data/data-information-policy/\nThe data may be used and redistributed for free but is not intended\nfor legal use, since it may contain inaccuracies. Neither the data\nContributor, ERD, NOAA, nor the United States Government, nor any\nof their employees or contractors, makes any warranty, express or\nimplied, including warranties of merchantability and fitness for a\nparticular purpose, or assumes any legal liability for the accuracy,\ncompleteness, or usefulness, of this information.",
+     "time_coverage_end": "2022-07-24T00:00:00Z",
+     "title": "VIIRSN, Suomi-NPP, Level-3 SMI, NASA, Global, 4km, K490, R2018, 2012-present, 8-Day"
+    }
+   ],
+   [
+    "erdVH2018k4901day",
+    "VIIRSN, Suomi-NPP, Level-3 SMI, NASA, Global, 4km, K490, R2018, 2012-present, Daily",
+    "",
+    {
+     "geospatial_lat_resolution": "0.04166666589488307",
+     "license": "https://science.nasa.gov/earth-science/earth-science-data/data-information-policy/\nThe data may be used and redistributed for free but is not intended\nfor legal use, since it may contain inaccuracies. Neither the data\nContributor, ERD, NOAA, nor the United States Government, nor any\nof their employees or contractors, makes any warranty, express or\nimplied, including warranties of merchantability and fitness for a\nparticular purpose, or assumes any legal liability for the accuracy,\ncompleteness, or usefulness, of this information.",
+     "time_coverage_end": "2022-07-26T12:00:00Z",
+     "title": "VIIRSN, Suomi-NPP, Level-3 SMI, NASA, Global, 4km, K490, R2018, 2012-present, Daily"
+    }
+   ],
+   [
+    "erdVH2018k490mday",
+    "VIIRSN, Suomi-NPP, Level-3 SMI, NASA, Global, 4km, K490, R2018, 2012-present, Monthly",
+    "",
+    {
+     "geospatial_lat_resolution": "0.04166666589488307",
+     "license": "https://science.nasa.gov/earth-science/earth-science-data/data-information-policy/\nThe data may be used and redistributed for free but is not intended\nfor legal use, since it may contain inaccuracies. Neither the data\nContributor, ERD, NOAA, nor the United States Government, nor any\nof their employees or contractors, makes any warranty, express or\nimplied, including warranties of merchantability and fitness for a\nparticular purpose, or assumes any legal liability for the accuracy,\ncompleteness, or usefulness, of this information.",
+     "time_coverage_end": "2022-07-15T00:00:00Z",
+     "title": "VIIRSN, Suomi-NPP, Level-3 SMI, NASA, Global, 4km, K490, R2018, 2012-present, Monthly"
+    }
+   ],
+   [
+    "erdVH2018k4908day_Lon0360",
+    "VIIRSN, Suomi-NPP, Level-3 SMI, NASA, Global, 4km, K490, R2018, 2012-present, 8-Day, Lon0360",
+    "",
+    {
+     "geospatial_lat_resolution": "0.04166666589488307",
+     "license": "https://science.nasa.gov/earth-science/earth-science-data/data-information-policy/\nThe data may be used and redistributed for free but is not intended\nfor legal use, since it may contain inaccuracies. Neither the data\nContributor, ERD, NOAA, nor the United States Government, nor any\nof their employees or contractors, makes any warranty, express or\nimplied, including warranties of merchantability and fitness for a\nparticular purpose, or assumes any legal liability for the accuracy,\ncompleteness, or usefulness, of this information.",
+     "time_coverage_end": "2022-07-24T00:00:00Z",
+     "title": "VIIRSN, Suomi-NPP, Level-3 SMI, NASA, Global, 4km, K490, R2018, 2012-present, 8-Day, Lon0360"
+    }
+   ],
+   [
+    "erdVH2018k4901day_Lon0360",
+    "VIIRSN, Suomi-NPP, Level-3 SMI, NASA, Global, 4km, K490, R2018, 2012-present, Daily, Lon0360",
+    "",
+    {
+     "geospatial_lat_resolution": "0.04166666589488307",
+     "license": "https://science.nasa.gov/earth-science/earth-science-data/data-information-policy/\nThe data may be used and redistributed for free but is not intended\nfor legal use, since it may contain inaccuracies. Neither the data\nContributor, ERD, NOAA, nor the United States Government, nor any\nof their employees or contractors, makes any warranty, express or\nimplied, including warranties of merchantability and fitness for a\nparticular purpose, or assumes any legal liability for the accuracy,\ncompleteness, or usefulness, of this information.",
+     "time_coverage_end": "2022-07-26T12:00:00Z",
+     "title": "VIIRSN, Suomi-NPP, Level-3 SMI, NASA, Global, 4km, K490, R2018, 2012-present, Daily, Lon0360"
+    }
+   ],
+   [
+    "erdVH2018k490mday_Lon0360",
+    "VIIRSN, Suomi-NPP, Level-3 SMI, NASA, Global, 4km, K490, R2018, 2012-present, Monthly, Lon0360",
+    "",
+    {
+     "geospatial_lat_resolution": "0.04166666589488307",
+     "license": "https://science.nasa.gov/earth-science/earth-science-data/data-information-policy/\nThe data may be used and redistributed for free but is not intended\nfor legal use, since it may contain inaccuracies. Neither the data\nContributor, ERD, NOAA, nor the United States Government, nor any\nof their employees or contractors, makes any warranty, express or\nimplied, including warranties of merchantability and fitness for a\nparticular purpose, or assumes any legal liability for the accuracy,\ncompleteness, or usefulness, of this information.",
+     "time_coverage_end": "2022-07-15T00:00:00Z",
+     "title": "VIIRSN, Suomi-NPP, Level-3 SMI, NASA, Global, 4km, K490, R2018, 2012-present, Monthly, Lon0360"
+    }
+   ],
+   [
+    "erdVH3k490mday",
+    "VIIRSN, Suomi-NPP, Level-3 SMI, NASA, Global, 4km, K490, v2016, 2012-2017, Monthly, DEPRECATED",
+    "",
+    {
+     "license": "https://science.nasa.gov/earth-science/earth-science-data/data-information-policy/\nThe data may be used and redistributed for free but is not intended\nfor legal use, since it may contain inaccuracies. Neither the data\nContributor, ERD, NOAA, nor the United States Government, nor any\nof their employees or contractors, makes any warranty, express or\nimplied, including warranties of merchantability and fitness for a\nparticular purpose, or assumes any legal liability for the accuracy,\ncompleteness, or usefulness, of this information.",
+     "time_coverage_end": "2017-10-15T00:00:00Z",
+     "title": "VIIRSN, Suomi-NPP, Level-3 SMI, NASA, Global, 4km, K490, v2016, 2012-2017, Monthly, DEPRECATED"
+    }
+   ],
+   [
+    "erdVH3k4901day",
+    "VIIRSN, Suomi-NPP, Level-3 SMI, NASA, Global, 4km, K490, v2016, 2012-2017, Daily, DEPRECATED",
+    "",
+    {
+     "license": "https://science.nasa.gov/earth-science/earth-science-data/data-information-policy/\nThe data may be used and redistributed for free but is not intended\nfor legal use, since it may contain inaccuracies. Neither the data\nContributor, ERD, NOAA, nor the United States Government, nor any\nof their employees or contractors, makes any warranty, express or\nimplied, including warranties of merchantability and fitness for a\nparticular purpose, or assumes any legal liability for the accuracy,\ncompleteness, or usefulness, of this information.",
+     "time_coverage_end": "2017-12-01T12:00:00Z",
+     "title": "VIIRSN, Suomi-NPP, Level-3 SMI, NASA, Global, 4km, K490, v2016, 2012-2017, Daily, DEPRECATED"
+    }
+   ],
+   [
+    "erdVH3k4908day",
+    "VIIRSN, Suomi-NPP, Level-3 SMI, NASA, Global, 4km, K490, v2016, 2012-2017, 8-Day, DEPRECATED",
+    "",
+    {
+     "license": "https://science.nasa.gov/earth-science/earth-science-data/data-information-policy/\nThe data may be used and redistributed for free but is not intended\nfor legal use, since it may contain inaccuracies. Neither the data\nContributor, ERD, NOAA, nor the United States Government, nor any\nof their employees or contractors, makes any warranty, express or\nimplied, including warranties of merchantability and fitness for a\nparticular purpose, or assumes any legal liability for the accuracy,\ncompleteness, or usefulness, of this information.",
+     "time_coverage_end": "2017-11-13T00:00:00Z",
+     "title": "VIIRSN, Suomi-NPP, Level-3 SMI, NASA, Global, 4km, K490, v2016, 2012-2017, 8-Day, DEPRECATED"
+    }
+   ],
+   [
+    "erdVH3k490mday_Lon0360",
+    "VIIRSN, Suomi-NPP, Level-3 SMI, NASA, Global, 4km, K490, v2016, 2012-2017, Monthly, DEPRECATED, Lon0360",
+    "",
+    {
+     "license": "https://science.nasa.gov/earth-science/earth-science-data/data-information-policy/\nThe data may be used and redistributed for free but is not intended\nfor legal use, since it may contain inaccuracies. Neither the data\nContributor, ERD, NOAA, nor the United States Government, nor any\nof their employees or contractors, makes any warranty, express or\nimplied, including warranties of merchantability and fitness for a\nparticular purpose, or assumes any legal liability for the accuracy,\ncompleteness, or usefulness, of this information.",
+     "time_coverage_end": "2017-10-15T00:00:00Z",
+     "title": "VIIRSN, Suomi-NPP, Level-3 SMI, NASA, Global, 4km, K490, v2016, 2012-2017, Monthly, DEPRECATED, Lon0360"
+    }
+   ],
+   [
+    "erdVH3k4908day_Lon0360",
+    "VIIRSN, Suomi-NPP, Level-3 SMI, NASA, Global, 4km, K490, v2016, 2012-2017, 8-Day, DEPRECATED, Lon0360",
+    "",
+    {
+     "license": "https://science.nasa.gov/earth-science/earth-science-data/data-information-policy/\nThe data may be used and redistributed for free but is not intended\nfor legal use, since it may contain inaccuracies. Neither the data\nContributor, ERD, NOAA, nor the United States Government, nor any\nof their employees or contractors, makes any warranty, express or\nimplied, including warranties of merchantability and fitness for a\nparticular purpose, or assumes any legal liability for the accuracy,\ncompleteness, or usefulness, of this information.",
+     "time_coverage_end": "2017-11-13T00:00:00Z",
+     "title": "VIIRSN, Suomi-NPP, Level-3 SMI, NASA, Global, 4km, K490, v2016, 2012-2017, 8-Day, DEPRECATED, Lon0360"
+    }
+   ],
+   [
+    "erdVH3k4901day_Lon0360",
+    "VIIRSN, Suomi-NPP, Level-3 SMI, NASA, Global, 4km, K490, v2016, 2012-2017, Daily, DEPRECATED, Lon0360",
+    ""
+   ]
+  ]
+ }
+}
