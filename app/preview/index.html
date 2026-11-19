@@ -2,11 +2,10 @@
 <html lang="ko">
 <head>
 <meta name="robots" content="noindex,nofollow">
-<script>/* 미리보기: 실제 앱과 저장 칸을 따로 쓴다 ('pv:' 머리말) · 처음 열 때 실제 기록을 한 번 복사해 와서 보기만 · 오프라인 도우미는 켜지 않음 */
-(function(){try{var P='pv:',L=window.localStorage,S=Storage.prototype,g=S.getItem,s=S.setItem,r=S.removeItem;
+<script>(function(){try{var P='pv:',L=window.localStorage,S=Storage.prototype,g=S.getItem,s=S.setItem,r=S.removeItem;
 if(!g.call(L,P+'__init')){var ks=[];for(var i=0;i<L.length;i++){var k=L.key(i);if(k&&k.indexOf(P)!==0)ks.push(k);}ks.forEach(function(k){s.call(L,P+k,g.call(L,k));});s.call(L,P+'__init',String(Date.now()));}
 S.getItem=function(k){return this===L?g.call(this,P+k):g.call(this,k);};S.setItem=function(k,v){return this===L?s.call(this,P+k,v):s.call(this,k,v);};S.removeItem=function(k){return this===L?r.call(this,P+k):r.call(this,k);};}catch(e){}
-try{if(navigator.serviceWorker){var sw=navigator.serviceWorker;sw.register=function(){return new Promise(function(){});};}}catch(e){}})();</script>
+try{if(navigator.serviceWorker){navigator.serviceWorker.register=function(){return new Promise(function(){});};}}catch(e){}})();</script>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#0D1819">
@@ -6942,15 +6941,15 @@ const TideHarm = (() => {
     const hsv2hex = (h, s, v) => { const f = n => { const k = (n + h / 60) % 6; return v - v * s * Math.max(0, Math.min(k, 4 - k, 1)); }; return '#' + [f(5), f(3), f(1)].map(x => Math.round(x * 255).toString(16).padStart(2, '0')).join(''); };
     const hex2hsv = hex => { const n = parseInt(String(hex).slice(1), 16) || 0, r = (n >> 16) / 255, g = ((n >> 8) & 255) / 255, b = (n & 255) / 255, mx = Math.max(r, g, b), mn = Math.min(r, g, b), d = mx - mn;
       let h = 0; if (d) h = mx === r ? ((g - b) / d) % 6 : mx === g ? (b - r) / d + 2 : (r - g) / d + 4; return { h: (h * 60 + 360) % 360, s: mx ? d / mx : 0, v: mx }; };
-    const egiName = x => { const e = egiGet(x.c); if (!e) return ''; if (e.c[0] === 'laser') { const l = LASER_BY[x.lc || 'silver']; return `${l ? l.n + ' ' : ''}레이저`; } const f = egiFnTxt(x); return e.n + (f ? ' ' + f : ''); };
+    const egiName = x => { const e = egiGet(x.c); if (!e) return ''; const f = egiFnTxt(x); if (e.c[0] === 'laser') { const l = LASER_BY[x.lc || 'silver']; return `${l ? l.n + ' ' : ''}레이저${f ? ' ' + f : ''}`; } return e.n + (f ? ' ' + f : ''); };
     // 5단계: 상자에는 색만 · 기록할 때 그 에기의 기능(야광·케이무라·레이저+색)을 켠다 · 같은 색을 기능 다르게 두 번 담을 수 있다(d: 2, 3…)
     const ek = x => x.c + (x.d ? '~' + x.d : '');   // 상자 칸 열쇠
-    const egiBase = x => { const e = egiGet(x.c); if (!e) return ''; if (e.c[0] === 'laser') return egiName(x); return e.n; };   // 상자 칸: 색 이름만 (기능은 아래 작은 줄)
+    const egiBase = x => { const e = egiGet(x.c); if (!e) return ''; if (e.c[0] === 'laser') { const l = LASER_BY[x.lc || 'silver']; return `${l ? l.n + ' ' : ''}레이저`; } return e.n; };   // 상자 칸: 색 이름만 (기능은 아래 작은 줄)
     const egiFnTxt = x => [x.g ? '야광' : '', x.k ? '케이' : '', x.lz ? `${(LASER_BY[x.lc || 'silver'] || {}).n || ''}레이저` : ''].filter(Boolean).join('·');
     const EFN_KEY = 'jjukgap-egi-fn'; let egiFnMem = loadJ(EFN_KEY, {});   // 색마다 마지막에 켠 기능
-    const egiFnInit = c => { const m = egiFnMem[c]; return m ? { ...(m.g ? { g: 1 } : {}), ...(m.k ? { k: 1 } : {}), ...(m.lz ? { lz: 1, lc: m.lc || 'silver' } : {}) } : {}; };
-    const egiFnSave = x => { egiFnMem[x.c] = { g: x.g ? 1 : 0, k: x.k ? 1 : 0, lz: x.lz ? 1 : 0, lc: x.lc || 'silver' }; saveJ(EFN_KEY, egiFnMem); };
-    const EGI_FN_ONLY = new Set(['laser', 'glow']);   // 예전 상자의 '레이저'·'야광' 칸: 이제 기능 단추 (예전 기록은 그대로 보임)
+    const egiFnInit = c => { const m = egiFnMem[c]; return m ? { ...(m.g ? { g: 1 } : {}), ...(m.k ? { k: 1 } : {}) } : {}; };
+    const egiFnSave = x => { egiFnMem[x.c] = { g: x.g ? 1 : 0, k: x.k ? 1 : 0 }; saveJ(EFN_KEY, egiFnMem); };
+    const EGI_FN_ONLY = new Set(['glow']);   // 예전 상자의 '야광' 칸: 이제 기능 단추 (예전 기록은 그대로 보임) · 레이저는 예전처럼 상자의 에기 칸 (사용자 요청 2026-11-20)
     const sinkTxt = a => (a && a.length ? a.slice().sort((x, y) => x - y).join('·') + '호' : '');
     const egiTxt = a => (a || []).filter(x => egiGet(x.c)).map(x => {
       const e = egiGet(x.c), r = x.r != null ? x.r : 50;
@@ -7223,8 +7222,8 @@ const TideHarm = (() => {
         if (a === 'tm') { const v = b.dataset.v, A = (x.tm || []).filter(q => q !== v); if (A.length === (x.tm || []).length) A.push(v); if (A.length) x.tm = TM_L.map(q => q[0]).filter(q => A.includes(q)); else delete x.tm; return rgEdSync(); }
         if (a === 'sb') { x.sb = sbOf(egiGet(x.c), x) ? 0 : 1; return rgEdSync(); }
         if (a === 'bait') { x.b = x.b ? 0 : 1; return rgEdSync(); }
-        if (a === 'lc') { x.lc = b.dataset.l; if (x.lz) egiFnSave(x); return rgEdSync(); }
-        if (a === 'g' || a === 'k' || a === 'lz') { x[a] = x[a] ? 0 : 1; if (a === 'lz' && x.lz && !x.lc) x.lc = 'silver'; egiFnSave(x); return rgEdSync(); }
+        if (a === 'lc') { x.lc = b.dataset.l; return rgEdSync(); }
+        if (a === 'g' || a === 'k') { x[a] = x[a] ? 0 : 1; egiFnSave(x); return rgEdSync(); }
         if (a === 'dup') {   // 같은 색을 하나 더 (기능만 다르게 켤 수 있게)
           const d = Math.max(1, ...form.egi.filter(q => q.c === x.c).map(q => q.d || 1)) + 1, y = { ...x, d, s: 0 }; delete y.m; delete y.tm;
           form.egi.push(y); rgEdClose(); repaint(); cellPop('e:' + ek(y)); setTimeout(() => rgEdOpen(ek(y)), 420); return;
@@ -7252,9 +7251,8 @@ const TideHarm = (() => {
       const x = form && form.egi.find(q => ek(q) === c), e = x && egiGet(x.c); if (!e) return;
       rgMode = 'ed'; rgC = c; rgN = null; rgOpenT = Date.now(); const el = rgEl(), two = e.c.length === 2, laser = e.c[0] === 'laser', lure = e.k === 'wrm' || e.k === 'bait', wMine = e.k === 'wrm' && !WRM_BY[e.id];
       const fnOk = !lure && !EGI_FN_ONLY.has(e.id);
-      const LCS = `${LASERS.map(l => `<button type="button" data-rg="lc" data-l="${l.id}" aria-label="${l.n} 레이저" style="background:${l.id === 'rainbow' ? 'conic-gradient(#ff5a5a,#ffb84d,#fff176,#69f0ae,#4fc3f7,#7c4dff,#ff5a5a)' : l.c}"></button>`).join('')}`;
-      rgShow(`<h3 id="rg-nm"></h3><p class="sub">${fnOk ? '이 에기에 있는 기능을 켜요 · 다음에도 기억해요' : two ? '파란 단추를 잡고 위아래로 끌어 색 비율을 맞춰요' : laser ? '레이저 색을 골라요' : lure ? '잘 먹혔으면 ★로 표시하고 메모를 남겨요' : '틴셀·삼봉을 켜거나 잘 먹힌 색으로 표시해요'}</p>`
-        + (fnOk ? `<div class="fnr" role="group" aria-label="에기 기능"><button type="button" class="tog" data-rg="g" id="rg-g">야광</button><button type="button" class="tog" data-rg="k" id="rg-k">케이무라</button><button type="button" class="tog" data-rg="lz" id="rg-lz">레이저</button></div><div class="lcs fnl" id="rg-lcs" hidden>${LCS}</div>` : '')
+      rgShow(`<h3 id="rg-nm"></h3><p class="sub">${fnOk && laser ? '레이저 색을 고르고, 있는 기능을 켜요' : fnOk ? '이 에기에 있는 기능을 켜요 · 다음에도 기억해요' : two ? '파란 단추를 잡고 위아래로 끌어 색 비율을 맞춰요' : laser ? '레이저 색을 골라요' : lure ? '잘 먹혔으면 ★로 표시하고 메모를 남겨요' : '틴셀·삼봉을 켜거나 잘 먹힌 색으로 표시해요'}</p>`
+        + (fnOk ? `<div class="fnr" role="group" aria-label="에기 기능"><button type="button" class="tog" data-rg="g" id="rg-g">야광</button><button type="button" class="tog" data-rg="k" id="rg-k">케이무라</button></div>` : '')
         + `<div class="ed"><div class="big" id="rg-big"><span class="pic"></span>${two ? '<div class="hd" id="rg-hd"><b role="slider" aria-label="색 비율">↕</b></div>' : ''}</div><div class="ctl">`
         + (two ? '<div class="ratio" id="rg-rt"></div>' : '')
         + (laser ? `<div class="lcs">${LASERS.map(l => `<button type="button" data-rg="lc" data-l="${l.id}" aria-label="${l.n} 레이저" style="background:${l.id === 'rainbow' ? 'conic-gradient(#ff5a5a,#ffb84d,#fff176,#69f0ae,#4fc3f7,#7c4dff,#ff5a5a)' : l.c}"></button>`).join('')}</div>` : '')
@@ -7278,8 +7276,7 @@ const TideHarm = (() => {
       const bt = el.querySelector('#rg-bait'); bt.hidden = !sb || !!e.k; bt.classList.toggle('on', !!x.b); bt.setAttribute('aria-pressed', !!x.b); bt.textContent = x.b ? '학꽁치포 달았음' : '학꽁치포 달기';
       const tmB = el.querySelector('#rg-tm'); if (tmB) { tmB.hidden = !x.s; tmB.querySelectorAll('button').forEach(t => { const on = (x.tm || []).includes(t.dataset.v); t.classList.toggle('on', on); t.setAttribute('aria-pressed', on); }); }
       const s = el.querySelector('#rg-star'); s.classList.toggle('on', !!x.s); s.textContent = x.s ? (e.k === 'bait' ? '★ 잘 먹힌 미끼' : e.k === 'wrm' ? '★ 잘 먹힌 웜' : '★ 잘 먹힌 색') : '☆ 잘 먹혔으면 톡';
-      for (const [id, v] of [['rg-g', x.g], ['rg-k', x.k], ['rg-lz', x.lz]]) { const q2 = el.querySelector('#' + id); if (q2) { q2.classList.toggle('on', !!v); q2.setAttribute('aria-pressed', !!v); } }
-      { const lc = el.querySelector('#rg-lcs'); if (lc) lc.hidden = !x.lz; }
+      for (const [id, v] of [['rg-g', x.g], ['rg-k', x.k]]) { const q2 = el.querySelector('#' + id); if (q2) { q2.classList.toggle('on', !!v); q2.setAttribute('aria-pressed', !!v); } }
       const c = panel.querySelector(`.mv-cell[data-k="e:${ek(x)}"]`);   // 상자 칸도 바로 바꾼다
       if (c) { c.querySelector('.pic').innerHTML = egiSvg(e, x); c.classList.toggle('star', !!x.s); c.querySelector('b').textContent = egiBase(x); const fs = c.querySelector('small.fn'); if (fs) fs.textContent = egiFnTxt(x); }
     }
@@ -11062,7 +11059,7 @@ const TideHarm = (() => {
 
 <script>
 if ('serviceWorker' in navigator) addEventListener('load', () => {
-  const sw = navigator.serviceWorker, VER = '5c78fff0'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
+  const sw = navigator.serviceWorker, VER = '54fbfa43'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
   // 화면에 손을 대기 시작했는지 (쓰는 중에는 새로 열지 않으려고)
   ['pointerdown', 'keydown'].forEach(t => addEventListener(t, () => { touched = true; }, { capture: true, passive: true }));
   const reload = () => {
@@ -11095,4 +11092,4 @@ if ('serviceWorker' in navigator) addEventListener('load', () => {
   }).catch(() => {});
 });
 </script>
-<script>(function(){function f(){var b=document.createElement('div');b.id='pv-bn';b.textContent='미리보기 · 실제 앱과 기록이 따로예요';b.style.cssText='position:fixed;left:50%;transform:translateX(-50%);top:calc(env(safe-area-inset-top,0px) + 6px);z-index:2147483647;background:#E39B1B;color:#1b1207;font:800 12px/1.3 system-ui,sans-serif;padding:4px 12px;border-radius:12px;pointer-events:none;white-space:nowrap;transition:opacity .6s';document.body.appendChild(b);setTimeout(function(){b.style.opacity='0';},7000);}if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',f);else f();})();</script>
+<script>(function(){function f(){var b=document.createElement('div');b.textContent='미리보기 · 실제 앱과 기록이 따로예요';b.style.cssText='position:fixed;left:50%;transform:translateX(-50%);top:calc(env(safe-area-inset-top,0px) + 6px);z-index:2147483647;background:#E39B1B;color:#1b1207;font:800 12px/1.3 system-ui,sans-serif;padding:4px 12px;border-radius:12px;pointer-events:none;white-space:nowrap;transition:opacity .6s';document.body.appendChild(b);setTimeout(function(){b.style.opacity='0';},7000);}if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',f);else f();})();</script>
