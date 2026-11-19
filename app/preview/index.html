@@ -5922,15 +5922,15 @@ const TideHarm = (() => {
       const gain = f => Math.round(out.reduce((a, e) => a + e.fn[f].sc - e.fn[''].sc, 0) / out.length);
       return { list: out, pairs: top, c, E: E * Math.PI, rUp, gain: { g: gain('g'), k: gain('k'), gk: gain('gk'), lz: gain('lz') } };
     }
-    // 봉돌 (2단계 · 물리): 배가 흐르는 동안 줄·봉돌·에기 2개가 받는 물 힘 → 줄이 20° 안으로 서는 가장 가벼운 무게
+    // 봉돌 (2단계 · 물리): 배가 흐르는 동안 줄·봉돌·에기 2개가 받는 물 힘 → 줄이 30° 안으로 서는 가장 가벼운 무게
     //  근거: 1호 = 3.75g(납 11.34g/cm³) · 합사 굵기 0.8호 0.153mm · 1호 0.171mm(PE 1호 = 200데니어, 일본釣用品工業会 · 제조사 공칭 지름)
-    //        · 줄은 원기둥 끌림(Cd ≈ 1 + 10/Re^⅔) · 물살은 바닥에서 1/7승으로 느려짐 · 배는 겉물 + 바람의 4~7%로 흐름(작은 낚싯배 밀림 범위 · 가정)
-    //        · 줄 20°: 바닥을 느끼고 옆 사람과 덜 엉키는 기준(가정 · 11/17 비응항 18호가 이 기준 안이었음 — 참고만)
+    //        · 줄은 원기둥 끌림(Cd ≈ 1 + 10/Re^⅔) · 물살은 바닥에서 1/7승으로 느려짐 · 배는 겉물 + 바람의 3~5.5%로 흐름(엔진·물닻으로 밀림을 어느 정도 잡는 낚싯배 · 가정 · 사용자 경험 '대부분 20호 이하, 사리 25호'에 맞춤 — 참고만)
+    //        · 줄 30°: 바닥을 느끼고 옆 사람과 덜 엉키는 기준(가정 · 처음 20°는 깊은 곳에서 너무 무거워 30°로 · 11/17 비응항 18호가 이 기준 안 — 참고만)
     //  에기가 바닥을 지나가는 속도 ≈ 배가 바닥 위를 지나가는 속도 (봉돌 무게로는 거의 안 바뀜)
     //  줄을 늘 팽팽하게(살짝 들면 봉돌이 뜰 만큼) 두는 방식(내 방식): 에기는 멈추지 않고 배 속도로 바닥 위를 지나간다
     //        · 따라와 올라탈 수 있는 속도: 쭈꾸미 빠르게 걸어 최대 약 0.19m/s (문어 Abdopus aculeatus, Huffard 2006) · 갑오징어 다가갈 때 약 0.13m/s (Sepia officinalis, Rosen 2020)
     //        · 그보다 빠르면 곁을 지나가는 에기를 잡아야 함: 팔 닿는 거리 양쪽 약 30cm(가정)를 0.5초(가정) 안에 지나가면(0.6m/s 넘음) 잡을 틈이 짧음
-    const SIM_PE = { '0.8': 0.153e-3, '1.0': 0.171e-3 }, SK_ANG = 20, SK_LEE = [0.04, 0.055, 0.07];
+    const SIM_PE = { '0.8': 0.153e-3, '1.0': 0.171e-3 }, SK_ANG = 30, SK_LEE = [0.03, 0.04, 0.055];
     const SK_STD = [6, 8, 10, 12, 14, 15, 16, 18, 20, 22, 25, 28, 30, 35, 40];   // 흔히 파는 호수
     const SK_EGI = { A: 5e-4, Cd: 1.0, W: 0.004 * 9.81 };   // 에기 1개: 정면 넓이 5cm² · 물속 무게 약 4g (가정)
     function skSinker(ho) { const m = ho * 3.75e-3, V = m / 11340, d = (6 * V / Math.PI) ** (1 / 3); return { W: (m - 1025 * V) * 9.81, A: Math.PI * d * d / 4 }; }
@@ -5964,19 +5964,19 @@ const TideHarm = (() => {
     const SK_METH = { jj: ['텐션 위주로 충분', '텐션으로 보이게 → 내려놓아 2~3초 멈춤 → 다시 텐션으로 무게 확인, 섞기', '내려놓기를 길게 (줄이 금방 휘니 짧게 끊어서)'],
       gp: ['텐션 잡고 살짝살짝 움직이기', '텐션 위주 + 가끔 짧게 멈춤', '멈춤을 섞되 짧게 · 움직임으로 보이게'] };
     const skMethTxt = (x, sp) => `방법(가설): ${SK_METH[sp === 'gp' ? 'gp' : 'jj'][sp === 'gp' ? x.vcatGp : x.vcat]}`;
-    // 출조 전: 배는 '보통 낚싯배가 바람·조류에 자연스럽게 흐름' (밀림 4~7%) · 바람 방향을 모르면 조류와 같은 쪽·옆·마주 셋 다
+    // 출조 전: 배는 '보통 낚싯배가 바람·조류에 자연스럽게 흐름' (밀림 3~5.5%) · 바람 방향을 모르면 조류와 같은 쪽·옆·마주 셋 다
     function skPlan(depth, cur, wx, sp) {
       const r = cur.dir * Math.PI / 180, c = [cur.sp * Math.sin(r), cur.sp * Math.cos(r)];
-      const winds = wx.wind != null ? [wx.wind] : [3, 8], dirs = wx.dir != null ? [wx.dir] : [cur.dir, cur.dir + 90, cur.dir + 180];
+      const winds = wx.wind != null ? [wx.wind] : [3, 5, 8], dirs = wx.dir != null ? [wx.dir] : [cur.dir, cur.dir + 90, cur.dir + 180];   // 예보 밖: 보통 바람 5m/s로 셈, 3·8m/s는 범위만
       const out = {}, vs = [], vm = [];
       for (const pe of ['0.8', '1.0']) {
         const need = [], mid = [];
         for (const ws of winds) for (const wd of dirs) for (const k of SK_LEE) {
           const a = (wd + 180) * Math.PI / 180, vb = [c[0] + k * ws * Math.sin(a), c[1] + k * ws * Math.cos(a)], x = skNeed(depth, c, vb, pe);
-          need.push(x); if (k === 0.055) mid.push(x);
-          if (pe === '1.0') { vs.push(Math.hypot(vb[0], vb[1])); if (k === 0.055) vm.push(Math.hypot(vb[0], vb[1])); }
+          need.push(x); if (k === 0.04 && (wx.wind != null || ws === 5)) mid.push(x);
+          if (pe === '1.0') { vs.push(Math.hypot(vb[0], vb[1])); if (k === 0.04 && (wx.wind != null || ws === 5)) vm.push(Math.hypot(vb[0], vb[1])); }
         }
-        const a = Math.min(...need), b = Math.max(...need), m = Math.max(...mid);   // 보통 배(밀림 5.5%) · 방향을 모르면 무거운 쪽
+        const a = Math.min(...need), b = Math.max(...need), m = Math.max(...mid);   // 보통 배(밀림 4%) · 방향을 모르면 무거운 쪽
         out[pe] = { main: skStd(m), boxMain: simPick(m), lo: skStd(a), hi: skStd(b), boxLo: simPick(a), boxHi: simPick(b), ho: [Math.round(a * 10) / 10, Math.round(m * 10) / 10, Math.round(b * 10) / 10] };
       }
       const v0 = Math.min(...vs), v1 = Math.max(...vs), v = Math.max(...vm);
@@ -6247,7 +6247,7 @@ const TideHarm = (() => {
       if (s.why.has(x.h)) h += `<p class="why">${plWhy(x, s)}</p>`;
       return h + '</div></div>';
     }
-    const plWhy = (x, s) => `바닥 빛(쭈갑이 눈 기준) 약 ${simNum(x.LB.qb)}lux · ${simLvTxt(x.LB.qb)} · 물 위 ${simNum(x.LB.surf)}lux의 ${x.LB.frac >= 0.001 ? (x.LB.frac * 100).toFixed(1) : simNum(x.LB.frac * 100)}% · 남은 빛 ${x.LB.pk}nm<br>해 높이 ${Math.round(x.el)}° · 에기가 보이는 거리 약 ${x.see.toFixed(1)}m<br>물색 ${x.W.label} · 투명도 약 ${x.W.zsd < 1 ? x.W.zsd.toFixed(1) : (Math.round(x.W.zsd * 2) / 2).toFixed(1)}m (${esc(x.W.why.join(' · '))})${WQ ? '<br>물색 바탕: 국립수산과학원 정선해양관측 실측(2000~2020)' : ''}${WQ && WQ.sat ? '<br>물색 보정: 천리안위성 2B호(국립해양조사원 국가해양위성센터) 자료로 셈 맞춤' : ''}<br>단색: ${esc(x.one)}${x.alt ? ` · 대안: ${esc(x.alt)}` : ''}${x.after ? '<br>비 그친 뒤라 톤을 낮추지 않음 (내 기록 11/5)' : ''}${x.sink ? `<br>봉돌(합사 ${s.pe === '1.0' ? '1' : s.pe}호): ${simSkTxt(x.sink[s.pe])}${skBoxTxt(x.sink[s.pe])}${x.sink[s.pe].main != null ? ` · 배가 바람에 덜 밀리면 ${x.sink[s.pe].lo ? x.sink[s.pe].lo + '호' : '40호↑'}, 더 밀리면 ${x.sink[s.pe].hi ? x.sink[s.pe].hi + '호' : '40호↑'}` : ''}<br>줄이 20° 안으로 서는 가장 가벼운 무게 · 보통 낚싯배가 자연스럽게 흐른다고 봄(배 위에서 GPS로 바로잡음)${x.sink.v ? `<br>${skVTxt(x.sink, s.sp)}<br>${skMethTxt(x.sink, s.sp)}` : ''}` : ''}`;
+    const plWhy = (x, s) => `바닥 빛(쭈갑이 눈 기준) 약 ${simNum(x.LB.qb)}lux · ${simLvTxt(x.LB.qb)} · 물 위 ${simNum(x.LB.surf)}lux의 ${x.LB.frac >= 0.001 ? (x.LB.frac * 100).toFixed(1) : simNum(x.LB.frac * 100)}% · 남은 빛 ${x.LB.pk}nm<br>해 높이 ${Math.round(x.el)}° · 에기가 보이는 거리 약 ${x.see.toFixed(1)}m<br>물색 ${x.W.label} · 투명도 약 ${x.W.zsd < 1 ? x.W.zsd.toFixed(1) : (Math.round(x.W.zsd * 2) / 2).toFixed(1)}m (${esc(x.W.why.join(' · '))})${WQ ? '<br>물색 바탕: 국립수산과학원 정선해양관측 실측(2000~2020)' : ''}${WQ && WQ.sat ? '<br>물색 보정: 천리안위성 2B호(국립해양조사원 국가해양위성센터) 자료로 셈 맞춤' : ''}<br>단색: ${esc(x.one)}${x.alt ? ` · 대안: ${esc(x.alt)}` : ''}${x.after ? '<br>비 그친 뒤라 톤을 낮추지 않음 (내 기록 11/5)' : ''}${x.sink ? `<br>봉돌(합사 ${s.pe === '1.0' ? '1' : s.pe}호): ${simSkTxt(x.sink[s.pe])}${skBoxTxt(x.sink[s.pe])}${x.sink[s.pe].main != null ? ` · 배가 바람에 덜 밀리면 ${x.sink[s.pe].lo ? x.sink[s.pe].lo + '호' : '40호↑'}, 더 밀리면 ${x.sink[s.pe].hi ? x.sink[s.pe].hi + '호' : '40호↑'}` : ''}<br>줄이 30° 안으로 서는 가장 가벼운 무게 · 보통 낚싯배가 자연스럽게 흐른다고 봄(배 위에서 GPS로 바로잡음)${x.sink.v ? `<br>${skVTxt(x.sink, s.sp)}<br>${skMethTxt(x.sink, s.sp)}` : ''}` : ''}`;
     function planRender() {
       const s = plS; if (!s || !plEl) return;
       for (const k of ['more', 'fn', 'why']) if (!s[k]) s[k] = new Set();
@@ -6272,7 +6272,7 @@ const TideHarm = (() => {
         for (const x of R.hours) h += plHour(x, s);
         h += `</div>`;
         h += `<div class="pl-save"><button type="button" class="${s.saved ? '' : 'pri'}" data-pl="save">${s.saved ? '저장됨 · 다시 저장' : '이 계획 저장하기'}</button><small>${s.saved ? '선상 모드 지도에 그 시간 계획과 지금 물살에 맞는 봉돌이 한 줄로 보여요.' : '저장하면 바다에서 인터넷이 없어도 보이고, 선상 모드 지도에 한 줄로 떠요.'}</small></div>`;
-        h += `<p class="bk-none">계산: 쭈갑이 눈(색이 아니라 밝기로 봄) · 바닷속 빛 · 물색으로 에기가 몇 m 밖에서 보이는지 셈한 '눈에 띔' 점수(0~100)예요. 봉돌은 줄이 20° 안으로 서는 가장 가벼운 무게예요.</p>`;
+        h += `<p class="bk-none">계산: 쭈갑이 눈(색이 아니라 밝기로 봄) · 바닷속 빛 · 물색으로 에기가 몇 m 밖에서 보이는지 셈한 '눈에 띔' 점수(0~100)예요. 봉돌은 줄이 30° 안으로 서는 가장 가벼운 무게예요.</p>`;
         if (0) h += `<p class="bk-none">계산 근거: 쭈꾸미·갑오징어 눈(청록색에 민감, 색이 아니라 밝기 대비로 봄)과 바닷속 빛 줄어듦으로 바닥 밝기를 셈하고, 족보의 바닥 빛 4단계 규칙으로 색을 골랐어요. 봉돌은 줄·쇼크리더(4호 1.5m)·에기 2개가 받는 물 힘과 봉돌이 바닥을 누르는 힘을 비교했어요. 배가 실제로 흐르는 속도는 미리 알 수 없어서, 바다에서는 선상 모드가 GPS로 다시 셈해 알려 줘요.</p>`;
         h += `<p class="bk-none">자료: 국립해양조사원 조석·조류 예측·격자 수심(BADA2024) · 기상청 예보 · 물색 바탕: 국립수산과학원 정선해양관측 · 물색 보정: 천리안위성 2B호(국립해양조사원 국가해양위성센터). 해도가 아니니 항해·안전에는 쓰지 마세요.</p>`;
       }
@@ -6329,7 +6329,7 @@ const TideHarm = (() => {
       const cc = SP && spotCur(me), D = depthAt(me, at), depth = D.st === 'ok' ? Math.max(0.5, D.dn) : null;
       if (cc && depth != null) {
         const q = curNow(cc.c, at), b = boatVel();
-        // GPS 배 속도(바닥 위) · 그 자리 조류 → 줄이 20° 안으로 서는 호수 · GPS가 없으면 물 따라 흐른다고 본다
+        // GPS 배 속도(바닥 위) · 그 자리 조류 → 줄이 30° 안으로 서는 호수 · GPS가 없으면 물 따라 흐른다고 본다
         const L = skLive(depth, { sp: q.sp / 100, dir: q.dir }, b, pe, 'jj');
         sk = { need: L.box, std: L.std, ho: L.ho, v: L.v, vcat: L.vcat, b, depth, cur: skAt(at) };
       }
@@ -11059,7 +11059,7 @@ const TideHarm = (() => {
 
 <script>
 if ('serviceWorker' in navigator) addEventListener('load', () => {
-  const sw = navigator.serviceWorker, VER = '54fbfa43'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
+  const sw = navigator.serviceWorker, VER = '5a7eb281'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
   // 화면에 손을 대기 시작했는지 (쓰는 중에는 새로 열지 않으려고)
   ['pointerdown', 'keydown'].forEach(t => addEventListener(t, () => { touched = true; }, { capture: true, passive: true }));
   const reload = () => {
