@@ -6948,7 +6948,7 @@ const TideHarm = (() => {
     const egiBase = x => { const e = egiGet(x.c); if (!e) return ''; if (e.c[0] === 'laser') { const l = LASER_BY[x.lc || 'silver']; return `${l ? l.n + ' ' : ''}레이저`; } return e.n; };   // 상자 칸: 색 이름만 (기능은 아래 작은 줄)
     const egiFnTxt = x => [x.g ? '야광' : '', x.k ? '케이' : '', x.lz ? `${(LASER_BY[x.lc || 'silver'] || {}).n || ''}레이저` : ''].filter(Boolean).join('·');
     const EFN_KEY = 'jjukgap-egi-fn'; let egiFnMem = loadJ(EFN_KEY, {});   // 색마다 마지막에 켠 기능
-    const egiFnInit = c => { const m = egiFnMem[c]; return m ? { ...(m.g ? { g: 1 } : {}), ...(m.k ? { k: 1 } : {}) } : {}; };
+    const egiFnInit = c => { const m = egiFnMem[c], e0 = egiGet(c); if (e0 && e0.c[0] === 'laser') return {}; return m ? { ...(m.g ? { g: 1 } : {}), ...(m.k ? { k: 1 } : {}) } : {}; };
     const egiFnSave = x => { egiFnMem[x.c] = { g: x.g ? 1 : 0, k: x.k ? 1 : 0 }; saveJ(EFN_KEY, egiFnMem); };
     const EGI_FN_ONLY = new Set(['glow']);   // 예전 상자의 '야광' 칸: 이제 기능 단추 (예전 기록은 그대로 보임) · 레이저는 예전처럼 상자의 에기 칸 (사용자 요청 2026-11-20)
     const sinkTxt = a => (a && a.length ? a.slice().sort((x, y) => x - y).join('·') + '호' : '');
@@ -7251,8 +7251,8 @@ const TideHarm = (() => {
     function rgEdOpen(c) {
       const x = form && form.egi.find(q => ek(q) === c), e = x && egiGet(x.c); if (!e) return;
       rgMode = 'ed'; rgC = c; rgN = null; rgOpenT = Date.now(); const el = rgEl(), two = e.c.length === 2, laser = e.c[0] === 'laser', lure = e.k === 'wrm' || e.k === 'bait', wMine = e.k === 'wrm' && !WRM_BY[e.id];
-      const fnOk = !lure && !EGI_FN_ONLY.has(e.id);
-      rgShow(`<h3 id="rg-nm"></h3><p class="sub">${fnOk && laser ? '레이저 색을 고르고, 있는 기능을 켜요' : fnOk ? '이 에기에 있는 기능을 켜요 · 다음에도 기억해요' : two ? '파란 단추를 잡고 위아래로 끌어 색 비율을 맞춰요' : laser ? '레이저 색을 골라요' : lure ? '잘 먹혔으면 ★로 표시하고 메모를 남겨요' : '틴셀·삼봉을 켜거나 잘 먹힌 색으로 표시해요'}</p>`
+      const fnOk = !lure && !laser && !EGI_FN_ONLY.has(e.id);   // 레이저는 예전 판 그대로 (기능 단추 없음 · 사용자 요청 2026-11-20)
+      rgShow(`<h3 id="rg-nm"></h3><p class="sub">${fnOk ? '이 에기에 있는 기능을 켜요 · 다음에도 기억해요' : two ? '파란 단추를 잡고 위아래로 끌어 색 비율을 맞춰요' : laser ? '레이저 색을 골라요' : lure ? '잘 먹혔으면 ★로 표시하고 메모를 남겨요' : '틴셀·삼봉을 켜거나 잘 먹힌 색으로 표시해요'}</p>`
         + (fnOk ? `<div class="fnr" role="group" aria-label="에기 기능"><button type="button" class="tog" data-rg="g" id="rg-g">야광</button><button type="button" class="tog" data-rg="k" id="rg-k">케이무라</button></div>` : '')
         + `<div class="ed"><div class="big" id="rg-big"><span class="pic"></span>${two ? '<div class="hd" id="rg-hd"><b role="slider" aria-label="색 비율">↕</b></div>' : ''}</div><div class="ctl">`
         + (two ? '<div class="ratio" id="rg-rt"></div>' : '')
@@ -11060,7 +11060,7 @@ const TideHarm = (() => {
 
 <script>
 if ('serviceWorker' in navigator) addEventListener('load', () => {
-  const sw = navigator.serviceWorker, VER = 'bccbfd6d'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
+  const sw = navigator.serviceWorker, VER = '76d02760'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
   // 화면에 손을 대기 시작했는지 (쓰는 중에는 새로 열지 않으려고)
   ['pointerdown', 'keydown'].forEach(t => addEventListener(t, () => { touched = true; }, { capture: true, passive: true }));
   const reload = () => {
