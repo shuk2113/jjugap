@@ -1,0 +1,27 @@
+# 셈 바로잡기용 시각별 위성 지도 (손으로만): 결과는 실행 기록에만 압축해 남김 (저장소에 안 남김 · 받은 뒤 기록 지움)
+name: 위성 시각별 지도 모으기
+
+on:
+  workflow_dispatch:
+    inputs:
+      days: { description: '날짜들 (쉼표)', default: '' }
+
+permissions:
+  contents: read
+
+concurrency:
+  group: nosc
+  cancel-in-progress: false
+
+jobs:
+  arch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 350
+    steps:
+      - uses: actions/checkout@v5
+      - run: pip install -q numpy
+      - name: 모으기
+        env:
+          DAYS: ${{ github.event.inputs.days }}
+          TMAX: '19800'
+        run: python3 .github/scripts/sat_arch.py
