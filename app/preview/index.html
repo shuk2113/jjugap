@@ -5854,6 +5854,29 @@ const TideHarm = (() => {
       { id: 'clear', n: '누드', p: [{ c: '클리어', a: 1 }] }];
     const SIM_NOSALE = new Set(['white', 'black']);   // 시중에 흰 단색·검정 단색 에기는 안 팔아서 추천에서 뺌 (사용자 2026-11-20 · 예전 계획은 이름 그대로 보임)
     const SIM_COL = SIM_COL_ALL.filter(e => !SIM_NOSALE.has(e.id));
+    // 내 에기 (상자의 '내 에기 만들기'): 색 코드로 천 반사율을 어림해 계산에 함께 넣음 (사용자 2026-11-20) · 정해 둔 색과 거의 같으면 그 색 값
+    const SIM_HEX = { 빨강: '#E53935', 퍼플: '#7E57C2', 검정: '#212121', 흰: '#FFFFFF', 민트: '#4DD0C0', 블루: '#1E88E5', 핑크: '#F06292', 레몬: '#FDD835', 초록: '#2E7D32',
+      갈색: '#6D4C41', 주황: '#FB8C00', '형광 연두': '#B2E62E', 카키: '#8D8455', 올리브: '#556B2F', 살구: '#FFB38A', 하늘: '#64B5F6' };
+    const simLin = h => { const m = /^#?([0-9a-f]{6})$/i.exec(h || ''); if (!m) return null; const v = parseInt(m[1], 16); return [(v >> 16) & 255, (v >> 8) & 255, v & 255].map(x => { x /= 255; return x <= 0.04045 ? x / 12.92 : ((x + 0.055) / 1.055) ** 2.4; }); };
+    function simHexKey(hex) {
+      const c = simLin(hex); if (!c) return null;
+      let best = null, bd = 1e9; for (const [k, h] of Object.entries(SIM_HEX)) { const r = simLin(h), d = Math.hypot(...r.map((x, i) => Math.sqrt(x) - Math.sqrt(c[i]))); if (d < bd) { bd = d; best = k; } }
+      if (bd < 0.08) return best;
+      const key = '#' + hex.replace('#', '').toUpperCase();
+      if (!SIM_REF[key]) { const [r, g, b] = c, m = Math.min(r, g, b);   // 흰 부분은 고르게 · 남는 빨강·초록·파랑은 그 빛 띠로
+        SIM_REF[key] = sAdd(0.05, 0.75 * m, sMul(0.70 * (r - m), sLg(590, 15)), sMul(0.60 * (g - m), sGa(535, 35)), sMul(0.60 * (b - m), sGa(460, 35))).map(x => Math.max(0.03, Math.min(0.9, x))); }
+      return key;
+    }
+    let SIM_MINE_BY = {};
+    function simMine() {
+      let L = []; try {
+        L = egiMine.filter(m => !m.hide && !m.k && Array.isArray(m.c) && m.c.length && m.c[0] !== 'laser' && m.c[0] !== 'glow').map(m => {
+          const ps = m.c.map(h => ({ c: simHexKey(h), h })).filter(x => x.c); if (!ps.length) return null;
+          return { id: m.id, n: m.n, p: ps.map(x => ({ c: x.c, h: x.h, a: 1 / ps.length })), app: m.id, mine: 1 };
+        }).filter(Boolean);
+      } catch (_) { L = []; }
+      SIM_MINE_BY = Object.fromEntries(L.map(e => [e.id, e])); return L;
+    }
     // 톤 무리 (두 개 조합은 서로 다른 무리에서): 밝은 · 붉은 · 어두운 · 줄무늬
     const SIM_TONE = { white: 'b', clear: 'b', lemon: 'b', chart: 'b', mahi: 'b', mint: 'b', sky: 'b', gcj: 'r', red: 'r', orange: 'r', shrimp: 'r', pink: 'r', black: 'd', brown: 'd', army: 'd', purple: 'd', blue: 'd', wm: 'd', sd: 's' };
     const SIM_FN = [['', '기본'], ['g', '야광'], ['k', '케이무라'], ['gk', '야광+케이무라'], ['lz', '레이저']];
@@ -5886,7 +5909,7 @@ const TideHarm = (() => {
       const uv = o.surf[0] * 10 * 0.9 * Math.exp(-1.5 * o.Kd[0] * o.zd), K = SIM_KEI.map(x => x * 0.3 * uv / SIM_KEIS / Math.PI);
       const qe = (src, T) => src.reduce((a, x, i) => a + x * T[i] * S[i], 0) / qn;   // 천을 지난 바탕 빛 (쭈갑이 눈 기준)
       const sc = r => Math.round(100 * r / (r + 1));
-      const out = SIM_COL.map(e => {
+      const out = [...SIM_COL, ...simMine()].map(e => {
         const parts = e.p.map(pt => { const R = SIM_REF[pt.c], T = simTr(pt.c); return { a: pt.a, rs: q(o.ez.map((x, i) => x * R[i])), T, g: qe(G, T), k: qe(K, T) }; });
         const fn = {};
         for (const [f, fl] of SIM_FN) {
@@ -5907,7 +5930,7 @@ const TideHarm = (() => {
           fn[f] = { r, sc: sc(r), m: r <= 0 ? '거의 안 보임' : ex > Math.abs(gS - ex) ? '빛을 냄' : gS > 0 ? '밝게 보임' : '어둡게 보임' };
         }
         let bestF = ''; for (const [f] of SIM_FN) if (fn[f].r > fn[bestF].r + 1e-9) bestF = f;
-        return { id: e.id, n: e.n, app: e.app || null, fn, best: bestF, r: fn[bestF].r, sc: fn[bestF].sc };
+        return { id: e.id, n: e.n, app: e.app || null, ...(e.mine ? { mine: 1 } : {}), fn, best: bestF, r: fn[bestF].r, sc: fn[bestF].sc };
       }).sort((a, b) => b.r - a.r || b.fn[''].r - a.fn[''].r || a.n.localeCompare(b.n));
       // 두 개 달면: 그 시각 점수 1등과 2등 (서로 다른 색 · 각자 가장 좋은 기능) — 톤 제한·'다른 방식 더하기' 없앰 (사용자 2026-11-20: 목적은 잘 붙을 색 찾기)
       const top = []; for (let i = 0; i + 1 < out.length && top.length < 1; i++) { const a = out[i], b = out[i + 1], fa = SIM_FN.find(x => x[0] === a.best), fb = SIM_FN.find(x => x[0] === b.best);
@@ -6157,11 +6180,12 @@ const TideHarm = (() => {
     const PL_HEX = { 빨강: '#D7262E', 흰: '#F6F6F4', 초록: '#2E8B3E', 핑크: '#F27BB0', 주황: '#F28A1E', 살구: '#F6B98A', 블루: '#2F6FD6', 하늘: '#7FB8EE', 민트: '#5FD3C6',
       카키: '#7A7448', 올리브: '#556B2F', 레몬: '#F2E14C', '형광 연두': '#B6F03A', 갈색: '#6B4A2E', 퍼플: '#6B3FA0', 검정: '#1E1E1E' };
     const PL_SUB = { mint: '밝은 청록', clear: '속이 비침', sd: '무지개 줄', mahi: '형광 연두+레몬', gcj: '빨강+흰', wm: '빨강+초록', shrimp: '주황+살구', army: '카키+올리브', sky: '밝은 파랑' };
-    const PL_CM = Object.fromEntries(SIM_COL_ALL.map(e => [e.id, e]));
+    const PL_CM0 = Object.fromEntries(SIM_COL_ALL.map(e => [e.id, e]));
+    const PL_CM = new Proxy(PL_CM0, { get: (o, k) => o[k] || SIM_MINE_BY[k] || (typeof k === 'string' && k.startsWith('m') ? (() => { simMine(); return SIM_MINE_BY[k]; })() : undefined) });   // 내 에기도
     function plSw(id) {   // 에기 색 견본 (부분 넓이대로 · 누드는 비치는 무늬)
       const e = PL_CM[id]; if (!e) return '<span class="pl-sw"></span>';
       if (id === 'clear') return '<span class="pl-sw clr"></span>';
-      let x = 0; const st = e.p.map(pt => { const c = PL_HEX[pt.c] || '#999', a0 = x; x += pt.a * 100; return `${c} ${a0.toFixed(0)}% ${x.toFixed(0)}%`; });
+      let x = 0; const st = e.p.map(pt => { const c = pt.h || PL_HEX[pt.c] || '#999', a0 = x; x += pt.a * 100; return `${c} ${a0.toFixed(0)}% ${x.toFixed(0)}%`; });
       return `<span class="pl-sw" style="background:linear-gradient(90deg,${st.join(',')})"></span>`;
     }
     const plFn = (f, lc) => (f === 'g' ? '야광' : f === 'k' ? '케이무라' : f === 'gk' ? '야광+케이' : f === 'lz' ? `레이저 ${lc || ''}`.trim() : '');
@@ -6224,8 +6248,8 @@ const TideHarm = (() => {
       const all = s.more.has(x.h), fnOn = s.fn.has(x.h), list = all ? L : L.slice(0, 6), top = L[0].sc || 1;
       h += `<div class="pl-dx"><p class="pl-k">에기 색 · 눈에 띔</p><div class="pl-cl">`;
       for (const e of list) {
-        const rec = e.app && plRec[e.app], tags = (simHas(e) ? '' : '<em class="nb">사 두면 좋아요</em>') + (rec ? `<em class="mr">내 기록 ${rec.map(n => { const v = ymd(n); return `${v.m}/${v.d}`; }).join('·')}</em>` : '');
-        h += `<div class="pl-cr">${plSw(e.id)}<span class="nm"><b>${esc(e.n)}</b>${PL_SUB[e.id] ? `<small>${PL_SUB[e.id]}</small>` : ''}${tags}</span>`
+        const rec = e.app && plRec[e.app], tags = (e.mine ? '<em class="mr">내 에기</em>' : simHas(e) ? '' : '<em class="nb">사 두면 좋아요</em>') + (rec ? `<em class="mr">내 기록 ${rec.map(n => { const v = ymd(n); return `${v.m}/${v.d}`; }).join('·')}</em>` : '');
+        h += `<div class="pl-cr">${plSw(e.id)}<span class="nm"><b>${esc(e.n)}</b>${PL_SUB[e.id] ? `<small>${PL_SUB[e.id]}</small>` : e.mine ? '<small>색 코드로 어림</small>' : ''}${tags}</span>`
           + `<span class="bar"><i style="width:${Math.max(3, Math.round(e.sc / Math.max(top, 40) * 100))}%"></i></span><span class="sc">${e.sc}</span>`
           + `<em class="fn">${esc(plFn(e.best, e.fn.lz.lc))}</em>`
           + (fnOn ? `<small class="fx">기본 ${e.fn[''].sc} · 야광 ${e.fn.g.sc} · 케이 ${e.fn.k.sc} · 둘다 ${e.fn.gk.sc} · 레이저 ${e.fn.lz.sc}</small>` : '') + `</div>`;
@@ -11057,7 +11081,7 @@ const TideHarm = (() => {
 
 <script>
 if ('serviceWorker' in navigator) addEventListener('load', () => {
-  const sw = navigator.serviceWorker, VER = '655493f0'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
+  const sw = navigator.serviceWorker, VER = 'cafe6f62'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
   // 화면에 손을 대기 시작했는지 (쓰는 중에는 새로 열지 않으려고)
   ['pointerdown', 'keydown'].forEach(t => addEventListener(t, () => { touched = true; }, { capture: true, passive: true }));
   const reload = () => {
