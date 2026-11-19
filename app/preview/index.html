@@ -5953,8 +5953,9 @@ const TideHarm = (() => {
       let lo = 2, hi = 60; for (let i = 0; i < 18; i++) { const m = (lo + hi) / 2; if (skAngle(h, c, vb, m, pe) > SK_ANG) lo = m; else hi = m; }
       return hi;
     }
-    const skStd = x => SK_STD.find(n => n >= x * 0.95) || 0;   // 5% 안쪽이면 가벼운 쪽 · 0 = 40호로도 모자람
-    const simPick = h => SIM_SK.find(n => n >= h * 0.95) || 0;   // 챙겨 가는 호수 중
+    const SK_MIN = 12;   // 아랫선: 실제로 써 본 가장 가벼운 호수 (사용자 경험 2026-11-20 · 그보다 가벼운 셈은 12호로)
+    const skStd = x => SK_STD.find(n => n >= Math.max(SK_MIN, x) * 0.95) || 0;   // 5% 안쪽이면 가벼운 쪽 · 0 = 40호로도 모자람
+    const simPick = h => SIM_SK.find(n => n >= Math.max(SK_MIN, h) * 0.95) || 0;   // 챙겨 가는 호수 중
     // 에기 바닥 속도 등급 (sp: jj 쭈꾸미 · gp 갑오징어)
     const skVcat = (v, sp) => (v <= (sp === 'gp' ? 0.13 : 0.19) ? 0 : v <= 0.6 ? 1 : 2);
     const SK_VTXT = { jj: ['쭈꾸미가 따라와 올라탈 수도 있는 속도', '쭈꾸미가 곁을 지나가는 에기를 잡아야 하는 속도', '에기가 쭈꾸미 곁을 너무 빨리 지나가 잡을 틈이 짧을 수 있음 · 봉돌을 바꿔도 느려지지 않아요'],
@@ -5978,7 +5979,7 @@ const TideHarm = (() => {
         }
         const a = Math.min(...need), b = Math.max(...need), m = Math.max(...mid);   // 보통 배(밀림 4%) · 방향을 모르면 같은 쪽과 옆 사이
         const w0 = skNeed(depth, c, c, pe), wn = wx.wind != null && wx.wind >= 8 && m >= w0 + 8 && m >= 15 ? 1 : 0;   // 바람이 세서 무거워짐
-        out[pe] = { wn, main: skStd(m), boxMain: simPick(m), lo: skStd(a), hi: skStd(b), boxLo: simPick(a), boxHi: simPick(b), ho: [Math.round(a * 10) / 10, Math.round(m * 10) / 10, Math.round(b * 10) / 10] };
+        out[pe] = { wn, fl: m < SK_MIN * 0.95 ? 1 : 0, main: skStd(m), boxMain: simPick(m), lo: skStd(a), hi: skStd(b), boxLo: simPick(a), boxHi: simPick(b), ho: [Math.round(a * 10) / 10, Math.round(m * 10) / 10, Math.round(b * 10) / 10] };
       }
       const v0 = Math.min(...vs), v1 = Math.max(...vs), v = Math.max(...vm);
       return { ...out, v: [v0, v, v1], vcat: skVcat(v, sp), vcatGp: skVcat(v, 'gp') };
@@ -6238,7 +6239,7 @@ const TideHarm = (() => {
       if (pr) h += `<p class="pl-k">두 개 달면</p><div class="pl-pr">${plSw(pr.a)}<b>${esc(pr.an)}</b><span>+</span>${plSw(pr.b)}<b>${esc(pr.bn)}</b><span class="sc">${pr.sc}</span></div>`;
       const zt = x.W.zsd < 1 ? x.W.zsd.toFixed(1) : (Math.round(x.W.zsd * 2) / 2).toFixed(1);
       h += `<div class="pl-dg"><div class="pl-dt"><small>바닥 빛</small><b>${esc(simLvTxt(x.LB.qb))}</b></div><div class="pl-dt"><small>물색</small><b>${esc(x.W.label)}</b><span>투명도 약 ${zt}m</span></div>`;
-      if (sk) h += `<div class="pl-dt"><small>봉돌 · PE ${s.pe === '1.0' ? '1' : s.pe}호</small><b>${skT}</b><span>${sk.wn ? '<em class="pl-wn">바람이 세서 배가 빨리 밀려요</em> · ' : ''}배가 덜 밀리면 ${sk.lo || '40↑'}호 · 더 밀리면 ${sk.hi || '40↑'}호${sk.main && sk.boxMain !== sk.main ? ` · 상자엔 ${sk.boxMain || '25↑'}호` : ''}</span></div>`
+      if (sk) h += `<div class="pl-dt"><small>봉돌 · PE ${s.pe === '1.0' ? '1' : s.pe}호</small><b>${skT}</b><span>${sk.wn ? '<em class="pl-wn">바람이 세서 배가 빨리 밀려요</em> · ' : ''}${sk.fl ? '물이 약해 더 가벼워도 줄이 서요 · ' : ''}배가 덜 밀리면 ${sk.lo || '40↑'}호 · 더 밀리면 ${sk.hi || '40↑'}호${sk.main && sk.boxMain !== sk.main ? ` · 상자엔 ${sk.boxMain || '25↑'}호` : ''}</span></div>`
         + `<div class="pl-dt"><small>에기 바닥 속도</small><b>${plDot(vc)}<span style="white-space:nowrap">초속 ${x.sink.v[1].toFixed(2)}m</span></b><span>${esc(SK_VTXT[s.sp === 'gp' ? 'gp' : 'jj'][vc].split(' · ')[0])}</span></div>`
         + `<div class="pl-dt wide"><small>방법 (가설)</small><span>${esc(SK_METH[s.sp === 'gp' ? 'gp' : 'jj'][vc])}</span></div>`;
       h += `</div>`;
@@ -11060,7 +11061,7 @@ const TideHarm = (() => {
 
 <script>
 if ('serviceWorker' in navigator) addEventListener('load', () => {
-  const sw = navigator.serviceWorker, VER = '76d02760'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
+  const sw = navigator.serviceWorker, VER = '9edad5e5'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
   // 화면에 손을 대기 시작했는지 (쓰는 중에는 새로 열지 않으려고)
   ['pointerdown', 'keydown'].forEach(t => addEventListener(t, () => { touched = true; }, { capture: true, passive: true }));
   const reload = () => {
