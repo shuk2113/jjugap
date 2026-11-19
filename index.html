@@ -333,6 +333,7 @@ html.mv-on .app *{animation-play-state:paused !important} html.mv-hide .app{visi
 .mv-area{position:absolute; left:10px; bottom:42px; z-index:1; transform:translate3d(0,calc(-1 * var(--sheet-h, 0px)),0); transition:transform .28s cubic-bezier(.2,.85,.25,1); max-width:calc(100% - 104px); display:flex; align-items:center; gap:6px; min-height:36px; padding:6px 12px 6px 10px; border:1px solid var(--line); border-radius:18px; background:var(--card); color:var(--ink); font:inherit; font-size:calc(12.5px * var(--k)); font-weight:700; text-align:left; box-shadow:0 4px 14px rgba(0,0,0,.18); -webkit-tap-highlight-color:transparent}
 .mv-area span{display:flex; flex-direction:column; min-width:0} .mv-area b, .mv-area small{overflow:hidden; text-overflow:ellipsis; white-space:nowrap} .mv-area b{font-weight:800} .mv-area small{font-size:calc(12px * var(--k)); font-weight:700; color:var(--accent, #2F7DF6)} .mv-area i{flex:none; font-style:normal; color:var(--ink-2)}
 .mv-area small.warn{color:var(--strong)} .mv-plan{bottom:42px}
+.mv-plan span{display:grid; grid-template-columns:auto minmax(0, 1fr); column-gap:8px; align-items:center} .mv-plan small{grid-column:1 / -1} .mv-plan b.pk{display:inline-flex; align-items:center; gap:5px; font-size:calc(15px * var(--k))}
 .mv-areab{display:flex; align-items:center; gap:6px; width:100%; margin:10px 0 2px; padding:11px 12px; border:1px solid var(--line); border-radius:14px; background:var(--card); color:var(--ink); font:inherit; font-size:calc(13px * var(--k)); font-weight:700; text-align:left}
 .mv-areab span{flex:1; min-width:0} .mv-areab i{flex:none; font-style:normal; color:var(--ink-2)}
 .ar-sub{margin:0 2px 10px; font-size:calc(12.5px * var(--k)); color:var(--ink-2); line-height:1.5}
@@ -444,6 +445,7 @@ html.mv-on .app *{animation-play-state:paused !important} html.mv-hide .app{visi
 .mv-cell{position:relative; box-sizing:border-box; aspect-ratio:1; min-width:0; padding:0; border:1px solid var(--line); border-radius:12px; background:var(--card); box-shadow:0 1px 3px rgba(0,0,0,.16); font:inherit; color:var(--ink); -webkit-tap-highlight-color:transparent; -webkit-touch-callout:none; -webkit-user-select:none; user-select:none; touch-action:manipulation}
 .mv-cell .in{position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px}
 .mv-cell b{max-width:92%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:calc(10.5px * var(--k)); font-weight:700; color:var(--ink-2)}
+.mv-cell small.fn{max-width:96%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:calc(9.5px * var(--k)); font-weight:800; color:var(--accent, #2F7DF6); line-height:1.1} .mv-cell small.fn:empty{display:none}
 .mv-cell.sk b{color:var(--ink)}
 .mv-cell .w{display:block; height:var(--wh); aspect-ratio:.7; border-radius:45% 45% 48% 48% / 38% 38% 62% 62%; background:linear-gradient(90deg,#6E7A82,#B8C2C9 48%,#7E8991); box-shadow:inset 0 -2px 0 rgba(0,0,0,.18)}
 .mv-cell .pic{display:block; height:56%} .mv-cell .pic svg{display:block; height:100%; width:auto}
@@ -506,6 +508,9 @@ html.mv-on .app *{animation-play-state:paused !important} html.mv-hide .app{visi
 .mv-rged .tog{min-height:40px; padding:4px 10px; border-radius:12px; border:1px solid var(--line); background:none; font:inherit; font-size:calc(13.5px * var(--k)); font-weight:700; color:var(--ink); -webkit-tap-highlight-color:transparent}
 .mv-rged .tog.on{background:rgba(255,201,60,.14); border-color:#FFC93C}
 .mv-rged .tg2{display:flex; gap:6px} .mv-rged .tg2 .tog{flex:1; min-width:0; padding:4px 6px}
+.mv-rged .fnr{display:flex; gap:6px} .mv-rged .fnr .tog{flex:1; min-width:0; padding:6px 4px; font-weight:800} .mv-rged .lcs.fnl[hidden]{display:none}
+.mv-rig.mt .mv-mts{display:flex; flex-wrap:wrap; align-items:center; gap:6px} .mv-mts button{padding:7px 12px; border:1px solid var(--line); border-radius:999px; background:var(--card); color:var(--ink); font:inherit; font-size:calc(13px * var(--k)); font-weight:700}
+.mv-mts button.on{background:var(--accent, #2F7DF6); border-color:var(--accent, #2F7DF6); color:#fff} .mv-mts small{color:var(--ink-2); font-size:calc(11px * var(--k))}
 .mv-rged .tog.sub2{position:relative; margin-left:14px} .mv-rged .tog.sub2::before{content:''; position:absolute; left:-11px; top:50%; width:8px; border-top:1.5px solid var(--line)}
 .mv-rged .tog.rm{color:var(--strong)} .mv-rged .mine{display:flex; gap:6px} .mv-rged .mine .tog{flex:1; min-width:0}
 .mv-rged .lcs{display:flex; flex-wrap:wrap; gap:7px}
@@ -777,6 +782,40 @@ a.mv-row-btn{text-decoration:none; gap:10px} .mv-row-btn span{font-size:calc(20p
 .pl-hr .lv{flex:none; font-style:normal; padding:2px 7px; border-radius:7px; font-size:calc(11px * var(--k)); font-weight:800}
 .pl-hr .sk{text-align:center} .pl-hr .sk b{display:block; font-size:calc(14px * var(--k)); font-weight:800; word-break:keep-all} .pl-hr .sk small{display:block; color:var(--ink-2); font-size:calc(10.5px * var(--k))}
 .pl-hr .why{display:block; margin-top:4px; padding-top:6px; border-top:1px dashed var(--line); color:var(--ink-2); font-size:calc(11.5px * var(--k)); line-height:1.5}
+.pl-day{display:flex; flex-direction:column; gap:10px; padding:14px; border:1px solid var(--line); border-radius:18px; background:var(--card); margin:4px 0 12px}
+.pl-dh{display:flex; flex-direction:column; gap:2px} .pl-dh b{font-size:calc(17px * var(--k)); font-weight:800} .pl-dh small{color:var(--ink-2); font-size:calc(12px * var(--k)); word-break:keep-all}
+.pl-dg{display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:8px}
+.pl-dt{display:flex; flex-direction:column; gap:3px; padding:10px 11px; border-radius:13px; background:color-mix(in srgb, var(--ink) 5%, var(--card)); min-width:0}
+.pl-dt.wide{grid-column:1 / -1} .pl-dt small{color:var(--ink-2); font-size:calc(11.5px * var(--k)); font-weight:700}
+.pl-dt b{font-size:calc(16px * var(--k)); font-weight:800; display:flex; align-items:center; gap:6px; word-break:keep-all} .pl-wn{font-style:normal; font-weight:700; color:var(--strong)} .pl-dt span{font-size:calc(12.5px * var(--k)); line-height:1.45; word-break:keep-all; display:flex; align-items:center; gap:6px; flex-wrap:wrap}
+.pl-note{margin:0; color:var(--ink-2); font-size:calc(11.5px * var(--k)); line-height:1.45}
+.pl-sw{flex:none; width:calc(26px * var(--k)); height:calc(13px * var(--k)); border-radius:calc(7px * var(--k)) calc(4px * var(--k)) calc(4px * var(--k)) calc(7px * var(--k)); background:#bbb; box-shadow:inset 0 0 0 1px rgba(0,0,0,.18)}
+.pl-sw.clr{background:repeating-linear-gradient(135deg, rgba(255,255,255,.9) 0 3px, rgba(150,190,200,.45) 3px 6px)}
+.pl-chs{display:flex; flex-wrap:wrap; gap:6px 10px} .pl-ch{display:inline-flex; align-items:center; gap:5px; min-width:0} .pl-ch b{font-weight:800; font-size:calc(13.5px * var(--k)); white-space:nowrap}
+.pl-ch em{font-style:normal; font-size:calc(10.5px * var(--k)); font-weight:800; padding:1px 6px; border-radius:6px; background:color-mix(in srgb, #9BE15D 30%, var(--card)); color:var(--ink); white-space:nowrap}
+.pl-dot{flex:none; display:inline-block; width:calc(11px * var(--k)); height:calc(11px * var(--k)); border-radius:50%; background:var(--line)} .pl-dot.d0{background:#2E9E5B} .pl-dot.d1{background:#E39B1B} .pl-dot.d2{background:#D64545}
+.pl-hr2{border:1px solid var(--line); border-radius:15px; background:var(--card); overflow:hidden} .pl-hr2.on{border:2px solid var(--accent, #2F7DF6)}
+.pl-hh{display:grid; grid-template-columns:2.6em minmax(0, 1fr) auto auto; gap:8px; align-items:center; width:100%; padding:10px 11px; border:0; background:transparent; color:var(--ink); font:inherit; text-align:left}
+.pl-hh .t{font-weight:800; font-size:calc(14.5px * var(--k))} .pl-hh .m{display:flex; flex-direction:column; gap:4px; min-width:0} .pl-hh .m small{color:var(--ink-2); font-size:calc(11.5px * var(--k)); word-break:keep-all}
+.pl-hh .sk{text-align:center; min-width:2.8em} .pl-hh .sk b{display:block; font-size:calc(15px * var(--k)); font-weight:800; white-space:nowrap} .pl-hh .sk small{display:block; color:var(--ink-2); font-size:calc(10.5px * var(--k))}
+.pl-dx{display:flex; flex-direction:column; gap:9px; padding:2px 12px 12px; border-top:1px dashed var(--line)}
+.pl-k{margin:8px 0 0; font-size:calc(12px * var(--k)); font-weight:800; color:var(--ink-2)}
+.pl-cl{display:grid; grid-template-columns:auto minmax(min-content, 1fr) minmax(2.6em, 33%) 1.7em 3.4em; gap:7px; align-items:center}
+.pl-cr{display:contents}
+.pl-cr .nm{display:flex; flex-direction:column; align-items:flex-start; gap:1px; min-width:0} .pl-cr .nm b{font-weight:800; font-size:calc(13.5px * var(--k)); white-space:nowrap} .pl-cr .nm small{color:var(--ink-2); font-size:calc(11px * var(--k)); white-space:nowrap}
+.pl-cr .nm em{font-style:normal; font-size:calc(10px * var(--k)); font-weight:800; padding:0 5px; border-radius:5px; white-space:nowrap}
+.pl-cr .nm em.nb{background:transparent; box-shadow:inset 0 0 0 1px var(--line); color:var(--ink-2); font-weight:700} .pl-cr .nm em.mr{background:color-mix(in srgb, var(--accent, #2F7DF6) 18%, var(--card)); color:var(--ink)}
+.pl-cr .bar{height:calc(8px * var(--k)); border-radius:5px; background:color-mix(in srgb, var(--ink) 9%, var(--card)); overflow:hidden} .pl-cr .bar i{display:block; height:100%; border-radius:5px; background:var(--accent, #2F7DF6)}
+.pl-cr .sc{font-weight:800; font-size:calc(13.5px * var(--k)); text-align:right} .pl-cr .fn{font-style:normal; font-size:calc(10.5px * var(--k)); font-weight:800; color:var(--ink-2); line-height:1.25; word-break:keep-all}
+.pl-cr .fx{grid-column:2 / -1; color:var(--ink-2); font-size:calc(11px * var(--k)); margin-top:-3px}
+.pl-bt{display:flex; gap:8px} .pl-bt button, .pl-wb{flex:1; padding:9px; border:1px solid var(--line); border-radius:11px; background:var(--card); color:var(--ink); font:inherit; font-size:calc(12.5px * var(--k)); font-weight:700}
+.pl-bt button[aria-pressed="true"]{border-color:var(--accent, #2F7DF6); color:var(--accent, #2F7DF6)}
+.pl-pr{display:flex; flex-wrap:wrap; align-items:center; gap:6px} .pl-pr b{font-weight:800; font-size:calc(13px * var(--k))} .pl-pr span{color:var(--ink-2)} .pl-pr .sc{margin-left:auto; font-weight:800; color:var(--ink)}
+.pl-dx .why{margin:0; color:var(--ink-2); font-size:calc(11.5px * var(--k)); line-height:1.55}
+.pl-hh .m small.act{color:var(--ink); font-size:calc(11.5px * var(--k)); word-break:keep-all} .pl-hh .m small.act b{font-weight:800; color:var(--accent, #2F7DF6); margin-right:3px}
+.pl-hh .m small.act em{font-style:normal; font-weight:800; font-size:calc(10px * var(--k)); padding:0 5px; border-radius:5px; background:color-mix(in srgb, #2E9E5B 22%, var(--card))}
+.pl-act{display:flex; flex-direction:column; gap:5px} .pl-act div{display:grid; grid-template-columns:auto minmax(0, 1fr) auto; gap:8px; align-items:baseline; font-size:calc(12.5px * var(--k))} .pl-act b{font-weight:800} .pl-act em{font-style:normal; font-weight:800}
+.pl-dt.live{background:color-mix(in srgb, var(--accent, #2F7DF6) 12%, var(--card))} .pl-dt.act{background:color-mix(in srgb, #2E9E5B 12%, var(--card))}
 .pl-save{display:flex; flex-direction:column; gap:6px; margin:12px 0 4px} .pl-save button{padding:13px; border:1px solid var(--line); border-radius:14px; background:var(--card); color:var(--ink); font:inherit; font-size:calc(14px * var(--k)); font-weight:800}
 .pl-save button.pri{background:var(--accent, #2F7DF6); color:#fff; border-color:transparent} .pl-save small{color:var(--ink-2); font-size:calc(11.5px * var(--k)); line-height:1.5}
 .sim-card{display:flex; flex-direction:column; gap:8px; padding:14px; border:1px solid var(--line); border-radius:18px; background:var(--card)}
@@ -5491,9 +5530,35 @@ const TideHarm = (() => {
       const al = 1 / (Math.exp(69.7 * (a - x)) + Math.exp(28 * (0.922 - x)) + Math.exp(-14.9 * (1.104 - x)) + 0.674), lb = 189 + 0.315 * lm, bw = -40.5 + 0.195 * lm;
       return al + 0.26 * Math.exp(-(((L - lb) / bw) ** 2));
     });
-    const SIM_S = { jj: simGov(486), gp: simGov(498) }, SIM_V = simMap(L => Math.exp(-0.5 * ((L - 555) / 45) ** 2));
+    // 시각 색소 봉우리: 문어 475~480nm(쭈꾸미 자체 값이 없어 대신) · 갑오징어(Sepia esculenta) 490nm
+    const SIM_S = { jj: simGov(478), gp: simGov(490) }, SIM_V = simMap(L => Math.exp(-0.5 * ((L - 555) / 45) ** 2));
     const simIp = (x, X, Y) => { if (x <= X[0]) return Y[0]; for (let i = 1; i < X.length; i++) if (x <= X[i]) return Y[i - 1] + (Y[i] - Y[i - 1]) * (x - X[i - 1]) / (X[i] - X[i - 1]); return Y[Y.length - 1]; };
-    const SIM_AW = simMap(L => simIp(L, [400, 450, 500, 550, 600, 650, 700], [0.03, 0.02, 0.03, 0.07, 0.24, 0.35, 0.65]));
+    // 맑은 바닷물이 빛을 먹는 정도 (1/m · Pope & Fry 1997 순수한 물)
+    const SIM_AW = simMap(L => simIp(L, [400, 420, 440, 460, 480, 500, 520, 540, 560, 580, 600, 620, 640, 660, 680, 700],
+      [0.0066, 0.0045, 0.0064, 0.0098, 0.0127, 0.0204, 0.0409, 0.0474, 0.0619, 0.0896, 0.2224, 0.2755, 0.3108, 0.41, 0.465, 0.624]));
+    // 낮 햇빛의 파장별 세기 (CIE 표준광 D65 상대값)
+    const SIM_D65 = simMap(L => simIp(L, [400, 420, 440, 460, 480, 500, 520, 540, 560, 580, 600, 620, 640, 660, 680, 700],
+      [82.8, 93.4, 104.9, 117.8, 115.9, 109.4, 104.8, 104.4, 100.0, 95.8, 90.0, 87.7, 83.7, 80.2, 78.3, 71.6]));
+    // 물 위 밝기(lux)와 빛깔: 맑은 날 Haurwitz 식(W/m²)×110lm/W · 구름 Kasten–Czeplak (1 − 0.75·(구름/8)^3.4)
+    //  기상청 하늘: 맑음(구름 0~5할 → 2/8) · 구름많음(6~8할 → 5.6/8) · 흐림(9~10할 → 7.6/8) · 비는 0.2 (가정값)
+    //  해 진 뒤·뜨기 전: 해 질 녘 약 500lux → 해가 6° 아래 3.4lux → 12° 아래 0.008lux (박명 밝기) · 빛깔은 푸르게
+    function simSurf(el, wx, rainNow) {
+      const N = wx.sky === 1 ? 2 : wx.sky === 3 ? 5.6 : wx.sky === 4 ? 7.6 : 5, cf = rainNow ? 0.2 : 1 - 0.75 * (N / 8) ** 3.4;
+      let E;
+      if (el > 0) { const cz = Math.sin(el * Math.PI / 180), H = 1098 * cz * Math.exp(-0.057 / cz) * 110; E = el < 6 ? Math.max(H, 500 * 10 ** (0.15 * el)) : H; }   // 해가 아주 낮을 땐 하늘빛(산란)이 더 커서
+      else E = el > -6 ? 500 * 10 ** (0.361 * el) : 3.4 * 10 ** (0.438 * (el + 6));
+      E *= cf;
+      const tl = SIM_D65.map((x, i) => x * (el < 0 ? (SIM_L[i] / 550) ** -1.5 : 1)), tv = tl.reduce((a, x, i) => a + x * SIM_V[i], 0);
+      return { E, cf, spec: tl.map(x => x / tv * E) };
+    }
+    // 물속 빛 감쇠(파장별): 물 + 흙·녹은 유기물(파란 쪽을 더 먹음) · 1-2단계 투명도에서 나온 Kd(PAR)에 맞춤
+    const SIM_PSH = simMap(L => 0.55 * (550 / L) ** 0.6 + 0.45 * Math.exp(-0.012 * (L - 550)));
+    function simKd(kdPar, spec) {
+      const z = 1.5 / Math.max(0.05, kdPar), par = (k, zz) => spec.reduce((a, x, i) => a + x * Math.exp(-(1.15 * SIM_AW[i] + k * SIM_PSH[i]) * zz), 0);
+      let lo = 0, hi = 20; const P0 = par(0, 0);
+      for (let it = 0; it < 40; it++) { const k = (lo + hi) / 2, ke = Math.log(P0 / par(k, z)) / z; if (ke > kdPar) hi = k; else lo = k; }
+      const k = (lo + hi) / 2; return SIM_L.map((_, i) => 1.15 * SIM_AW[i] + k * SIM_PSH[i]);
+    }
     const sLg = (c, w) => simMap(L => 1 / (1 + Math.exp(-(L - c) / w))), sGa = (c, w) => simMap(L => Math.exp(-0.5 * ((L - c) / w) ** 2));
     const sAdd = (...a) => SIM_L.map((_, i) => a.reduce((s, x) => s + (typeof x === 'number' ? x : x[i]), 0));
     const sMul = (k, a) => a.map(x => k * x);
@@ -5532,11 +5597,17 @@ const TideHarm = (() => {
       if (part) { const w = part[0] || ''; return { src: 'mid', wind: null, dir: null, wave: part[1] ?? part[2], sky: /흐/.test(w) ? 4 : /구름/.test(w) ? 3 : 1, rain: /비|소나기/.test(w), txt: w }; }
       return { src: 'none' };
     }
-    // 이 자리 둘레 4km에서 물 빠지면 드러나는 곳(수심 2m 안) 비율 → 물이 탁해지기 쉬운 정도 (갯벌·강어귀)
-    // 이 자리가 원래 얼마나 탁해지기 쉬운가 (0~1): 둘레 4km 갯벌(수심 2m 안) 비율 · 얕은 바다 · 큰 강어귀(금강·한강·아산만·새만금 수문)와의 거리
-    const SIM_RIV = [[35.995, 126.62, 25, '금강 하구'], [37.75, 126.52, 30, '한강·염하'], [36.95, 126.85, 25, '아산만'], [35.80, 126.45, 15, '새만금 수문']];
+    // ---------- 물색 (1-2단계): 물속에 뜬 흙(mg/L) → 빛 감쇠 → 투명도(m)
+    //  근거: 서해 연안 탁도는 물때(조석)에 따라 시간 단위로 바뀐다(위성 GOCI) · 갯벌에선 파도가 바닥 흙을 띄운다
+    //        · 늦가을(10월 말)부터 겨울 계절풍에 더 탁하다 · 투명도 = 1.44 / 빛 감쇠(서해 17개 정점) · 연안 정점 연평균 투명도 약 5m
+    //  빛 감쇠 Kd = 0.12(바닷물 바탕) + 0.07 × 뜬 흙(mg/L) — 하구에서 잰 흙 1g/m³당 감쇠 0.075에 가깝게
+    const SIM_KW = 0.12, SIM_KS = 0.07;
+    const SIM_MON = [1.4, 1.4, 1.25, 1.1, 0.9, 0.85, 0.9, 0.9, 1.0, 1.1, 1.3, 1.4];   // 달마다 (가정값: 늦가을~겨울 계절풍 때 더 탁하고 늦봄~여름엔 덜)
+    //  큰 강어귀·수문: [위도, 경도, 영향 거리 km, 이름, 어귀에서 더해지는 흙 mg/L] (가정값 · 비 오면 커짐)
+    const SIM_RIV = [[35.995, 126.62, 25, '금강 하구', 20], [37.75, 126.52, 50, '한강·염하', 25], [36.95, 126.85, 25, '아산만', 15], [35.80, 126.45, 15, '새만금 수문', 12]];
+    // 이 자리 바탕 (한 번만 셈): 둘레 4km 갯벌(수심 2m 안) 비율 fl · 둘레 평균 수심 md · 강어귀까지 거리
     function simFlat(p, info) {
-      let base = 0.2, why = [];
+      const why = []; let fl = 0, fl15 = 0, md = 20, ok = false;
       if (DPI) {
         let n = 0, f = 0, w = 0, sd = 0; const r = 4 / 111.2;
         for (let dy = -r; dy <= r; dy += DPI.dy * 2) for (let dx = -r / KX; dx <= r / KX; dx += DPI.dx * 2) {
@@ -5545,11 +5616,182 @@ const TideHarm = (() => {
           n++; sd += Math.max(0, R0.d); if (R0.d < 2) f++;
         }
         if (info) info.wait = w;
-        if (n) { const fl = f / n, md = sd / n; base += 0.35 * fl + 0.25 * Math.max(0, Math.min(1, (15 - md) / 15)); if (fl > 0.1) why.push('둘레 갯벌'); if (md < 12) why.push(`둘레 평균 수심 ${Math.round(md)}m`); }
+        if (n) { ok = true; fl = f / n; md = sd / n; if (fl > 0.1) why.push('둘레 갯벌'); if (md < 12) why.push(`둘레 평균 수심 ${Math.round(md)}m`); }
+        // 넓게 15km: 경기만처럼 갯벌이 넓은 바다는 물 전체가 탁하다
+        let n2 = 0, f2 = 0; const r2 = 15 / 111.2;
+        for (let dy = -r2; dy <= r2; dy += DPI.dy * 8) for (let dx = -r2 / KX; dx <= r2 / KX; dx += DPI.dx * 8) {
+          if ((dy * dy + dx * dx * KX * KX) > r2 * r2) continue;
+          const R0 = depthRaw({ lat: p.lat + dy, lon: p.lon + dx }); if (R0.st === 'load') w++; if (R0.st !== 'ok') continue;
+          n2++; if (R0.d < 2) f2++;
+        }
+        if (info) info.wait = w;
+        if (n2) { fl15 = f2 / n2; if (fl15 > 0.12) why.push(`둘레 15km 갯벌 ${Math.round(fl15 * 100)}%`); }
       }
-      for (const [la, lo, rr, nm] of SIM_RIV) { const d = distKm(p, { lat: la, lon: lo }); if (d < rr) { base += 0.2 * (1 - d / rr); why.push(`${nm} ${Math.round(d)}km`); } }
+      const riv = [];
+      for (const [la, lo, rr, nm, A] of SIM_RIV) { const d = distKm(p, { lat: la, lon: lo }); if (d < rr) { riv.push({ nm, d, inf: 1 - d / rr, A }); why.push(`${nm} ${Math.round(d)}km`); } }
+      const sh = Math.max(0, Math.min(1, (15 - md) / 15));
       if (info) info.why = why;
-      return Math.min(0.8, base);
+      const fe = simFetch(p, info);
+      return { fl, fl15, md, sh, riv, ok, fe, geo: 2 + 30 * fl + 10 * sh + 25 * fl15 };   // geo: 강 빼고 바탕 흙 (mg/L · 보통 날 · 가을 기준 가정값)
+    }
+    // 바람이 불어오는 쪽으로 트인 바다 거리 (km, 16방향) · 그 길의 평균 수심 — 가까운 20km는 수심 격자(150m)로 섬까지, 그 너머 60km까지는 큰 땅 거리 격자(2km)로
+    //  근거: 바람 파도는 트인 거리(취송거리)와 수심으로 자란다 (미 육군 공병대 해안공학 지침 SPM 1984 얕은 바다 식)
+    const SIM_FE_N = 16, SIM_FE_MAX = 60;
+    function simFetch(p, info) {
+      if (!DPI) return null;
+      const F = [], D = [], R = Math.PI / 180;
+      for (let k = 0; k < SIM_FE_N; k++) {
+        const az = k * 360 / SIM_FE_N * R, ny = Math.cos(az), nx = Math.sin(az) / Math.cos(p.lat * R);
+        let f = 0, sd = 0, n = 0, hit = false;
+        for (let x = 0.3; x <= 20; x += 0.3) {
+          const R0 = depthRaw({ lat: p.lat + ny * x / 111.2, lon: p.lon + nx * x / 111.2 });
+          if (R0.st === 'load') { if (info) info.wait = (info.wait || 0) + 1; }
+          if (R0.st === 'land' || (R0.st === 'ok' && R0.d < 0.5)) { hit = true; break; }
+          if (R0.st === 'ok') { sd += R0.d; n++; }
+          f = x;
+        }
+        if (!hit) for (let x = 22; x <= SIM_FE_MAX; x += 2) {
+          if (WQ && wqDist({ lat: p.lat + ny * x / 111.2, lon: p.lon + nx * x / 111.2 }) < 1) { hit = true; break; }
+          f = x;
+        }
+        F.push(f); D.push(n ? sd / n : 20);
+      }
+      return { F, D };
+    }
+    // 바람 파도 높이(m)·주기(s): 풍속 U(m/s) · 트인 거리 F(km) · 수심 d(m) — SPM 1984 얕은 바다 식
+    function simWaveFD(U, F, d) {
+      if (!(U > 0.5) || !(F > 0)) return { H: 0, T: 0 };
+      const UA = 0.71 * U ** 1.23, g = 9.81, gd = g * Math.max(1, d) / UA / UA, gF = g * F * 1000 / UA / UA;
+      const a = Math.tanh(0.530 * gd ** 0.75), b = Math.tanh(0.833 * gd ** 0.375);
+      return { H: 0.283 * a * Math.tanh(0.00565 * gF ** 0.5 / a) * UA * UA / g, T: 7.54 * b * Math.tanh(0.0379 * gF ** (1 / 3) / b) * UA / g };
+    }
+    // 그 자리 파도: 바람이 불어오는 쪽 ±45° 트인 거리로 셈한 파도 ÷ 트인 먼바다(60km·수심 25m) 파도 → 예보 파고에 곱함 (예보보다 커지게는 안 함)
+    function simWaveAt(fe, U, dir, Hfc) {
+      if (!fe || U == null || dir == null || !(U > 0.5)) return null;
+      const k0 = dir / (360 / SIM_FE_N); let f = 0, d = 0, w = 0;
+      for (const [dk, wt] of [[-2, 0.5], [-1, 0.854], [0, 1], [1, 0.854], [2, 0.5]]) {
+        const i = ((Math.round(k0) + dk) % SIM_FE_N + SIM_FE_N) % SIM_FE_N; f += wt * fe.F[i]; d += wt * fe.D[i]; w += wt;
+      }
+      f /= w; d /= w;
+      const loc = simWaveFD(U, f, d), open = simWaveFD(U, SIM_FE_MAX, 25), r = open.H > 0 ? Math.min(1, loc.H / open.H) : 1;
+      return { H: Hfc != null ? Hfc * r : loc.H, T: Hfc != null ? Math.max(loc.T, open.T * Math.sqrt(r)) : loc.T, r, f, src: Hfc != null ? 'fc' : 'fetch' };
+    }
+    // 실측 바탕 (data/water.json): 국립수산과학원 정선해양관측 투명도(2000~2020, 서해 정선 307~310)로 맞춘
+    //  달별 Kd = Kw + A·e^(−큰 땅까지 거리/L) + 정점마다 남는 차이(가까울수록 크게, 25km마다 1/e)
+    let WQ = null, wqP = null;
+    function wqReady() {
+      if (!wqP) wqP = fetch('data/water.json').then(r => (r.ok ? r.json() : null)).then(d => {
+        if (d && d.g) { const b = atob(d.g.d), a = new Uint8Array(b.length); for (let i = 0; i < b.length; i++) a[i] = b.charCodeAt(i); d.g.a = a;
+          if (d.sat && d.sat.z) { const z = atob(d.sat.z), q = new Int8Array(z.length); for (let i = 0; i < z.length; i++) q[i] = (z.charCodeAt(i) << 24) >> 24; d.sat.q = q; }
+          WQ = d; }
+        return WQ;
+      }).catch(() => null);
+      return wqP;
+    }
+    const WQ_M = [2, 4, 6, 8, 10, 12];
+    function wqDist(p) {   // 큰 땅(본토·큰 섬)까지 km · 격자 밖이면 먼바다
+      const g = WQ.g, i = Math.floor((g.lat1 - p.lat) / g.res), j = Math.floor((p.lon - g.lon0) / g.res);
+      return i >= 0 && i < g.ny && j >= 0 && j < g.nx ? g.a[i * g.nx + j] : 200;
+    }
+    function wqBase(p, t) {   // 그날 바탕 빛 감쇠 Kd(1/m) · 물때 평균 · 근거 문구
+      if (!WQ) return null;
+      const d = new Date(t + 9 * 3600000), doy = (Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()) - Date.UTC(d.getUTCFullYear(), 0, 1)) / DAY;
+      // 짝수 달 가운데(15일)마다 값 → 그 사이는 날짜로 이어 줌 (로그로)
+      const ctr = WQ_M.map(m => (Date.UTC(2001, m - 1, 15) - Date.UTC(2001, 0, 1)) / DAY);
+      let k = ctr.findIndex(c => c > doy); if (k < 0) k = 0; const k0 = (k + 5) % 6, c0 = ctr[k0] - (k0 > k ? 365 : 0), c1 = ctr[k] + (k === 0 && doy > ctr[5] ? 365 : 0);
+      const f = Math.max(0, Math.min(1, (doy - c0) / (c1 - c0 || 1))), D = wqDist(p);
+      const kdm = m => { const [kw, A] = WQ.par[m]; return kw + A * Math.exp(-D / WQ.L); };
+      let num = 0, den = 0.5;
+      for (const [la, lo, an] of WQ.st) {
+        const dk = distKm(p, { lat: la, lon: lo }); if (dk > 80) continue;
+        const w = Math.exp(-dk / 25), vals = Object.values(an), mean = vals.length ? vals.reduce((s, v) => s + v, 0) / vals.length : 0;
+        const a0 = an[WQ_M[k0]] != null ? an[WQ_M[k0]] : mean, a1 = an[WQ_M[k]] != null ? an[WQ_M[k]] : mean;
+        num += w * (a0 + (a1 - a0) * f); den += w;
+      }
+      const corr = Math.exp(num / den), kd = Math.exp(Math.log(kdm(WQ_M[k0])) * (1 - f) + Math.log(kdm(WQ_M[k])) * f) * corr;
+      // 위성으로 맞춤 (천리안위성 2B호 2023~2026 맑은 날 60일 · 정선 43곳 실측으로 위성값을 먼저 맞춤): 자리 칸 몫 + 전체 몫 + 달 몫(15일마다 이어 줌)
+      let sk = null;
+      if (WQ.sat && WQ.sat.q) {
+        const g = WQ.g, i = Math.floor((g.lat1 - p.lat) / g.res), j = Math.floor((p.lon - g.lon0) / g.res), S = WQ.sat;
+        const cell = i >= 0 && i < g.ny && j >= 0 && j < g.nx ? S.q[i * g.nx + j] / S.sc : 0;
+        const mm = d.getUTCMonth() + 1, dd = d.getUTCDate(), m0 = dd >= 15 ? mm : ((mm + 10) % 12) + 1, m1 = (m0 % 12) + 1, fr = ((dd - 15 + 31) % 31) / 30.5;
+        sk = S.mu + cell + (S.mon[m0] || 0) * (1 - fr) + (S.mon[m1] || 0) * fr;
+      }
+      return { kd, D, corr, sk };
+    }
+    // ---------- 위성 전날 물색 (data/sat.json): 천리안위성 2B호 GOCI-II 세키 깊이 하루 지도(2km 칸 · 낮 10번 찍은 것 중 구름 없는 칸의 가운데 값)
+    //  그 자리 둘레 3km 위성 투명도 ↔ 같은 날·같은 시각들의 셈 투명도 → 차이(비)를 출조 날 셈에 옮김 (하루 전이면 0.6 — 11/15→11/16 서해 44칸 검증, 하루 멀어질 때마다 e^−½씩 약하게 · 최대 3배)
+    let SAT = null, satP = null;
+    function satReady() {
+      if (!satP) satP = fetch('data/sat.json', { cache: 'no-cache' }).then(r => (r.ok ? r.json() : null)).then(d => {
+        if (d && Array.isArray(d.days)) {
+          const dec = x => { const b = atob(x), a = new Uint8Array(b.length); for (let i = 0; i < b.length; i++) a[i] = b.charCodeAt(i); return a; };
+          for (const x of d.days) { x.z = dec(x.g.z); x.m = new Uint16Array(dec(x.g.m).buffer); x.c = dec(x.g.n); x.dn = Math.floor((Date.parse(x.day + 'T00:00:00+09:00') + 9 * 3600000) / DAY); }
+          SAT = d;
+        }
+        return SAT;
+      }).catch(() => null);
+      return satP;
+    }
+    function satNear(x, p, rk = 3) {   // 둘레 rk km 칸들: 표본 수·거리로 무게 → 투명도(기하 평균)·찍힌 시각 비트
+      const g = x.g, i0 = Math.floor((g.lat1 - p.lat) / g.res), j0 = Math.floor((p.lon - g.lon0) / g.res), R = Math.ceil(rk / 2) + 1;
+      let sw = 0, sl = 0, bits = 0, n = 0, cells = 0;
+      for (let di = -R; di <= R; di++) for (let dj = -R; dj <= R; dj++) {
+        const i = i0 + di, j = j0 + dj; if (i < 0 || j < 0 || i >= g.ny || j >= g.nx) continue;
+        const k = i * g.nx + j; if (!x.z[k]) continue;
+        const c = { lat: g.lat1 - (i + 0.5) * g.res, lon: g.lon0 + (j + 0.5) * g.res }, d = distKm(p, c); if (d > rk) continue;
+        const w = x.c[k] * Math.exp(-d / 1.5); sw += w; sl += w * Math.log(x.z[k] * g.zs); bits |= x.m[k]; n += x.c[k]; cells++;
+      }
+      return n >= 6 ? { zs: Math.exp(sl / sw), bits, n, cells } : null;
+    }
+    function simSat(ctx) {
+      if (!SAT) return null;
+      const n = ctx.n, c = SAT.days.filter(x => x.dn < n && x.dn >= n - 3).sort((a, b) => b.dn - a.dn);
+      for (const x of c) {
+        const q = satNear(x, ctx.p); if (!q) continue;
+        const c2 = { ...ctx, n: x.dn, wx: () => ({ src: 'none' }), rainHours: [], rainYday: false, trOv: null, satK: 1 }, hrs = [];
+        let sl = 0;
+        x.slots.forEach((hm, k) => { if (!(q.bits >> k & 1)) return; const [hh, mm] = hm.split(':').map(Number); const H = simHour(c2, dayStartOf(x.dn) + (hh * 60 + mm) * 60000); sl += Math.log(H.W.zsd); hrs.push(hh); });
+        if (!hrs.length) continue;
+        const zm = Math.exp(sl / hrs.length), a = Math.max(-Math.log(3), Math.min(Math.log(3), Math.log(zm / q.zs))), w = 0.6 * Math.exp(-(n - x.dn - 1) / 2);
+        const v = ymd(x.dn);
+        return { day: x.day, dn: x.dn, zs: q.zs, zm, a, w, k: Math.exp(a * w), hrs, n: q.n,
+          txt: `위성 ${v.m}/${v.d} ${hrs.length > 1 ? `${Math.min(...hrs)}~${Math.max(...hrs)}시` : hrs[0] + '시'} 투명도 ${q.zs.toFixed(1)}m (셈 ${zm.toFixed(1)}m)${n - x.dn > 1 ? ` · ${n - x.dn}일 전이라 약하게` : ''}` };
+      }
+      return null;
+    }
+    // 파도가 바닥에 닿는 물살 (m/s): 높이 H(m) · 주기는 바람 파도로 어림 · 수심 h(m)
+    function simWaveUb(H, h, T0) {
+      if (!(H > 0) || !(h > 0)) return 0;
+      const T = T0 > 1 ? T0 : Math.max(2.5, 3.6 * Math.sqrt(H)), w = 2 * Math.PI / T; let k = w * w / 9.81;
+      for (let i = 0; i < 30; i++) k = w * w / (9.81 * Math.tanh(k * h));   // 물결 길이 (얕을수록 짧아짐)
+      const sh = Math.sinh(Math.min(20, k * h));
+      return Math.PI * H / (T * sh);
+    }
+    // 그 시각 물색: 바탕 × 달 × 물살(바닥 흙이 뜸, 1시간 늦게 따라옴) × 들물·날물(바깥 물/연안 물) + 파도가 띄운 흙
+    function simWater(F, o) {
+      const { st, pct, pct1, wave, wind, dir, depth, rainNow, rainBefore, rainYday, mon, B, sat } = o, why = [];
+      const rm = 1 + 0.8 * (rainYday ? 1 : 0) + 0.5 * (rainNow || rainBefore ? 1 : 0);
+      const rivT = F.riv.reduce((s, r) => s + r.A * r.inf, 0) * rm, rivI = F.riv.reduce((s, r) => s + r.inf, 0);
+      // 바탕 뜬 흙(mg/L 어림): 실측 바탕이 있으면 그것(물때 평균) + 이 자리 갯벌·강어귀 (가정값) · 없으면 지형만으로 (가정값)
+      let base = B ? Math.max(0, (B.kd - SIM_KW) / SIM_KS) + 15 * F.fl + 10 * F.fl15 + rivT : (F.geo + rivT) * SIM_MON[mon];
+      if (B) why.push(B.D < 2 ? '실측 바탕(해안 가까이)' : B.D < 200 ? `실측 바탕(해안에서 ${Math.round(B.D)}km)` : '실측 바탕(먼바다)');
+      const pc = pct == null ? 0.4 : (pct + (pct1 == null ? pct : pct1)) / 2, fc = (1 + 1.5 * pc * pc) / (B ? 1.35 : 1);   // 물살² 만큼 바닥 흙이 뜸 (실측은 물때 평균이라 평균 1로)
+      const inf = Math.max(0, Math.min(1, F.fl * 3 + F.fl15 * 2 + rivI)), g = Math.min(1, st.f * 1.5);
+      const adv = st.stand === 'H' ? 1 - 0.3 * inf : st.stand === 'L' ? 1 + 0.3 * inf : st.flood ? 1 - 0.3 * inf * g : 1 + 0.3 * inf * g;
+      const WA = simWaveAt(F.fe, wind, dir, wave);   // 바람 방향을 알면 그 자리 파도 (섬·육지에 가리면 작아짐)
+      const H = WA ? WA.H : wave != null ? wave : wind != null ? Math.min(3, 0.012 * wind * wind) : 0.5;
+      const wsOf = u => Math.min(80, 12 * Math.max(0, (u / 0.15) ** 2 - 1));   // 바닥 물살 0.15m/s 넘으면 흙이 뜸
+      const ub = depth != null ? simWaveUb(H, depth, WA ? WA.T : 0) : 0, ws = wsOf(ub);
+      if (WA && wave != null && depth != null && wsOf(simWaveUb(wave, depth)) - ws > 1) why.push(`바람 쪽이 섬·육지에 가려 파도가 예보의 ${Math.round(WA.r * 100)}%`);
+      const tsm = base * fc * adv + ws;
+      if (pc > 0.5) why.push('센 물살'); if (adv > 1.08) why.push('날물이라 연안 물'); else if (adv < 0.92) why.push('들물이라 바깥 물');
+      if (ws > 1) why.push(`파도 ${H.toFixed(1)}m`); if (rm > 1 && F.riv.length) why.push('비로 강물'); if (!B && SIM_MON[mon] >= 1.3) why.push('늦가을~겨울 바람철');
+      // 위성으로 맞춘 몫: 자리·달 몫은 곱하고, 물살·날물 몫은 위성에서 덜 나타나 줄임 (물살² 몫 ^0.70 · 날물·들물 몫 ^0.36)
+      const SB = B && B.sk != null && WQ && WQ.sat ? Math.exp(B.sk) * fc ** WQ.sat.be[0] * adv ** WQ.sat.be[1] : 1;
+      const kd = (SIM_KW + SIM_KS * tsm) * SIM_OPT.kdMul * SB * (sat ? sat.k : 1), zsd = 1.44 / kd;
+      if (sat) why.push(sat.txt);
+      return { tsm, kd, zsd, ub, H, WA, why, fc, adv, base, ws, SB, label: zsd >= 3 ? '맑은 편' : zsd >= 1.5 ? '보통' : zsd >= 0.7 ? '탁한 편' : '아주 탁함' };
     }
     function simStage(m, k, t) {   // 그 시각 물 단계 (이 자리 만조·간조 → 없으면 출항지)
       const n0 = kstDay(t), exs = m ? [n0 - 1, n0, n0 + 1].flatMap(n => spotExt(m, n)) : [n0 - 1, n0, n0 + 1].flatMap(n => TideHarm.extremes(k, n));
@@ -5567,61 +5809,223 @@ const TideHarm = (() => {
       const C = Q / Math.max(Qbg, 1e-12) - 1, Cth = 0.15 * Math.max(1, Math.sqrt(0.05 / Math.max(lux * SIM_BG / Math.PI, 1e-9)));
       return Math.abs(C) > Cth ? Math.log(Math.abs(C) / Cth) / cBeam : 0;
     }
-    // 봉돌 (가설 · 11/17 비응항 실제 16·18·20호에 맞춤)
-    //  흘림 낚시라 채비는 바닥에 멈춰 있지 않고 배 밑을 따라 끌려간다 → 줄이 덜 눕게 해 바닥을 느끼는 무게.
-    //  배는 겉물보다 바람 쪽으로 더 밀리고(바람의 4.5~6% · 적어도 0.5노트), 바닥 물은 겉물보다 느리다(조류의 45%만큼).
-    //  줄 절반 + 에기 2개·봉돌이 옆으로 받는 물 힘 → 물리로는 속도²만큼 무거워져야 하지만,
-    //  실제로는 선장이 배를 잡아 주고 물 약한 곳을 찾아가니 '두 배 빠르면 두 배 무겁게'로 줄였다.
-    const SIM_PE = { '0.8': 0.148e-3, '1.0': 0.165e-3 }, SIM_B = 0.45, SIM_U0 = 0.25;
-    function simDrag(depth, ut, ub, pe) {   // 옆으로 받는 물 힘(g) · ut 배-겉물 · ub 채비-바닥 물 (m/s)
-      const rho = 1025, Ll = Math.max(3, depth * 1.15), u2 = (ut * ut + ut * ub + ub * ub) / 3;
-      return (0.5 * rho * (0.0021 + 1.2 * 0.33e-3 * 1.5) * ub * ub + 0.25 * rho * 1.2 * SIM_PE[pe] * Ll * u2) / 9.81 * 1000;
+    // ---------- 에기 색 '눈에 띔' 점수 (1-4단계 · 색 × 기능)
+    //  근거: 쭈갑이는 색맹이라 밝기 차이로 본다(갑오징어 배경과 약 15% 차이면 알아봄) · 물속 대비는 거리마다 e^(−c·거리)로 줄어든다(대비 감소 법칙)
+    //        · c(빛이 곧게 가다 흩어지는 정도)는 (c + Kd) × 투명도 ≈ 8.7 (Tyler 1968)로 투명도에서 · 어두우면 알아보는 데 필요한 차이가 √밝기에 비례해 커진다(de Vries–Rose)
+    //  색과 기능: 야광·케이무라·레이저는 어느 색에나 붙는 기능(바탕) — 그 빛은 천 색을 지나 나온다(빨강·퍼플·검정 천은 야광을 막고 흰·레몬·클리어는 잘 통과)
+    //  가정값: 옆에서 볼 때 배경 0.24·E/π · 에기 옆면이 받는 빛 0.40·E (반사율 0.6이면 배경과 같은 밝기) · 아래에서 올려다볼 때 배경 1.2·E/π · 에기 밑면이 받는 빛 0.08·E
+    //          · 아래에서 올려다보면 어떤 색이든 검은 그림자라 색끼리 차이가 없어 점수에서 빼고 따로 알려 줌
+    //          · 야광 평균 밝기 0.03cd/m²(천 없을 때 · 충전 뒤 시간이 지나 약해진 값) · 케이무라는 바닥까지 온 자외선의 30%를 푸른빛으로 · 레이저는 위에서 오는 빛을 60% 되돌리는 번쩍임(짧아서 2배 더 밝아야 보임)
+    //          · 천이 빛을 통과시키는 정도 = 천 반사율에 비례(흰 천 0.9) · 아주 어두우면 1e-6cd/m²보다 밝아야 보임 · 점수 = 100 × 보이는 거리 ÷ (보이는 거리 + 1m)
+    Object.assign(SIM_REF, {
+      주황: sAdd(0.05, sMul(0.70, sLg(575, 12))), 금: sAdd(0.08, sMul(0.60, sLg(510, 25))), '형광 연두': sAdd(0.06, sMul(0.75, sGa(545, 45))),
+      카키: sAdd(0.06, sMul(0.18, sGa(570, 60))), 올리브: sAdd(0.05, sMul(0.12, sGa(550, 50))), 살구: sAdd(0.25, sMul(0.50, sLg(560, 25))),
+      하늘: sAdd(0.12, sMul(0.62, sGa(470, 50))), 클리어: sAdd(0.40) });
+    const SIM_LZ = { 은: sAdd(0.9), 금: sAdd(0.1, sMul(0.8, sLg(520, 20))), 빨강: sAdd(0.05, sMul(0.85, sLg(590, 12))), 파랑: sAdd(0.05, sMul(0.85, sGa(465, 35))),
+      초록: sAdd(0.05, sMul(0.85, sGa(530, 35))), 보라: sAdd(0.05, sMul(0.6, sGa(440, 30)), sMul(0.6, sLg(620, 20))), 무지개: sAdd(0.65) };
+    const SIM_KEI = sGa(450, 30), SIM_KEIS = SIM_KEI.reduce((a, x) => a + x, 0);
+    const SIM_STR = [{ c: '빨강', a: 0.25 }, { c: '레몬', a: 0.25 }, { c: '초록', a: 0.25 }, { c: '블루', a: 0.25 }];   // 색동(무지개) 줄
+    const simTr = c => c === '클리어' ? sAdd(0.9) : SIM_REF[c].map(x => Math.max(0.05, Math.min(0.9, x * 0.9 / 0.8)));   // 천이 바탕 빛을 통과시키는 정도
+    //  색 19가지: n 이름 · p 부분(색·넓이) · app 앱 상자 에기 번호(있으면 '상자에 있음')
+    const SIM_COL = [
+      { id: 'gcj', n: '고추장', p: [{ c: '빨강', a: 0.3 }, { c: '흰', a: 0.7 }], app: 'gcj' },
+      { id: 'wm', n: '수박', p: [{ c: '빨강', a: 0.3 }, { c: '초록', a: 0.7 }], app: 'wm' },
+      { id: 'pink', n: '핑크', p: [{ c: '핑크', a: 1 }], app: 'pink' },
+      { id: 'orange', n: '오렌지', p: [{ c: '주황', a: 1 }] },
+      { id: 'shrimp', n: '닭새우', p: [{ c: '주황', a: 0.4 }, { c: '살구', a: 0.6 }], app: 'shrimp' },
+      { id: 'blue', n: '블루', p: [{ c: '블루', a: 1 }], app: 'blue' },
+      { id: 'sky', n: '하늘색', p: [{ c: '하늘', a: 1 }] },
+      { id: 'mint', n: '민트', p: [{ c: '민트', a: 1 }] },
+      { id: 'army', n: '국방', p: [{ c: '카키', a: 0.5 }, { c: '올리브', a: 0.5 }], app: 'army' },
+      { id: 'sd', n: '색동(무지개)', p: SIM_STR, app: 'sd' },
+      { id: 'black', n: '검정', p: [{ c: '검정', a: 1 }] },
+      { id: 'white', n: '흰', p: [{ c: '흰', a: 1 }] },
+      { id: 'lemon', n: '레몬', p: [{ c: '레몬', a: 1 }] },
+      { id: 'chart', n: '형광 연두', p: [{ c: '형광 연두', a: 1 }] },
+      { id: 'mahi', n: '만세기', p: [{ c: '형광 연두', a: 0.6 }, { c: '레몬', a: 0.4 }] },
+      { id: 'brown', n: '갈색', p: [{ c: '갈색', a: 1 }] },
+      { id: 'purple', n: '퍼플', p: [{ c: '퍼플', a: 1 }] },
+      { id: 'red', n: '빨강', p: [{ c: '빨강', a: 1 }] },
+      { id: 'clear', n: '누드', p: [{ c: '클리어', a: 1 }] }];
+    // 톤 무리 (두 개 조합은 서로 다른 무리에서): 밝은 · 붉은 · 어두운 · 줄무늬
+    const SIM_TONE = { white: 'b', clear: 'b', lemon: 'b', chart: 'b', mahi: 'b', mint: 'b', sky: 'b', gcj: 'r', red: 'r', orange: 'r', shrimp: 'r', pink: 'r', black: 'd', brown: 'd', army: 'd', purple: 'd', blue: 'd', wm: 'd', sd: 's' };
+    const SIM_FN = [['', '기본'], ['g', '야광'], ['k', '케이무라'], ['gk', '야광+케이무라'], ['lz', '레이저']];
+    const SIM_OPT = { lh: 0.24, glow: 0.03, kdMul: 1 };   // 점검(민감도)용 · 앱에서는 그대로
+    const SIM_GLOWN = SIM_GLOW.reduce((a, x, i) => a + x * SIM_V[i], 0);
+    const SIM_LZID = { silver: '은', gold: '금', red: '빨강', blue: '파랑', green: '초록', purple: '보라', rainbow: '무지개' };
+    // 상자에 있나: 앱 에기 목록(기본 + 내가 만든 것, 숨긴 것 빼고)에 같은 색 에기가 있거나 이름이 맞으면 (기능은 따로 모름)
+    function simHas(e) {
+      try { const all = egiAll(), nm = e.n.split('(')[0].trim(); return all.some(x => (e.app && x.id === e.app) || (x.n && nm && x.n.includes(nm))); } catch (_) { return false; }
     }
-    const SIM_REFG = simDrag(11, 0.28, Math.hypot(0.28, SIM_B * 0.18), '1.0');   // 11/17 아침: 수심 11m · 조류 0.35노트 · 바람 5m/s = 18호
-    const simHo = (depth, ut, ub, pe) => 18 * Math.sqrt(simDrag(depth, Math.max(SIM_U0, ut), Math.max(SIM_U0, ub), pe) / SIM_REFG);
-    const simPick = h => SIM_SK.find(n => n >= h * 0.93) || 0;   // 7% 안쪽이면 가벼운 쪽 (21호 셈 → 20호) · 0 = 25호로도 모자람
+    // 내 기록 (참고 딱지): 그 색 에기를 달고 잡은 포인트의 날짜 (최근 2개) — 조건이 같았다는 뜻은 아님
+    function simRecMap() {
+      const m = {}; let pts = []; try { pts = JSON.parse(localStorage.getItem('jjukgap-points') || '[]'); } catch (_) {}
+      for (const p of pts) {
+        if (!((p.jj || 0) + (p.gap || 0) > 0) || !Array.isArray(p.egi)) continue;
+        const n = kstDay(p.t);
+        for (const x of p.egi) { if (!x.c || x.c === 'laser' || x.c === 'glow') continue; (m[x.c] = m[x.c] || new Set()).add(n); }
+      }
+      return Object.fromEntries(Object.entries(m).map(([k, v]) => [k, [...v].sort((a, b) => b - a).slice(0, 2)]));
+    }
+    function simEgi(o) {   // o: ez(바닥 빛) · sp · zsd · kd(PAR) · Kd(파장별) · zd · surf(물 위 빛깔)
+      const S = SIM_S[o.sp], qn = SIM_D65.reduce((a, x, i) => a + x * S[i], 0) / SIM_D65.reduce((a, x, i) => a + x * SIM_V[i], 0);
+      const q = arr => arr.reduce((a, x, i) => a + x * S[i], 0) / qn / Math.PI;   // 쭈갑이 눈 기준 밝기(cd/m² 꼴)
+      const E = q(o.ez), Lh = SIM_OPT.lh * E, Lup = 1.2 * E;
+      const c = Math.max(0.3, 8.7 / Math.max(0.2, o.zsd) - o.kd);
+      const L0 = 0.01, Lab = 1e-6, th = Lb => Math.max(Lab, Lb >= L0 ? 0.15 * Lb : 0.15 * Math.sqrt(L0 * Lb));
+      const dist = (dL, Lb, k = 1) => { const T = th(Lb) * k; return dL > T ? Math.log(dL / T) / c : 0; };
+      // 바탕 빛 (천 없을 때 · 파장별): 야광 0.03cd/m² 초록빛 · 케이무라 = 바닥까지 온 자외선 30%를 푸른빛으로
+      const G = SIM_GLOW.map(x => x * SIM_OPT.glow / SIM_GLOWN);
+      const uv = o.surf[0] * 10 * 0.9 * Math.exp(-1.5 * o.Kd[0] * o.zd), K = SIM_KEI.map(x => x * 0.3 * uv / SIM_KEIS / Math.PI);
+      const qe = (src, T) => src.reduce((a, x, i) => a + x * T[i] * S[i], 0) / qn;   // 천을 지난 바탕 빛 (쭈갑이 눈 기준)
+      const sc = r => Math.round(100 * r / (r + 1));
+      const out = SIM_COL.map(e => {
+        const parts = e.p.map(pt => { const R = SIM_REF[pt.c], T = simTr(pt.c); return { a: pt.a, rs: q(o.ez.map((x, i) => x * R[i])), T, g: qe(G, T), k: qe(K, T) }; });
+        const fn = {};
+        for (const [f, fl] of SIM_FN) {
+          if (f === 'lz') {   // 레이저: 은·금·빨강… 가운데 이 색 천과 가장 잘 맞는 것 (빛이 천을 두 번 지남)
+            let best = null;
+            for (const [lc, LZ] of Object.entries(SIM_LZ)) {
+              let d = 0; for (const pp of parts) d += pp.a * (0.6 * 1.2 * q(o.ez.map((x, i) => x * LZ[i] * pp.T[i] * pp.T[i])) - Lh);
+              const r = Math.max(dist(d, Lh, 2), fn[''].r); if (!best || r > best.r) best = { r, lc };
+            }
+            fn.lz = { r: best.r, sc: sc(best.r), lc: best.lc, m: best.r > fn[''].r ? '번쩍임' : fn[''].m }; continue;
+          }
+          let dS = 0, gS = 0, ex = 0;
+          for (const pp of parts) {
+            const add = (f.includes('g') ? pp.g : 0) + (f.includes('k') ? pp.k : 0), Ls = 0.40 * pp.rs + add;
+            dS += pp.a * Math.abs(Ls - Lh); gS += pp.a * (Ls - Lh); ex += pp.a * add;
+          }
+          const r = dist(dS, Lh);
+          fn[f] = { r, sc: sc(r), m: r <= 0 ? '거의 안 보임' : ex > Math.abs(gS - ex) ? '빛을 냄' : gS > 0 ? '밝게 보임' : '어둡게 보임' };
+        }
+        let bestF = ''; for (const [f] of SIM_FN) if (fn[f].r > fn[bestF].r + 1e-9) bestF = f;
+        return { id: e.id, n: e.n, app: e.app || null, fn, best: bestF, r: fn[bestF].r, sc: fn[bestF].sc };
+      }).sort((a, b) => b.r - a.r || b.fn[''].r - a.fn[''].r || a.n.localeCompare(b.n));
+      // 두 개 조합: 색 × 기능 하나씩 · 다른 색끼리 · 더 잘 보이는 것 + 다른 방식으로 보이는 것을 더함 (같은 방식이면 조금만)
+      const opts = []; for (const e of out) for (const [f, fl] of SIM_FN) { const v = e.fn[f]; if (f && v.r <= e.fn[''].r + 1e-9) continue; opts.push({ id: e.id, n: e.n, f, fl: f === 'lz' ? `레이저(${v.lc})` : fl, r: v.r, m: v.m }); }
+      const pairs = [];
+      for (let i = 0; i < opts.length; i++) for (let j = i + 1; j < opts.length; j++) {
+        const a = opts[i].r >= opts[j].r ? opts[i] : opts[j], b = a === opts[i] ? opts[j] : opts[i]; if (a.id === b.id || SIM_TONE[a.id] === SIM_TONE[b.id]) continue;
+        const R = Math.max(a.r, b.r) + 0.35 * Math.min(a.r, b.r) * (a.m !== b.m ? 1 : 0.3); if (R <= 0) continue;
+        pairs.push({ a: a.id, b: b.id, an: a.n + (a.f ? `(${a.fl})` : ''), bn: b.n + (b.f ? `(${b.fl})` : ''), r: R, sc: sc(R), why: b.r <= 0 ? '두 번째는 무엇이든 거의 안 보여 비슷' : a.m !== b.m ? `${a.m} + ${b.m}` : '비슷한 방식' });
+      }
+      pairs.sort((x, y) => y.r - x.r);
+      const top = []; for (const p of pairs) { if (top.some(t => t.a === p.a && t.b === p.b)) continue; top.push(p); if (top.length >= 3) break; }
+      // 아래서 올려다볼 때 (기능 없는 천의 실루엣) · 이 시간 기능 효과 (색들 평균으로 오른 점수)
+      let rUp = 0; for (const e of SIM_COL) { let d = 0; for (const pt of e.p) d += pt.a * Math.abs(0.08 * q(o.ez.map((x, i) => x * SIM_REF[pt.c][i])) - Lup); rUp = Math.max(rUp, dist(d, Lup)); }
+      const gain = f => Math.round(out.reduce((a, e) => a + e.fn[f].sc - e.fn[''].sc, 0) / out.length);
+      return { list: out, pairs: top, c, E: E * Math.PI, rUp, gain: { g: gain('g'), k: gain('k'), gk: gain('gk'), lz: gain('lz') } };
+    }
+    // 봉돌 (2단계 · 물리): 배가 흐르는 동안 줄·봉돌·에기 2개가 받는 물 힘 → 줄이 30° 안으로 서는 가장 가벼운 무게
+    //  근거: 1호 = 3.75g(납 11.34g/cm³) · 합사 굵기 0.8호 0.153mm · 1호 0.171mm(PE 1호 = 200데니어, 일본釣用品工業会 · 제조사 공칭 지름)
+    //        · 줄은 원기둥 끌림(Cd ≈ 1 + 10/Re^⅔) · 물살은 바닥에서 1/7승으로 느려짐 · 배는 겉물 + 바람의 3~5.5%로 흐름(엔진·물닻으로 밀림을 어느 정도 잡는 낚싯배 · 가정 · 사용자 경험 '대부분 20호 이하, 사리 25호'에 맞춤 — 참고만)
+    //        · 줄 30°: 바닥을 느끼고 옆 사람과 덜 엉키는 기준(가정 · 처음 20°는 깊은 곳에서 너무 무거워 30°로 · 11/17 비응항 18호가 이 기준 안 — 참고만)
+    //  에기가 바닥을 지나가는 속도 ≈ 배가 바닥 위를 지나가는 속도 (봉돌 무게로는 거의 안 바뀜)
+    //  줄을 늘 팽팽하게(살짝 들면 봉돌이 뜰 만큼) 두는 방식(내 방식): 에기는 멈추지 않고 배 속도로 바닥 위를 지나간다
+    //        · 따라와 올라탈 수 있는 속도: 쭈꾸미 빠르게 걸어 최대 약 0.19m/s (문어 Abdopus aculeatus, Huffard 2006) · 갑오징어 다가갈 때 약 0.13m/s (Sepia officinalis, Rosen 2020)
+    //        · 그보다 빠르면 곁을 지나가는 에기를 잡아야 함: 팔 닿는 거리 양쪽 약 30cm(가정)를 0.5초(가정) 안에 지나가면(0.6m/s 넘음) 잡을 틈이 짧음
+    const SIM_PE = { '0.8': 0.153e-3, '1.0': 0.171e-3 }, SK_ANG = 30, SK_LEE = [0.03, 0.04, 0.055];
+    const SK_STD = [6, 8, 10, 12, 14, 15, 16, 18, 20, 22, 25, 28, 30, 35, 40];   // 흔히 파는 호수
+    const SK_EGI = { A: 5e-4, Cd: 1.0, W: 0.004 * 9.81 };   // 에기 1개: 정면 넓이 5cm² · 물속 무게 약 4g (가정)
+    function skSinker(ho) { const m = ho * 3.75e-3, V = m / 11340, d = (6 * V / Math.PI) ** (1 / 3); return { W: (m - 1025 * V) * 9.81, A: Math.PI * d * d / 4 }; }
+    // 줄 위쪽 각도(°): h 수심(m) · c [동,북] 겉물 조류(m/s) · vb [동,북] 배가 바닥 위로 가는 속도 · ho 호수
+    function skAngle(h, c, vb, ho, pe) {
+      const S = skSinker(ho), W = S.W + 2 * SK_EGI.W, d = SIM_PE[pe] || SIM_PE['1.0'], us = Math.hypot(c[0], c[1]);
+      const rel = z => { const f = us > 0 ? (Math.max(0.05, z) / h) ** (1 / 7) : 0; return [c[0] * f - vb[0], c[1] * f - vb[1]]; };
+      let [rx, ry] = rel(0.3), vr = Math.hypot(rx, ry), k = 0.5 * 1025 * (0.6 * S.A + 2 * SK_EGI.Cd * SK_EGI.A) * vr, Fx = k * rx, Fy = k * ry;
+      const dz = Math.max(0.1, h / 120);
+      for (let z = 0.3; z < h; z += dz) {
+        const th = Math.atan2(Math.hypot(Fx, Fy), W), dl = dz / Math.max(0.05, Math.cos(th)); [rx, ry] = rel(z); vr = Math.hypot(rx, ry);
+        if (!(vr > 0)) continue;
+        const vn = vr * Math.cos(th), Re = Math.max(1e-3, vn * d / 1.2e-6), q = 0.5 * 1025 * (1 + 10 / Re ** (2 / 3)) * d * vn * vn * dl / vr;
+        Fx += q * rx; Fy += q * ry;
+      }
+      return Math.atan2(Math.hypot(Fx, Fy), W) * 180 / Math.PI;
+    }
+    function skNeed(h, c, vb, pe) {   // 줄이 SK_ANG° 안으로 서는 가장 가벼운 호수 (연속값)
+      if (skAngle(h, c, vb, 60, pe) > SK_ANG) return 61;
+      let lo = 2, hi = 60; for (let i = 0; i < 18; i++) { const m = (lo + hi) / 2; if (skAngle(h, c, vb, m, pe) > SK_ANG) lo = m; else hi = m; }
+      return hi;
+    }
+    const skStd = x => SK_STD.find(n => n >= x * 0.95) || 0;   // 5% 안쪽이면 가벼운 쪽 · 0 = 40호로도 모자람
+    const simPick = h => SIM_SK.find(n => n >= h * 0.95) || 0;   // 챙겨 가는 호수 중
+    // 에기 바닥 속도 등급 (sp: jj 쭈꾸미 · gp 갑오징어)
+    const skVcat = (v, sp) => (v <= (sp === 'gp' ? 0.13 : 0.19) ? 0 : v <= 0.6 ? 1 : 2);
+    const SK_VTXT = { jj: ['쭈꾸미가 따라와 올라탈 수도 있는 속도', '쭈꾸미가 곁을 지나가는 에기를 잡아야 하는 속도', '에기가 쭈꾸미 곁을 너무 빨리 지나가 잡을 틈이 짧을 수 있음 · 봉돌을 바꿔도 느려지지 않아요'],
+      gp: ['갑오징어가 따라와 덮치기 쉬운 속도', '갑오징어가 곁을 지나가는 에기를 덮쳐야 하는 속도', '에기가 갑오징어 곁을 너무 빨리 지나가 덮칠 틈이 짧을 수 있음 · 봉돌로는 안 느려져요'] };
+    //  방법(가설): 텐션 = 줄을 팽팽히 두고 살짝 들기(보이게·느끼기) · 내려놓기 = 봉돌을 바닥에 두어 에기를 멈춤(쭈꾸미는 가만있는 물건에 잘 오름 · 소라방)
+    //        갑오징어는 움직이는 먹이를 눈으로 쫓다 덮쳐서 텐션 쪽 · 두 방법을 직접 견준 연구는 없음 → 출조 기록(쓴 방법)으로 확인할 것
+    const SK_METH = { jj: ['텐션 위주로 충분', '텐션으로 보이게 → 내려놓아 2~3초 멈춤 → 다시 텐션으로 무게 확인, 섞기', '내려놓기를 길게 (줄이 금방 휘니 짧게 끊어서)'],
+      gp: ['텐션 잡고 살짝살짝 움직이기', '텐션 위주 + 가끔 짧게 멈춤', '멈춤을 섞되 짧게 · 움직임으로 보이게'] };
+    const skMethTxt = (x, sp) => `방법(가설): ${SK_METH[sp === 'gp' ? 'gp' : 'jj'][sp === 'gp' ? x.vcatGp : x.vcat]}`;
+    // 출조 전: 배는 '보통 낚싯배가 바람·조류에 자연스럽게 흐름' (밀림 3~5.5%) · 바람 방향을 모르면 조류와 같은 쪽·옆·마주 셋 다
+    function skPlan(depth, cur, wx, sp) {
+      const r = cur.dir * Math.PI / 180, c = [cur.sp * Math.sin(r), cur.sp * Math.cos(r)];
+      const winds = wx.wind != null ? [wx.wind] : [3, 5, 8], dirs = wx.dir != null ? [wx.dir] : [cur.dir, cur.dir + 90, cur.dir + 135, cur.dir + 180];   // 예보 밖: 보통 바람 5m/s로 셈, 3·8m/s는 범위만
+      const out = {}, vs = [], vm = [];
+      for (const pe of ['0.8', '1.0']) {
+        const need = [], mid = [];
+        for (const ws of winds) for (const wd of dirs) for (const k of SK_LEE) {
+          const a = (wd + 180) * Math.PI / 180, vb = [c[0] + k * ws * Math.sin(a), c[1] + k * ws * Math.cos(a)], x = skNeed(depth, c, vb, pe);
+          need.push(x); if (k === 0.04 && (wx.wind != null || ws === 5) && (wx.dir != null || wd === cur.dir + 135)) mid.push(x);   // 방향 모르면 같은 쪽과 옆 사이(45°)가 대표 — 옆바람만으론 사리 때 경험보다 가벼움
+          if (pe === '1.0') { vs.push(Math.hypot(vb[0], vb[1])); if (k === 0.04 && (wx.wind != null || ws === 5) && (wx.dir != null || wd === cur.dir + 135)) vm.push(Math.hypot(vb[0], vb[1])); }
+        }
+        const a = Math.min(...need), b = Math.max(...need), m = Math.max(...mid);   // 보통 배(밀림 4%) · 방향을 모르면 같은 쪽과 옆 사이
+        const w0 = skNeed(depth, c, c, pe), wn = wx.wind != null && wx.wind >= 8 && m >= w0 + 8 && m >= 15 ? 1 : 0;   // 바람이 세서 무거워짐
+        out[pe] = { wn, main: skStd(m), boxMain: simPick(m), lo: skStd(a), hi: skStd(b), boxLo: simPick(a), boxHi: simPick(b), ho: [Math.round(a * 10) / 10, Math.round(m * 10) / 10, Math.round(b * 10) / 10] };
+      }
+      const v0 = Math.min(...vs), v1 = Math.max(...vs), v = Math.max(...vm);
+      return { ...out, v: [v0, v, v1], vcat: skVcat(v, sp), vcatGp: skVcat(v, 'gp') };
+    }
+    // 배 위 (선상모드): GPS 배 속도로 바로
+    function skLive(depth, cur, b, pe, sp) {
+      const r = cur.dir * Math.PI / 180, c = [cur.sp * Math.sin(r), cur.sp * Math.cos(r)], vb = b ? [b.e, b.n] : c;
+      const ho = skNeed(depth, c, vb, pe), v = Math.hypot(vb[0], vb[1]);
+      return { ho, std: skStd(ho), box: simPick(ho), ang: skAngle(depth, c, vb, skStd(ho) || 40, pe), v, vcat: skVcat(v, sp) };
+    }
+    const skTxt = (lo, hi) => !lo ? '40호로도 줄이 서기 어려움' : !hi || hi === lo ? `${lo}호${!hi ? '~40호↑' : ''}` : `${lo}~${hi}호`;
     // 한 시각 셈
     function simHour(ctx, t) {
       const { p, k, n, m, cc, sp, pe, flat } = ctx, h = Math.round((t - dayStartOf(n)) / 3600000);
       const wx = ctx.wx ? ctx.wx(h) : simWx(k, n, h);
       const st = simStage(m, k, t), D = depthAt(p, t, m), depth = D.st === 'ok' ? Math.max(0.5, D.dn) : null;
       let cur = null; if (cc) { const q = curNow(cc.c, t); cur = { sp: q.sp / 100, dir: q.dir, pct: Math.round(Math.min(1, q.sp / cc.c.mx) * 100), name: cc.c.name, d: cc.d }; }
-      // 물 탁함 0~1: 갯벌·강어귀 + 날물(탁한 연안 물)/들물(맑은 바깥 물) + 센 물살(바닥 흙이 뜸) + 파도 + 비
+      // 물색 (1-2단계): 뜬 흙(mg/L) · 투명도(m)
       const rainNow = !!wx.rain, rainBefore = ctx.rainHours.some(x => x < h);
-      let T = flat;
-      T += st.stand === 'H' ? -0.12 : st.stand === 'L' ? 0.12 : st.flood ? -0.12 * Math.min(1, st.f * 1.5) : 0.14 * Math.min(1, st.f * 1.5);
-      if (cur && depth != null && depth < 25) T += 0.15 * cur.pct / 100;
-      if (wx.wave != null && depth != null && depth < 15) T += Math.min(0.15, 0.1 * wx.wave);
-      if (rainBefore || rainNow) T += 0.12; if (ctx.rainYday) T += 0.06;
-      T = Math.max(0, Math.min(1, T));
-      const Kd = SIM_L.map((L, i) => 1.1 * SIM_AW[i] + (0.08 + 0.3 * T) * Math.exp(-0.015 * (L - 440)) + (0.25 + 1.0 * T) * Math.sqrt(440 / L));
-      const el = simSun(p, t), cf = rainNow ? 0.15 : wx.sky === 1 ? 1 : wx.sky === 3 ? 0.55 : wx.sky === 4 ? 0.3 : 0.45;
-      const Es = (el > 0 ? 120000 * Math.sin(el * Math.PI / 180) ** 1.2 : 400 * 10 ** (el / 2.3)) * cf;
-      const tint = SIM_L.map(L => (L / 550) ** (el < 0 ? -1.5 : -0.4)), tv = tint.reduce((s, x, i) => s + x * SIM_V[i], 0);
-      const zd = depth == null ? 12 : depth, ez0 = tint.map((x, i) => x / tv * Es * Math.exp(-Kd[i] * zd)), lux0 = ez0.reduce((s, x, i) => s + x * SIM_V[i], 0);
-      const ov = ctx.luxOv ? ctx.luxOv[h] : null, f = ov != null && lux0 > 0 ? ov / lux0 : 1, ez = ez0.map(x => x * f), lux = lux0 * f;   // 앞뒤 시각과 고른 바닥 빛
-      const light = lux < 0.1 ? '깜깜' : lux < 5 ? '어둑' : lux < 50 ? '보통' : '밝음';
+      let pct1 = null; if (cc) { const q1 = curNow(cc.c, t - 3600000); pct1 = Math.min(1, q1.sp / cc.c.mx); }
+      const W = simWater(flat, { st, pct: cur ? cur.pct / 100 : null, pct1, wave: wx.wave, wind: wx.wind, dir: wx.dir, depth, rainNow, sat: ctx.satK === 1 ? null : ctx.sat, rainBefore, rainYday: ctx.rainYday, mon: new Date(t + 9 * 3600000).getUTCMonth(), B: wqBase(p, t) });
+      if (ctx.waterOnly) return { t, h, st, depth, cur, W };   // 셈 바로잡기용 (물색만)
+      const T = Math.max(0, Math.min(1, Math.log10(W.tsm / 2) / Math.log10(50)));   // 빛 셈(1-3단계 전)에 이어 주는 0~1
+      // 바닥 빛 (1-3단계): 물 위 밝기·빛깔 → 수심(+물 높이)만큼 파장별로 줄어듦 → 쭈갑이 눈 기준 밝기
+      const el = simSun(p, t), SF = simSurf(el, wx, rainNow), Kd = simKd(W.kd, SF.spec);
+      const zd = depth == null ? 12 : Math.max(0.5, depth - 0.3), ez0 = SF.spec.map((x, i) => x * 0.9 * Math.exp(-Kd[i] * zd)), lux0 = ez0.reduce((s, x, i) => s + x * SIM_V[i], 0);
+      const tr0 = SF.E > 0 ? lux0 / SF.E : 0, ov = ctx.trOv ? ctx.trOv[h] : null, f = ov != null && tr0 > 0 ? ov / tr0 : 1, ez = ez0.map(x => x * f), lux = lux0 * f;   // 물이 줄이는 비율만 앞뒤 시각과 고름
+      const Sv = SIM_S[sp], qn = SIM_D65.reduce((a, x, i) => a + x * Sv[i], 0) / SIM_D65.reduce((a, x, i) => a + x * SIM_V[i], 0);
+      const qb = ez.reduce((a, x, i) => a + x * Sv[i], 0) / qn, qs = SF.spec.reduce((a, x, i) => a + x * Sv[i], 0) / qn;   // 쭈갑이 눈 기준 (낮 햇빛이면 lux와 같은 값)
+      let pk = 0; ez.forEach((x, i) => { if (x > ez[pk]) pk = i; });
+      const LB = { surf: SF.E, qs, qb, frac: qs > 0 ? qb / qs : 0, pk: SIM_L[pk], kdMin: Math.min(...Kd), tr: tr0 };
+      const EG = simEgi({ ez, sp, zsd: W.zsd, kd: W.kd, Kd, zd, surf: SF.spec });
+      const light = qb < 0.1 ? '깜깜' : qb < 5 ? '어둑' : qb < 50 ? '보통' : '밝음';
       const key = light !== '어둑' ? light : rainNow ? '어둑비' : (el < 12 && h < 12) ? '어둑새' : wx.sky === 1 ? '어둑맑' : '어둑흐';
       let [head, body, tape, one, alt] = SIM_RULE[key]; const cBeam = 3.5 * Math.min(...Kd);
       // 비 그친 뒤 흐린 낮: 톤을 낮추지 않고 고추장·무지개 그대로 (내 기록: 비 온 뒤 오후에도 밝은 톤이 먹힘 · 11/5 톤다운하자 입질 끊김)
       const after = rainBefore && !rainNow && (key === '어둑흐' || key === '어둑맑' || key === '보통');
       if (after) { head = '빨강'; body = '흰'; tape = '무지개'; one = '고추장'; alt = '핑크 · 만세기'; }
       const see = Math.max(simSee(ez, sp, SIM_REF[body], body === '야광', cBeam, lux), simSee(ez, sp, SIM_REF[head], false, cBeam, lux));   // 머리·몸통 중 더 잘 보이는 쪽
-      // 예상 봉돌: 배가 바람에 덜 밀리면(4.5%) 가벼운 쪽 · 많이 밀리면(6%) 무거운 쪽 (바람 세기를 모르면 3~8m/s)
-      //  바람과 조류의 방향은 선장이 흘리는 길에 따라 달라지니 섞어서(제곱 합) 본다 · 배를 잡아 두면(물닻·엔진) held
-      let sink = null;
-      if (cur && depth != null) {
-        const cs = cur.sp, wss = wx.wind != null ? [wx.wind] : [3, 8], us = [];
-        for (const ws of wss) for (const a of [0.045, 0.06]) { const ut = Math.max(SIM_U0, a * ws); us.push([ut, Math.hypot(ut, SIM_B * cs)]); }
-        sink = Object.fromEntries(['0.8', '1.0'].map(q => { const v = us.map(([ut, ub]) => simHo(depth, ut, ub, q)), a = Math.min(...v), b = Math.max(...v);
-          return [q, { lo: simPick(a), hi: simPick(b), held: simPick(simHo(depth, cs, (1 - SIM_B) * cs, q)), ho: [Math.round(a * 10) / 10, Math.round(b * 10) / 10] }]; }));
-      }
-      return { t, h, wx, st, depth, tideDz: D.st === 'ok' ? D.dz : null, cur, el, lux, light, T, after, water: T < 0.35 ? '맑은 편' : T < 0.6 ? '보통' : '탁한 편', key, head, body, tape, one, alt, see, sink };
+      // 예상 봉돌 (2단계 물리): 보통 낚싯배가 자연스럽게 흐른다고 보고 · 배에 관한 건 배 위에서 GPS로 바로잡음
+      const sink = cur && depth != null ? skPlan(depth, cur, wx, sp) : null;
+      return { t, h, wx, st, depth, tideDz: D.st === 'ok' ? D.dz : null, cur, el, lux, light, T, W, LB, EG, after, water: W.label, key, head, body, tape, one, alt, see, sink };
     }
-    const simSkTxt = s => { if (!s) return '–'; const { lo, hi } = s; if (!lo || (!hi && lo >= 25)) return '25호↑'; if (!hi) return `${lo}호~25호↑`; return lo === hi ? `${lo}호` : `${lo}~${hi}호`; };
+    // 바닥 빛을 땅 위 밝기에 빗대기 (lux 예: 흐린 그믐밤 0.0001 · 맑은 그믐밤 0.002 · 보름달 0.05~0.3 · 박명 끝 3.4 · 아주 어두운 흐린 날 100 · 흐린 날 1000)
+    const simLvTxt = q => q < 0.0005 ? '흐린 그믐밤보다 어두움' : q < 0.01 ? '맑은 그믐밤 정도' : q < 0.5 ? '보름달 밤 정도' : q < 5 ? '해 진 직후 정도' : q < 150 ? '아주 어두운 흐린 날 정도' : q < 1500 ? '흐린 날 정도' : '맑은 날 그늘 이상';
+    const simNum = v => v >= 100 ? String(Math.round(v)) : v >= 1 ? v.toFixed(1) : v >= 0.01 ? v.toFixed(2) : v.toExponential(0).replace('e-', '×10⁻').replace(/⁻(\d)/, (m, d) => '⁻' + '⁰¹²³⁴⁵⁶⁷⁸⁹'[d]);
+    const simSkTxt = s => (!s ? '–' : s.main != null ? (s.main ? `${s.main}호` : '40호↑') : skTxt(s.lo, s.hi));
+    const skBoxTxt = s => (!s || !s.main ? '' : s.boxMain === s.main ? ' · 챙겨 가는 호수' : ` · 챙겨 가는 호수에 없음(가까운 것 ${s.boxMain ? s.boxMain + '호' : '25호↑'})`);
+    const skVTxt = (x, sp) => `에기 바닥 속도 약 초속 ${x.v[1].toFixed(2)}m (쭈꾸미가 기어가는 속도의 ${Math.max(1, Math.round(x.v[1] / 0.07))}배쯤) · ${SK_VTXT[sp === 'gp' ? 'gp' : 'jj'][sp === 'gp' ? x.vcatGp : x.vcat]}`;
     // 하루 셈: { k(출항지), p(낚시할 자리), n(날짜), h0~h1(시), sp('jj'|'gp'), pe } → 준비(자료 받기)까지 기다린 뒤
     async function simRun(o) {
-      await loadSpots(); dpIndex();
+      await loadSpots(); dpIndex(); await wqReady();   // 매일 위성(satReady)은 쓰지 않기로 함 — 한 번 맞춤
       for (let i = 0; i < 40 && !DPI && dpiSt !== 'err'; i++) await new Promise(r => setTimeout(r, 150));
       if (DPI) for (let i = 0; i < 60; i++) { const q = {}; simFlat(o.p, q); if (!q.wait && depthRaw(o.p).st !== 'load') break; await new Promise(r => setTimeout(r, 150)); }   // 둘레 수심 조각이 다 들어올 때까지
       const m = spotTide(o.p), cc = spotCur(o.p), n = o.n;
@@ -5630,14 +6034,30 @@ const TideHarm = (() => {
       const st = typeof WX !== 'undefined' && WX && WX.stations && WX.stations[wxOf(o.k)];
       const rainYday = o.rainYday != null ? o.rainYday : !!(st && st.rain && st.rain[wxYmd(n - 1)]);
       const fi = {}, ctx = { p: o.p, k: o.k, n, m, cc, sp: o.sp || 'jj', pe: o.pe || '1.0', flat: simFlat(o.p, fi), rainHours, rainYday, wx };
+      ctx.sat = o.noSat ? null : simSat(ctx); ctx.satK = ctx.sat ? ctx.sat.k : 1;
       let hours = []; for (let h = o.h0 ?? 6; h <= (o.h1 ?? 17); h++) hours.push(simHour(ctx, dayStartOf(n) + h * 3600000));
       // 바닥 빛이 문턱(0.1·5·50lux) 근처에서 한 시간씩 오락가락하면 색이 들쭉날쭉 → 앞뒤 시각과 고르게 (로그로 1:2:1)
-      if (hours.length > 2) { const lg = hours.map(x => Math.log(Math.max(1e-5, x.lux))), L = lg.length; ctx.luxOv = {};
-        hours.forEach((x, i) => { ctx.luxOv[x.h] = Math.exp((lg[Math.max(0, i - 1)] + 2 * lg[i] + lg[Math.min(L - 1, i + 1)]) / 4); }); hours = hours.map(x => simHour(ctx, x.t)); }
+      if (hours.length > 2) { const lg = hours.map(x => Math.log(Math.max(1e-30, x.LB.tr))), L = lg.length; ctx.trOv = {};   // 물때·물살로 물색이 한 시간씩 들쭉날쭉해도 바닥 빛은 고르게 (해 높이 변화는 그대로)
+        hours.forEach((x, i) => { ctx.trOv[x.h] = Math.exp((lg[Math.max(0, i - 1)] + 2 * lg[i] + lg[Math.min(L - 1, i + 1)]) / 4); }); hours = hours.map(x => simHour(ctx, x.t)); }
       const exs = m ? spotExt(m, n) : TideHarm.extremes(o.k, n);
-      return { o, flat: ctx.flat, flatWhy: fi.why || [], spot: !!m, cur: cc ? { name: cc.c.name, d: cc.d } : null, exs, dd: dayData(n), hours };
+      return { o, flat: ctx.flat, flatWhy: fi.why || [], sat: ctx.sat, spot: !!m, cur: cc ? { name: cc.c.name, d: cc.d } : null, exs, dd: dayData(n), hours };
     }
-    if (window.__JJ_TEST) window.__jjSim = { simRun, simHour, simSun, simHo, simPick, simDrag, simSkTxt };
+    async function simWaterPts(pts, times) {   // 셈 바로잡기용: pts [[lat,lon]], times [ms] → 자리마다 [zsd, fc, adv, base, ws, B.kd] 줄
+      await loadSpots(); dpIndex(); await wqReady();
+      for (let i = 0; i < 40 && !DPI && dpiSt !== 'err'; i++) await new Promise(r => setTimeout(r, 150));
+      const out = [];
+      for (const [lat, lon] of pts) {
+        const p = { lat, lon };
+        if (DPI) for (let i = 0; i < 80; i++) { const q = {}; simFlat(p, q); if (!q.wait && depthRaw(p).st !== 'load') break; await new Promise(r => setTimeout(r, 100)); }
+        const m = spotTide(p), cc = spotCur(p), k = nearest(p).k, flat = simFlat(p, {});
+        const rows = times.map(t0 => { const t = Array.isArray(t0) ? t0[0] : t0, wo = Array.isArray(t0) ? { src: 'obs', wind: t0[1], dir: t0[2], wave: null } : { src: 'none' };   // [ms, 풍속, 풍향] 이면 관측 바람
+          const n = kstDay(t), ctx = { p, k, n, m, cc, sp: 'jj', pe: '1.0', flat, rainHours: [], rainYday: false, wx: () => wo, satK: 1, waterOnly: true };
+          const H = simHour(ctx, t), W = H.W, B = wqBase(p, t); return [W.zsd, W.fc, W.adv, W.base, W.ws, B ? B.kd : null, H.depth, H.cur ? H.cur.pct : null, H.st.flood ? 1 : 0, H.st.f]; });
+        out.push({ fl: flat.fl, fl15: flat.fl15, md: flat.md, riv: flat.riv.reduce((a, r) => a + r.A * r.inf, 0), rows });
+      }
+      return out;
+    }
+    if (window.__JJ_TEST) window.__jjSim = { planOpen: n => planOpen(n), simWaterPts, simRun, simHour, simSun, skAngle, skNeed, skPlan, skLive, skSinker, simPick, simSkTxt, simFlat, simWater, simWaveUb, simFetch, simWaveFD, simWaveAt, satReady, satNear, simSat, wqBase, wqReady, simEgi, SIM_COL, simHas, simRecMap, setOpt: o => Object.assign(SIM_OPT, o) };
     // ---------- 출조 계획: 고른 날(출조 전)을 미리 셈해 시간별 에기 색 · 예상 봉돌 → 저장해 두면 바다에서도 (인터넷 없이) 본다
     const PLAN_KEY = 'jjukgap-plans', PL_WD = ['일', '월', '화', '수', '목', '금', '토'];
     const PL_COL = { 빨강: '#D7262E', 검정: '#1E1E1E', 퍼플: '#6B3FA0', 흰: '#F4F4F4', 민트: '#5FD3C6', 블루: '#2F6FD6', 야광: '#CFF5A8', 핑크: '#F27BB0', 레몬: '#F2E14C', 초록: '#3FA34D', 갈색: '#6B4A2E' };
@@ -5673,9 +6093,9 @@ const TideHarm = (() => {
     const plWx = w => { if (!w || w.src === 'none') return '날씨 모름'; const s = w.rain ? '비' : ({ 1: '맑음', 3: '구름많음', 4: '흐림' }[w.sky] || ''); return w.wind != null ? `${s} · ${w.dir != null ? wxDir(w.dir).replace(/풍$/, '') : ''}풍 ${Math.round(w.wind)}m/s` : s; };
     // 저장용으로 줄인 한 시각
     const planRow = x => ({ h: x.h, st: x.st.txt, d: x.depth != null ? Math.round(x.depth * 10) / 10 : null, c: x.cur ? Math.round(x.cur.sp * 100) / 100 : null, wx: plWx(x.wx), src: x.wx.src, water: x.water, light: x.light, lux: Math.round(x.lux * 100) / 100,
-      head: x.head, body: x.body, tape: x.tape, one: x.one, alt: x.alt, ...(x.after ? { after: 1 } : {}), see: Math.round(x.see * 10) / 10, sink: x.sink ? { '0.8': x.sink['0.8'], '1.0': x.sink['1.0'] } : null, T: Math.round(x.T * 100) / 100 });
+      head: x.head, body: x.body, tape: x.tape, one: x.one, alt: x.alt, eg: x.EG ? x.EG.list.slice(0, 6).map(e => [e.id, e.sc, e.best, e.fn.lz.lc]) : null, pr: x.EG && x.EG.pairs[0] ? [x.EG.pairs[0].an, x.EG.pairs[0].bn, x.EG.pairs[0].sc] : null, ...(x.after ? { after: 1 } : {}), see: Math.round(x.see * 10) / 10, sink: x.sink ? { '0.8': x.sink['0.8'], '1.0': x.sink['1.0'], v: x.sink.v.map(v => Math.round(v * 100) / 100), vcat: x.sink.vcat, vcatGp: x.sink.vcatGp } : null, T: Math.round(x.T * 100) / 100 });
     let plS = null, plEl = null;
-    function planOpen(n) {
+    function planOpen(n, o) {
       if (!plEl) {
         plEl = document.createElement('div'); plEl.className = 'cardv bookv'; plEl.id = 'plv'; plEl.hidden = true;
         plEl.setAttribute('role', 'dialog'); plEl.setAttribute('aria-modal', 'true'); plEl.setAttribute('aria-label', '출조 시뮬레이션');
@@ -5683,7 +6103,7 @@ const TideHarm = (() => {
         plEl.addEventListener('click', planClick); plEl.addEventListener('change', planChange);
       }
       const P = planGet(n);
-      plS = { n, k: P && TideHarm.STATIONS[P.k] ? P.k : tideSt, p: P ? P.p : null, how: P ? P.how : null, h0: P ? P.h0 : 6, h1: P ? P.h1 : 17, pe: P ? P.pe : '1.0', res: null, busy: false, open: new Set(), saved: !!P, run: 0 };
+      plS = { n, k: P && TideHarm.STATIONS[P.k] ? P.k : tideSt, p: P ? P.p : null, how: P ? P.how : null, h0: P ? P.h0 : 6, h1: P ? P.h1 : 17, pe: P ? P.pe : '1.0', res: null, busy: false, open: new Set(o && o.h != null ? [o.h] : []), saved: !!P, run: 0, live: o && o.live || null, scrollH: o && o.h != null ? o.h : null };
       plEl.hidden = false; document.documentElement.classList.add('cv-lock');
       if (useHist) { try { history.pushState({ plv: 1 }, ''); } catch (_) {} }
       planCalc(); plEl.scrollTop = 0;
@@ -5712,6 +6132,7 @@ const TideHarm = (() => {
       if (a === 'port') { if (b.dataset.k === s.k) return; s.k = b.dataset.k; s.how = null; s.p = null; s.saved = false; return planCalc(); }
       if (a === 'pe') { s.pe = b.dataset.v; s.saved = false; return planRender(); }
       if (a === 'row') { const h = +b.dataset.h; if (s.open.has(h)) s.open.delete(h); else s.open.add(h); return planRender(); }
+      if (a === 'more' || a === 'fn' || a === 'why') { const h = +b.dataset.h, S = s[a] || (s[a] = new Set()); if (S.has(h)) S.delete(h); else S.add(h); return planRender(); }
       if (a === 'auto') { s.how = null; s.p = null; s.saved = false; return planCalc(); }
       if (a === 'pick') {
         const at = s.p || TideHarm.STATIONS[s.k]; plEl.hidden = true;
@@ -5730,8 +6151,103 @@ const TideHarm = (() => {
       if (t.dataset.pl === 'h1') plS.h1 = Math.max(+t.value, plS.h0 + 1);
       plS.saved = false; planCalc();
     }
+    // ---------- 계획 화면 (3단계 · 간결): 하루 요약 → 시간 줄(두 색 · 봉돌 · 바닥 속도 점) → 펼침(색 막대 · 조합 · 물속 · 봉돌·방법 · 근거)
+    const PL_HEX = { 빨강: '#D7262E', 흰: '#F6F6F4', 초록: '#2E8B3E', 핑크: '#F27BB0', 주황: '#F28A1E', 살구: '#F6B98A', 블루: '#2F6FD6', 하늘: '#7FB8EE', 민트: '#5FD3C6',
+      카키: '#7A7448', 올리브: '#556B2F', 레몬: '#F2E14C', '형광 연두': '#B6F03A', 갈색: '#6B4A2E', 퍼플: '#6B3FA0', 검정: '#1E1E1E' };
+    const PL_SUB = { mint: '밝은 청록', clear: '속이 비침', sd: '무지개 줄', mahi: '형광 연두+레몬', gcj: '빨강+흰', wm: '빨강+초록', shrimp: '주황+살구', army: '카키+올리브', sky: '밝은 파랑' };
+    const PL_CM = Object.fromEntries(SIM_COL.map(e => [e.id, e]));
+    function plSw(id) {   // 에기 색 견본 (부분 넓이대로 · 누드는 비치는 무늬)
+      const e = PL_CM[id]; if (!e) return '<span class="pl-sw"></span>';
+      if (id === 'clear') return '<span class="pl-sw clr"></span>';
+      let x = 0; const st = e.p.map(pt => { const c = PL_HEX[pt.c] || '#999', a0 = x; x += pt.a * 100; return `${c} ${a0.toFixed(0)}% ${x.toFixed(0)}%`; });
+      return `<span class="pl-sw" style="background:linear-gradient(90deg,${st.join(',')})"></span>`;
+    }
+    const plFn = (f, lc) => (f === 'g' ? '야광' : f === 'k' ? '케이무라' : f === 'gk' ? '야광+케이' : f === 'lz' ? `레이저 ${lc || ''}`.trim() : '');
+    const plChip = e => `<span class="pl-ch">${plSw(e.id)}<b>${esc(e.n)}</b>${plFn(e.best, e.fn && e.fn.lz.lc) ? `<em>${esc(plFn(e.best, e.fn.lz.lc))}</em>` : ''}</span>`;
+    const plDot = c => `<i class="pl-dot d${c}" aria-label="${['따라옴', '지나갈 때 잡음', '틈 짧음'][c] || ''}"></i>`;
+    const plVc = (x, s) => (x.sink ? (s.sp === 'gp' ? x.sink.vcatGp : x.sink.vcat) : null);
+    function plDay(R, s) {   // 하루 요약
+      const H = R.hours, avg = {};
+      for (const x of H) for (const e of x.EG.list) (avg[e.id] = avg[e.id] || { e, t: 0 }).t += e.sc;
+      const top = Object.values(avg).sort((a, b) => b.t - a.t).slice(0, 3).map(v => v.e);
+      const mains = H.map(x => x.sink && x.sink[s.pe] && x.sink[s.pe].main).filter(v => v != null), lo = mains.length ? Math.min(...mains.map(v => v || 99)) : null, hi = mains.length ? Math.max(...mains.map(v => v || 99)) : null;
+      const sk = lo == null ? '–' : `${lo === 99 ? '40↑' : lo}${hi !== lo ? `~${hi === 99 ? '40↑' : hi}` : ''}호`;
+      const zs = H.map(x => x.W.zsd), z0 = Math.min(...zs), z1 = Math.max(...zs), zt = v => (v < 1 ? v.toFixed(1) : (Math.round(v * 2) / 2).toFixed(1));
+      const wl = H[Math.floor(H.length / 2)].W.label;
+      const fast = H.filter(x => plVc(x, s) === 2).map(x => x.h), runs = [];
+      for (const h0 of fast) { const r = runs[runs.length - 1]; if (r && h0 === r[1] + 1) r[1] = h0; else runs.push([h0, h0]); }
+      const ex = R.exs.map(x => `${x.type === 'H' ? '만조' : '간조'} ${ampm((x.ms - dayStartOf(s.n)) / 60000)}`).join(' · ');
+      const srcs = new Set(H.map(x => x.wx.src)), wsrc = srcs.has('short') ? '시간별 예보' : srcs.has('mid') ? '오전·오후 예보' : '예보 없음(반쯤 흐림으로 가정)';
+      const note = R.cur ? (R.cur.d > 3 ? `조류는 ${esc(R.cur.name)} 예보 지점(${kmTxt(R.cur.d)}) 값이라 실제와 다를 수 있어요` : '') : '가까운 조류 예보 지점이 없어 봉돌은 셈하지 못해요';
+      return `<div class="pl-day"><div class="pl-dh"><b>${esc(R.dd.name)}</b><small>${esc(ex)} · ${esc(wsrc)}</small></div>`
+        + `<div class="pl-dg"><div class="pl-dt wide"><small>하루 내내 잘 보이는 색</small><span class="pl-chs">${top.map(plChip).join('')}</span></div>`
+        + `<div class="pl-dt"><small>봉돌 · PE ${s.pe === '1.0' ? '1' : s.pe}호</small><b>${sk}</b></div>`
+        + `<div class="pl-dt"><small>물색</small><b>${esc(wl)}</b><span>투명도 ${zt(z0)}~${zt(z1)}m</span></div>`
+        + `<div class="pl-dt wide"><small>에기가 빠른 시간</small>${runs.length ? `<span>${plDot(2)} ${runs.map(r => r[0] === r[1] ? `${r[0]}시` : `${r[0]}~${r[1]}시`).join(' · ')} — 내려놓기 길게</span>` : `<span>${plDot(0)} 없음 · 쭈갑이가 올라탈 틈이 있는 속도</span>`}</div></div>`
+        + (s.act ? `<div class="pl-dg"><div class="pl-dt wide act"><small>실제 기록 · 참고만</small><b>쭈꾸미 ${s.act.tot.jj} · 갑오징어 ${s.act.tot.gap}</b><span>포인트 ${s.act.n}곳 · 시간 줄의 '실제'에서 쓴 에기와 봉돌을 볼 수 있어요</span></div></div>` : '')
+        + (note ? `<p class="pl-note">${note}</p>` : '') + `</div>`;
+    }
+    // 5단계 계획 vs 실제: 그날 포인트 기록(쭈갑)을 시간별로 · 참고만 (점수에 안 넣음)
+    const PL_LZN = { silver: '은', gold: '금', red: '빨강', blue: '파랑', green: '초록', purple: '보라', rainbow: '무지개' };
+    const PL_MT = { t: '텐션', d: '내려놓기', b: '번갈아' };
+    function plRecName(x) {
+      let n = x.c === 'laser' ? `${PL_LZN[x.lc] || ''}레이저` : x.c === 'glow' ? '야광' : (PL_CM[x.c] || {}).n;
+      if (!n) { try { const m = JSON.parse(localStorage.getItem('jjukgap-egi-mine') || '[]').find(q => q.id === x.c); n = m && m.n; } catch (_) {} }
+      const f = [x.g ? '야광' : '', x.k ? '케이' : '', x.lz ? `${PL_LZN[x.lc] || ''}레이저` : ''].filter(Boolean).join('·');
+      return (n || '에기') + (f ? ' ' + f : '');
+    }
+    function plActual(n) {
+      let pts = []; try { pts = JSON.parse(localStorage.getItem('jjukgap-points') || '[]'); } catch (_) {}
+      pts = pts.filter(p => kstDay(p.t) === n && !p.sp).sort((a, b) => a.t - b.t);
+      if (!pts.length) return null;
+      const byH = {}, tot = { jj: 0, gap: 0 };
+      for (const p of pts) {
+        const h = Math.floor((p.t - dayStartOf(n)) / 3600000), B = byH[h] || (byH[h] = { c: 0, eg: [], ids: new Set(), sk: new Set(), mt: new Set(), pts: [] });
+        B.c += (p.jj || 0) + (p.gap || 0); tot.jj += p.jj || 0; tot.gap += p.gap || 0; B.pts.push(p);
+        for (const x of p.egi || []) { const nm = plRecName(x); if (!B.eg.includes(nm)) B.eg.push(nm); B.ids.add(x.c); }
+        for (const k of p.sink || []) B.sk.add(k); if (p.mt) B.mt.add(PL_MT[p.mt]);
+      }
+      return { byH, tot, n: pts.length };
+    }
+    const plActTxt = B => [B.eg.slice(0, 2).join(' · ') + (B.eg.length > 2 ? ` 외 ${B.eg.length - 2}` : ''), B.sk.size ? [...B.sk].sort((a, b) => a - b).join('·') + '호' : '', `${B.c}마리`].filter(Boolean).join(' · ');
+    let plRec = null;
+    function plHour(x, s) {
+      const on = s.open.has(x.h), L = x.EG.list, sk = x.sink && x.sink[s.pe], vc = plVc(x, s), AB = s.act && s.act.byH[x.h];
+      const skT = sk ? (sk.main ? `${sk.main}호` : '40↑') : '–';
+      let h = `<div class="pl-hr2${on ? ' on' : ''}"><button type="button" class="pl-hh" data-pl="row" data-h="${x.h}" aria-expanded="${on}">`
+        + `<span class="t">${x.h}시</span><span class="m"><span class="pl-chs">${plChip(L[0])}${plChip(L[1])}</span><small>${esc(x.st.txt)} · 물색 ${esc(x.W.label)}</small>${AB ? `<small class="act"><b>실제</b> ${esc(plActTxt(AB))}${[...AB.ids].some(id => id === L[0].id || id === L[1].id) ? ' <em>계획 색</em>' : ''}</small>` : ''}</span>`
+        + `<span class="sk"><b>${skT}</b><small>봉돌</small></span>${vc != null ? plDot(vc) : '<i class="pl-dot"></i>'}</button>`;
+      if (!on) return h + '</div>';
+      if (!plRec) { try { plRec = simRecMap(); } catch (_) { plRec = {}; } }
+      const all = s.more.has(x.h), fnOn = s.fn.has(x.h), list = all ? L : L.slice(0, 6), top = L[0].sc || 1;
+      h += `<div class="pl-dx"><p class="pl-k">에기 색 · 눈에 띔</p><div class="pl-cl">`;
+      for (const e of list) {
+        const rec = e.app && plRec[e.app], tags = (simHas(e) ? '' : '<em class="nb">상자에 없음</em>') + (rec ? `<em class="mr">내 기록 ${rec.map(n => { const v = ymd(n); return `${v.m}/${v.d}`; }).join('·')}</em>` : '');
+        h += `<div class="pl-cr">${plSw(e.id)}<span class="nm"><b>${esc(e.n)}</b>${PL_SUB[e.id] ? `<small>${PL_SUB[e.id]}</small>` : ''}${tags}</span>`
+          + `<span class="bar"><i style="width:${Math.max(3, Math.round(e.sc / Math.max(top, 40) * 100))}%"></i></span><span class="sc">${e.sc}</span>`
+          + `<em class="fn">${esc(plFn(e.best, e.fn.lz.lc))}</em>`
+          + (fnOn ? `<small class="fx">기본 ${e.fn[''].sc} · 야광 ${e.fn.g.sc} · 케이 ${e.fn.k.sc} · 둘다 ${e.fn.gk.sc} · 레이저 ${e.fn.lz.sc}</small>` : '') + `</div>`;
+      }
+      h += `</div><div class="pl-bt"><button type="button" data-pl="more" data-h="${x.h}">${all ? '6색만' : `${L.length}색 모두`}</button><button type="button" data-pl="fn" data-h="${x.h}" aria-pressed="${fnOn}">기능별 점수</button></div>`;
+      const pr = x.EG.pairs[0];
+      if (pr) h += `<p class="pl-k">두 개 달면</p><div class="pl-pr">${plSw(pr.a)}<b>${esc(pr.an)}</b><span>+</span>${plSw(pr.b)}<b>${esc(pr.bn)}</b><span class="sc">${pr.sc}</span></div>`;
+      const zt = x.W.zsd < 1 ? x.W.zsd.toFixed(1) : (Math.round(x.W.zsd * 2) / 2).toFixed(1);
+      h += `<div class="pl-dg"><div class="pl-dt"><small>바닥 빛</small><b>${esc(simLvTxt(x.LB.qb))}</b></div><div class="pl-dt"><small>물색</small><b>${esc(x.W.label)}</b><span>투명도 약 ${zt}m</span></div>`;
+      if (sk) h += `<div class="pl-dt"><small>봉돌 · PE ${s.pe === '1.0' ? '1' : s.pe}호</small><b>${skT}</b><span>${sk.wn ? '<em class="pl-wn">바람이 세서 배가 빨리 밀려요</em> · ' : ''}배가 덜 밀리면 ${sk.lo || '40↑'}호 · 더 밀리면 ${sk.hi || '40↑'}호${sk.main && sk.boxMain !== sk.main ? ` · 상자엔 ${sk.boxMain || '25↑'}호` : ''}</span></div>`
+        + `<div class="pl-dt"><small>에기 바닥 속도</small><b>${plDot(vc)}<span style="white-space:nowrap">초속 ${x.sink.v[1].toFixed(2)}m</span></b><span>${esc(SK_VTXT[s.sp === 'gp' ? 'gp' : 'jj'][vc].split(' · ')[0])}</span></div>`
+        + `<div class="pl-dt wide"><small>방법 (가설)</small><span>${esc(SK_METH[s.sp === 'gp' ? 'gp' : 'jj'][vc])}</span></div>`;
+      h += `</div>`;
+      if (s.live && s.live.h === x.h && s.live.sk) { const q = s.live.sk; h += `<div class="pl-dg"><div class="pl-dt wide live"><small>지금 배 위 (GPS로 셈)</small><b>${plDot(q.vcat)}${q.std ? q.std + '호' : '40호↑'}<span style="white-space:nowrap">· 바닥 초속 ${q.v.toFixed(2)}m</span></b>${q.cur && q.std && q.cur < q.ho * 0.9 ? `<span>지금 단 ${q.cur}호는 가벼워요 → ${q.std}호</span>` : ''}</div></div>`; }
+      if (AB) h += `<p class="pl-k">실제 기록 <span style="font-weight:500">· 참고만</span></p><div class="pl-act">${AB.pts.map(p => `<div><b>${ampm((p.t - dayStartOf(s.n)) / 60000)}</b><span>${esc([(p.egi || []).map(plRecName).join(' · '), (p.sink || []).length ? p.sink.join('·') + '호' : '', p.mt ? PL_MT[p.mt] : ''].filter(Boolean).join(' · ') || '채비 기록 없음')}</span><em>${(p.jj || 0) + (p.gap || 0)}마리</em></div>`).join('')}</div>`;
+      h += `<button type="button" class="pl-wb" data-pl="why" data-h="${x.h}" aria-expanded="${s.why.has(x.h)}">${s.why.has(x.h) ? '근거 접기' : '근거 보기'}</button>`;
+      if (s.why.has(x.h)) h += `<p class="why">${plWhy(x, s)}</p>`;
+      return h + '</div></div>';
+    }
+    const plWhy = (x, s) => `바닥 빛(쭈갑이 눈 기준) 약 ${simNum(x.LB.qb)}lux · ${simLvTxt(x.LB.qb)} · 물 위 ${simNum(x.LB.surf)}lux의 ${x.LB.frac >= 0.001 ? (x.LB.frac * 100).toFixed(1) : simNum(x.LB.frac * 100)}% · 남은 빛 ${x.LB.pk}nm<br>해 높이 ${Math.round(x.el)}° · 에기가 보이는 거리 약 ${x.see.toFixed(1)}m<br>물색 ${x.W.label} · 투명도 약 ${x.W.zsd < 1 ? x.W.zsd.toFixed(1) : (Math.round(x.W.zsd * 2) / 2).toFixed(1)}m (${esc(x.W.why.join(' · '))})${WQ ? '<br>물색 바탕: 국립수산과학원 정선해양관측 실측(2000~2020)' : ''}${WQ && WQ.sat ? '<br>물색 보정: 천리안위성 2B호(국립해양조사원 국가해양위성센터) 자료로 셈 맞춤' : ''}<br>단색: ${esc(x.one)}${x.alt ? ` · 대안: ${esc(x.alt)}` : ''}${x.after ? '<br>비 그친 뒤라 톤을 낮추지 않음 (내 기록 11/5)' : ''}${x.sink ? `<br>봉돌(합사 ${s.pe === '1.0' ? '1' : s.pe}호): ${simSkTxt(x.sink[s.pe])}${skBoxTxt(x.sink[s.pe])}${x.sink[s.pe].main != null ? ` · 배가 바람에 덜 밀리면 ${x.sink[s.pe].lo ? x.sink[s.pe].lo + '호' : '40호↑'}, 더 밀리면 ${x.sink[s.pe].hi ? x.sink[s.pe].hi + '호' : '40호↑'}` : ''}<br>줄이 30° 안으로 서는 가장 가벼운 무게 · 보통 낚싯배가 자연스럽게 흐른다고 봄(배 위에서 GPS로 바로잡음)${x.sink.v ? `<br>${skVTxt(x.sink, s.sp)}<br>${skMethTxt(x.sink, s.sp)}` : ''}` : ''}`;
     function planRender() {
       const s = plS; if (!s || !plEl) return;
+      for (const k of ['more', 'fn', 'why']) if (!s[k]) s[k] = new Set();
+      plRec = null; s.act = s.n <= kstDay(Date.now()) ? plActual(s.n) : null;
       const head = `<div class="cv-h"><button type="button" class="cv-x" data-pl="x" aria-label="닫기"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button><b>출조 시뮬레이션</b><span>${plDate(s.n)}</span></div>`;
       let h = PL_DEFS + `<p class="ar-sub">미리 알 수 있는 정보(물때·조류·수심·해·예보)로 그날을 시간별로 셈한 <b>가설</b>이에요. 좋은 날을 고르는 게 아니라, 고른 날을 미리 알아 두는 용도예요.</p>`;
       h += `<div class="pl-set"><div class="pl-l"><span class="k">출항지</span><span class="pl-ports">${myStations().map(k => `<button type="button" data-pl="port" data-k="${k}" class="${k === s.k ? 'on' : ''}" aria-pressed="${k === s.k}">${esc(short(k))}</button>`).join('')}</span></div>`;
@@ -5747,21 +6263,17 @@ const TideHarm = (() => {
         const srcs = new Set(R.hours.map(x => x.wx.src));
         const wsrc = srcs.has('short') ? '시간별 단기 예보' : srcs.has('mid') ? '오전·오후 중기 예보' : '예보 없음 — 날씨는 반쯤 흐린 날로 가정';
         const ex = R.exs.map(x => `${x.type === 'H' ? '만조' : '간조'} ${ampm((x.ms - dayStartOf(s.n)) / 60000)}`).join(' · ');
-        h += `<div class="ar-now"><small>${esc(R.dd.name)} · ${esc(wsrc)}</small><b>${esc(ex)}</b><i>조류: ${R.cur ? `${esc(R.cur.name)} 조류예보 지점 (${kmTxt(R.cur.d)})${R.cur.d > 3 ? ' · 떨어진 곳이라 실제 물살과 다를 수 있어요 (배 위에서 GPS로 다시 셈)' : ''}` : '가까운 조류예보 지점이 없어 봉돌은 셈하지 못해요'}${R.flatWhy && R.flatWhy.length ? ` · 물이 탁해지기 쉬운 곳: ${esc(R.flatWhy.join(', '))}` : ''}</i></div>`;
-        h += `<p class="bk-h4">시간별 · 에기 색과 예상 봉돌 <span style="font-weight:500;color:var(--ink-2)">· 줄을 누르면 근거</span></p><div class="pl-hours">`;
-        for (const x of R.hours) {
-          const lv = PL_LV[x.light], on = s.open.has(x.h);
-          h += `<button type="button" class="pl-hr${on ? ' on' : ''}" data-pl="row" data-h="${x.h}" aria-expanded="${on}"><span class="t">${x.h}시</span><span class="m"><span class="l1">${esc(x.st.txt)} · 수심 ${x.depth != null ? Math.round(x.depth) + 'm' : '–'} · 조류 ${x.cur ? plKn(x.cur.sp) : '–'}</span><span class="l2"><i class="lv" style="background:${lv[0]};color:${lv[1]}">${x.light}</i>${esc(plWx(x.wx))} · <span style="white-space:nowrap">물색 ${x.water}</span></span>`
-            + `<span class="l3">${plEgi(x.head, x.body, x.tape)}<b>${esc(plEgiTxt(x))}</b></span>`
-            + (on ? `<span class="why">바닥 빛 ${x.lux < 0.01 ? '거의 없음(0.01lux 아래)' : `약 ${x.lux < 0.1 ? x.lux.toFixed(2) : x.lux < 10 ? x.lux.toFixed(1) : Math.round(x.lux)}lux`} · 해 높이 ${Math.round(x.el)}° · 에기가 보이는 거리 약 ${x.see.toFixed(1)}m<br>물 탁함 ${Math.round(x.T * 100)}% (${x.st.flood ? '들물이라 바깥 물' : '날물이라 연안 물'}${x.wx.rain ? ' · 비' : ''}${x.cur && x.cur.pct > 40 ? ' · 센 물살' : ''})<br>단색: ${esc(x.one)}${x.alt ? ` · 대안: ${esc(x.alt)}` : ''}${x.after ? '<br>비 그친 뒤라 톤을 낮추지 않음 (내 기록 11/5)' : ''}${x.sink ? `<br>봉돌: 배가 바람에 덜 밀리면 ${simSkTxt({ lo: x.sink[s.pe].lo, hi: x.sink[s.pe].lo })} · 많이 밀리면 ${simSkTxt({ lo: x.sink[s.pe].hi, hi: x.sink[s.pe].hi })} · 배를 잡아 두면(물닻·엔진) ${simSkTxt({ lo: x.sink[s.pe].held, hi: x.sink[s.pe].held })}<br>봉돌 무게는 11/17 비응항 내 기록(16·18·20호)에 맞춘 가설` : ''}</span>` : '')
-            + `</span><span class="sk"><b>${plSk(x, s.pe)}</b><small>봉돌</small></span></button>`;
-        }
+        h += plDay(R, s);
+        h += `<p class="bk-h4">시간별 <span style="font-weight:500;color:var(--ink-2)">· 누르면 자세히</span></p><div class="pl-hours">`;
+        for (const x of R.hours) h += plHour(x, s);
         h += `</div>`;
         h += `<div class="pl-save"><button type="button" class="${s.saved ? '' : 'pri'}" data-pl="save">${s.saved ? '저장됨 · 다시 저장' : '이 계획 저장하기'}</button><small>${s.saved ? '선상 모드 지도에 그 시간 계획과 지금 물살에 맞는 봉돌이 한 줄로 보여요.' : '저장하면 바다에서 인터넷이 없어도 보이고, 선상 모드 지도에 한 줄로 떠요.'}</small></div>`;
-        h += `<p class="bk-none">계산 근거: 쭈꾸미·갑오징어 눈(청록색에 민감, 색이 아니라 밝기 대비로 봄)과 바닷속 빛 줄어듦으로 바닥 밝기를 셈하고, 족보의 바닥 빛 4단계 규칙으로 색을 골랐어요. 봉돌은 줄·쇼크리더(4호 1.5m)·에기 2개가 받는 물 힘과 봉돌이 바닥을 누르는 힘을 비교했어요. 배가 실제로 흐르는 속도는 미리 알 수 없어서, 바다에서는 선상 모드가 GPS로 다시 셈해 알려 줘요.</p>`;
-        h += `<p class="bk-none">자료: 국립해양조사원 조석·조류 예측·격자 수심(BADA2024) · 기상청 예보. 해도가 아니니 항해·안전에는 쓰지 마세요.</p>`;
+        h += `<p class="bk-none">계산: 쭈갑이 눈(색이 아니라 밝기로 봄) · 바닷속 빛 · 물색으로 에기가 몇 m 밖에서 보이는지 셈한 '눈에 띔' 점수(0~100)예요. 봉돌은 줄이 30° 안으로 서는 가장 가벼운 무게예요.</p>`;
+        if (0) h += `<p class="bk-none">계산 근거: 쭈꾸미·갑오징어 눈(청록색에 민감, 색이 아니라 밝기 대비로 봄)과 바닷속 빛 줄어듦으로 바닥 밝기를 셈하고, 족보의 바닥 빛 4단계 규칙으로 색을 골랐어요. 봉돌은 줄·쇼크리더(4호 1.5m)·에기 2개가 받는 물 힘과 봉돌이 바닥을 누르는 힘을 비교했어요. 배가 실제로 흐르는 속도는 미리 알 수 없어서, 바다에서는 선상 모드가 GPS로 다시 셈해 알려 줘요.</p>`;
+        h += `<p class="bk-none">자료: 국립해양조사원 조석·조류 예측·격자 수심(BADA2024) · 기상청 예보 · 물색 바탕: 국립수산과학원 정선해양관측 · 물색 보정: 천리안위성 2B호(국립해양조사원 국가해양위성센터). 해도가 아니니 항해·안전에는 쓰지 마세요.</p>`;
       }
       plEl.innerHTML = `<div class="cv-in">${head}${h}</div>`;
+      if (s.scrollH != null && s.res) { const hh = s.scrollH; s.scrollH = null; requestAnimationFrame(() => { const el = plEl.querySelector(`.pl-hh[data-h="${hh}"]`); if (el) el.scrollIntoView({ block: 'start' }); }); }
     }
     // 첫 화면 '출조 시뮬레이션' 칸 (고른 날이 오늘이거나 앞날일 때 · 쭈갑일 때)
     function planHTML(n) {
@@ -5772,6 +6284,13 @@ const TideHarm = (() => {
       const grp = [['새벽', x => x.h < 8], ['오전', x => x.h >= 8 && x.h < 12], ['오후', x => x.h >= 12]];
       const rows = grp.map(([nm, f]) => {
         const L = P.hours.filter(f); if (!L.length) return '';
+        if (L[0].eg) {   // 3단계 계획: 그 때 평균 점수 상위 두 색 · 봉돌(보통 배)
+          const t = {}; for (const x of L) for (const [id, sc, f, lc] of x.eg) (t[id] = t[id] || { id, s: 0, f: {}, lc }).s += sc, t[id].f[f] = (t[id].f[f] || 0) + 1;
+          const top = Object.values(t).sort((a, b) => b.s - a.s).slice(0, 2).map(v => { const f = Object.entries(v.f).sort((a, b) => b[1] - a[1])[0][0]; return { id: v.id, n: (PL_CM[v.id] || {}).n || v.id, best: f, fn: { lz: { lc: v.lc } } }; });
+          const ms = L.map(x => x.sink && x.sink[P.pe] && x.sink[P.pe].main).filter(v => v != null), lo = ms.length ? Math.min(...ms.map(v => v || 99)) : null, hi = ms.length ? Math.max(...ms.map(v => v || 99)) : null;
+          const sk = lo == null ? '–' : `${lo === 99 ? '40↑' : lo}${hi !== lo ? `~${hi === 99 ? '40↑' : hi}` : ''}호`;
+          return `<div class="sim-row"><span class="k">${nm}</span><span class="v pl-mv"><span class="pl-chs">${top.map(plChip).join('')}</span><span>봉돌 ${sk}</span></span></div>`;
+        }
         const cnt = new Map(); for (const x of L) { const k = `${x.head}|${x.body}|${x.tape}`; cnt.set(k, (cnt.get(k) || 0) + 1); }
         const [k0] = [...cnt].sort((a, b) => b[1] - a[1])[0], [hh, bb, tt] = k0.split('|');
         const lo = Math.min(...L.map(x => (x.sink && x.sink[P.pe].lo) || 99)), hi = Math.max(...L.map(x => (x.sink && (x.sink[P.pe].hi || 99)) || 0));
@@ -5793,6 +6312,7 @@ const TideHarm = (() => {
     }
     let lvC = null;
     function liveCalc(at) {   // 20초마다 · 자리가 바뀌면 다시
+      if (!WQ) wqReady();   // 실측 물색 바탕 (들어오면 다음 셈부터)
       const k0 = `${me.lat.toFixed(3)},${me.lon.toFixed(3)}`;
       if (lvC && lvC.k === k0 && at - lvC.t < 20000) return lvC.v;
       const n = kstDay(at), h = Math.floor((at - dayStartOf(n)) / 3600000), P = planGet(n), pe = P ? P.pe : '1.0';
@@ -5804,11 +6324,10 @@ const TideHarm = (() => {
       let sk = null;
       const cc = SP && spotCur(me), D = depthAt(me, at), depth = D.st === 'ok' ? Math.max(0.5, D.dn) : null;
       if (cc && depth != null) {
-        const q = curNow(cc.c, at), cs = q.sp / 100, r = q.dir * Math.PI / 180, c = [cs * Math.sin(r), cs * Math.cos(r)], b = boatVel();
-        // 배-겉물 = 배 속도 − 조류 · 채비-바닥 물 = 배 속도 − 바닥 물(조류의 55%) · GPS가 없으면 물 따라 흐른다고 본다
-        const ut = b ? Math.hypot(b.e - c[0], b.n - c[1]) : SIM_U0, ub = b ? Math.hypot(b.e - (1 - SIM_B) * c[0], b.n - (1 - SIM_B) * c[1]) : Math.hypot(SIM_U0, SIM_B * cs);
-        const ho = simHo(depth, ut, ub, pe);
-        sk = { need: simPick(ho), ho, b, depth, cur: skAt(at) };
+        const q = curNow(cc.c, at), b = boatVel();
+        // GPS 배 속도(바닥 위) · 그 자리 조류 → 줄이 30° 안으로 서는 호수 · GPS가 없으면 물 따라 흐른다고 본다
+        const L = skLive(depth, { sp: q.sp / 100, dir: q.dir }, b, pe, 'jj');
+        sk = { need: L.box, std: L.std, ho: L.ho, v: L.v, vcat: L.vcat, b, depth, cur: skAt(at) };
       }
       const val = { n, h, P, row, live, sk, pe };
       lvC = SP && DPI && D.st !== 'load' ? { k: k0, t: at, v: val } : null;   // 자료가 아직 덜 들어왔으면 다음에 다시
@@ -5822,22 +6341,15 @@ const TideHarm = (() => {
       if (!here || !onBoard || here.virtual || mode !== 'info' || spNow() !== 'jg') { if (!el.hidden) { el.hidden = true; planChipPos(); } return; }
       let L = null; try { L = liveCalc(Date.now()); } catch (_) { L = null; }
       const R = L && (L.row || L.live); if (!L || (!R && !L.sk)) { if (!el.hidden) { el.hidden = true; planChipPos(); } return; }
-      const l1 = R ? `${L.row ? `${L.h}시 계획` : '지금 셈'} · ${R.head}·${R.body}${R.tape ? `+${R.tape}` : ''}` : `${L.h}시 · 봉돌`;
-      let l2 = '';
-      const s = L.sk;
-      if (s) {   // 짧게: '계획 10~16호 · 14호 → 18호로 · 배 1.0노트'
-        const bt = s.b ? ` · 배 ${(s.b.sp * 100 / KN).toFixed(1)}노트` : '';
-        let now;
-        if (!s.need) now = '지금 25호↑';
-        else if (s.cur) { const r = s.cur / Math.max(s.ho, 1); now = r >= 1 ? `지금 ${s.cur}호 OK` : r >= 0.9 ? `${s.cur}호 아슬 → ${s.need}호` : `${s.cur}호 → ${s.need}호로`; }
-        else now = `지금 ${s.need}호면 됨`;
-        const pl = L.row && L.row.sink ? simSkTxt(L.row.sink[L.pe]) : '';
-        l2 = (pl && pl !== '–' ? `계획 ${pl} · ` : '') + now + bt;
-      }
-      const warn = s && s.cur && s.need && s.cur < s.ho * 0.9;
-      const t = `<span><b>${esc(l1)}</b>${l2 ? `<small class="${warn ? 'warn' : ''}">${esc(l2)}</small>` : ''}</span><i aria-hidden="true">›</i>`;
+      const top2 = R ? (R.eg ? R.eg.slice(0, 2).map(([id, , f, lc]) => ((PL_CM[id] || {}).n || id) + (plFn(f, lc) ? `(${plFn(f, lc)})` : '')) : R.EG ? R.EG.list.slice(0, 2).map(e => e.n + (plFn(e.best, e.fn.lz.lc) ? `(${plFn(e.best, e.fn.lz.lc)})` : '')) : null) : null;
+      // 4단계: 한눈에 — [지금 호수 · 바닥 속도 점] [상위 두 색] · 아래 줄은 바꿀 게 있을 때만 (봉돌이 가벼움 / 에기 빠름)
+      const s = L.sk, skT = s ? (s.std ? `${s.std}호` : '40호↑') : '';
+      const cols = top2 ? top2.join(' · ') : R ? `${R.head}·${R.body}` : '';
+      const warn = s && s.cur && s.std && s.cur < s.ho * 0.9;
+      const l2 = warn ? `단 ${s.cur}호는 가벼워요 → ${s.std}호` : s && s.vcat === 2 ? `에기가 빨라요 · 내려놓기를 길게` : `${L.row ? `${L.h}시 계획 색` : '지금 셈한 색'} · 누르면 자세히`;
+      const t = `<span>${s ? `<b class="pk">${esc(skT)}<i class="pl-dot d${s.vcat}" aria-hidden="true"></i></b>` : ''}<b class="pc">${esc(cols)}</b><small class="${warn || (s && s.vcat === 2) ? 'warn' : ''}">${esc(l2)}</small></span><i aria-hidden="true">›</i>`;
       if (el.innerHTML !== t) el.innerHTML = t;
-      el.setAttribute('aria-label', `${l1}. ${l2}. 누르면 출조 계획`);
+      el.setAttribute('aria-label', `봉돌 ${skT}. ${cols}. ${l2}`);
       if (el.hidden) { el.hidden = false; } planChipPos();
     }
     let plcB = -1;
@@ -6425,7 +6937,15 @@ const TideHarm = (() => {
     const hsv2hex = (h, s, v) => { const f = n => { const k = (n + h / 60) % 6; return v - v * s * Math.max(0, Math.min(k, 4 - k, 1)); }; return '#' + [f(5), f(3), f(1)].map(x => Math.round(x * 255).toString(16).padStart(2, '0')).join(''); };
     const hex2hsv = hex => { const n = parseInt(String(hex).slice(1), 16) || 0, r = (n >> 16) / 255, g = ((n >> 8) & 255) / 255, b = (n & 255) / 255, mx = Math.max(r, g, b), mn = Math.min(r, g, b), d = mx - mn;
       let h = 0; if (d) h = mx === r ? ((g - b) / d) % 6 : mx === g ? (b - r) / d + 2 : (r - g) / d + 4; return { h: (h * 60 + 360) % 360, s: mx ? d / mx : 0, v: mx }; };
-    const egiName = x => { const e = egiGet(x.c); if (!e) return ''; if (e.c[0] === 'laser') { const l = LASER_BY[x.lc || 'silver']; return `${l ? l.n + ' ' : ''}레이저`; } return e.n; };
+    const egiName = x => { const e = egiGet(x.c); if (!e) return ''; const f = egiFnTxt(x); if (e.c[0] === 'laser') { const l = LASER_BY[x.lc || 'silver']; return `${l ? l.n + ' ' : ''}레이저${f ? ' ' + f : ''}`; } return e.n + (f ? ' ' + f : ''); };
+    // 5단계: 상자에는 색만 · 기록할 때 그 에기의 기능(야광·케이무라·레이저+색)을 켠다 · 같은 색을 기능 다르게 두 번 담을 수 있다(d: 2, 3…)
+    const ek = x => x.c + (x.d ? '~' + x.d : '');   // 상자 칸 열쇠
+    const egiBase = x => { const e = egiGet(x.c); if (!e) return ''; if (e.c[0] === 'laser') { const l = LASER_BY[x.lc || 'silver']; return `${l ? l.n + ' ' : ''}레이저`; } return e.n; };   // 상자 칸: 색 이름만 (기능은 아래 작은 줄)
+    const egiFnTxt = x => [x.g ? '야광' : '', x.k ? '케이' : '', x.lz ? `${(LASER_BY[x.lc || 'silver'] || {}).n || ''}레이저` : ''].filter(Boolean).join('·');
+    const EFN_KEY = 'jjukgap-egi-fn'; let egiFnMem = loadJ(EFN_KEY, {});   // 색마다 마지막에 켠 기능
+    const egiFnInit = c => { const m = egiFnMem[c], e0 = egiGet(c); if (e0 && e0.c[0] === 'laser') return {}; return m ? { ...(m.g ? { g: 1 } : {}), ...(m.k ? { k: 1 } : {}) } : {}; };
+    const egiFnSave = x => { egiFnMem[x.c] = { g: x.g ? 1 : 0, k: x.k ? 1 : 0 }; saveJ(EFN_KEY, egiFnMem); };
+    const EGI_FN_ONLY = new Set(['glow']);   // 예전 상자의 '야광' 칸: 이제 기능 단추 (예전 기록은 그대로 보임) · 레이저는 예전처럼 상자의 에기 칸 (사용자 요청 2026-11-20)
     const sinkTxt = a => (a && a.length ? a.slice().sort((x, y) => x - y).join('·') + '호' : '');
     const egiTxt = a => (a || []).filter(x => egiGet(x.c)).map(x => {
       const e = egiGet(x.c), r = x.r != null ? x.r : 50;
@@ -6475,19 +6995,21 @@ const TideHarm = (() => {
       const chips = [...SINKS, ...own].sort((a, b) => a - b).map(n => sinkChip(n, f.sink.includes(n))).join('');
       const ownEl = f.sinkOwn ? '<input id="mv-sink-own" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="3" placeholder="호수" enterkeyhint="done" autocomplete="off" aria-label="봉돌 호수 직접 쓰기">'
         : '<button type="button" class="own" data-act="sink-own">직접</button>';
-      const egis = egiAll().map(e => egiChip(e, f.egi.some(q => q.c === e.id))).join('')
+      const egis = egiAll().filter(e => !EGI_FN_ONLY.has(e.id)).map(e => egiChip(e, f.egi.some(q => q.c === e.id))).join('')
         + '<button type="button" class="new" data-act="egi-new" aria-label="내 에기 만들기"><i>+</i>내 에기</button>';
+      const mts = mode === 'save' ? `<div class="mv-rig mt"><span>방법</span><div class="mv-mts" role="group" aria-label="쓴 방법 (안 골라도 돼요)">${MT_L.map(([v, n]) => `<button type="button" data-act="mt" data-v="${v}" class="${f.mt === v ? 'on' : ''}" aria-pressed="${f.mt === v}">${n}</button>`).join('')}<small>안 골라도 돼요</small></div></div>` : '';
       return boxHtml(f, scroll)
         + `<div class="mv-rig${scroll ? ' scroll' : ''}"><span>봉돌</span><div class="mv-rchips">${chips}${ownEl}</div></div>`
-        + `<div class="mv-rig egi${scroll ? ' scroll' : ''}"><span>에기</span><div class="mv-egis">${egis}</div></div>`;
+        + `<div class="mv-rig egi${scroll ? ' scroll' : ''}"><span>에기</span><div class="mv-egis">${egis}</div></div>` + mts;
     }
+    const MT_L = [['t', '텐션'], ['d', '내려놓기'], ['b', '번갈아']], MT_N = Object.fromEntries(MT_L), MT_KEY = 'jjukgap-mt';
     const sinkChip = (n, on) => `<button type="button" data-act="sink" data-n="${n}"${on ? ' class="gone"' : ''} aria-pressed="${on}" aria-label="봉돌 ${n}호${on ? ' · 상자에 담김 (빼려면 상자 칸의 −)' : ''}">${n}</button>`;
     const egiChip = (e, on) => `<button type="button" data-act="egi" data-c="${e.id}"${on ? ' class="gone"' : ''} aria-pressed="${on}" aria-label="${esc(e.n)}${on ? ' · 상자에 담김 (빼려면 상자 칸의 −)' : ''}">${e.k === 'bait' ? `<i class="bi">${baitSvg(e)}</i>` : `<i style="background:${egiBg(e, null)}"></i>`}${esc(e.n)}</button>`;
     function boxHtml(f, sm) {
       const ks = (f.sink || []).slice().sort((a, b) => a - b), eg = (f.egi || []).filter(x => egiGet(x.c));
       const L = [];   // 메모 번호: 상자에 놓인 차례대로 (봉돌 먼저, 다음 에기)
       ks.forEach(n => { const m = ((f.sinkM || {})[n] || '').trim(); if (m) L.push({ k: 's:' + n, name: n + '호', memo: m }); });
-      eg.forEach(x => { const m = (x.m || '').trim(); if (m) L.push({ k: 'e:' + x.c, name: egiName(x), memo: m }); });
+      eg.forEach(x => { const m = (x.m || '').trim(); if (m) L.push({ k: 'e:' + ek(x), name: egiName(x), memo: m }); });
       const no = () => 0; flipOff(false); askOff(false);   // 번호 대신 ≡ 표시 · 다시 그리면 말풍선·물어보는 창은 닫는다
       return `<div class="mv-box${sm ? ' sm' : ''}" id="mv-box"><div class="cmp"><span class="lbl">봉돌</span><div class="g s">${ks.length ? ks.map(n => sinkCell(n, f.sinkM && f.sinkM[n], no('s:' + n))).join('') : '<p class="h0">봉돌을 고르면 여기에 담겨요</p>'}</div></div>`
         + (recOf(f) ? `<div class="cmp"><span class="lbl">${recOf(f).rig.n}</span><div class="g e">${eg.length ? eg.map(x => egiCell(x, no('e:' + x.c))).join('') : `<p class="h0">${recOf(f).rig.n}${recOf(f).rig.n === '웜' ? '을' : '를'} 고르면 여기에 담겨요</p>`}</div></div></div>`
@@ -6505,7 +7027,7 @@ const TideHarm = (() => {
       return `<div class="mv-fn open"><button type="button" class="hd" data-act="fn-tog" aria-expanded="true" aria-label="메모 접기"><span class="mi">${MEMO_IC}</span>메모 ${L.length}개${FN_CV}</button>${L.map(ln).join('')}</div>`;
     }
     const sinkCell = (n, m, no) => `<button type="button" class="mv-cell sk${(m || '').trim() ? ' has-m' : ''}" data-act="box-sink" data-n="${n}" data-k="s:${n}" aria-label="봉돌 ${n}호${(m || '').trim() ? ' · 메모 있음 (누르면 보기)' : ''} (꾹 누르면 메모)"><i class="mm" aria-hidden="true">${MEMO_IC}</i><span class="mx" data-act="cell-rm" role="button" aria-label="봉돌 ${n}호 빼기"></span><span class="in"><span class="w" style="--wh:${Math.min(60, 32 + Math.max(0, n - 10) * 1.1).toFixed(0)}%"></span><b>${n}호</b></span></button>`;
-    const egiCell = (x, no) => `<button type="button" class="mv-cell eg${x.s ? ' star' : ''}${(x.m || '').trim() ? ' has-m' : ''}" data-act="box-egi" data-c="${x.c}" data-k="e:${x.c}" aria-label="${esc(egiName(x))}${x.s ? ' · 잘 먹힌 색' : ''}${(x.m || '').trim() ? ' · 메모 있음 (누르면 보기)' : ''} (꾹 누르면 손질)"><span class="in"><span class="pic">${egiSvg(egiGet(x.c), x)}</span><b>${esc(egiName(x))}</b></span><i class="mm" aria-hidden="true">${MEMO_IC}</i><i class="st" aria-hidden="true">★</i><span class="mx" data-act="cell-rm" role="button" aria-label="${esc(egiName(x))} 빼기"></span></button>`;
+    const egiCell = (x, no) => `<button type="button" class="mv-cell eg${x.s ? ' star' : ''}${(x.m || '').trim() ? ' has-m' : ''}" data-act="box-egi" data-c="${ek(x)}" data-k="e:${ek(x)}" aria-label="${esc(egiName(x))}${x.s ? ' · 잘 먹힌 색' : ''}${(x.m || '').trim() ? ' · 메모 있음 (누르면 보기)' : ''} (꾹 누르면 손질)"><span class="in"><span class="pic">${egiSvg(egiGet(x.c), x)}</span><b>${esc(egiBase(x))}</b><small class="fn">${esc(egiFnTxt(x))}</small></span><i class="mm" aria-hidden="true">${MEMO_IC}</i><i class="st" aria-hidden="true">★</i><span class="mx" data-act="cell-rm" role="button" aria-label="${esc(egiName(x))} 빼기"></span></button>`;
     // 상자를 바꿀 때: 담기는 칸은 누른 단추 자리에서 동그라미→네모로 쓱, 빠지는 칸은 제자리 단추로 쓱, 나머지 칸은 미끄러져 자리를 맞춘다
     const RMQ = matchMedia('(prefers-reduced-motion: reduce)');
     const rigBuzz = () => { try { navigator.vibrate && navigator.vibrate(10); } catch (_) {} };
@@ -6520,7 +7042,7 @@ const TideHarm = (() => {
     const cellInfo = k => {
       if (!form || !k) return null;
       if (k[0] === 's') { const n = +k.slice(2); return { s: 1, n, name: `${n}호 봉돌`, memo: ((form.sinkM || {})[n] || '').trim() }; }
-      const x = form.egi.find(q => q.c === k.slice(2)), e = x && egiGet(x.c); if (!e) return null;
+      const x = form.egi.find(q => ek(q) === k.slice(2)), e = x && egiGet(x.c); if (!e) return null;
       return { x, e, name: egiName(x), memo: (x.m || '').trim() };
     };
     const vRect = () => view.getBoundingClientRect();
@@ -6561,8 +7083,8 @@ const TideHarm = (() => {
       if (!form) return;
       if (k[0] === 's') { const n = +k.slice(2), chip = panel.querySelector(`.mv-rchips [data-act=sink][data-n="${n}"]`) || panel.querySelector('[data-act=sink-own]');
         boxChange(() => { form.sink = form.sink.filter(v => v !== n); if (form.sinkM) delete form.sinkM[n]; }, { rmKey: k, dst: chip }); return; }
-      const c = k.slice(2), chip = panel.querySelector(`.mv-egis [data-act=egi][data-c="${c}"] i`) || panel.querySelector('.mv-egis [data-act=egi-new] i');
-      boxChange(() => { form.egi = form.egi.filter(q => q.c !== c); }, { rmKey: k, dst: chip });
+      const c = k.slice(2), c0 = c.split('~')[0], chip = panel.querySelector(`.mv-egis [data-act=egi][data-c="${c0}"] i`) || panel.querySelector('.mv-egis [data-act=egi-new] i');
+      boxChange(() => { form.egi = form.egi.filter(q => ek(q) !== c); }, { rmKey: k, dst: chip });
     }
     function rmAsk(c) {
       flipOff(false); askOff(false);
@@ -6680,7 +7202,7 @@ const TideHarm = (() => {
     // 채비 단추: 봉돌은 그 단추만 바꾸고, 에기는 고르기·빼기에 따라 세부 칸을 다시 그린다
     // 판 하나로 세 가지: 'ed' 에기 손질 (상자의 에기 칸을 꾹) · 'sk' 봉돌 메모 (상자의 봉돌 칸을 꾹) · 'mk' 내 에기 만들기 / 에기 고치기 (아래 에기 단추를 꾹)
     let rgC = null, rgN = null, rgMode = '', rgOpenT = 0, rgDrag = false, lpT = null, lpFired = false, lpXY = null;
-    const rgX = () => (form && rgC ? form.egi.find(q => q.c === rgC) : null);
+    const rgX = () => (form && rgC ? form.egi.find(q => ek(q) === rgC) : null);
     function rgEl() {
       let el = $('mv-rged'); if (el) return el;
       el = document.createElement('div'); el.className = 'mv-rged'; el.id = 'mv-rged'; el.setAttribute('role', 'dialog'); el.setAttribute('aria-modal', 'true'); el.setAttribute('aria-label', '에기 손질'); el.setAttribute('aria-hidden', 'true');
@@ -6697,11 +7219,16 @@ const TideHarm = (() => {
         if (a === 'sb') { x.sb = sbOf(egiGet(x.c), x) ? 0 : 1; return rgEdSync(); }
         if (a === 'bait') { x.b = x.b ? 0 : 1; return rgEdSync(); }
         if (a === 'lc') { x.lc = b.dataset.l; return rgEdSync(); }
+        if (a === 'g' || a === 'k') { x[a] = x[a] ? 0 : 1; egiFnSave(x); return rgEdSync(); }
+        if (a === 'dup') {   // 같은 색을 하나 더 (기능만 다르게 켤 수 있게)
+          const d = Math.max(1, ...form.egi.filter(q => q.c === x.c).map(q => q.d || 1)) + 1, y = { ...x, d, s: 0 }; delete y.m; delete y.tm;
+          form.egi.push(y); rgEdClose(); repaint(); cellPop('e:' + ek(y)); setTimeout(() => rgEdOpen(ek(y)), 420); return;
+        }
         if (a === 'edit') { const id = x.c; rgEdClose(); openMaker(id); }
       });
       el.addEventListener('input', e => {
         const t = e.target;
-        if (t.id === 'rg-memo') { const x = rgX(); if (x) { x.m = t.value; const c = panel.querySelector(`.mv-cell[data-k="e:${x.c}"]`); if (c) c.classList.toggle('has-m', !!t.value.trim()); } }
+        if (t.id === 'rg-memo') { const x = rgX(); if (x) { x.m = t.value; const c = panel.querySelector(`.mv-cell[data-k="e:${ek(x)}"]`); if (c) c.classList.toggle('has-m', !!t.value.trim()); } }
         if (t.id === 'rg-smemo' && form && rgN != null) { form.sinkM = form.sinkM || {}; form.sinkM[rgN] = t.value; const c = panel.querySelector(`.mv-cell[data-k="s:${rgN}"]`); if (c) c.classList.toggle('has-m', !!t.value.trim()); }
         if (t.id === 'mv-egin-n' && form && form.egiNew) form.egiNew.n = t.value;
       });
@@ -6717,15 +7244,18 @@ const TideHarm = (() => {
       return el;
     }
     function rgEdOpen(c) {
-      const x = form && form.egi.find(q => q.c === c), e = x && egiGet(c); if (!e) return;
+      const x = form && form.egi.find(q => ek(q) === c), e = x && egiGet(x.c); if (!e) return;
       rgMode = 'ed'; rgC = c; rgN = null; rgOpenT = Date.now(); const el = rgEl(), two = e.c.length === 2, laser = e.c[0] === 'laser', lure = e.k === 'wrm' || e.k === 'bait', wMine = e.k === 'wrm' && !WRM_BY[e.id];
-      rgShow(`<h3 id="rg-nm"></h3><p class="sub">${two ? '파란 단추를 잡고 위아래로 끌어 색 비율을 맞춰요' : laser ? '레이저 색을 골라요' : lure ? '잘 먹혔으면 ★로 표시하고 메모를 남겨요' : '틴셀·삼봉을 켜거나 잘 먹힌 색으로 표시해요'}</p>`
+      const fnOk = !lure && !laser && !EGI_FN_ONLY.has(e.id);   // 레이저는 예전 판 그대로 (기능 단추 없음 · 사용자 요청 2026-11-20)
+      rgShow(`<h3 id="rg-nm"></h3><p class="sub">${fnOk ? '이 에기에 있는 기능을 켜요 · 다음에도 기억해요' : two ? '파란 단추를 잡고 위아래로 끌어 색 비율을 맞춰요' : laser ? '레이저 색을 골라요' : lure ? '잘 먹혔으면 ★로 표시하고 메모를 남겨요' : '틴셀·삼봉을 켜거나 잘 먹힌 색으로 표시해요'}</p>`
+        + (fnOk ? `<div class="fnr" role="group" aria-label="에기 기능"><button type="button" class="tog" data-rg="g" id="rg-g">야광</button><button type="button" class="tog" data-rg="k" id="rg-k">케이무라</button></div>` : '')
         + `<div class="ed"><div class="big" id="rg-big"><span class="pic"></span>${two ? '<div class="hd" id="rg-hd"><b role="slider" aria-label="색 비율">↕</b></div>' : ''}</div><div class="ctl">`
         + (two ? '<div class="ratio" id="rg-rt"></div>' : '')
         + (laser ? `<div class="lcs">${LASERS.map(l => `<button type="button" data-rg="lc" data-l="${l.id}" aria-label="${l.n} 레이저" style="background:${l.id === 'rainbow' ? 'conic-gradient(#ff5a5a,#ffb84d,#fff176,#69f0ae,#4fc3f7,#7c4dff,#ff5a5a)' : l.c}"></button>`).join('')}</div>` : '')
         + `<div class="tg2"${lure ? ' hidden' : ''}><button type="button" class="tog" data-rg="tin" id="rg-tin">✨ 틴셀</button><button type="button" class="tog" data-rg="sb" id="rg-sb">🐟 삼봉</button></div>`
         + '<button type="button" class="tog sub2" data-rg="bait" id="rg-bait" hidden></button><button type="button" class="tog" data-rg="star" id="rg-star"></button>'
         + `<div class="tms" id="rg-tm" role="group" aria-label="언제 잘 먹혔나" hidden>${TM_L.map(([v, t]) => `<button type="button" data-rg="tm" data-v="${v}">${t}</button>`).join('')}</div>`
+        + (fnOk ? '<button type="button" class="tog" data-rg="dup">같은 색 하나 더 (기능 다르게)</button>' : '')
         + `<button type="button" class="tog" data-rg="edit">${e.k === 'bait' ? (BAIT_BY[e.id] ? '이 미끼로 다른 미끼 만들기' : '미끼 고치기') : e.k === 'wrm' ? (wMine ? '웜 고치기' : '이 웜으로 내 웜 만들기') : '에기 고치기'}</button>`
         + `</div></div><input class="memo" id="rg-memo" maxlength="30" placeholder="${e.k === 'wrm' ? '메모 (예: 3인치, 바닥에서 살짝 띄워서)' : e.k === 'bait' ? '메모 (예: 산 미꾸라지, 입에 꿰기)' : '메모 (예: 3.5호, 오후 들물에 잘 먹음)'}" enterkeyhint="done" autocomplete="off" value="${esc(x.m || '')}">`
         + '<button type="button" class="done" data-rg="close">다 됐어요</button>'); rgEdSync();
@@ -6742,8 +7272,9 @@ const TideHarm = (() => {
       const bt = el.querySelector('#rg-bait'); bt.hidden = !sb || !!e.k; bt.classList.toggle('on', !!x.b); bt.setAttribute('aria-pressed', !!x.b); bt.textContent = x.b ? '학꽁치포 달았음' : '학꽁치포 달기';
       const tmB = el.querySelector('#rg-tm'); if (tmB) { tmB.hidden = !x.s; tmB.querySelectorAll('button').forEach(t => { const on = (x.tm || []).includes(t.dataset.v); t.classList.toggle('on', on); t.setAttribute('aria-pressed', on); }); }
       const s = el.querySelector('#rg-star'); s.classList.toggle('on', !!x.s); s.textContent = x.s ? (e.k === 'bait' ? '★ 잘 먹힌 미끼' : e.k === 'wrm' ? '★ 잘 먹힌 웜' : '★ 잘 먹힌 색') : '☆ 잘 먹혔으면 톡';
-      const c = panel.querySelector(`.mv-cell[data-k="e:${x.c}"]`);   // 상자 칸도 바로 바꾼다
-      if (c) { c.querySelector('.pic').innerHTML = egiSvg(e, x); c.classList.toggle('star', !!x.s); c.querySelector('b').textContent = egiName(x); }
+      for (const [id, v] of [['rg-g', x.g], ['rg-k', x.k]]) { const q2 = el.querySelector('#' + id); if (q2) { q2.classList.toggle('on', !!v); q2.setAttribute('aria-pressed', !!v); } }
+      const c = panel.querySelector(`.mv-cell[data-k="e:${ek(x)}"]`);   // 상자 칸도 바로 바꾼다
+      if (c) { c.querySelector('.pic').innerHTML = egiSvg(e, x); c.classList.toggle('star', !!x.s); c.querySelector('b').textContent = egiBase(x); const fs = c.querySelector('small.fn'); if (fs) fs.textContent = egiFnTxt(x); }
     }
     function rgSinkOpen(n) {
       if (!form) return; form.sinkM = form.sinkM || {};
@@ -6857,10 +7388,11 @@ const TideHarm = (() => {
         const c = b.dataset.c, e = egiGet(c); if (!e) return true;
         const chip = panel.querySelector(`.mv-egis [data-act=egi][data-c="${c}"] i`) || panel.querySelector('.mv-egis [data-act=egi-new] i');
         if (form.egi.some(q => q.c === c)) return true;
-        boxChange(() => { form.egi.push({ c, s: 0, ...(e.c.length === 2 ? { r: 50 } : {}), ...(e.c[0] === 'laser' ? { lc: 'silver' } : {}), ...(e.tin ? { t: 1 } : {}), sb: e.sb ? 1 : 0 }); }, { addKey: 'e:' + c, src: chip });
+        boxChange(() => { form.egi.push({ c, s: 0, ...(e.c.length === 2 ? { r: 50 } : {}), ...(e.c[0] === 'laser' ? { lc: 'silver' } : {}), ...(e.tin ? { t: 1 } : {}), sb: e.sb ? 1 : 0, ...(e.k ? {} : egiFnInit(c)) }); }, { addKey: 'e:' + c, src: chip });
         return true;
       }
       if (a === 'egi-cur') { form.egiCur = b.dataset.c; repaint(); return true; }
+      if (a === 'mt') { const v = b.dataset.v; form.mt = form.mt === v ? '' : v; panel.querySelectorAll('[data-act=mt]').forEach(q => { const on = q.dataset.v === form.mt; q.classList.toggle('on', on); q.setAttribute('aria-pressed', on); }); rigBuzz(); return true; }
       if (a === 'egi-new') { openMaker(null); return true; }
       if (form.egiNew) {
         const n = form.egiNew;
@@ -7085,7 +7617,7 @@ const TideHarm = (() => {
       const spk = spNow(), rr = REC[spk] ? loadJ(rigMemK(spk), null) : null, rrOk = rigSameTrip(rr, tk0);   // 광어·우럭: 그 방식으로 이번 출조에 고른 채비
       form = { sp: spk, jj: 0, gap: 0, etc: [], memo: '', i, at, lat: me.lat, lon: me.lon, acc: me.acc || 0, virtual: !!me.virtual, ...tripFor(at),
         sink: REC[spk] ? (rrOk ? rr.sink.slice() : []) : rg ? rg.sink.slice() : [], egi: REC[spk] ? (rrOk && rr.egi ? rr.egi.map(x => ({ ...x })) : []) : rg ? rg.egi.map(x => ({ ...x })) : [], sinkM: rg && rg.sinkM && !REC[SP] ? { ...rg.sinkM } : {},
-        big: {}, rg: rrOk && rr.rg ? rr.rg.slice() : [], rigAuto: true, rigTk: tk0 };
+        big: {}, rg: rrOk && rr.rg ? rr.rg.slice() : [], rigAuto: true, rigTk: tk0, mt: (m => (m && m.d === kstDay(Date.now()) && m.tk === tk0 ? m.v || '' : ''))(loadJ(MT_KEY, null)) };
       ensureMain(form);
       mode = 'save'; paintForm(); requestAnimationFrame(rigScrollInit);
     }
@@ -7096,7 +7628,7 @@ const TideHarm = (() => {
       form = { edit: id, boat: p.boat || '', depName: p.depName || depLabel(p.dep), depPos: p.depLat != null ? { n: p.depName, lat: p.depLat, lon: p.depLon } : null, hint: '', jj: p.jj || 0, gap: p.gap || 0, etc: (p.etc || []).map(e => ({ n: e.n || '', c: e.c || 0 })), memo: p.memo || '', at: p.t,
         where: whereTxt(p, TideHarm.STATIONS[p.port] ? p.port : nearest(p).k), cond: `${p.mul} · ${p.stand ? p.stand.replace(' · ', ' ') : (p.rising ? '들물' : '날물')} ${meters(p.h)}` };
       form.sink = (p.sink || []).slice(); form.egi = (p.egi || []).map(x => ({ ...x })); form.sinkM = { ...(p.sinkM || {}) };
-      form.sp = p.sp || 'jg'; form.big = { ...(p.big || {}) }; form.rg = (p.rg || []).slice(); ensureMain(form);
+      form.sp = p.sp || 'jg'; form.big = { ...(p.big || {}) }; form.rg = (p.rg || []).slice(); form.mt = p.mt || ''; ensureMain(form);
       mode = 'save'; selId = id; paintForm(); requestAnimationFrame(rigScrollInit); draw();
     }
     // 저장할 때 함께 남기는 그때의 물때·물 높이·조류·바람·수온
@@ -7116,17 +7648,17 @@ const TideHarm = (() => {
         const p = points.find(q => q.id === f.edit);
         if (p) { Object.assign(p, tripOf(f, p)); p.jj = clampN(f.jj); p.gap = clampN(f.gap); p.etc = etc; p.memo = memo; p.edited = Date.now();
           if (Object.keys(big).length) p.big = big; else delete p.big; if (rgs.length) p.rg = rgs; else delete p.rg;
-          if (f.sink.length) p.sink = f.sink.slice(); else delete p.sink; if (f.egi.length) p.egi = egiClean(f.egi); else delete p.egi;
+          if (f.sink.length) p.sink = f.sink.slice(); else delete p.sink; if (f.egi.length) p.egi = egiClean(f.egi); else delete p.egi; if (f.mt) p.mt = f.mt; else delete p.mt;
           const sm = sinkMOf(f.sink, f.sinkM); if (Object.keys(sm).length) p.sinkM = sm; else delete p.sinkM; depCache.clear(); savePts(); if (kstDay(p.t) === kstDay(Date.now())) rememberTrip(p.t, p.boat, p.depName, p); }
         form = null; toast('고친 내용을 저장했어요'); showDetail(f.edit); draw(); return;
       }
       points.unshift({ id: String(f.at), t: f.at, lat: +f.lat.toFixed(6), lon: +f.lon.toFixed(6), acc: Math.round(f.acc), virtual: f.virtual,
         ...tripOf(f), ...condOf(f.i), ...skStamp(f.at, tkOf(f.boat, f.depName)), jj: clampN(f.jj), gap: clampN(f.gap), etc, memo, ...(recOf(f) ? { sp: f.sp } : {}), ...(Object.keys(big).length ? { big } : {}), ...(rgs.length ? { rg: rgs } : {}),
-        ...(f.sink.length ? { sink: f.sink.slice() } : {}), ...(f.egi.length ? { egi: egiClean(f.egi) } : {}), ...(Object.keys(sinkMOf(f.sink, f.sinkM)).length ? { sinkM: sinkMOf(f.sink, f.sinkM) } : {}) });
+        ...(f.sink.length ? { sink: f.sink.slice() } : {}), ...(f.egi.length ? { egi: egiClean(f.egi) } : {}), ...(f.mt && !recOf(f) ? { mt: f.mt } : {}), ...(Object.keys(sinkMOf(f.sink, f.sinkM)).length ? { sinkM: sinkMOf(f.sink, f.sinkM) } : {}) });
       rememberTrip(f.at, points[0].boat, points[0].depName, points[0]);
       { const tk = tkOf(points[0].boat, points[0].depName);
         if (recOf(f)) saveJ(rigMemK(f.sp), { d: kstDay(Date.now()), tk, sink: f.sink.slice(), egi: egiClean(f.egi) });
-        else rigRemember(f.sink, egiClean(f.egi), f.sinkM, tk); }   // 비워서 저장해도 기억 → 다음 포인트도 빈 상자로
+        else { rigRemember(f.sink, egiClean(f.egi), f.sinkM, tk); saveJ(MT_KEY, { d: kstDay(Date.now()), tk, v: f.mt || '' }); } }   // 비워서 저장해도 기억 → 다음 포인트도 빈 상자로
       if (!f.virtual) absorbAuto(points[0]);
       savePts(); form = null; mode = 'info'; sheetDown(); toast('포인트를 저장했어요'); paintPanel(true); draw();
     }
@@ -9528,7 +10060,7 @@ const TideHarm = (() => {
     pill.onclick = () => setAuto(!autoOn);
     new MutationObserver(() => { const ab = $('mv-area'); if (ab && !ab.hidden && mode !== 'info') ab.hidden = true; }).observe(panel, { childList: true });   // 목록·저장 판 등을 열면 한 줄은 숨김
     { const ab = $('mv-area'); if (ab) ab.onclick = () => { if (me) areaOpen({ lat: me.lat, lon: me.lon }, me.virtual ? '길게 눌러 정한 자리' : ''); }; }
-    { const pb = $('mv-plan'); if (pb) pb.onclick = () => planOpen(kstDay(Date.now())); }   // 배 위 한 줄 → 오늘 출조 계획
+    { const pb = $('mv-plan'); if (pb) pb.onclick = () => { let L = null; try { L = liveCalc(Date.now()); } catch (_) {} planOpen(kstDay(Date.now()), L ? { h: L.h, live: L } : null); }; }   // 배 위 한 줄 → 오늘 계획의 지금 시간을 펼쳐서
     // 가만히 있으면 GPS 소식이 뜸해질 수 있어 25초 넘게 없으면 한 번 물어본다
     setInterval(() => {
       boardTimeCheck();
@@ -10523,7 +11055,7 @@ const TideHarm = (() => {
 
 <script>
 if ('serviceWorker' in navigator) addEventListener('load', () => {
-  const sw = navigator.serviceWorker, VER = '21f340a0'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
+  const sw = navigator.serviceWorker, VER = '76d02760'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
   // 화면에 손을 대기 시작했는지 (쓰는 중에는 새로 열지 않으려고)
   ['pointerdown', 'keydown'].forEach(t => addEventListener(t, () => { touched = true; }, { capture: true, passive: true }));
   const reload = () => {
