@@ -17,7 +17,7 @@ permissions:
 jobs:
   val:
     runs-on: ubuntu-latest
-    timeout-minutes: 90
+    timeout-minutes: 80
     steps:
       - uses: actions/checkout@v5
       - name: 뽑기

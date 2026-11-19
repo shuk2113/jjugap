@@ -9,11 +9,22 @@ DAYS = [x.strip() for x in os.environ.get('DAYS', '2026-11-03,2026-11-04,2026-11
 log = []
 
 
+T0 = time.time()
+
+
+def save():
+    os.makedirs('.github/data/sat', exist_ok=True)
+    json.dump(out, open('.github/data/sat/val.json', 'w'), ensure_ascii=False, indent=1)
+
+
 def get(url, tries=3):
     for i in range(tries):
         try:
-            with urllib.request.urlopen(urllib.request.Request(url, headers=UA), timeout=120) as r:
-                return r.read().decode('utf-8', 'replace')
+            t1 = time.time()
+            with urllib.request.urlopen(urllib.request.Request(url, headers=UA), timeout=90) as r:
+                b = r.read().decode('utf-8', 'replace')
+            print(f'{time.time() - T0:7.1f}s get {time.time() - t1:5.1f}s {len(b):8d}B {url[-90:]}', flush=True)
+            return b
         except Exception as e:
             err = repr(e)[:200]; time.sleep(3 + 3 * i)
     log.append('fail ' + url[-160:] + ' ' + err)
@@ -70,7 +81,7 @@ D0 = dirs_for(DAYS[-1])
 if not D0:
     raise SystemExit('no dirs')
 f0 = D0[len(D0) // 2][2]
-S = 20
+S = 50
 co = ascii(f0, [('/navigation_data/latitude', 0, 7999, 0, 10499, S), ('/navigation_data/longitude', 0, 7999, 0, 10499, S)])
 LA, LO = co['/navigation_data/latitude'], co['/navigation_data/longitude']
 log.append(f'coarse {len(LA)}x{len(LA[0])} style {VN.get("style")}')
@@ -83,7 +94,7 @@ for nm_, la, lo in PTS:
     d2, i2, j2 = min(((km(a[i][j], b[i][j], la, lo), i, j) for i in range(len(a)) for j in range(len(a[0]))), key=lambda x: x[0])
     R, C = r - 30 + i2, c - 30 + j2
     win[nm_] = (R, C)
-    out['pts'][nm_] = {'lat': la, 'lon': lo, 'pix': [R, C], 'pix_km': round(d2, 3), 'obs': []}
+    out['pts'][nm_] = {'lat': la, 'lon': lo, 'pix': [R, C], 'pix_km': round(d2, 3), 'obs': []}; save()
     time.sleep(1)
 H = 8   # 17 x 17 칸 (약 4km)
 for day in DAYS:
@@ -107,7 +118,9 @@ for day in DAYS:
             med = lambda v: sorted(v)[len(v) // 2] if v else None
             out['pts'][nm_]['obs'].append({'kst': k.strftime('%m-%d %H:%M'), 'n1': len(v1), 'z1': med(v1), 'n2': len(v2) + len(v1), 'z2': med(v1 + v2),
                                            'lo': round(min(v1 + v2), 2) if v1 + v2 else None, 'hi': round(max(v1 + v2), 2) if v1 + v2 else None, 'cloud': cl})
-            time.sleep(0.7)
-os.makedirs('.github/data/sat', exist_ok=True)
-json.dump(out, open('.github/data/sat/val.json', 'w'), ensure_ascii=False, indent=1)
+            time.sleep(0.5)
+        save()
+    if time.time() - T0 > 3600:
+        log.append('time up'); break
+save()
 print(json.dumps(out, ensure_ascii=False)[:2500])
