@@ -103,26 +103,7 @@ for base in ['https://www.nosc.go.kr/opendap/hyrax/GOCI-II/', 'https://nosc.go.k
                 out[ext + ' ' + f0] = dict(m3, body=txt(b3)[:6000])
         break
 
-# 4) NOAA ERDDAP: 우리 바다를 덮는 Kd490 목록과 마지막 날짜
-for srv in ['https://coastwatch.noaa.gov/erddap', 'https://coastwatch.pfeg.noaa.gov/erddap']:
-    u = srv + '/search/advanced.json?searchFor=kd490&minLat=34&maxLat=38&minLon=124&maxLon=127&itemsPerPage=60'
-    m, b = get(u)
-    rows = []
-    try:
-        j = json.loads(b); cols = j['table']['columnNames']
-        for r in j['table']['rows']:
-            d = dict(zip(cols, r)); rows.append([d.get('Dataset ID'), d.get('Title'), d.get('maxTime') or d.get('Max Time') or ''])
-    except Exception as e:
-        rows = [repr(e)[:200], txt(b)[:300]]
-    out['erddap ' + srv] = dict(m, rows=rows)
-    for r in rows:
-        if isinstance(r, list) and r[0]:
-            m2, b2 = get(srv + '/info/' + r[0] + '/index.json')
-            try:
-                jj = json.loads(b2); a = {x[2]: x[4] for x in jj['table']['rows'] if x[0] == 'attribute' and x[1] == 'NC_GLOBAL' and x[2] in ('time_coverage_end', 'geospatial_lat_resolution', 'license', 'title')}
-                r.append(a)
-            except Exception:
-                pass
+# 4) NOAA ERDDAP: 두 서버 모두 robots.txt가 자료 주소(/erddap/, ?, .json 등)를 막아서 쓰지 않음 (2026-11-19 확인)
 
 os.makedirs('.github/data/sat', exist_ok=True)
 json.dump(out, open('.github/data/sat/look.json', 'w'), ensure_ascii=False, indent=1)

@@ -1,0 +1,36 @@
+# 천리안위성 2B호 투명도를 몇 자리·며칠만 뽑아 보기 (검증용 · 손으로만)
+name: 위성 투명도 검증
+
+on:
+  workflow_dispatch:
+    inputs:
+      days:
+        description: '날짜 (한국, 쉼표)'
+        default: '2026-11-03,2026-11-04,2026-11-05,2026-11-15,2026-11-16,2026-11-17,2026-11-18'
+      pts:
+        description: '자리 JSON [[이름,위도,경도],...]'
+        default: '[["11/5 대천항 앞",36.330,126.4985],["11/17 비응항 앞",35.968,126.503]]'
+
+permissions:
+  contents: write
+
+jobs:
+  val:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v5
+      - name: 뽑기
+        env:
+          DAYS: ${{ github.event.inputs.days }}
+          PTS: ${{ github.event.inputs.pts }}
+        run: python3 .github/scripts/sat_val.py
+      - name: 저장
+        if: always()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add .github/data/sat || true
+          git diff --cached --quiet && exit 0
+          git commit -m "위성 투명도 검증 결과"
+          for i in 1 2 3; do git pull --rebase -q origin main && git push -q origin HEAD:main && break; sleep 5; done
