@@ -1,0 +1,39 @@
+# 천리안위성 2B호 하루 투명도 지도 만들기 — 지금은 개발 확인용: 앱 칸(gh-pages)에 올리지 않고 내려받기 파일로만 (3일 뒤 지워짐)
+#  (앱에 넣기로 정해지면 매일 18:40 자동 실행 + 앱 칸 저장으로 바꿈)
+name: 위성 투명도 지도
+
+on:
+  workflow_dispatch:
+    inputs:
+      days:
+        description: '날짜 (한국, 쉼표 · 비우면 오늘)'
+        default: ''
+
+permissions:
+  contents: read
+
+concurrency:
+  group: nosc
+  cancel-in-progress: false
+
+jobs:
+  make:
+    runs-on: ubuntu-latest
+    timeout-minutes: 150
+    steps:
+      - uses: actions/checkout@v5
+      - name: 준비
+        run: pip install -q numpy
+      - name: 만들기
+        env:
+          DAYS: ${{ github.event.inputs.days }}
+        run: |
+          mkdir -p out
+          if [ -z "$DAYS" ]; then DAYS=$(TZ=Asia/Seoul date +%F); fi
+          for d in ${DAYS//,/ }; do python3 .github/scripts/sat_daily.py "$d" "out/sat-$d.json" || echo "실패 $d"; done
+          ls -la out
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sat
+          path: out/
+          retention-days: 3

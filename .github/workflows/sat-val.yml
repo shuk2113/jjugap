@@ -14,6 +14,10 @@ on:
 permissions:
   contents: write
 
+concurrency:
+  group: nosc
+  cancel-in-progress: false
+
 jobs:
   val:
     runs-on: ubuntu-latest
