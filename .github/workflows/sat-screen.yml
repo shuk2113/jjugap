@@ -1,0 +1,40 @@
+# 맑은 날 골라내기 (셈 바로잡기용 · 손으로만): 날마다 정오 사진 한 장에서 서해 바다가 보인 비율만 저장
+name: 위성 맑은 날 골라내기
+
+on:
+  workflow_dispatch:
+    inputs:
+      from: { description: '시작 날짜', default: '2023-01-01' }
+      to: { description: '끝 날짜', default: '2024-12-31' }
+      step: { description: '며칠마다', default: '3' }
+
+permissions:
+  contents: write
+
+concurrency:
+  group: nosc
+  cancel-in-progress: false
+
+jobs:
+  screen:
+    runs-on: ubuntu-latest
+    timeout-minutes: 350
+    steps:
+      - uses: actions/checkout@v5
+      - run: pip install -q numpy
+      - name: 골라내기
+        env:
+          FROM: ${{ github.event.inputs.from }}
+          TO: ${{ github.event.inputs.to }}
+          STEP: ${{ github.event.inputs.step }}
+          TMAX: '19800'
+        run: mkdir -p .github/data/sat && python3 .github/scripts/sat_screen.py ".github/data/sat/screen-${FROM}.json"
+      - name: 저장
+        if: always()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add .github/data/sat || true
+          git diff --cached --quiet && exit 0
+          git commit -m "위성 맑은 날 골라낸 결과"
+          for i in 1 2 3; do git pull --rebase -q origin main && git push -q origin HEAD:main && break; sleep 5; done
