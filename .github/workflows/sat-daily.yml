@@ -8,6 +8,9 @@ on:
       days:
         description: '날짜 (한국, 쉼표 · 비우면 오늘)'
         default: ''
+      crop:
+        description: '기록에 남길 범위 (위도0,위도1,경도0,경도1 · 비우면 안 남김)'
+        default: ''
 
 permissions:
   contents: read
@@ -32,6 +35,26 @@ jobs:
           if [ -z "$DAYS" ]; then DAYS=$(TZ=Asia/Seoul date +%F); fi
           for d in ${DAYS//,/ }; do python3 .github/scripts/sat_daily.py "$d" "out/sat-$d.json" || echo "실패 $d"; done
           ls -la out
+      - name: 시험 자리 둘레만 기록에 남기기 (개발 확인용)
+        if: ${{ github.event.inputs.crop != '' }}
+        env:
+          CROP: ${{ github.event.inputs.crop }}
+        run: |
+          python3 - <<'PY'
+          import json, glob, base64, os, gzip
+          la0, la1, lo0, lo1 = map(float, os.environ['CROP'].split(','))
+          for f in sorted(glob.glob('out/*.json')):
+              o = json.load(open(f)); g = o['g']; d = {k: base64.b64decode(g[k]) for k in ('z', 'm', 'n')}
+              i0, i1 = int((g['lat1'] - la1) / g['res']), int((g['lat1'] - la0) / g['res']) + 1
+              j0, j1 = int((lo0 - g['lon0']) / g['res']), int((lo1 - g['lon0']) / g['res']) + 1
+              cells = []
+              for i in range(i0, i1):
+                  for j in range(j0, j1):
+                      k = i * g['nx'] + j
+                      if d['z'][k]:
+                          cells.append([i, j, d['z'][k], d['m'][2 * k] | d['m'][2 * k + 1] << 8, d['n'][k]])
+              print('CROP ' + json.dumps({'day': o['day'], 'slots': o['slots'], 'cells': cells}))
+          PY
       - uses: actions/upload-artifact@v4
         with:
           name: sat
