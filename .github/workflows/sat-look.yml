@@ -1,0 +1,25 @@
+# 위성 물색 자료 살펴보기 — 로봇 규칙·이용조건·형식 확인용 (손으로만)
+name: 위성 물색 자료 살펴보기
+
+on:
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  look:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v5
+      - name: 살펴보기
+        run: python3 .github/scripts/sat_look.py
+      - name: 저장
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add .github/data/sat || true
+          git diff --cached --quiet && exit 0
+          git commit -m "위성 물색 자료 살펴본 결과"
+          for i in 1 2 3; do git pull --rebase -q origin main && git push -q origin HEAD:main && break; sleep 5; done
