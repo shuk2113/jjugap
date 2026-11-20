@@ -299,6 +299,8 @@ html.mv-on .app *{animation-play-state:paused !important} html.mv-hide .app{visi
 .mv-tools button{width:42px; height:42px; display:grid; place-items:center; padding:0; border:1px solid var(--line); border-radius:12px; background:var(--card); font:inherit; font-size:calc(22px * var(--k)); line-height:1; color:var(--ink); box-shadow:0 2px 8px rgba(0,0,0,.12); -webkit-tap-highlight-color:transparent}
 .mv-tools button svg{width:20px; height:20px; color:var(--ink-2); font-weight:500} .mv-tools button.on svg{color:#2F7DF6}
 .mv-tools button.mini{width:34px; height:34px; border-radius:10px; align-self:center} .mv-tools button.mini svg{width:18px; height:18px}
+#mv-wind{position:absolute; left:0; top:0; width:100%; height:100%; pointer-events:none}
+.mv-wleg{position:absolute; left:10px; top:60px; display:flex; flex-direction:column; align-items:flex-start; gap:3px; padding:4px 7px; border-radius:9px; background:color-mix(in srgb, var(--card) 88%, transparent); font-size:calc(9.5px * var(--k)); font-weight:700; color:var(--ink-2); pointer-events:none; white-space:nowrap} .mv-wleg[hidden]{display:none} .mv-wleg b{font-weight:800; color:var(--ink)} .mv-wleg span{display:flex; align-items:center; gap:3px} .mv-wleg i{width:12px; height:4px; border-radius:2px} .mv-wleg em{font-style:normal; margin-right:3px} .mv-drag .mv-wleg{transition:none}
 #mv-pnm .sl{display:none} #mv-pnm.off .sl{display:inline} #mv-pnm.off svg{opacity:.8}
 .mv-scale{position:absolute; left:10px; bottom:10px; transform:translate3d(0,calc(-1 * var(--sheet-h, 0px)),0); transition:transform .28s cubic-bezier(.2,.85,.25,1); display:flex; flex-direction:column; gap:2px; font-size:calc(10.5px * var(--k)); font-weight:700; color:var(--map-lab); pointer-events:none}
 .mv-scale i{display:block; height:5px; border:1.5px solid var(--map-lab); border-top:0}
@@ -1465,7 +1467,7 @@ window.jjFunFont = function () { if (document.getElementById('fun-font')) return
     <div class="mv-tools">
       <button id="mv-zin" aria-label="확대">+</button><button id="mv-zout" aria-label="축소">−</button>
       <button id="mv-me" class="on" aria-label="내 위치로"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="6.2" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="2.4" fill="currentColor"/><path d="M12 2.5v3.3M12 18.2v3.3M2.5 12h3.3M18.2 12h3.3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
-      <button id="mv-pnm" class="mini" type="button" aria-pressed="false" aria-label="항구 이름 숨기기"><svg viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="4.9" r="2.1"/><path d="M12 7v13.4M8.6 10.3h6.8M4.9 13.4c.6 4.2 3.6 7 7.1 7s6.5-2.8 7.1-7M3.4 14.8l1.5-1.4 1.6 1.3M17.5 14.7l1.6-1.3 1.5 1.4"/></g><path class="sl" d="M4 20L20 4" stroke="var(--card)" stroke-width="5" stroke-linecap="round"/><path class="sl" d="M4 20L20 4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
+      <button id="mv-pnm" class="mini" type="button" aria-pressed="false" aria-label="항구 이름 숨기기"><svg viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="4.9" r="2.1"/><path d="M12 7v13.4M8.6 10.3h6.8M4.9 13.4c.6 4.2 3.6 7 7.1 7s6.5-2.8 7.1-7M3.4 14.8l1.5-1.4 1.6 1.3M17.5 14.7l1.6-1.3 1.5 1.4"/></g><path class="sl" d="M4 20L20 4" stroke="var(--card)" stroke-width="5" stroke-linecap="round"/><path class="sl" d="M4 20L20 4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button><button id="mv-wbtn" class="mini" type="button" aria-pressed="false" aria-label="바람 보이기"><svg viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8.5h10.5a2.6 2.6 0 1 0-2.6-2.6"/><path d="M3 12.5h15a2.8 2.8 0 1 1-2.8 2.8"/><path d="M3 16.5h7"/></g></svg></button>
     </div>
     <div class="mv-scale" id="mv-scale"><i></i><span></span></div>
     <div class="mv-dleg" id="mv-dleg" hidden></div>
@@ -4329,6 +4331,117 @@ const TideHarm = (() => {
       }
       ctx.restore();
     }
+    // ---------- 바람 (기상청 초단기실황·초단기예보, 매시간 받는 now.json): 지도 단추로 켜고 끔 (기본 꺼짐 · 꺼 두면 아무것도 안 함)
+    // 켜면 바람 부는 쪽으로 가는 선이 흐르고(셀수록 빠르고 색이 진함), 지도를 30초 안 만지면 멈춘 화살표로 (배터리) · 만지면 다시 흐름
+    const WIND_KEY = 'jjukgap-map-wind', WIND_COL = ['#5AA9E6', '#3DBB7A', '#F0A020', '#E5484D'];   // 4m/s 아래 · 4~8 · 8~12 · 12 넘음
+    const windBand = w => (w < 4 ? 0 : w < 8 ? 1 : w < 12 ? 2 : 3);
+    let windOn = false; try { windOn = localStorage.getItem(WIND_KEY) === 'on'; } catch (_) {}
+    let windPts = null, windPk = '', windHh = '', windFetchT = 0, windCv = null, windG = null, windRaf = 0, windLast = 0, windVk = '', windF = null, windParts = [], windMode = '';
+    // 기상청 격자(nx, ny) → 위경도 (기상청 동네예보 격자 LCC 역변환)
+    const kmaLL = (() => { const D = Math.PI / 180, re = 6371.00877 / 5, s1 = 30 * D, s2 = 60 * D, ol = 126 * D, oa = 38 * D;
+      let sn = Math.log(Math.cos(s1) / Math.cos(s2)) / Math.log(Math.tan(Math.PI / 4 + s2 / 2) / Math.tan(Math.PI / 4 + s1 / 2));
+      const sf = Math.pow(Math.tan(Math.PI / 4 + s1 / 2), sn) * Math.cos(s1) / sn, ro = re * sf / Math.pow(Math.tan(Math.PI / 4 + oa / 2), sn);
+      return (x, y) => { const xn = x - 43, yn = ro - y + 136; let ra = Math.hypot(xn, yn); if (sn < 0) ra = -ra;
+        const la = 2 * Math.atan(Math.pow(re * sf / ra, 1 / sn)) - Math.PI / 2, th = Math.abs(xn) <= 0 ? 0 : Math.abs(yn) <= 0 ? (xn < 0 ? -1 : 1) * Math.PI / 2 : Math.atan2(xn, yn);
+        return { lat: la / D, lon: (th / sn + ol) / D }; }; })();
+    function windFetch() {
+      if (Date.now() - windFetchT < 600000) return; windFetchT = Date.now();
+      fetch('/jjugap/data/now.json', { cache: 'no-cache' }).then(r => (r.ok ? r.json() : null)).then(d => { if (d && d.g) { window.__NOWX = d; windPts = null; if (isOpen && windOn) { windVk = ''; windSync(); } } }).catch(() => {});
+    }
+    // 지금 시각 바람: 그 시각 실황이 있으면 실황, 없으면 초단기예보 (3시간 넘게 묵은 자료는 안 씀)
+    function windData() {
+      const N = window.__NOWX, now = Date.now(); if (!N || !N.g || now - Date.parse(N.generated) > 3 * 3600000) return null;
+      const n = kstDayOf(now);
+      const hk = wxYmd(n) + String(new Date(now + 9 * 3600000).getUTCHours()).padStart(2, '0');
+      if (windPts && windPk === hk + N.generated) return windPts;
+      const a = [];
+      for (const [gk, o] of Object.entries(N.g)) {
+        let w = null, d = null; const f = o.f && o.f[hk];
+        if (o.o && o.o[0] === hk && o.o[1] != null && o.o[2] != null) { w = o.o[1]; d = o.o[2]; } else if (f && f[0] != null && f[1] != null) { w = f[0]; d = f[1]; }
+        if (w == null || d == null || w < 0) continue;
+        const [nx, ny] = gk.split(',').map(Number), p = kmaLL(nx, ny), r = (d + 180) * Math.PI / 180;   // 풍향은 불어오는 쪽 → 불어가는 쪽으로
+        a.push({ lat: p.lat, lon: p.lon, u: Math.sin(r) * w, v: Math.cos(r) * w });
+      }
+      windPts = a; windPk = hk + N.generated; windHh = hk.slice(8); return a;
+    }
+    // 화면을 24점 칸으로 나눠 칸마다 바람을 한 번만 셈 (가까운 기상청 격자들의 거리 가중 평균 · 45km 넘게 떨어지면 비움)
+    function windField(P) {
+      const st = 24, nx = Math.ceil(W / st) + 2, ny = Math.ceil(H / st) + 2, U = new Float32Array(nx * ny), V = new Float32Array(nx * ny), M = new Uint8Array(nx * ny);
+      const ky = 111.2, kx = 111.2 * Math.cos(v.lat * Math.PI / 180);
+      for (let j = 0; j < ny; j++) for (let i = 0; i < nx; i++) {
+        const g = toG(i * st, j * st); let su = 0, sv = 0, sw = 0, near = 1e9;
+        for (const p of P) { const dx = (g.lon - p.lon) * kx, dy = (g.lat - p.lat) * ky, d2 = dx * dx + dy * dy; if (d2 < near) near = d2; if (d2 > 2025) continue; const wt = 1 / (d2 + 4); su += p.u * wt; sv += p.v * wt; sw += wt; }
+        const q = j * nx + i; if (sw > 0 && near < 2025) { U[q] = su / sw; V[q] = sv / sw; M[q] = 1; }
+      }
+      return { st, nx, ny, U, V, M };
+    }
+    function windAt(F, x, y) {   // 화면 점 (x, y) 의 바람 [동쪽, 북쪽] m/s (칸 사이는 이어서)
+      const fx = x / F.st, fy = y / F.st, i = Math.floor(fx), j = Math.floor(fy); if (i < 0 || j < 0 || i >= F.nx - 1 || j >= F.ny - 1) return null;
+      const a = j * F.nx + i, b = a + 1, c = a + F.nx, d = c + 1; if (!(F.M[a] && F.M[b] && F.M[c] && F.M[d])) return null;
+      const tx = fx - i, ty = fy - j, l = (A, p, q, r, s) => (A[p] * (1 - tx) + A[q] * tx) * (1 - ty) + (A[r] * (1 - tx) + A[s] * tx) * ty;
+      return [l(F.U, a, b, c, d), l(F.V, a, b, c, d)];
+    }
+    function windCanvas() {
+      if (!windCv) { windCv = document.createElement('canvas'); windCv.id = 'mv-wind'; windCv.setAttribute('aria-hidden', 'true'); cv.after(windCv); windG = windCv.getContext('2d'); }
+      const w = Math.round(W * dpr), h = Math.round(H * dpr); if (windCv.width !== w || windCv.height !== h) { windCv.width = w; windCv.height = h; windVk = ''; }
+      windCv.hidden = false; return windG;
+    }
+    function windLeg(show) {
+      let el = $('mv-wleg'); if (!el) { el = document.createElement('div'); el.id = 'mv-wleg'; el.className = 'mv-wleg'; $('mv-map').appendChild(el); }
+      el.hidden = !show; if (!show) return;
+      const t = `바람 ${+windHh || 0}시 · 기상청`, k = t + windMode; if (el.dataset.k === k) return; el.dataset.k = k;
+      el.innerHTML = `<b>${t}</b><span>${WIND_COL.map((c, i) => `<i style="background:${c}"></i><em>${['~4', '~8', '~12', '12↑'][i]}</em>`).join('')}<em>m/s</em></span>`;
+    }
+    function windStop() { if (windRaf) cancelAnimationFrame(windRaf); windRaf = 0; }
+    // 그림 한 장 (멈춘 화살표): 바람 부는 쪽으로, 셀수록 길고 진하게
+    function windStatic(F) {
+      const g = windG; g.setTransform(1, 0, 0, 1, 0, 0); g.clearRect(0, 0, windCv.width, windCv.height); g.setTransform(dpr, 0, 0, dpr, 0, 0);
+      g.lineCap = 'round'; g.lineJoin = 'round'; const sp = 58, ox = ((-(v.lon * KX * v.s)) % sp + sp) % sp, oy = ((v.lat * v.s) % sp + sp) % sp;   // 지도와 같이 움직이는 칸
+      const P = WIND_COL.map(() => new Path2D());
+      for (let y = oy - sp / 2; y < H + sp; y += sp) for (let x = ox - sp / 2; x < W + sp; x += sp) {
+        const q = windAt(F, x, y); if (!q) continue; const w = Math.hypot(q[0], q[1]); if (w < 0.3) continue;
+        const ux = q[0] / w, uy = -q[1] / w, L = 10 + Math.min(1, w / 14) * 20, x0 = x - ux * L / 2, y0 = y - uy * L / 2, x1 = x + ux * L / 2, y1 = y + uy * L / 2, p = P[windBand(w)];
+        p.moveTo(x0, y0); p.lineTo(x1, y1); p.moveTo(x1 - ux * 6 + uy * 4, y1 - uy * 6 - ux * 4); p.lineTo(x1, y1); p.lineTo(x1 - ux * 6 - uy * 4, y1 - uy * 6 + ux * 4);
+      }
+      for (let i = 0; i < P.length; i++) { g.globalAlpha = 0.9; g.strokeStyle = 'rgba(0,0,0,.35)'; g.lineWidth = 4; g.stroke(P[i]); g.strokeStyle = WIND_COL[i]; g.lineWidth = 2.2; g.stroke(P[i]); }
+      g.globalAlpha = 1;
+    }
+    const windNewPart = () => ({ x: Math.random() * W, y: Math.random() * H, a: Math.floor(Math.random() * 80) });
+    function windLoop(t) {
+      windRaf = 0;
+      if (!isOpen || !windOn || document.hidden) return;
+      if (RM.matches || fxIdle()) { windMode = 'still'; windStatic(windF); windLeg(true); return; }   // 30초 안 만지면 멈춘 화살표로 (만지면 다시)
+      if (t - windLast >= 32) {   // 초당 30번쯤
+        windLast = t; const g = windG;
+        g.setTransform(1, 0, 0, 1, 0, 0); g.globalCompositeOperation = 'destination-in'; g.fillStyle = 'rgba(0,0,0,0.9)'; g.fillRect(0, 0, windCv.width, windCv.height); g.globalCompositeOperation = 'source-over';
+        g.setTransform(dpr, 0, 0, dpr, 0, 0); g.lineCap = 'round'; g.lineWidth = 1.7;
+        const P = WIND_COL.map(() => new Path2D());
+        for (const p of windParts) {
+          const q = windAt(windF, p.x, p.y);
+          if (!q || ++p.a > 90) { Object.assign(p, windNewPart(), { a: 0 }); continue; }
+          const w = Math.hypot(q[0], q[1]), k = 0.55, nx = p.x + q[0] * k, ny = p.y - q[1] * k;   // 1m/s = 화면에서 초당 약 16점
+          P[windBand(w)].moveTo(p.x, p.y); P[windBand(w)].lineTo(nx, ny); p.x = nx; p.y = ny;
+          if (nx < -5 || ny < -5 || nx > W + 5 || ny > H + 5) Object.assign(p, windNewPart(), { a: 0 });
+        }
+        for (let i = 0; i < P.length; i++) { g.strokeStyle = WIND_COL[i]; g.stroke(P[i]); }
+      }
+      windRaf = requestAnimationFrame(windLoop);
+    }
+    // 지도가 다시 그려질 때마다 부른다 (가벼움: 화면이 바뀐 때만 칸을 다시 셈)
+    function windSync() {
+      if (!windOn || !isOpen) { windStop(); if (windCv) windCv.hidden = true; windLeg(false); return; }
+      windFetch(); const P = windData(); windCanvas();
+      if (!P || !P.length) { windStop(); windG.setTransform(1, 0, 0, 1, 0, 0); windG.clearRect(0, 0, windCv.width, windCv.height); windLeg(false); return; }
+      const vk = [v.lon, v.lat, v.s, W, H, windPk].join('|');
+      if (vk !== windVk) {
+        windVk = vk; windF = windField(P);
+        windG.setTransform(1, 0, 0, 1, 0, 0); windG.clearRect(0, 0, windCv.width, windCv.height);
+        const n = Math.min(650, Math.round(W * H / 700)); windParts = Array.from({ length: n }, windNewPart);
+        if (windMode === 'still' || RM.matches || fxIdle()) { windMode = 'still'; windStatic(windF); }
+      }
+      windLeg(true); windKick();
+    }
+    function windKick() { if (!windRaf && windOn && isOpen && windF && !RM.matches && !fxIdle() && !document.hidden) { windMode = 'flow'; windRaf = requestAnimationFrame(windLoop); } }
     let mapPorts = null, mapPortsP = null;
     function loadMapPorts() {
       if (mapPortsP) return;
@@ -5007,6 +5120,7 @@ const TideHarm = (() => {
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       sprBudget = 8;
       drawArrows(C, font);
+      try { windSync(); } catch (_) {}
       if (!basemap) {
         const er = landState === 'error'; ctx.save(); ctx.fillStyle = C.lab; ctx.font = `600 13px ${font}`; ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic';
         if (er) { ctx.fillText('지도를 불러오지 못했어요', W / 2, 40); ctx.fillText('(인터넷 연결 후 한 번 열어 주세요)', W / 2, 59); } else ctx.fillText('지도를 불러오는 중…', W / 2, 40);
@@ -5242,7 +5356,7 @@ const TideHarm = (() => {
       fxRaf = requestAnimationFrame(fxLoop);
     }
     function fxKick() { if (!fxRaf && isOpen && fxItems.length && !RM.matches && !fxIdle()) fxRaf = requestAnimationFrame(fxLoop); }
-    function fxWake() { fxTouchT = Date.now(); fxKick(); }
+    function fxWake() { fxTouchT = Date.now(); fxKick(); try { if (windOn && isOpen) { if (windMode === 'still') { windMode = 'flow'; windVk = ''; windSync(); } else windKick(); } } catch (_) {} }
     view.addEventListener('pointerdown', () => fxWake(), { passive: true, capture: true });   // 지도를 만지면 다시 움직이게
     document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && isOpen) fxWake(); });
     function loop(t) {
@@ -10942,6 +11056,15 @@ const TideHarm = (() => {
       portsOff = !portsOff; try { localStorage.setItem('jjukgap-map-ports', portsOff ? 'off' : 'on'); } catch (_) {}
       paintPnm(); draw(); toast(portsOff ? '항구 이름을 숨겼어요' : '항구 이름을 다시 보여 줘요');
     };
+    // 바람 보이기·숨기기 (기본 꺼짐 · 마지막 상태를 기억)
+    const wBtn = $('mv-wbtn');
+    const paintW = () => { wBtn.classList.toggle('on', windOn); wBtn.setAttribute('aria-pressed', String(windOn)); wBtn.setAttribute('aria-label', windOn ? '바람 숨기기' : '바람 보이기'); };
+    paintW();
+    wBtn.onclick = () => {
+      windOn = !windOn; try { localStorage.setItem(WIND_KEY, windOn ? 'on' : 'off'); } catch (_) {}
+      paintW(); windMode = 'flow'; windVk = ''; fxTouchT = Date.now(); windSync();
+      toast(windOn ? (windData() ? '바람을 보여 줘요 · 30초 흐른 뒤 멈춰요 (지도를 만지면 다시)' : '바람 자료를 불러오는 중이에요') : '바람을 숨겼어요');
+    };
     $('mv-zout').onclick = () => zoomAt(1 / 1.8);
     $('mv-me').onclick = () => {
       if (viewMode) {
@@ -11331,7 +11454,7 @@ const TideHarm = (() => {
 
 <script>
 if ('serviceWorker' in navigator) addEventListener('load', () => {
-  const sw = navigator.serviceWorker, VER = '4676a46d'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
+  const sw = navigator.serviceWorker, VER = '1201a828'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
   // 화면에 손을 대기 시작했는지 (쓰는 중에는 새로 열지 않으려고)
   ['pointerdown', 'keydown'].forEach(t => addEventListener(t, () => { touched = true; }, { capture: true, passive: true }));
   const reload = () => {
