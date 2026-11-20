@@ -58,7 +58,17 @@ for u0 in uddi[:3]:
                 b = r.read(); L('시도', path, r.status, r.headers.get('Content-Type'), len(b), b[:60])
                 if b[:2] == b'PK': cand_bytes = b; raise StopIteration
                 try:
-                    j = json.loads(b.decode('utf-8','replace')); L('json', str(j)[:400])
+                    j = json.loads(b.decode('utf-8','replace'))
+                    d = j.get('dataSetFileDetailInfo') or {}
+                    L('json키', {k: d[k] for k in d if any(w in k.lower() for w in ('atch','file','sn','nm','ext','size'))})
+                    af = d.get('atchFileId'); fs = d.get('fileDetailSn') or '1'
+                    if af:
+                        u2 = BASE + '/cmm/cmm/fileDownload.do?' + urllib.parse.urlencode({'atchFileId': af, 'fileDetailSn': fs, 'dataNm': d.get('dataNm') or 'reef'})
+                        if ok(u2):
+                            rq2 = urllib.request.Request(u2, headers={'User-Agent': UA, 'Referer': page_url})
+                            with urllib.request.urlopen(rq2, timeout=180) as r2:
+                                b2 = r2.read(); L('파일', r2.status, r2.headers.get('Content-Type'), len(b2), b2[:4])
+                                if b2[:2] == b'PK': cand_bytes = b2; raise StopIteration
                 except Exception: pass
         except StopIteration: break
         except Exception as e: L('실패', path, e)
