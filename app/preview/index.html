@@ -8960,7 +8960,7 @@ const TideHarm = (() => {
             const win = { dawn: [], am: [], pm: [] };
             for (const p of tp) {
               let f = p.fp || fpMem[p.id];
-              if (!f) { f = await fpCalc(p); if (f) { fpMem[p.id] = f; dirty = true; } }
+              if (!f) { await new Promise(r => setTimeout(r, 0)); f = await fpCalc(p); if (f) { fpMem[p.id] = f; dirty = true; } }   // 한 점씩 쉬어 가며 (화면이 멈추지 않게)
               if (f) win[tmOfT(p.t)].push(f);
             }
             for (const e of cd.egi) {
@@ -11278,7 +11278,7 @@ const TideHarm = (() => {
 
 <script>
 if ('serviceWorker' in navigator) addEventListener('load', () => {
-  const sw = navigator.serviceWorker, VER = '7c571272'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
+  const sw = navigator.serviceWorker, VER = '2080c4f9'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
   // 화면에 손을 대기 시작했는지 (쓰는 중에는 새로 열지 않으려고)
   ['pointerdown', 'keydown'].forEach(t => addEventListener(t, () => { touched = true; }, { capture: true, passive: true }));
   const reload = () => {
