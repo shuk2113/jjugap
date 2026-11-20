@@ -19,7 +19,10 @@ jobs:
       - name: 확인
         env:
           DSID: ${{ github.event.inputs.dsid }}
-        run: python3 .github/scripts/reef_probe.py
+        run: |
+          curl -sS -m 40 -o /dev/null -w "www %{http_code} %{time_total}\n" https://www.data.go.kr/ || true
+          curl -sS -m 40 -o /dev/null -w "apis %{http_code} %{time_total}\n" https://apis.data.go.kr/ || true
+          python3 .github/scripts/reef_probe.py
       - name: 저장
         run: |
           git config user.name "github-actions[bot]"

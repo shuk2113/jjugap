@@ -11,7 +11,7 @@ def L(*a):
 
 def get(url, binary=False):
     rq = urllib.request.Request(url, headers={'User-Agent': UA})
-    with urllib.request.urlopen(rq, timeout=60) as r:
+    with urllib.request.urlopen(rq, timeout=120) as r:
         b = r.read()
         return b if binary else b.decode('utf-8', 'replace')
 
