@@ -6208,8 +6208,9 @@ const TideHarm = (() => {
       if (a === 'port') { if (b.dataset.k === s.k) return; s.k = b.dataset.k; s.how = null; s.p = null; s.saved = false; return planCalc(); }
       if (a === 'pe1') {   // 버튼 하나로 0.8 ↔ 1.0 · 고른 건 기억
         const v = s.pe === '1.0' ? '0.8' : '1.0'; peSet(v);
-        if (s.guide) { if (!gdG) return; s.pe = gdG.pe = v; s.busy = true; planRender(); return guideCalc(true).then(() => { if (plS === s && gdG) { s.res = gdG.R; s.busy = false; planRender(); } }); }
-        s.pe = v; s.saved = false; return planRender();
+        b.firstChild.nodeValue = `PE ${v}호`; b.setAttribute('aria-label', `원줄 PE ${v}호 · 누르면 바꿔요`);   // 버튼 글자만 먼저 (화면 전체를 다시 그리지 않음)
+        if (s.guide) { if (!gdG) return; s.pe = gdG.pe = v; return guideCalc(true).then(() => { if (plS === s && gdG) { s.res = gdG.R; planRender(true); } }); }
+        s.pe = v; s.saved = false; return planRender(true);
       }
       if (a === 'pe' && s.guide) { if (s.pe === b.dataset.v || !gdG) return; s.pe = gdG.pe = b.dataset.v; s.busy = true; planRender(); return guideCalc(true).then(() => { if (plS === s && gdG) { s.res = gdG.R; s.busy = false; planRender(); } }); }
       if (a === 'pe') { s.pe = b.dataset.v; s.saved = false; return planRender(); }
@@ -6350,8 +6351,12 @@ const TideHarm = (() => {
       return h + '</div></div>';
     }
     const plWhy = (x, s) => `바닥 빛(쭈갑이 눈 기준) 약 ${simNum(x.LB.qb)}lux · ${simLvTxt(x.LB.qb)} · 물 위 ${simNum(x.LB.surf)}lux의 ${x.LB.frac >= 0.001 ? (x.LB.frac * 100).toFixed(1) : simNum(x.LB.frac * 100)}% · 남은 빛 ${x.LB.pk}nm<br>해 높이 ${Math.round(x.el)}° · 에기가 보이는 거리 약 ${x.see.toFixed(1)}m<br>물색 ${x.W.label} · 투명도 약 ${x.W.zsd < 1 ? x.W.zsd.toFixed(1) : (Math.round(x.W.zsd * 2) / 2).toFixed(1)}m (${esc(x.W.why.join(' · '))})${WQ ? '<br>물색 바탕: 국립수산과학원 정선해양관측 실측(2000~2020)' : ''}${WQ && WQ.sat ? '<br>물색 보정: 천리안위성 2B호(국립해양조사원 국가해양위성센터) 자료로 셈 맞춤' : ''}<br>누드: 천 없는 반투명 색 몸통으로 셈 — 빛의 약 40%가 몸통 색으로 물들어 통과(반투명 색 플라스틱 판 측정값 30~50%를 에기 몸통에 맞춘 가정)<br>단색: ${esc(x.one)}${x.alt ? ` · 대안: ${esc(x.alt)}` : ''}${x.after ? '<br>비 그친 뒤라 톤을 낮추지 않음 (내 기록 11/5)' : ''}${x.sink ? `<br>봉돌(합사 ${s.pe === '1.0' ? '1' : s.pe}호): ${simSkTxt(x.sink[s.pe])}${skBoxTxt(x.sink[s.pe])}${x.sink[s.pe].main != null ? ` · 배가 바람에 덜 밀리면 ${x.sink[s.pe].lo ? x.sink[s.pe].lo + '호' : '40호↑'}, 더 밀리면 ${x.sink[s.pe].hi ? x.sink[s.pe].hi + '호' : '40호↑'}` : ''}<br>줄이 30° 안으로 서는 가장 가벼운 무게 · 보통 낚싯배가 자연스럽게 흐른다고 봄(배 위에서 GPS로 바로잡음)${x.sink.v ? `<br>${skVTxt(x.sink, s.sp)}<br>${skMethTxt(x.sink, s.sp)}` : ''}` : ''}`;
-    function planRender() {
+    function planRender(keep) {   // keep: 스크롤 자리 그대로 (원줄 바꿀 때 깜빡임·튐 없이)
       const s = plS; if (!s || !plEl) return;
+      if (keep) { const y = plEl.scrollTop; plRenderIn(s); plEl.scrollTop = y; return; }
+      plRenderIn(s);
+    }
+    function plRenderIn(s) {
       for (const k of ['more', 'fn', 'why']) if (!s[k]) s[k] = new Set();
       plRec = null; s.act = s.n <= kstDay(Date.now()) ? plActual(s.n) : null;
       if (s.guide) { plEl.innerHTML = `<div class="cv-in">${guideHTML(s)}</div>`; return; }
@@ -11291,7 +11296,7 @@ const TideHarm = (() => {
 
 <script>
 if ('serviceWorker' in navigator) addEventListener('load', () => {
-  const sw = navigator.serviceWorker, VER = '0fa60f62'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
+  const sw = navigator.serviceWorker, VER = '13496b6a'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
   // 화면에 손을 대기 시작했는지 (쓰는 중에는 새로 열지 않으려고)
   ['pointerdown', 'keydown'].forEach(t => addEventListener(t, () => { touched = true; }, { capture: true, passive: true }));
   const reload = () => {
