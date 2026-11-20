@@ -61,7 +61,12 @@ for u0 in uddi[:3]:
                     j = json.loads(b.decode('utf-8','replace'))
                     d = j.get('dataSetFileDetailInfo') or {}
                     L('json키', {k: d[k] for k in d if any(w in k.lower() for w in ('atch','file','sn','nm','ext','size'))})
-                    af = d.get('atchFileId'); fs = d.get('fileDetailSn') or '1'
+                    txt0 = b.decode('utf-8','replace')
+                    L('최상위키', list(j.keys()))
+                    for m in re.finditer(r'"(\w*(?:atch|File|file|url|Url)\w*)":\s*("[^"]{1,200}"|\d+)', txt0):
+                        if m.group(2) not in ('""', 'null'): L('  ', m.group(1), m.group(2))
+                    af = d.get('atchFileId') or (re.search(r'"atchFileId":"([^"]+)"', txt0) or [None, None])[1]
+                    fs = d.get('fileDetailSn') or '1'
                     if af:
                         u2 = BASE + '/cmm/cmm/fileDownload.do?' + urllib.parse.urlencode({'atchFileId': af, 'fileDetailSn': fs, 'dataNm': d.get('dataNm') or 'reef'})
                         if ok(u2):
