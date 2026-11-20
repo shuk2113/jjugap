@@ -620,7 +620,7 @@ html.mv-on .app *{animation-play-state:paused !important} html.mv-hide .app{visi
 .mv-sea .rn{display:flex; gap:6px} .mv-sea .rn button{border:1px solid var(--line)} .mv-sea .rn button.on{border-color:#5AA9E6; background:rgba(90,169,230,.14); color:var(--ink)}
 .mv-rged .tms{display:flex; gap:4px; margin-top:-3px} .mv-rged .tms button{flex:1 1 auto; white-space:nowrap; padding:0 6px; min-height:34px; border:1px solid var(--line); border-radius:10px; background:none; font:inherit; font-size:calc(12.5px * var(--k)); font-weight:700; color:var(--ink-2)}
 .sim-row .nw{white-space:nowrap} .sim-row .v.tmv{flex-direction:column; align-items:flex-start; gap:3px}
-.mv-rged .tms button.on{border-color:#FFC93C; background:rgba(255,201,60,.14); color:var(--ink)}
+.mv-rged .tms button small{display:block; font-size:calc(10.5px * var(--k)); font-weight:600; line-height:1.2; opacity:.85} .tms button{padding-top:3px; padding-bottom:3px} .tms button.on{border-color:#FFC93C; background:rgba(255,201,60,.14); color:var(--ink)}
 .mv-memo{width:100%; margin:10px 0; padding:10px 12px; border:1px solid var(--line); border-radius:12px; background:var(--paper); font:inherit; font-size:calc(16px * var(--k)); color:var(--ink)}
 .mv-trip > span:first-child{flex:none}
 .mv-in, .mv-sel{width:100%; min-width:0; height:38px; padding:0 10px; border:1px solid var(--line); border-radius:10px; background:var(--paper); font:inherit; font-size:calc(16px * var(--k)); font-weight:700; color:var(--ink); -webkit-appearance:none; appearance:none}
@@ -6069,6 +6069,7 @@ const TideHarm = (() => {
       const see = Math.max(simSee(ez, sp, SIM_REF[body], body === '야광', cBeam, lux), simSee(ez, sp, SIM_REF[head], false, cBeam, lux));   // 머리·몸통 중 더 잘 보이는 쪽
       // 예상 봉돌 (2단계 물리): 보통 낚싯배가 자연스럽게 흐른다고 보고 · 배에 관한 건 배 위에서 GPS로 바로잡음
       const sink = cur && depth != null ? skPlan(depth, cur, wx, sp) : null;
+      if (!ctx.noLearn && LRN && LRN.E.length) { try { recAdj(EG, fpOf({ LB, wx, st, W })); } catch (_) {} }   // 내 기록 반영
       return { t, h, wx, st, depth, tideDz: D.st === 'ok' ? D.dz : null, cur, el, lux, light, T, W, LB, EG, after, water: W.label, key, head, body, tape, one, alt, see, sink };
     }
     // 바닥 빛을 땅 위 밝기에 빗대기 (lux 예: 흐린 그믐밤 0.0001 · 맑은 그믐밤 0.002 · 보름달 0.05~0.3 · 박명 끝 3.4 · 아주 어두운 흐린 날 100 · 흐린 날 1000)
@@ -6111,7 +6112,7 @@ const TideHarm = (() => {
       }
       return out;
     }
-    if (window.__JJ_TEST) window.__jjSim = { planOpen: n => planOpen(n), simWaterPts, simRun, simHour, simSun, skAngle, skNeed, skPlan, skLive, skSinker, simPick, simSkTxt, simFlat, simWater, simWaveUb, simFetch, simWaveFD, simWaveAt, satReady, satNear, simSat, wqBase, wqReady, simEgi, SIM_COL, simHas, simRecMap, setOpt: o => Object.assign(SIM_OPT, o) };
+    if (window.__JJ_TEST) window.__jjSim = { learn: async () => { const L = await learnBuild(); if (!L) return -1; const m = {}; for (const r of L.E) { const q = m[r.c] || (m[r.c] = [0, 0]); q[r.y]++; } return L.E.length + ' ' + JSON.stringify(m) + ' ' + JSON.stringify(L.E.slice(0, 2)); }, planOpen: n => planOpen(n), simWaterPts, simRun, simHour, simSun, skAngle, skNeed, skPlan, skLive, skSinker, simPick, simSkTxt, simFlat, simWater, simWaveUb, simFetch, simWaveFD, simWaveAt, satReady, satNear, simSat, wqBase, wqReady, simEgi, SIM_COL, simHas, simRecMap, setOpt: o => Object.assign(SIM_OPT, o) };
     // ---------- 출조 계획: 고른 날(출조 전)을 미리 셈해 시간별 에기 색 · 예상 봉돌 → 저장해 두면 바다에서도 (인터넷 없이) 본다
     const PLAN_KEY = 'jjukgap-plans', PL_WD = ['일', '월', '화', '수', '목', '금', '토'];
     const PL_COL = { 빨강: '#D7262E', 검정: '#1E1E1E', 퍼플: '#6B3FA0', 흰: '#F4F4F4', 민트: '#5FD3C6', 블루: '#2F6FD6', 야광: '#CFF5A8', 핑크: '#F27BB0', 레몬: '#F2E14C', 초록: '#3FA34D', 갈색: '#6B4A2E' };
@@ -6178,7 +6179,7 @@ const TideHarm = (() => {
     async function planCalc() {
       const s = plS; if (!s) return; const run = ++s.run; s.busy = true; planRender();
       try {
-        await loadSpots(); dpIndex();
+        await loadSpots(); dpIndex(); await learnBuild();
         for (let i = 0; i < 40 && !DPI && dpiSt !== 'err'; i++) await new Promise(r => setTimeout(r, 150));
         if (!s.p || s.how !== 'pick') { let A = null; for (let i = 0; i < 20; i++) { A = planArea(s.k); if (A && (A.how === 'past' || depthRaw(A).st !== 'load')) break; await new Promise(r => setTimeout(r, 150)); } if (A) { s.p = { lat: A.lat, lon: A.lon }; s.how = A.how; s.nTrips = A.n || 0; } }
         const R = await simRun({ k: s.k, p: s.p, n: s.n, h0: s.h0, h1: s.h1, sp: 'jj', pe: s.pe });
@@ -6441,7 +6442,7 @@ const TideHarm = (() => {
       if (!force && gdG && gdG.n === n && now - gdG.t < 600000 && distKm(gdG.p, me) < 0.5) return;
       gdBusy = true;
       try {
-        await nowLoad(force); await loadSpots(); dpIndex();
+        await nowLoad(force); await loadSpots(); dpIndex(); await learnBuild();
         for (let i = 0; i < 40 && !DPI && dpiSt !== 'err'; i++) await new Promise(r => setTimeout(r, 150));
         const h = Math.floor((now - dayStartOf(n)) / 3600000), P = planGet(n), pe = (gdG && gdG.pe) || (P && P.pe) || '1.0', p = { lat: me.lat, lon: me.lon };
         const R = await simRun({ k: tripPortK(), p, n, h0: h, h1: Math.min(23, h + 3), sp: 'jj', pe });
@@ -6497,7 +6498,7 @@ const TideHarm = (() => {
         const x = gdNowRow(gdG); if (!x || !x.EG) return {};
         let L = null; try { L = liveCalc(at); } catch (_) {}
         const sk = L && L.sk && L.sk.std || (x.sink && x.sink[gdG.pe] && x.sink[gdG.pe].main) || null;
-        return { gd: { sk, bf: x.EG.bf || '', c: x.EG.list.slice(0, 2).map(e => [e.id, e.best]) } };
+        return { gd: { sk, bf: x.EG.bf || '', c: x.EG.list.slice(0, 2).map(e => [e.id, e.best]) }, fp: fpOf(x) };
       } catch (_) { return {}; }
     }
     function guideOff() { gdOn = false; gdG = null; try { localStorage.setItem(GD_KEY, '0'); } catch (_) {} planChip(me); }
@@ -7405,7 +7406,7 @@ const TideHarm = (() => {
         + (laser ? `<div class="lcs">${LASERS.map(l => `<button type="button" data-rg="lc" data-l="${l.id}" aria-label="${l.n} 레이저" style="background:${l.id === 'rainbow' ? 'conic-gradient(#ff5a5a,#ffb84d,#fff176,#69f0ae,#4fc3f7,#7c4dff,#ff5a5a)' : l.c}"></button>`).join('')}</div>` : '')
         + `<div class="tg2"${lure ? ' hidden' : ''}><button type="button" class="tog" data-rg="tin" id="rg-tin">✨ 틴셀</button><button type="button" class="tog" data-rg="sb" id="rg-sb">🐟 삼봉</button></div>`
         + '<button type="button" class="tog sub2" data-rg="bait" id="rg-bait" hidden></button><button type="button" class="tog" data-rg="star" id="rg-star"></button>'
-        + `<div class="tms" id="rg-tm" role="group" aria-label="언제 잘 먹혔나" hidden>${TM_L.map(([v, t]) => `<button type="button" data-rg="tm" data-v="${v}">${t}</button>`).join('')}</div>`
+        + `<div class="tms" id="rg-tm" role="group" aria-label="언제 잘 먹혔나 · 새벽은 해 뜨기 전, 오전은 해 뜬 뒤 정오까지, 오후는 정오 뒤" hidden>${TM_L.map(([v, t]) => `<button type="button" data-rg="tm" data-v="${v}">${t}<small>${{ dawn: '해 뜨기 전', am: '해 뜬 뒤~정오', pm: '정오 뒤' }[v]}</small></button>`).join('')}</div>`
         + (fnOk ? '<button type="button" class="tog" data-rg="dup">같은 색 하나 더 (기능 다르게)</button>' : '')
         + `<button type="button" class="tog" data-rg="edit">${e.k === 'bait' ? (BAIT_BY[e.id] ? '이 미끼로 다른 미끼 만들기' : '미끼 고치기') : e.k === 'wrm' ? (wMine ? '웜 고치기' : '이 웜으로 내 웜 만들기') : '에기 고치기'}</button>`
         + `</div></div><input class="memo" id="rg-memo" maxlength="30" placeholder="${e.k === 'wrm' ? '메모 (예: 3인치, 바닥에서 살짝 띄워서)' : e.k === 'bait' ? '메모 (예: 산 미꾸라지, 입에 꿰기)' : '메모 (예: 3.5호, 오후 들물에 잘 먹음)'}" enterkeyhint="done" autocomplete="off" value="${esc(x.m || '')}">`
@@ -8915,6 +8916,77 @@ const TideHarm = (() => {
       L.sort((a, b) => b.sc - a.sc || b.n2 - a.n2); L.far = far;
       simC = { k: ck, L }; return L;
     }
+    // ---------- 내 기록으로 배우기 (사용자 2026-11-20): 출조 정리의 '잘 먹혔으면 톡 + 새벽/오전/오후'를 그 시간대 포인트 조건(지문)과 묶어 색 점수에 반영
+    //  지문: 바닥 밝기 4단계 · 하늘(맑음/구름) · 물(들물/날물/정조) · 물색 3단계 — 비슷한 지문일수록 무게 · 기록이 적으면 조금만 · 사용자 화면에는 결과(순서·점수)만
+    //  별 하나도 없는 출조는 빼고(안 먹힌 건지 안 누른 건지 모름) · 별 없이 쓴 에기는 '덜 먹힘' · 별에 시간대가 없으면 하루 내내
+    const FP_KEY = 'jjukgap-fp';
+    let fpMem = (() => { try { return JSON.parse(localStorage.getItem(FP_KEY) || '{}') || {}; } catch (_) { return {}; } })(), LRN = null, lrnBusy = null;
+    const fpOf = x => ({ lb: x.LB.qb < 0.01 ? 0 : x.LB.qb < 0.3 ? 1 : x.LB.qb < 5 ? 2 : 3, sk: x.wx && x.wx.sky != null ? (x.wx.sky >= 3 ? 1 : 0) : null, td: x.st.stand ? 2 : x.st.flood ? 1 : 0, wa: x.W.zsd < 1.2 ? 0 : x.W.zsd < 2.5 ? 1 : 2 });
+    function fpSim(a, b) {
+      let s = 0, n = 3;
+      s += a.lb === b.lb ? 1 : Math.abs(a.lb - b.lb) === 1 ? 0.4 : 0;
+      s += a.td === b.td ? 1 : (a.td === 2 || b.td === 2) ? 0.5 : 0;
+      s += a.wa === b.wa ? 1 : Math.abs(a.wa - b.wa) === 1 ? 0.4 : 0;
+      if (a.sk != null && b.sk != null) { s += a.sk === b.sk ? 1 : 0; n++; }
+      return s / n;
+    }
+    const tmOfT = t => { const n = kstDay(t), m = kstMin(t); let sr = 420; try { const r = sunTimes(n).rise; if (r != null) sr = r; } catch (_) {} return m < sr ? 'dawn' : m < 720 ? 'am' : 'pm'; };   // 새벽 = 해 뜨기 전 · 오전 = 해 뜬 뒤~정오 · 오후 = 정오 뒤
+    function simIdOf(e) {
+      if (!e || !e.c) return null;
+      const a = SIM_COL_ALL.find(s => s.app === e.c); if (a) return a.id;
+      if (!SIM_MINE_BY[e.c]) simMine(); return SIM_MINE_BY[e.c] ? e.c : null;
+    }
+    async function fpCalc(p) {   // 지문이 없는 예전 포인트: 그 자리·그 시각으로 한 번 셈 (적어 둔 하늘·바람·파도를 씀)
+      try {
+        for (let i = 0; i < 30 && depthRaw(p).st === 'load'; i++) await new Promise(r => setTimeout(r, 100));
+        const n = kstDay(p.t), ctx = { p, k: nearest(p).k, n, m: spotTide(p), cc: spotCur(p), sp: 'jj', pe: '1.0', flat: simFlat(p, {}), rainHours: [], rainYday: !!p.rainPrev, satK: 1, noLearn: true,
+          wx: () => ({ src: 'rec', wind: p.wind != null ? p.wind : null, dir: null, wave: p.wave != null ? p.wave : null, sky: p.sky != null ? p.sky : null, rain: !!p.rain }) };
+        return fpOf(simHour(ctx, p.t));
+      } catch (_) { return null; }
+    }
+    function learnBuild() {
+      const key = [points.length, (localStorage.getItem('jjukgap-sums') || '').length, points.reduce((a, p) => Math.max(a, p.edited || p.t || 0), 0)].join('|');
+      if (LRN && LRN.key === key) return Promise.resolve(LRN);
+      if (lrnBusy) return lrnBusy;
+      lrnBusy = (async () => {
+        try {
+          await loadSpots(); dpIndex(); await wqReady();
+          for (let i = 0; i < 40 && !DPI && dpiSt !== 'err'; i++) await new Promise(r => setTimeout(r, 150));
+          const E = []; let dirty = false;
+          const keys = new Set(points.filter(p => !p.virtual).map(p => [kstDay(p.t), p.boat || '', p.depName || ''].join('|')));
+          for (const k of keys) {
+            const cd = cardData(k); if (!cd || cd.mode !== 'jg' || !cd.egi || !cd.egi.some(e => e.s)) continue;
+            const tp = ((tripByKey(k) || { pts: [] }).pts || []).filter(p => !p.virtual); if (!tp.length) continue;
+            const win = { dawn: [], am: [], pm: [] };
+            for (const p of tp) {
+              let f = p.fp || fpMem[p.id];
+              if (!f) { f = await fpCalc(p); if (f) { fpMem[p.id] = f; dirty = true; } }
+              if (f) win[tmOfT(p.t)].push(f);
+            }
+            for (const e of cd.egi) {
+              const c = simIdOf(e); if (!c) continue;
+              for (const w of ['dawn', 'am', 'pm']) { if (!win[w].length) continue; const y = e.s && (!e.tm || !e.tm.length || e.tm.includes(w)) ? 1 : 0; for (const f of win[w]) E.push({ c, f, y, wt: 1 / win[w].length }); }
+            }
+          }
+          if (dirty) { try { localStorage.setItem(FP_KEY, JSON.stringify(fpMem)); } catch (_) {} }
+          LRN = { key, E };
+        } catch (_) {}
+        lrnBusy = null; return LRN;
+      })();
+      return lrnBusy;
+    }
+    function recAdj(EG, fp) {   // 비슷한 조건 기록만큼 색 점수를 옮김 (기록 1~2번이면 1점 안팎 · 많이 쌓이면 최대 ±15점)
+      const by = new Map();
+      for (const r of LRN.E) { const s = fpSim(fp, r.f); if (s < 0.5) continue; const w = r.wt * s * s, q = by.get(r.c) || { S: 0, N: 0 }; q.S += w * r.y; q.N += w; by.set(r.c, q); }
+      if (!by.size) return;
+      let ch = false;
+      for (const e of EG.list) { const q = by.get(e.id); if (!q) continue; const adj = Math.round(30 * ((q.S + 1) / (q.N + 2) - 0.5) * q.N / (q.N + 4)); if (!adj) continue; e.sc = Math.max(0, Math.min(100, e.sc + adj)); e.rec = adj; ch = true; }
+      if (!ch) return;
+      EG.list.sort((a, b) => b.sc - a.sc || b.r - a.r || a.n.localeCompare(b.n));
+      const a = EG.list[0], b = EG.list[1];
+      if (a && b) { const lab = e => e.n + (e.best ? `(${e.best === 'lz' ? `레이저(${e.fn.lz.lc})` : (SIM_FN.find(x => x[0] === e.best) || ['', ''])[1]})` : ''); EG.pairs = [{ a: a.id, b: b.id, an: lab(a), bn: lab(b), r: a.r, sc: a.sc, sb: b.sc, why: '점수 1·2등' }]; }
+    }
+    setTimeout(() => { try { learnBuild(); } catch (_) {} }, 5000);
     // ★ 잘 먹힌 것 · 써 본 것 · 봉돌 (출조마다 한 번씩 셈)
     function simSum(L) {
       const star = new Map(), used = new Map(), sk = new Map();
@@ -9006,7 +9078,7 @@ const TideHarm = (() => {
     // ---------- 이 일대 지난 기록: 낚시한 자리(포인트) 5km 안의 내 지난 출조 · 봉돌은 물살 세기별, 에기 ★는 시간대·물색·비별 (추천이 아니라 내 기록)
     const AR_KM = 5, AR_SEA = 30, AR_BAND = [['물살 약함', '~30%'], ['물살 보통', '30~60%'], ['물살 셈', '60%~']];
     const arBand = pct => pct == null ? null : pct < 30 ? 0 : pct < 60 ? 1 : 2;
-    const arTm = t => { const h = kstMin(t) / 60; return h < 7 ? 'dawn' : h < 12 ? 'am' : 'pm'; };
+    const arTm = t => tmOfT(t);   // 새벽 = 해 뜨기 전 · 오전 = 해 뜬 뒤~정오 · 오후 = 정오 뒤
     const arDoy = t => { const d = new Date(t + 9 * 3600000); return Math.floor((d - Date.UTC(d.getUTCFullYear(), 0, 1)) / DAY); };
     const arTk = p => [kstDay(p.t), p.boat || '', p.depName || ''].join('|');
     function arStage(k, t) {   // 그 시각 물 단계: 앞뒤 만조·간조 사이를 셋으로 나눠 초·중·끝 들물/날물
@@ -10171,7 +10243,7 @@ const TideHarm = (() => {
       if (mine) { stay.id = mine.id; stay.saved = t; if (!mine.stayFrom) { mine.stayFrom = from; mine.stayTo = t; savePts(); } return; }
       const i = infoAt(c, t), tr = tripFor(t), id = String(t);
       points.unshift({ id, t, lat: +lat.toFixed(6), lon: +lon.toFixed(6), acc: Math.round((me && me.acc) || 0), virtual: false, auto: true, stayFrom: from, stayTo: t,
-        ...tripOf(tr), ...(tr.hint ? { tripGuess: true } : {}), ...condOf(i), ...skStamp(from, tkOf(tr.boat, tr.depName)), jj: 0, gap: 0, etc: [], memo: '', ...(spNow() !== 'jg' ? { sp: spNow() } : {}) });
+        ...tripOf(tr), ...(tr.hint ? { tripGuess: true } : {}), ...condOf(i), ...skStamp(from, tkOf(tr.boat, tr.depName)), ...gdStamp(t, c), jj: 0, gap: 0, etc: [], memo: '', ...(spNow() !== 'jg' ? { sp: spNow() } : {}) });
       stay.id = id; stay.saved = t; savePts(); draw();
       if (mode === 'list') showList(); else if (mode === 'detail' && selId) showDetail(selId);
       try { navigator.vibrate && navigator.vibrate([30, 70, 30]); } catch (_) {}
@@ -11206,7 +11278,7 @@ const TideHarm = (() => {
 
 <script>
 if ('serviceWorker' in navigator) addEventListener('load', () => {
-  const sw = navigator.serviceWorker, VER = 'b953f0ed'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
+  const sw = navigator.serviceWorker, VER = 'f392eee7'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
   // 화면에 손을 대기 시작했는지 (쓰는 중에는 새로 열지 않으려고)
   ['pointerdown', 'keydown'].forEach(t => addEventListener(t, () => { touched = true; }, { capture: true, passive: true }));
   const reload = () => {
