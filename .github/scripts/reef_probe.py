@@ -113,3 +113,32 @@ for s in shp:
     L(s, len(recs), flds, r.bbox)
 json.dump(summ, open(OUT + '/probe.json', 'w'), ensure_ascii=False, indent=1)
 open(OUT + '/probe.txt', 'w').write('\n'.join(log))
+
+# 위경도로 바꿔 작은 파일로 저장 (UTM-K → WGS84)
+from pyproj import Transformer
+tr = Transformer.from_crs(5179, 4326, always_xy=True)
+pts = []
+for s in shp:
+    base = s[:-4]
+    def f(ext):
+        for n in z.namelist():
+            if n.lower() == (base + ext).lower(): return io.BytesIO(z.read(n))
+    r = shapefile.Reader(shp=f('.shp'), dbf=f('.dbf'), shx=f('.shx'), encoding='utf-8', encodingErrors='replace')
+    flds = [x[0] for x in r.fields[1:]]
+    for sr in r.shapeRecords():
+        if not sr.shape.points: continue
+        x, y = sr.shape.points[0]
+        lon, lat = tr.transform(x, y)
+        rec = dict(zip(flds, sr.record))
+        pts.append([round(lat, 5), round(lon, 5), str(rec.get('dtlv_effc_') or ''), rec.get('sodp_vl'),
+                    str(rec.get('chrt_lv_se') or ''), str(rec.get('korn_nm') or ''), str(rec.get('sfclyr_chr') or ''), str(rec.get('srock_se_c') or '')])
+json.dump(pts, open(OUT + '/reef_pts.json', 'w'), ensure_ascii=False, separators=(',', ':'))
+for n in z.namelist():
+    if n.lower().endswith('.xlsx'):
+        import openpyxl
+        wb = openpyxl.load_workbook(io.BytesIO(z.read(n)), read_only=True)
+        rows = []
+        for ws in wb.worksheets:
+            for row in ws.iter_rows(values_only=True):
+                if any(row): rows.append([str(c) if c is not None else '' for c in row])
+        json.dump(rows, open(OUT + '/colmap.json', 'w'), ensure_ascii=False, indent=0)
