@@ -82,7 +82,15 @@ def main():
     nbase, fbase = (nb.strftime('%Y%m%d'), nb.strftime('%H00')), (fb.strftime('%Y%m%d'), fb.strftime('%H30'))
     gs = grids()
     log(f'격자 {len(gs)}곳 · 실황 {nbase} · 초단기예보 {fbase}')
-    out = {'generated': now.isoformat(timespec='minutes'), 'src': '기상청 초단기실황·초단기예보', 'g': {}}
+    out = {'generated': now.isoformat(timespec='minutes'), 'src': '기상청 초단기실황·초단기예보', 'g': {}, 'rd': {}}
+    # 날마다 낮(6~18시) 실황에 비가 있었는지 격자별로 쌓아 둔다 (최근 4일) → 앱의 '비 · 전날 비'를 예보 대신 실황으로
+    try:
+        prev = json.load(open(os.path.join(SITE, 'data', 'now.json')))
+        keep = (now - timedelta(days=4)).strftime('%Y%m%d')
+        for gk, days in (prev.get('rd') or {}).items():
+            out['rd'][gk] = {d: v for d, v in days.items() if d >= keep}
+    except Exception:
+        pass
     ok_n = ok_f = 0
 
     def one(g):
@@ -102,6 +110,11 @@ def main():
             e = {}
             if o:
                 e['o'] = o; ok_n += 1
+                h = int(o[0][8:10]); d = o[0][:8]
+                if 6 <= h <= 18 and o[3] is not None:
+                    gk = f'{g[0]},{g[1]}'; dd = out['rd'].setdefault(gk, {})
+                    wet = 1 if (o[3] or 0) > 0 or (o[4] or 0) > 0 else 0
+                    dd[d] = max(dd.get(d, 0), wet)
             if f:
                 e['f'] = f; ok_f += 1
             out['g'][f'{g[0]},{g[1]}'] = e
