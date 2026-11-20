@@ -5927,13 +5927,16 @@ const TideHarm = (() => {
             }
             fn.lz = { r: best.r, sc: sc(best.r), lc: best.lc, m: best.r > fn[''].r ? '번쩍임' : fn[''].m }; continue;
           }
-          let dS = 0, gS = 0, ex = 0;
+          let dS = 0, gS = 0, ex = 0; const Lp = [];
           for (const pp of parts) {
             const nd = f[0] === 'n', add = (f.includes('g') ? (nd ? pp.ng : pp.g) : 0) + (f.includes('k') ? (nd ? pp.nk : pp.k) : 0), Ls = (nd ? 0.40 * pp.nr + pp.nb * Lh : 0.40 * pp.rs) + add;
-            dS += pp.a * Math.abs(Ls - Lh); gS += pp.a * (Ls - Lh); ex += pp.a * add;
+            dS += pp.a * Math.abs(Ls - Lh); gS += pp.a * (Ls - Lh); ex += pp.a * add; Lp.push([Ls, pp.a]);
           }
-          const r = dist(dS, Lh);
-          fn[f] = { r, sc: sc(r), m: r <= 0 ? '거의 안 보임' : ex > Math.abs(gS - ex) ? '빛을 냄' : gS > 0 ? '밝게 보임' : '어둡게 보임' };
+          // 무늬(머리·몸통 밝기 경계): 이웃한 두 부분의 밝기 차이도 따로 봄 · 작은 쪽 넓이만큼만 셈(50:50이면 다, 90:10이면 20%) · 둘 중 더 멀리 보이는 쪽
+          //   근거: 갑오징어는 배경과 대비가 약 15%만 달라도 물체를 알아챔(Mäthger 등 2006) · 무늬 무게는 가정 (사용자 2026-11-20)
+          let dP = 0; for (let i = 0; i + 1 < Lp.length; i++) dP = Math.max(dP, Math.abs(Lp[i][0] - Lp[i + 1][0]) * Math.min(1, 2 * Math.min(Lp[i][1], Lp[i + 1][1])));
+          const rS = dist(dS, Lh), rP = Lp.length > 1 ? dist(dP, Lh) : 0, r = Math.max(rS, rP);
+          fn[f] = { r, sc: sc(r), m: r <= 0 ? '거의 안 보임' : rP > rS ? '무늬가 보임' : ex > Math.abs(gS - ex) ? '빛을 냄' : gS > 0 ? '밝게 보임' : '어둡게 보임' };
         }
         let bestF = ''; for (const [f] of SIM_FN) if (f[0] !== 'n' && fn[f].r > fn[bestF].r + 1e-9) bestF = f;
         for (const [f] of SIM_FN) if (f[0] === 'n' && fn[f].r > fn[bestF].r * 1.08 + 1e-9) bestF = f;   // 누드는 천보다 확실히(보이는 거리 8%↑) 나을 때만 — 작은 차이는 셈 가정 안쪽이라 흔한 천 에기로
@@ -11096,7 +11099,7 @@ const TideHarm = (() => {
 
 <script>
 if ('serviceWorker' in navigator) addEventListener('load', () => {
-  const sw = navigator.serviceWorker, VER = 'd6bf7df0'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
+  const sw = navigator.serviceWorker, VER = 'fd69536a'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
   // 화면에 손을 대기 시작했는지 (쓰는 중에는 새로 열지 않으려고)
   ['pointerdown', 'keydown'].forEach(t => addEventListener(t, () => { touched = true; }, { capture: true, passive: true }));
   const reload = () => {
