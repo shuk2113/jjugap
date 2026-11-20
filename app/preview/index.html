@@ -337,7 +337,7 @@ html.mv-on .app *{animation-play-state:paused !important} html.mv-hide .app{visi
 /* 이 일대 지난 기록: 지도 아래 판 바로 위 조용한 한 줄 (누르면 화면 전체 카드) */
 .mv-area{position:absolute; left:10px; bottom:42px; z-index:1; transform:translate3d(0,calc(-1 * var(--sheet-h, 0px)),0); transition:transform .28s cubic-bezier(.2,.85,.25,1); max-width:calc(100% - 104px); display:flex; align-items:center; gap:6px; min-height:36px; padding:6px 12px 6px 10px; border:1px solid var(--line); border-radius:18px; background:var(--card); color:var(--ink); font:inherit; font-size:calc(12.5px * var(--k)); font-weight:700; text-align:left; box-shadow:0 4px 14px rgba(0,0,0,.18); -webkit-tap-highlight-color:transparent}
 .mv-area span{display:flex; flex-direction:column; min-width:0} .mv-area b, .mv-area small{overflow:hidden; text-overflow:ellipsis; white-space:nowrap} .mv-area b{font-weight:800} .mv-area small{font-size:calc(12px * var(--k)); font-weight:700; color:var(--accent, #2F7DF6)} .mv-area i{flex:none; font-style:normal; color:var(--ink-2)}
-.mv-area small.warn{color:var(--strong)} .mv-plan{bottom:42px; padding:0; gap:0; overflow:hidden} .mv-plan .gd-main{flex:1; min-width:0; display:flex; align-items:center; gap:6px; min-height:40px; padding:6px 8px 6px 10px; border:0; background:none; color:inherit; font:inherit; text-align:left; -webkit-tap-highlight-color:transparent} .mv-plan .gd-off{flex:none; align-self:stretch; width:38px; display:grid; place-items:center; border:0; border-left:1px solid var(--line); background:none; color:var(--ink-2); padding:0} .mv-plan .gd-off svg{width:17px; height:17px} .mv-plan .gd-off[hidden]{display:none} .mv-plan small .gt{display:inline; color:var(--ink-2); font-weight:800}
+.mv-area small.warn{color:var(--strong)} .mv-plan{bottom:42px; padding:0; gap:0; overflow:hidden} .mv-plan .gd-main{flex:1; min-width:0; display:flex; align-items:center; gap:6px; min-height:40px; padding:6px 8px 6px 10px; border:0; background:none; color:inherit; font:inherit; text-align:left; -webkit-tap-highlight-color:transparent} .mv-plan .gd-off{flex:none; align-self:stretch; width:38px; display:grid; place-items:center; border:0; border-left:1px solid var(--line); background:none; color:var(--ink-2); padding:0} .mv-plan .gd-off svg{width:17px; height:17px} .mv-plan .gd-off[hidden]{display:none} .mv-plan.min small{display:none} .mv-plan.min .gd-main{min-height:34px; padding-top:4px; padding-bottom:4px} .mv-plan.min .gd-main > i{display:none} .mv-plan small .gt{display:inline; color:var(--ink-2); font-weight:800}
 .mv-plan span{display:grid; grid-template-columns:auto minmax(0, 1fr); column-gap:8px; align-items:center} .mv-plan small{grid-column:1 / -1} .mv-plan b.pk{display:inline-flex; align-items:center; gap:5px; font-size:calc(15px * var(--k))}
 .mv-areab{display:flex; align-items:center; gap:6px; width:100%; margin:10px 0 2px; padding:11px 12px; border:1px solid var(--line); border-radius:14px; background:var(--card); color:var(--ink); font:inherit; font-size:calc(13px * var(--k)); font-weight:700; text-align:left}
 .mv-areab span{flex:1; min-width:0} .mv-areab i{flex:none; font-style:normal; color:var(--ink-2)}
@@ -6453,14 +6453,14 @@ const TideHarm = (() => {
     function gdNext(G) {   // 앞으로 3시간 안에 바뀌는 것 (가장 먼저 오는 하나)
       const H = G.R.hours, now = Date.now(), d0 = dayStartOf(G.n), x0 = gdNowRow(G); if (!x0) return null;
       const ex = (G.R.exs || []).filter(e => e.ms > now && e.ms - now < 3 * 3600000).sort((a, b) => a.ms - b.ms)[0];
-      let msg = ex ? `${ampm((ex.ms - d0) / 60000)} ${ex.type === 'H' ? '만조' : '간조'} · 물이 멈춰요` : null; const at = ex ? ex.ms : Infinity;
+      let msg = ex ? `${ampm((ex.ms - d0) / 60000)} ${ex.type === 'H' ? '만조' : '간조'} · 물이 멈춰요` : null; const at = ex ? ex.ms : Infinity; G.nextAt = msg ? at : null;
       for (const x of H.filter(r => r.h > x0.h)) {
         const t = d0 + x.h * 3600000; if (t >= at) break;
         const E0 = x0.EG, E = x.EG;
-        if (E0 && E && (E.bf || '') !== (E0.bf || '')) { msg = `${x.h}시부터 ${E.bf ? plFn(E.bf) : '기능 없이'} · ${E.list.slice(0, 2).map(e => e.n).join('·')}`; break; }
-        if (E0 && E && !E.flat && !E0.list.slice(0, 2).some(e => e.id === E.list[0].id)) { msg = `${x.h}시부터 ${E.list[0].n} 쪽`; break; }
+        if (E0 && E && (E.bf || '') !== (E0.bf || '')) { msg = `${x.h}시부터 ${E.bf ? plFn(E.bf) : '기능 없이'} · ${E.list.slice(0, 2).map(e => e.n).join('·')}`; G.nextAt = t; break; }
+        if (E0 && E && !E.flat && !E0.list.slice(0, 2).some(e => e.id === E.list[0].id)) { msg = `${x.h}시부터 ${E.list[0].n} 쪽`; G.nextAt = t; break; }
         const s0 = x0.sink && x0.sink[G.pe], s1 = x.sink && x.sink[G.pe];
-        if (s0 && s1 && s0.main && s1.main && s1.main !== s0.main) { msg = `${x.h}시쯤 봉돌 ${s1.main}호 쪽`; break; }
+        if (s0 && s1 && s0.main && s1.main && s1.main !== s0.main) { msg = `${x.h}시쯤 봉돌 ${s1.main}호 쪽`; G.nextAt = t; break; }
       }
       return msg;
     }
@@ -6470,12 +6470,12 @@ const TideHarm = (() => {
       const hide = () => { if (!el.hidden) { el.hidden = true; planChipPos(); } }, show = () => { if (el.hidden) el.hidden = false; planChipPos(); };
       if (!here || !onBoard || here.virtual || mode !== 'info' || spNow() !== 'jg') return hide();
       const put = (t, lab) => { if (mb.innerHTML !== t) mb.innerHTML = t; mb.setAttribute('aria-label', lab); };
-      if (!gdOn) { ob.hidden = true; put(`<span><b class="pc">길잡이 꺼짐</b><small>누르면 다시 켜요</small></span>`, '길잡이 꺼짐. 누르면 다시 켜요'); return show(); }
+      if (!gdOn) { el.classList.remove('min'); ob.hidden = true; put(`<span><b class="pc">길잡이 꺼짐</b><small>누르면 다시 켜요</small></span>`, '길잡이 꺼짐. 누르면 다시 켜요'); return show(); }
       ob.hidden = false;
       const now = Date.now(), x = gdNowRow(gdG);
       if (!x || gdG.n !== kstDay(now) || now - gdG.t >= 600000 || distKm(gdG.p, here) >= 0.5) guideCalc();
       let L = null; try { L = liveCalc(now); } catch (_) { L = null; }
-      if (!x && !(L && L.sk)) { put(`<span><b class="pc">길잡이 셈하는 중…</b><small><span class="gt">길잡이</span> · 지금 이 자리로 셈해요</small></span>`, '길잡이 셈하는 중'); return show(); }
+      if (!x && !(L && L.sk)) { el.classList.remove('min'); put(`<span><b class="pc">길잡이 셈하는 중…</b><small><span class="gt">길잡이</span> · 지금 이 자리로 셈해요</small></span>`, '길잡이 셈하는 중'); return show(); }
       const pe = (gdG && gdG.pe) || '1.0', s = L && L.sk, sx = x && x.sink && x.sink[pe];
       const skT = s ? (s.std ? `${s.std}호` : '40호↑') : sx ? (sx.main ? `${sx.main}호` : '40호↑') : '', vc = s ? s.vcat : x ? plVc(x, { pe }) : null;
       const E = x && x.EG, bfN = E && E.bf ? plFn(E.bf) : '';
@@ -6484,9 +6484,14 @@ const TideHarm = (() => {
       const nx = gdG ? gdNext(gdG) : null;
       const l2 = warn ? `단 ${s.cur}호는 가벼워요 → ${s.std}호` : s && s.vcat === 2 ? '에기가 빨라요 · 내려놓기를 길게' : nx ? `다음: ${nx}` : '앞으로 3시간 크게 바뀔 것 없어요';
       const t = `<span>${skT ? `<b class="pk">${esc(skT)}${vc != null ? `<i class="pl-dot d${vc}" aria-hidden="true"></i>` : ''}</b>` : ''}<b class="pc">${esc(cols || '색 셈하는 중…')}</b><small class="${warn || (s && s.vcat === 2) ? 'warn' : ''}"><span class="gt">길잡이</span> · ${esc(l2)}</small></span><i aria-hidden="true">›</i>`;
-      put(t, `길잡이. 봉돌 ${skT}. ${cols}. ${l2}. 누르면 자세히`); show();
+      const open = now < gdExpT || warn || (s && s.vcat === 2) || (gdG && gdG.nextAt && gdG.nextAt - now <= 30 * 60000);
+      el.classList.toggle('min', !open); ob.hidden = !open;
+      put(t, `길잡이. 봉돌 ${skT}. ${cols}. ${open ? l2 + '. 누르면 자세히' : '누르면 펼쳐요'}`); show();
     }
+    let gdExpT = 0;
     function guideTap() {
+      const el = $('mv-plan');
+      if (gdOn && el && el.classList.contains('min')) { gdExpT = Date.now() + 10000; planChip(me); setTimeout(() => planChip(me), 10200); return; }   // 접혀 있으면 먼저 10초 펼침
       if (!gdOn) { gdOn = true; try { localStorage.setItem(GD_KEY, '1'); } catch (_) {} guideCalc(true); planChip(me); return; }
       if (!gdG) { guideCalc(true); return; }
       let L = null; try { L = liveCalc(Date.now()); } catch (_) {}
@@ -11278,7 +11283,7 @@ const TideHarm = (() => {
 
 <script>
 if ('serviceWorker' in navigator) addEventListener('load', () => {
-  const sw = navigator.serviceWorker, VER = '2080c4f9'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
+  const sw = navigator.serviceWorker, VER = '7b81dc39'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
   // 화면에 손을 대기 시작했는지 (쓰는 중에는 새로 열지 않으려고)
   ['pointerdown', 'keydown'].forEach(t => addEventListener(t, () => { touched = true; }, { capture: true, passive: true }));
   const reload = () => {
