@@ -4396,7 +4396,7 @@ const TideHarm = (() => {
     // 그림 한 장 (멈춘 화살표): 바람 부는 쪽으로, 셀수록 길고 진하게
     function windStatic(F) {
       const g = windG; g.setTransform(1, 0, 0, 1, 0, 0); g.clearRect(0, 0, windCv.width, windCv.height); g.setTransform(dpr, 0, 0, dpr, 0, 0);
-      g.lineCap = 'round'; g.lineJoin = 'round'; const sp = 58, ox = ((-(v.lon * KX * v.s)) % sp + sp) % sp, oy = ((v.lat * v.s) % sp + sp) % sp;   // 지도와 같이 움직이는 칸
+      g.lineCap = 'round'; g.lineJoin = 'round'; const sp = 100, ox = ((-(v.lon * KX * v.s)) % sp + sp) % sp, oy = ((v.lat * v.s) % sp + sp) % sp;   // 지도와 같이 움직이는 칸
       const P = WIND_COL.map(() => new Path2D());
       for (let y = oy - sp / 2; y < H + sp; y += sp) for (let x = ox - sp / 2; x < W + sp; x += sp) {
         const q = windAt(F, x, y); if (!q) continue; const w = Math.hypot(q[0], q[1]); if (w < 0.3) continue;
@@ -4436,7 +4436,7 @@ const TideHarm = (() => {
       if (vk !== windVk) {
         windVk = vk; windF = windField(P);
         windG.setTransform(1, 0, 0, 1, 0, 0); windG.clearRect(0, 0, windCv.width, windCv.height);
-        const n = Math.min(650, Math.round(W * H / 700)); windParts = Array.from({ length: n }, windNewPart);
+        const n = Math.min(380, Math.round(W * H / 1200)); windParts = Array.from({ length: n }, windNewPart);
         if (windMode === 'still' || RM.matches || fxIdle()) { windMode = 'still'; windStatic(windF); }
       }
       windLeg(true); windKick();
@@ -11454,7 +11454,7 @@ const TideHarm = (() => {
 
 <script>
 if ('serviceWorker' in navigator) addEventListener('load', () => {
-  const sw = navigator.serviceWorker, VER = '1201a828'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
+  const sw = navigator.serviceWorker, VER = '5b46d0ee'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
   // 화면에 손을 대기 시작했는지 (쓰는 중에는 새로 열지 않으려고)
   ['pointerdown', 'keydown'].forEach(t => addEventListener(t, () => { touched = true; }, { capture: true, passive: true }));
   const reload = () => {
