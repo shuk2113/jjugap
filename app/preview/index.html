@@ -6266,7 +6266,7 @@ const TideHarm = (() => {
         + `<div class="pl-dt"><small>물색</small><b>${esc(wl)}</b><span>투명도 ${zt(z0)}~${zt(z1)}m</span></div>`
         + `<div class="pl-dt"><small>에기가 빠른 시간</small>${fast.length ? `<span>${plDot(2)} ${plRuns(fast)}</span>` : `<span>${plDot(0)} 없음</span>`}</div></div>`
         + (s.act ? `<div class="pl-dg"><div class="pl-dt wide act"><small>실제 기록 · 참고만</small><b>쭈꾸미 ${s.act.tot.jj} · 갑오징어 ${s.act.tot.gap}</b><span>포인트 ${s.act.n}곳</span></div></div>` : '')
-        + (note ? `<p class="pl-note">${note}</p>` : '') + `</div>`;
+        + (note ? `<p class="pl-note">${note}</p>` : '') + `<p class="pl-note">색 점수는 쭈갑이 눈에 보이는 정도만 셈한 가설이에요. 서해처럼 탁하고 어두운 날은 색끼리 차이가 작게 나와요.</p></div>`;
     }
     function guideHTML(s) {   // 길잡이 자세히: 지금 시각 펼침 + 앞으로 3시간
       const R = s.res, now = Date.now(), hNow = Math.floor((now - dayStartOf(s.n)) / 3600000);
@@ -6276,7 +6276,7 @@ const TideHarm = (() => {
       if (s.busy || !R) return head + h + `<p class="bk-none">셈하는 중…</p>`;
       const srcs = new Set(R.hours.map(x => x.wx.src)), wsrc = srcs.has('now') ? '지금 날씨(기상청 초단기실황·예보)' : srcs.has('short') ? '시간별 예보' : '예보 없음';
       const nx = gdG ? gdNext(gdG) : null, mins = gdG ? Math.round((now - gdG.t) / 60000) : 0;
-      h += `<div class="pl-day"><div class="pl-dh"><b>${esc(whereTxt(s.p, s.k))}</b><small>${esc(wsrc)} · ${mins < 1 ? '방금' : `${mins}분 전`} 셈</small></div>${nx ? `<p class="pl-note">다음: ${esc(nx)}</p>` : ''}</div>`;
+      h += `<div class="pl-day"><div class="pl-dh"><b>${esc(whereTxt(s.p, s.k))}</b><small>${esc(wsrc)} · ${mins < 1 ? '방금' : `${mins}분 전`} 셈</small></div>${nx ? `<p class="pl-note">다음: ${esc(nx)}</p>` : ''}</div>` + `<p class="pl-note">색 점수는 쭈갑이 눈에 보이는 정도만 셈한 가설이에요. 서해처럼 탁하고 어두운 날은 색끼리 차이가 작게 나와요.</p>`;
       h += `<div class="pl-hours">`; for (const x of R.hours.filter(x => x.h >= hNow)) h += plHour(x, s); h += `</div>`;
       h += `<p class="bk-none">자료: 국립해양조사원 조석·조류 예측·격자 수심(BADA2024) · 기상청 예보·초단기실황·초단기예보 · 물색 바탕: 국립수산과학원 정선해양관측 · 물색 보정: 천리안위성 2B호(국립해양조사원 국가해양위성센터). 해도가 아니니 항해·안전에는 쓰지 마세요.</p>`;
       return head + h;
@@ -6315,7 +6315,7 @@ const TideHarm = (() => {
       if (!plRec) { try { plRec = simRecMap(); } catch (_) { plRec = {}; } }
       const all = s.more.has(x.h), fnOn = s.fn.has(x.h), list = all ? L : L.slice(0, 6), top = L[0].sc || 1;
       const bf = x.EG.bf || '', bfN = bf ? plFn(bf) : '기능 없이', bfW = bf === 'gk' ? '바닥이 어둡고 자외선도 닿아요' : bf === 'g' ? '바닥이 어두워 야광이 잘 보여요' : bf === 'k' ? '자외선이 바닥까지 닿아요' : '바닥이 밝아 기능 없이도 잘 보여요';
-      h += `<div class="pl-dx"><p class="pl-bf"><b>이 시각 기본: ${esc(bfN)}</b><span>${bfW}${x.EG.flat ? ' · 이 시각엔 색 차이가 작아요' : ''}</span></p><p class="pl-k">에기 색 · ${bf ? esc(bfN) + ' 켠 채로' : '눈에 띔'}</p><div class="pl-cl">`;
+      h += `<div class="pl-dx"><p class="pl-bf"><b>이 시각 기본: ${esc(bfN)}</b><span>${bfW}</span></p><p class="pl-k">에기 색 · ${bf ? esc(bfN) + ' 켠 채로' : '눈에 띔'}</p><div class="pl-cl">`;
       for (const e of list) {
         const rec = e.app && plRec[e.app], tags = (e.mine ? '<em class="mr">내 에기</em>' : simHas(e) ? '' : '<em class="nb">사 두면 좋아요</em>') + (rec ? `<em class="mr">내 기록 ${rec.map(n => { const v = ymd(n); return `${v.m}/${v.d}`; }).join('·')}</em>` : '');
         h += `<div class="pl-cr">${plSw(e.id)}<span class="nm"><b>${esc(e.n)}</b>${PL_SUB[e.id] ? `<small>${PL_SUB[e.id]}</small>` : e.mine ? '<small>색 코드로 어림</small>' : ''}${tags}</span>`
@@ -11206,7 +11206,7 @@ const TideHarm = (() => {
 
 <script>
 if ('serviceWorker' in navigator) addEventListener('load', () => {
-  const sw = navigator.serviceWorker, VER = 'e64b8b0e'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
+  const sw = navigator.serviceWorker, VER = 'b953f0ed'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
   // 화면에 손을 대기 시작했는지 (쓰는 중에는 새로 열지 않으려고)
   ['pointerdown', 'keydown'].forEach(t => addEventListener(t, () => { touched = true; }, { capture: true, passive: true }));
   const reload = () => {
