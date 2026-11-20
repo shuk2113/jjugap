@@ -4436,7 +4436,7 @@ const TideHarm = (() => {
       if (vk !== windVk) {
         windVk = vk; windF = windField(P);
         windG.setTransform(1, 0, 0, 1, 0, 0); windG.clearRect(0, 0, windCv.width, windCv.height);
-        const n = Math.min(380, Math.round(W * H / 1200)); windParts = Array.from({ length: n }, windNewPart);
+        const n = Math.min(190, Math.round(W * H / 2400)); windParts = Array.from({ length: n }, windNewPart);
         if (windMode === 'still' || RM.matches || fxIdle()) { windMode = 'still'; windStatic(windF); }
       }
       windLeg(true); windKick();
@@ -11454,7 +11454,7 @@ const TideHarm = (() => {
 
 <script>
 if ('serviceWorker' in navigator) addEventListener('load', () => {
-  const sw = navigator.serviceWorker, VER = '5b46d0ee'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
+  const sw = navigator.serviceWorker, VER = '0169d7f5'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
   // 화면에 손을 대기 시작했는지 (쓰는 중에는 새로 열지 않으려고)
   ['pointerdown', 'keydown'].forEach(t => addEventListener(t, () => { touched = true; }, { capture: true, passive: true }));
   const reload = () => {
