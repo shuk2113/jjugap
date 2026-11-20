@@ -1,0 +1,32 @@
+# 출조한 날 하루치 ASOS 시간자료 (일사·일조·구름·비·바람) · 손으로만
+name: 하루 날씨 관측 받기
+
+on:
+  workflow_dispatch:
+    inputs:
+      day: { description: '날짜 (YYYY-MM-DD)', default: '' }
+      stns: { description: '관측소 번호 (쉼표)', default: '140,243,235' }
+
+permissions:
+  contents: write
+
+jobs:
+  obs:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+      - name: 받기
+        env:
+          DATA_GO_KR_KEY: ${{ secrets.DATA_GO_KR_KEY }}
+          DAY: ${{ github.event.inputs.day }}
+          STNS: ${{ github.event.inputs.stns }}
+        run: python3 .github/scripts/asos_day.py
+      - name: 저장
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add .github/data/wind || true
+          git diff --cached --quiet && exit 0
+          git commit -m "하루 날씨 관측 (기상청 ASOS)"
+          for i in 1 2 3; do git pull --rebase -q origin main && git push -q origin HEAD:main && break; sleep 5; done
