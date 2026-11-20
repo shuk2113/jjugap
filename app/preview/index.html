@@ -804,7 +804,7 @@ a.mv-row-btn{text-decoration:none; gap:10px} .mv-row-btn span{font-size:calc(20p
 .pl-hh .t{font-weight:800; font-size:calc(14.5px * var(--k))} .pl-hh .m{display:flex; flex-direction:column; gap:4px; min-width:0} .pl-hh .m small{color:var(--ink-2); font-size:calc(11.5px * var(--k)); word-break:keep-all}
 .pl-hh .sk{text-align:center; min-width:2.8em} .pl-hh .sk b{display:block; font-size:calc(15px * var(--k)); font-weight:800; white-space:nowrap} .pl-hh .sk small{display:block; color:var(--ink-2); font-size:calc(10.5px * var(--k))}
 .pl-dx{display:flex; flex-direction:column; gap:9px; padding:2px 12px 12px; border-top:1px dashed var(--line)}
-.pl-bf{margin:8px 0 0; padding:8px 10px; border-radius:10px; background:var(--chip, rgba(127,127,127,.12)); display:flex; flex-direction:column; gap:2px} .pl-bf b{font-size:calc(13.5px * var(--k)); font-weight:800} .pl-bf span{font-size:calc(12px * var(--k)); color:var(--ink-2)} .pl-allh{display:block; width:100%; margin:12px 0 4px; padding:11px; border:1px solid var(--line); border-radius:12px; background:var(--card); color:var(--ink); font:inherit; font-weight:800} .pl-k{margin:8px 0 0; font-size:calc(12px * var(--k)); font-weight:800; color:var(--ink-2)}
+.pl-bf{margin:8px 0 0; padding:8px 10px; border-radius:10px; background:var(--chip, rgba(127,127,127,.12)); display:flex; flex-direction:column; gap:2px} .pl-bf b{font-size:calc(13.5px * var(--k)); font-weight:800} .pl-bf span{font-size:calc(12px * var(--k)); color:var(--ink-2)} .pl-ports button.pe1 small{margin-left:6px; font-size:calc(11px * var(--k)); font-weight:700; opacity:.7} .pl-allh{display:block; width:100%; margin:12px 0 4px; padding:11px; border:1px solid var(--line); border-radius:12px; background:var(--card); color:var(--ink); font:inherit; font-weight:800} .pl-k{margin:8px 0 0; font-size:calc(12px * var(--k)); font-weight:800; color:var(--ink-2)}
 .pl-cl{display:grid; grid-template-columns:auto minmax(min-content, 1fr) minmax(2.6em, 33%) 1.7em 3.4em; gap:7px; align-items:center}
 .pl-cr{display:contents}
 .pl-cr .nm{display:flex; flex-direction:column; align-items:flex-start; gap:1px; min-width:0} .pl-cr .nm b{font-weight:800; font-size:calc(13.5px * var(--k)); white-space:nowrap} .pl-cr .nm small{color:var(--ink-2); font-size:calc(11px * var(--k)); white-space:nowrap}
@@ -6150,6 +6150,9 @@ const TideHarm = (() => {
     const planRow = x => ({ h: x.h, st: x.st.txt, d: x.depth != null ? Math.round(x.depth * 10) / 10 : null, c: x.cur ? Math.round(x.cur.sp * 100) / 100 : null, wx: plWx(x.wx), src: x.wx.src, water: x.water, light: x.light, lux: Math.round(x.lux * 100) / 100,
       head: x.head, body: x.body, tape: x.tape, one: x.one, alt: x.alt, eg: x.EG ? x.EG.list.slice(0, 6).map(e => [e.id, e.sc, e.best, e.fn.lz.lc]) : null, pr: x.EG && x.EG.pairs[0] ? [x.EG.pairs[0].an, x.EG.pairs[0].bn, x.EG.pairs[0].sc] : null, ...(x.after ? { after: 1 } : {}), see: Math.round(x.see * 10) / 10, sink: x.sink ? { '0.8': x.sink['0.8'], '1.0': x.sink['1.0'], v: x.sink.v.map(v => Math.round(v * 100) / 100), vcat: x.sink.vcat, vcatGp: x.sink.vcatGp } : null, T: Math.round(x.T * 100) / 100 });
     let plS = null, plEl = null;
+    const PE_KEY = 'jjukgap-pe';   // 원줄: 한 번 고르면 계속 (사용자 2026-11-20)
+    const peGet = () => { try { const v = localStorage.getItem(PE_KEY); return v === '0.8' || v === '1.0' ? v : '1.0'; } catch (_) { return '1.0'; } };
+    const peSet = v => { try { localStorage.setItem(PE_KEY, v); } catch (_) {} };
     function planOpen(n, o) {
       if (!plEl) {
         plEl = document.createElement('div'); plEl.className = 'cardv bookv'; plEl.id = 'plv'; plEl.hidden = true;
@@ -6165,7 +6168,7 @@ const TideHarm = (() => {
         planRender(); plEl.scrollTop = 0; return;
       }
       const P = planGet(n);
-      plS = { n, k: P && TideHarm.STATIONS[P.k] ? P.k : tideSt, p: P ? P.p : null, how: P ? P.how : null, h0: P ? P.h0 : 6, h1: P ? P.h1 : 17, pe: P ? P.pe : '1.0', res: null, busy: false, open: new Set(o && o.h != null ? [o.h] : []), saved: !!P, run: 0, live: o && o.live || null, scrollH: o && o.h != null ? o.h : null };
+      plS = { n, k: P && TideHarm.STATIONS[P.k] ? P.k : tideSt, p: P ? P.p : null, how: P ? P.how : null, h0: P ? P.h0 : 6, h1: P ? P.h1 : 17, pe: peGet(), _peOld: P ? P.pe : '1.0', res: null, busy: false, open: new Set(o && o.h != null ? [o.h] : []), saved: !!P, run: 0, live: o && o.live || null, scrollH: o && o.h != null ? o.h : null };
       plEl.hidden = false; document.documentElement.classList.add('cv-lock');
       if (useHist) { try { history.pushState({ plv: 1 }, ''); } catch (_) {} }
       planCalc(); plEl.scrollTop = 0;
@@ -6203,6 +6206,11 @@ const TideHarm = (() => {
       const b = e.target.closest('[data-pl]'); if (!b || !plS) return; const a = b.dataset.pl, s = plS;
       if (a === 'x') return planClose();
       if (a === 'port') { if (b.dataset.k === s.k) return; s.k = b.dataset.k; s.how = null; s.p = null; s.saved = false; return planCalc(); }
+      if (a === 'pe1') {   // 버튼 하나로 0.8 ↔ 1.0 · 고른 건 기억
+        const v = s.pe === '1.0' ? '0.8' : '1.0'; peSet(v);
+        if (s.guide) { if (!gdG) return; s.pe = gdG.pe = v; s.busy = true; planRender(); return guideCalc(true).then(() => { if (plS === s && gdG) { s.res = gdG.R; s.busy = false; planRender(); } }); }
+        s.pe = v; s.saved = false; return planRender();
+      }
       if (a === 'pe' && s.guide) { if (s.pe === b.dataset.v || !gdG) return; s.pe = gdG.pe = b.dataset.v; s.busy = true; planRender(); return guideCalc(true).then(() => { if (plS === s && gdG) { s.res = gdG.R; s.busy = false; planRender(); } }); }
       if (a === 'pe') { s.pe = b.dataset.v; s.saved = false; return planRender(); }
       if (a === 'hours') { s.allH = !s.allH; return planRender(); }
@@ -6274,7 +6282,7 @@ const TideHarm = (() => {
       const R = s.res, now = Date.now(), hNow = Math.floor((now - dayStartOf(s.n)) / 3600000);
       const head = `<div class="cv-h"><button type="button" class="cv-x" data-pl="x" aria-label="닫기"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button><b>길잡이</b><span>${esc(ampm((now - dayStartOf(s.n)) / 60000))}</span></div>`;
       let h = PL_DEFS + `<p class="ar-sub">지금 이 자리(GPS)·이 시각으로 셈한 <b>가설</b>이에요. 10분마다, 또는 500m 넘게 옮기면 다시 셈해요. 봉돌은 GPS로 잰 배 속도로 1분마다 바뀌어요.</p>`;
-      h += `<div class="pl-set"><div class="pl-l"><span class="k">원줄</span><span class="pl-ports">${['0.8', '1.0'].map(v => `<button type="button" data-pl="pe" data-v="${v}" class="${v === s.pe ? 'on' : ''}" aria-pressed="${v === s.pe}">PE ${v}호</button>`).join('')}</span></div></div>`;
+      h += `<div class="pl-set"><div class="pl-l"><span class="k">원줄</span><span class="pl-ports"><button type="button" class="on pe1" data-pl="pe1" aria-label="원줄 PE ${s.pe}호 · 누르면 바꿔요">PE ${s.pe}호<small>바꾸기</small></button></span></div></div>`;
       if (s.busy || !R) return head + h + `<p class="bk-none">셈하는 중…</p>`;
       const srcs = new Set(R.hours.map(x => x.wx.src)), wsrc = srcs.has('now') ? '지금 날씨(기상청 초단기실황·예보)' : srcs.has('short') ? '시간별 예보' : '예보 없음';
       const nx = gdG ? gdNext(gdG) : null, mins = gdG ? Math.round((now - gdG.t) / 60000) : 0;
@@ -6354,7 +6362,7 @@ const TideHarm = (() => {
       h += `<div class="pl-l"><span class="k">색 셈 기준 자리</span><span class="v"><b>${where}</b><small>${howT}</small><span class="pl-btns"><button type="button" data-pl="pick">지도에서 고르기</button>${s.how === 'pick' ? '<button type="button" data-pl="auto">자동으로</button>' : ''}</span></span></div>`;
       const opt = (a, b, v) => Array.from({ length: b - a + 1 }, (_, i) => a + i).map(x => `<option value="${x}"${x === v ? ' selected' : ''}>${String(x).padStart(2, '0')}시</option>`).join('');
       h += `<div class="pl-l"><span class="k">시간</span><span class="v pl-tm"><select data-pl="h0" aria-label="시작 시각">${opt(3, 14, s.h0)}</select> ~ <select data-pl="h1" aria-label="끝 시각">${opt(8, 20, s.h1)}</select></span></div>`;
-      h += `<div class="pl-l"><span class="k">원줄</span><span class="pl-ports">${['0.8', '1.0'].map(v => `<button type="button" data-pl="pe" data-v="${v}" class="${v === s.pe ? 'on' : ''}" aria-pressed="${v === s.pe}">PE ${v}호</button>`).join('')}</span></div></div>`;
+      h += `<div class="pl-l"><span class="k">원줄</span><span class="pl-ports"><button type="button" class="on pe1" data-pl="pe1" aria-label="원줄 PE ${s.pe}호 · 누르면 바꿔요">PE ${s.pe}호<small>바꾸기</small></button></span></div></div>`;
       const R = s.res;
       if (s.busy && !R) h += `<p class="bk-none">셈하는 중…</p>`;
       else if (!R) h += `<p class="bk-none">${s.err ? '셈하지 못했어요. 인터넷이 될 때 한 번 열어 주세요.' : ''}</p>`;
@@ -6413,7 +6421,7 @@ const TideHarm = (() => {
       if (!WQ) wqReady();   // 실측 물색 바탕 (들어오면 다음 셈부터)
       const k0 = `${me.lat.toFixed(3)},${me.lon.toFixed(3)}`;
       if (lvC && lvC.k === k0 && at - lvC.t < 20000) return lvC.v;
-      const n = kstDay(at), h = Math.floor((at - dayStartOf(n)) / 3600000), P = planGet(n), pe = P ? P.pe : '1.0';
+      const n = kstDay(at), h = Math.floor((at - dayStartOf(n)) / 3600000), P = planGet(n), pe = peGet();
       let row = P ? P.hours.find(r => r.h === h) || null : null, live = null;
       if (0 && !row && SP) {   // (길잡이가 10분마다 셈하므로 여기서는 안 함)
         try { const m = spotTide(me), cc = spotCur(me), k = tripPortK(); live = simHour({ p: me, k, n, m, cc, sp: 'jj', pe, flat: lvFlat(me), rainHours: [], rainYday: false }, at); } catch (_) { live = null; }
@@ -6446,7 +6454,7 @@ const TideHarm = (() => {
       try {
         await nowLoad(force); await loadSpots(); dpIndex(); await learnBuild();
         for (let i = 0; i < 40 && !DPI && dpiSt !== 'err'; i++) await new Promise(r => setTimeout(r, 150));
-        const h = Math.floor((now - dayStartOf(n)) / 3600000), P = planGet(n), pe = (gdG && gdG.pe) || (P && P.pe) || '1.0', p = { lat: me.lat, lon: me.lon };
+        const h = Math.floor((now - dayStartOf(n)) / 3600000), P = planGet(n), pe = peGet(), p = { lat: me.lat, lon: me.lon };
         const R = await simRun({ k: tripPortK(), p, n, h0: h, h1: Math.min(23, h + 3), sp: 'jj', pe });
         gdG = { t: now, p, R, n, h, pe };
       } catch (_) {}
@@ -11283,7 +11291,7 @@ const TideHarm = (() => {
 
 <script>
 if ('serviceWorker' in navigator) addEventListener('load', () => {
-  const sw = navigator.serviceWorker, VER = '8392baa0'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
+  const sw = navigator.serviceWorker, VER = '0fa60f62'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
   // 화면에 손을 대기 시작했는지 (쓰는 중에는 새로 열지 않으려고)
   ['pointerdown', 'keydown'].forEach(t => addEventListener(t, () => { touched = true; }, { capture: true, passive: true }));
   const reload = () => {
