@@ -332,7 +332,7 @@ html.mv-on .app *{animation-play-state:paused !important} html.mv-hide .app{visi
 /* 이 일대 지난 기록: 지도 아래 판 바로 위 조용한 한 줄 (누르면 화면 전체 카드) */
 .mv-area{position:absolute; left:10px; bottom:42px; z-index:1; transform:translate3d(0,calc(-1 * var(--sheet-h, 0px)),0); transition:transform .28s cubic-bezier(.2,.85,.25,1); max-width:calc(100% - 104px); display:flex; align-items:center; gap:6px; min-height:36px; padding:6px 12px 6px 10px; border:1px solid var(--line); border-radius:18px; background:var(--card); color:var(--ink); font:inherit; font-size:calc(12.5px * var(--k)); font-weight:700; text-align:left; box-shadow:0 4px 14px rgba(0,0,0,.18); -webkit-tap-highlight-color:transparent}
 .mv-area span{display:flex; flex-direction:column; min-width:0} .mv-area b, .mv-area small{overflow:hidden; text-overflow:ellipsis; white-space:nowrap} .mv-area b{font-weight:800} .mv-area small{font-size:calc(12px * var(--k)); font-weight:700; color:var(--accent, #2F7DF6)} .mv-area i{flex:none; font-style:normal; color:var(--ink-2)}
-.mv-area small.warn{color:var(--strong)} .mv-plan{bottom:42px; padding:0; gap:0; overflow:hidden} .mv-plan .gd-main{flex:1; min-width:0; display:flex; align-items:center; gap:6px; min-height:40px; padding:6px 8px 6px 10px; border:0; background:none; color:inherit; font:inherit; text-align:left; -webkit-tap-highlight-color:transparent} .mv-plan .gd-off{flex:none; align-self:stretch; width:38px; display:grid; place-items:center; border:0; border-left:1px solid var(--line); background:none; color:var(--ink-2); padding:0} .mv-plan .gd-off svg{width:17px; height:17px} .mv-plan .gd-off[hidden]{display:none} .mv-plan small .gt{display:inline; color:var(--ink-2); font-weight:800}
+.mv-area small.warn{color:var(--strong)} .mv-plan{bottom:42px; padding:0; gap:0; overflow:hidden} .mv-plan .gd-main{flex:1; min-width:0; display:flex; align-items:center; gap:6px; min-height:40px; padding:6px 8px 6px 10px; border:0; background:none; color:inherit; font:inherit; text-align:left; -webkit-tap-highlight-color:transparent} .mv-plan .gd-off{flex:none; align-self:stretch; width:38px; display:grid; place-items:center; border:0; border-left:1px solid var(--line); background:none; color:var(--ink-2); padding:0} .mv-plan .gd-off svg{width:17px; height:17px} .mv-plan .gd-off[hidden]{display:none} .mv-plan.sw .gd-main{min-height:38px; padding:5px 12px 5px 10px} .mv-plan .gp{display:flex !important; flex-direction:row !important; align-items:center; gap:7px} .mv-plan .gp b.pk{font-size:calc(15px * var(--k))} .mv-plan .gsw{display:inline-flex; border-radius:7px} .mv-plan .gsw .pl-sw{width:26px; height:13px; margin:0} .mv-plan .gsw.gl{box-shadow:0 0 0 2px rgba(182,240,58,.6)} .mv-plan .gsw.kei{box-shadow:0 0 0 2px rgba(120,150,255,.6)} .mv-plan .gt2{font-style:normal; font-size:calc(12px * var(--k)); font-weight:800; color:#E0A800} .mv-plan.soon{border-color:#FFC93C} .mv-plan .gd-off{display:none} .mv-plan.min small{display:none} .mv-plan.min .gd-main{min-height:34px; padding-top:4px; padding-bottom:4px} .mv-plan.min .gd-main > i{display:none} .mv-plan small .gt{display:inline; color:var(--ink-2); font-weight:800}
 .mv-plan span{display:grid; grid-template-columns:auto minmax(0, 1fr); column-gap:8px; align-items:center} .mv-plan small{grid-column:1 / -1} .mv-plan b.pk{display:inline-flex; align-items:center; gap:5px; font-size:calc(15px * var(--k))}
 .mv-areab{display:flex; align-items:center; gap:6px; width:100%; margin:10px 0 2px; padding:11px 12px; border:1px solid var(--line); border-radius:14px; background:var(--card); color:var(--ink); font:inherit; font-size:calc(13px * var(--k)); font-weight:700; text-align:left}
 .mv-areab span{flex:1; min-width:0} .mv-areab i{flex:none; font-style:normal; color:var(--ink-2)}
@@ -799,7 +799,7 @@ a.mv-row-btn{text-decoration:none; gap:10px} .mv-row-btn span{font-size:calc(20p
 .pl-hh .t{font-weight:800; font-size:calc(14.5px * var(--k))} .pl-hh .m{display:flex; flex-direction:column; gap:4px; min-width:0} .pl-hh .m small{color:var(--ink-2); font-size:calc(11.5px * var(--k)); word-break:keep-all}
 .pl-hh .sk{text-align:center; min-width:2.8em} .pl-hh .sk b{display:block; font-size:calc(15px * var(--k)); font-weight:800; white-space:nowrap} .pl-hh .sk small{display:block; color:var(--ink-2); font-size:calc(10.5px * var(--k))}
 .pl-dx{display:flex; flex-direction:column; gap:9px; padding:2px 12px 12px; border-top:1px dashed var(--line)}
-.pl-bf{margin:8px 0 0; padding:8px 10px; border-radius:10px; background:var(--chip, rgba(127,127,127,.12)); display:flex; flex-direction:column; gap:2px} .pl-bf b{font-size:calc(13.5px * var(--k)); font-weight:800} .pl-bf span{font-size:calc(12px * var(--k)); color:var(--ink-2)} .pl-allh{display:block; width:100%; margin:12px 0 4px; padding:11px; border:1px solid var(--line); border-radius:12px; background:var(--card); color:var(--ink); font:inherit; font-weight:800} .pl-k{margin:8px 0 0; font-size:calc(12px * var(--k)); font-weight:800; color:var(--ink-2)}
+.pl-bf{margin:8px 0 0; padding:8px 10px; border-radius:10px; background:var(--chip, rgba(127,127,127,.12)); display:flex; flex-direction:column; gap:2px} .pl-bf b{font-size:calc(13.5px * var(--k)); font-weight:800} .pl-bf span{font-size:calc(12px * var(--k)); color:var(--ink-2)} .pl-ports button.pe1 small{margin-left:6px; font-size:calc(11px * var(--k)); font-weight:700; opacity:.7} .pl-allh{display:block; width:100%; margin:12px 0 4px; padding:11px; border:1px solid var(--line); border-radius:12px; background:var(--card); color:var(--ink); font:inherit; font-weight:800} .pl-k{margin:8px 0 0; font-size:calc(12px * var(--k)); font-weight:800; color:var(--ink-2)}
 .pl-cl{display:grid; grid-template-columns:auto minmax(min-content, 1fr) minmax(2.6em, 33%) 1.7em 3.4em; gap:7px; align-items:center}
 .pl-cr{display:contents}
 .pl-cr .nm{display:flex; flex-direction:column; align-items:flex-start; gap:1px; min-width:0} .pl-cr .nm b{font-weight:800; font-size:calc(13.5px * var(--k)); white-space:nowrap} .pl-cr .nm small{color:var(--ink-2); font-size:calc(11px * var(--k)); white-space:nowrap}
@@ -5891,6 +5891,10 @@ const TideHarm = (() => {
     //        · 통과하는 빛은 몸통 색으로 물듦 · 겉에서 되돌리는 빛은 천의 60%(가정) · 뒤쪽 배경 빛이 비쳐 배경에 섞임 · 속 야광·케이무라 빛도 몸통 색을 지나 나옴
     const SIM_NUD = { t: 0.40, tmax: 0.85, r: 0.60 };
     const SIM_OPT = { lh: 0.24, glow: 0.03, kdMul: 1 };   // 점검(민감도)용 · 앱에서는 그대로
+    //  야광은 충전 뒤 시간이 지날수록 약해짐 (사용자 2026-11-20: 낚시 시작 때 축광기로 한 번 충전)
+    //    근거: 스트론튬 알루미네이트 축광 감쇠 측정 예 — 10분 386 · 1시간 50 · 5시간 약 8 mcd/m² (≈ 시간^-1.15) · DIN 67510 Class D 10분 260 · 60분 35
+    //    0.03cd/m²(30mcd/m²)를 충전 90분 뒤 값으로 보고 그 곡선을 따름 · 충전 직후 10분보다 밝게는 안 봄 · 12시간 뒤까지 · 바닷물에 담긴 채라 다시 충전되지는 않는다고 가정
+    const glowK = (tc, t) => { if (tc == null) return 1; const m = Math.min(720, Math.max(10, (t - tc) / 60000)); return (m / 90) ** -1.15; };
     const SIM_GLOWN = SIM_GLOW.reduce((a, x, i) => a + x * SIM_V[i], 0);
     const SIM_LZID = { silver: '은', gold: '금', red: '빨강', blue: '파랑', green: '초록', purple: '보라', rainbow: '무지개' };
     // 상자에 있나: 앱 에기 목록(기본 + 내가 만든 것, 숨긴 것 빼고)에 같은 색 에기가 있거나 이름이 맞으면 (기능은 따로 모름)
@@ -5915,7 +5919,7 @@ const TideHarm = (() => {
       const L0 = 0.01, Lab = 1e-6, th = Lb => Math.max(Lab, Lb >= L0 ? 0.15 * Lb : 0.15 * Math.sqrt(L0 * Lb));
       const dist = (dL, Lb, k = 1) => { const T = th(Lb) * k; return dL > T ? Math.log(dL / T) / c : 0; };
       // 바탕 빛 (천 없을 때 · 파장별): 야광 0.03cd/m² 초록빛 · 케이무라 = 바닥까지 온 자외선 30%를 푸른빛으로
-      const G = SIM_GLOW.map(x => x * SIM_OPT.glow / SIM_GLOWN);
+      const G = SIM_GLOW.map(x => x * SIM_OPT.glow * (o.gk != null ? o.gk : 1) / SIM_GLOWN);
       const uv = o.surf[0] * 10 * 0.9 * Math.exp(-1.5 * o.Kd[0] * o.zd), K = SIM_KEI.map(x => x * 0.3 * uv / SIM_KEIS / Math.PI);
       const qe = (src, T) => src.reduce((a, x, i) => a + x * T[i] * S[i], 0) / qn;   // 천을 지난 바탕 빛 (쭈갑이 눈 기준)
       const sc = r => Math.round(100 * r / (r + 1));
@@ -6054,7 +6058,7 @@ const TideHarm = (() => {
       const qb = ez.reduce((a, x, i) => a + x * Sv[i], 0) / qn, qs = SF.spec.reduce((a, x, i) => a + x * Sv[i], 0) / qn;   // 쭈갑이 눈 기준 (낮 햇빛이면 lux와 같은 값)
       let pk = 0; ez.forEach((x, i) => { if (x > ez[pk]) pk = i; });
       const LB = { surf: SF.E, qs, qb, frac: qs > 0 ? qb / qs : 0, pk: SIM_L[pk], kdMin: Math.min(...Kd), tr: tr0 };
-      const EG = simEgi({ ez, sp, zsd: W.zsd, kd: W.kd, Kd, zd, surf: SF.spec });
+      const EG = simEgi({ ez, sp, zsd: W.zsd, kd: W.kd, Kd, zd, surf: SF.spec, gk: glowK(ctx.tc, t) });
       const light = qb < 0.1 ? '깜깜' : qb < 5 ? '어둑' : qb < 50 ? '보통' : '밝음';
       const key = light !== '어둑' ? light : rainNow ? '어둑비' : (el < 12 && h < 12) ? '어둑새' : wx.sky === 1 ? '어둑맑' : '어둑흐';
       let [head, body, tape, one, alt] = SIM_RULE[key]; const cBeam = 3.5 * Math.min(...Kd);
@@ -6083,7 +6087,7 @@ const TideHarm = (() => {
       for (let h = 0; h <= 23; h++) { const w = wx ? wx(h) : simWx(o.k, n, h); if (w.rain) rainHours.push(h); }
       const st = typeof WX !== 'undefined' && WX && WX.stations && WX.stations[wxOf(o.k)];
       const rainYday = o.rainYday != null ? o.rainYday : !!(st && st.rain && st.rain[wxYmd(n - 1)]);
-      const fi = {}, ctx = { p: o.p, k: o.k, n, m, cc, sp: o.sp || 'jj', pe: o.pe || '1.0', flat: simFlat(o.p, fi), rainHours, rainYday, wx };
+      const fi = {}, ctx = { tc: o.tc !== undefined ? o.tc : dayStartOf(n) + (o.h0 ?? 6) * 3600000, p: o.p, k: o.k, n, m, cc, sp: o.sp || 'jj', pe: o.pe || '1.0', flat: simFlat(o.p, fi), rainHours, rainYday, wx };
       ctx.sat = o.noSat ? null : simSat(ctx); ctx.satK = ctx.sat ? ctx.sat.k : 1;
       let hours = []; for (let h = o.h0 ?? 6; h <= (o.h1 ?? 17); h++) hours.push(simHour(ctx, dayStartOf(n) + h * 3600000));
       // 바닥 빛이 문턱(0.1·5·50lux) 근처에서 한 시간씩 오락가락하면 색이 들쭉날쭉 → 앞뒤 시각과 고르게 (로그로 1:2:1)
@@ -6145,6 +6149,9 @@ const TideHarm = (() => {
     const planRow = x => ({ h: x.h, st: x.st.txt, d: x.depth != null ? Math.round(x.depth * 10) / 10 : null, c: x.cur ? Math.round(x.cur.sp * 100) / 100 : null, wx: plWx(x.wx), src: x.wx.src, water: x.water, light: x.light, lux: Math.round(x.lux * 100) / 100,
       head: x.head, body: x.body, tape: x.tape, one: x.one, alt: x.alt, eg: x.EG ? x.EG.list.slice(0, 6).map(e => [e.id, e.sc, e.best, e.fn.lz.lc]) : null, pr: x.EG && x.EG.pairs[0] ? [x.EG.pairs[0].an, x.EG.pairs[0].bn, x.EG.pairs[0].sc] : null, ...(x.after ? { after: 1 } : {}), see: Math.round(x.see * 10) / 10, sink: x.sink ? { '0.8': x.sink['0.8'], '1.0': x.sink['1.0'], v: x.sink.v.map(v => Math.round(v * 100) / 100), vcat: x.sink.vcat, vcatGp: x.sink.vcatGp } : null, T: Math.round(x.T * 100) / 100 });
     let plS = null, plEl = null;
+    const PE_KEY = 'jjukgap-pe';   // 원줄: 한 번 고르면 계속 (사용자 2026-11-20)
+    const peGet = () => { try { const v = localStorage.getItem(PE_KEY); return v === '0.8' || v === '1.0' ? v : '1.0'; } catch (_) { return '1.0'; } };
+    const peSet = v => { try { localStorage.setItem(PE_KEY, v); } catch (_) {} };
     function planOpen(n, o) {
       if (!plEl) {
         plEl = document.createElement('div'); plEl.className = 'cardv bookv'; plEl.id = 'plv'; plEl.hidden = true;
@@ -6160,7 +6167,7 @@ const TideHarm = (() => {
         planRender(); plEl.scrollTop = 0; return;
       }
       const P = planGet(n);
-      plS = { n, k: P && TideHarm.STATIONS[P.k] ? P.k : tideSt, p: P ? P.p : null, how: P ? P.how : null, h0: P ? P.h0 : 6, h1: P ? P.h1 : 17, pe: P ? P.pe : '1.0', res: null, busy: false, open: new Set(o && o.h != null ? [o.h] : []), saved: !!P, run: 0, live: o && o.live || null, scrollH: o && o.h != null ? o.h : null };
+      plS = { n, k: P && TideHarm.STATIONS[P.k] ? P.k : tideSt, p: P ? P.p : null, how: P ? P.how : null, h0: P ? P.h0 : 6, h1: P ? P.h1 : 17, pe: peGet(), _peOld: P ? P.pe : '1.0', res: null, busy: false, open: new Set(o && o.h != null ? [o.h] : []), saved: !!P, run: 0, live: o && o.live || null, scrollH: o && o.h != null ? o.h : null };
       plEl.hidden = false; document.documentElement.classList.add('cv-lock');
       if (useHist) { try { history.pushState({ plv: 1 }, ''); } catch (_) {} }
       planCalc(); plEl.scrollTop = 0;
@@ -6198,9 +6205,16 @@ const TideHarm = (() => {
       const b = e.target.closest('[data-pl]'); if (!b || !plS) return; const a = b.dataset.pl, s = plS;
       if (a === 'x') return planClose();
       if (a === 'port') { if (b.dataset.k === s.k) return; s.k = b.dataset.k; s.how = null; s.p = null; s.saved = false; return planCalc(); }
+      if (a === 'pe1') {   // 버튼 하나로 0.8 ↔ 1.0 · 고른 건 기억
+        const v = s.pe === '1.0' ? '0.8' : '1.0'; peSet(v);
+        b.firstChild.nodeValue = `PE ${v}호`; b.setAttribute('aria-label', `원줄 PE ${v}호 · 누르면 바꿔요`);   // 버튼 글자만 먼저 (화면 전체를 다시 그리지 않음)
+        if (s.guide) { if (!gdG) return; s.pe = gdG.pe = v; return guideCalc(true).then(() => { if (plS === s && gdG) { s.res = gdG.R; planRender(true); } }); }
+        s.pe = v; s.saved = false; return planRender(true);
+      }
       if (a === 'pe' && s.guide) { if (s.pe === b.dataset.v || !gdG) return; s.pe = gdG.pe = b.dataset.v; s.busy = true; planRender(); return guideCalc(true).then(() => { if (plS === s && gdG) { s.res = gdG.R; s.busy = false; planRender(); } }); }
       if (a === 'pe') { s.pe = b.dataset.v; s.saved = false; return planRender(); }
       if (a === 'hours') { s.allH = !s.allH; return planRender(); }
+      if (a === 'gdoff') { guideOff(); return planClose(); }
       if (a === 'row') { const h = +b.dataset.h; if (s.open.has(h)) s.open.delete(h); else s.open.add(h); return planRender(); }
       if (a === 'more' || a === 'fn' || a === 'why') { const h = +b.dataset.h, S = s[a] || (s[a] = new Set()); if (S.has(h)) S.delete(h); else S.add(h); return planRender(); }
       if (a === 'auto') { s.how = null; s.p = null; s.saved = false; return planCalc(); }
@@ -6268,12 +6282,13 @@ const TideHarm = (() => {
       const R = s.res, now = Date.now(), hNow = Math.floor((now - dayStartOf(s.n)) / 3600000);
       const head = `<div class="cv-h"><button type="button" class="cv-x" data-pl="x" aria-label="닫기"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button><b>길잡이</b><span>${esc(ampm((now - dayStartOf(s.n)) / 60000))}</span></div>`;
       let h = PL_DEFS + `<p class="ar-sub">지금 이 자리(GPS)·이 시각으로 셈한 <b>가설</b>이에요. 10분마다, 또는 500m 넘게 옮기면 다시 셈해요. 봉돌은 GPS로 잰 배 속도로 1분마다 바뀌어요.</p>`;
-      h += `<div class="pl-set"><div class="pl-l"><span class="k">원줄</span><span class="pl-ports">${['0.8', '1.0'].map(v => `<button type="button" data-pl="pe" data-v="${v}" class="${v === s.pe ? 'on' : ''}" aria-pressed="${v === s.pe}">PE ${v}호</button>`).join('')}</span></div></div>`;
+      h += `<div class="pl-set"><div class="pl-l"><span class="k">원줄</span><span class="pl-ports"><button type="button" class="on pe1" data-pl="pe1" aria-label="원줄 PE ${s.pe}호 · 누르면 바꿔요">PE ${s.pe}호<small>바꾸기</small></button></span></div></div>`;
       if (s.busy || !R) return head + h + `<p class="bk-none">셈하는 중…</p>`;
       const srcs = new Set(R.hours.map(x => x.wx.src)), wsrc = srcs.has('now') ? '지금 날씨(기상청 초단기실황·예보)' : srcs.has('short') ? '시간별 예보' : '예보 없음';
       const nx = gdG ? gdNext(gdG) : null, mins = gdG ? Math.round((now - gdG.t) / 60000) : 0;
       h += `<div class="pl-day"><div class="pl-dh"><b>${esc(whereTxt(s.p, s.k))}</b><small>${esc(wsrc)} · ${mins < 1 ? '방금' : `${mins}분 전`} 셈</small></div>${nx ? `<p class="pl-note">다음: ${esc(nx)}</p>` : ''}</div>` + `<p class="pl-note">색 점수는 쭈갑이 눈에 보이는 정도만 셈한 가설이에요. 서해처럼 탁하고 어두운 날은 색끼리 차이가 작게 나와요.</p>`;
       h += `<div class="pl-hours">`; for (const x of R.hours.filter(x => x.h >= hNow)) h += plHour(x, s); h += `</div>`;
+      h += `<button type="button" class="pl-allh" data-pl="gdoff">길잡이 끄기 · 지도에서 숨겨요</button>`;
       h += `<p class="bk-none">자료: 국립해양조사원 조석·조류 예측·격자 수심(BADA2024) · 기상청 예보·초단기실황·초단기예보 · 물색 바탕: 국립수산과학원 정선해양관측 · 물색 보정: 천리안위성 2B호(국립해양조사원 국가해양위성센터). 해도가 아니니 항해·안전에는 쓰지 마세요.</p>`;
       return head + h;
     }
@@ -6334,9 +6349,13 @@ const TideHarm = (() => {
       if (s.why.has(x.h)) h += `<p class="why">${plWhy(x, s)}</p>`;
       return h + '</div></div>';
     }
-    const plWhy = (x, s) => `바닥 빛(쭈갑이 눈 기준) 약 ${simNum(x.LB.qb)}lux · ${simLvTxt(x.LB.qb)} · 물 위 ${simNum(x.LB.surf)}lux의 ${x.LB.frac >= 0.001 ? (x.LB.frac * 100).toFixed(1) : simNum(x.LB.frac * 100)}% · 남은 빛 ${x.LB.pk}nm<br>해 높이 ${Math.round(x.el)}° · 에기가 보이는 거리 약 ${x.see.toFixed(1)}m<br>물색 ${x.W.label} · 투명도 약 ${x.W.zsd < 1 ? x.W.zsd.toFixed(1) : (Math.round(x.W.zsd * 2) / 2).toFixed(1)}m (${esc(x.W.why.join(' · '))})${WQ ? '<br>물색 바탕: 국립수산과학원 정선해양관측 실측(2000~2020)' : ''}${WQ && WQ.sat ? '<br>물색 보정: 천리안위성 2B호(국립해양조사원 국가해양위성센터) 자료로 셈 맞춤' : ''}<br>누드: 천 없는 반투명 색 몸통으로 셈 — 빛의 약 40%가 몸통 색으로 물들어 통과(반투명 색 플라스틱 판 측정값 30~50%를 에기 몸통에 맞춘 가정)<br>단색: ${esc(x.one)}${x.alt ? ` · 대안: ${esc(x.alt)}` : ''}${x.after ? '<br>비 그친 뒤라 톤을 낮추지 않음 (내 기록 11/5)' : ''}${x.sink ? `<br>봉돌(합사 ${s.pe === '1.0' ? '1' : s.pe}호): ${simSkTxt(x.sink[s.pe])}${skBoxTxt(x.sink[s.pe])}${x.sink[s.pe].main != null ? ` · 배가 바람에 덜 밀리면 ${x.sink[s.pe].lo ? x.sink[s.pe].lo + '호' : '40호↑'}, 더 밀리면 ${x.sink[s.pe].hi ? x.sink[s.pe].hi + '호' : '40호↑'}` : ''}<br>줄이 30° 안으로 서는 가장 가벼운 무게 · 보통 낚싯배가 자연스럽게 흐른다고 봄(배 위에서 GPS로 바로잡음)${x.sink.v ? `<br>${skVTxt(x.sink, s.sp)}<br>${skMethTxt(x.sink, s.sp)}` : ''}` : ''}`;
-    function planRender() {
+    const plWhy = (x, s) => `바닥 빛(쭈갑이 눈 기준) 약 ${simNum(x.LB.qb)}lux · ${simLvTxt(x.LB.qb)} · 물 위 ${simNum(x.LB.surf)}lux의 ${x.LB.frac >= 0.001 ? (x.LB.frac * 100).toFixed(1) : simNum(x.LB.frac * 100)}% · 남은 빛 ${x.LB.pk}nm<br>해 높이 ${Math.round(x.el)}° · 에기가 보이는 거리 약 ${x.see.toFixed(1)}m<br>물색 ${x.W.label} · 투명도 약 ${x.W.zsd < 1 ? x.W.zsd.toFixed(1) : (Math.round(x.W.zsd * 2) / 2).toFixed(1)}m (${esc(x.W.why.join(' · '))})${WQ ? '<br>물색 바탕: 국립수산과학원 정선해양관측 실측(2000~2020)' : ''}${WQ && WQ.sat ? '<br>물색 보정: 천리안위성 2B호(국립해양조사원 국가해양위성센터) 자료로 셈 맞춤' : ''}<br>야광: 낚시 시작 때 한 번 충전했다고 보고 시간이 지날수록 약해지게 셈(축광 야광 감쇠: 10분 뒤의 약 8분의 1이 1시간 뒤, 50분의 1이 5시간 뒤)<br>누드: 천 없는 반투명 색 몸통으로 셈 — 빛의 약 40%가 몸통 색으로 물들어 통과(반투명 색 플라스틱 판 측정값 30~50%를 에기 몸통에 맞춘 가정)<br>단색: ${esc(x.one)}${x.alt ? ` · 대안: ${esc(x.alt)}` : ''}${x.after ? '<br>비 그친 뒤라 톤을 낮추지 않음 (내 기록 11/5)' : ''}${x.sink ? `<br>봉돌(합사 ${s.pe === '1.0' ? '1' : s.pe}호): ${simSkTxt(x.sink[s.pe])}${skBoxTxt(x.sink[s.pe])}${x.sink[s.pe].main != null ? ` · 배가 바람에 덜 밀리면 ${x.sink[s.pe].lo ? x.sink[s.pe].lo + '호' : '40호↑'}, 더 밀리면 ${x.sink[s.pe].hi ? x.sink[s.pe].hi + '호' : '40호↑'}` : ''}<br>줄이 30° 안으로 서는 가장 가벼운 무게 · 보통 낚싯배가 자연스럽게 흐른다고 봄(배 위에서 GPS로 바로잡음)${x.sink.v ? `<br>${skVTxt(x.sink, s.sp)}<br>${skMethTxt(x.sink, s.sp)}` : ''}` : ''}`;
+    function planRender(keep) {   // keep: 스크롤 자리 그대로 (원줄 바꿀 때 깜빡임·튐 없이)
       const s = plS; if (!s || !plEl) return;
+      if (keep) { const y = plEl.scrollTop; plRenderIn(s); plEl.scrollTop = y; return; }
+      plRenderIn(s);
+    }
+    function plRenderIn(s) {
       for (const k of ['more', 'fn', 'why']) if (!s[k]) s[k] = new Set();
       plRec = null; s.act = s.n <= kstDay(Date.now()) ? plActual(s.n) : null;
       if (s.guide) { plEl.innerHTML = `<div class="cv-in">${guideHTML(s)}</div>`; return; }
@@ -6347,7 +6366,7 @@ const TideHarm = (() => {
       h += `<div class="pl-l"><span class="k">색 셈 기준 자리</span><span class="v"><b>${where}</b><small>${howT}</small><span class="pl-btns"><button type="button" data-pl="pick">지도에서 고르기</button>${s.how === 'pick' ? '<button type="button" data-pl="auto">자동으로</button>' : ''}</span></span></div>`;
       const opt = (a, b, v) => Array.from({ length: b - a + 1 }, (_, i) => a + i).map(x => `<option value="${x}"${x === v ? ' selected' : ''}>${String(x).padStart(2, '0')}시</option>`).join('');
       h += `<div class="pl-l"><span class="k">시간</span><span class="v pl-tm"><select data-pl="h0" aria-label="시작 시각">${opt(3, 14, s.h0)}</select> ~ <select data-pl="h1" aria-label="끝 시각">${opt(8, 20, s.h1)}</select></span></div>`;
-      h += `<div class="pl-l"><span class="k">원줄</span><span class="pl-ports">${['0.8', '1.0'].map(v => `<button type="button" data-pl="pe" data-v="${v}" class="${v === s.pe ? 'on' : ''}" aria-pressed="${v === s.pe}">PE ${v}호</button>`).join('')}</span></div></div>`;
+      h += `<div class="pl-l"><span class="k">원줄</span><span class="pl-ports"><button type="button" class="on pe1" data-pl="pe1" aria-label="원줄 PE ${s.pe}호 · 누르면 바꿔요">PE ${s.pe}호<small>바꾸기</small></button></span></div></div>`;
       const R = s.res;
       if (s.busy && !R) h += `<p class="bk-none">셈하는 중…</p>`;
       else if (!R) h += `<p class="bk-none">${s.err ? '셈하지 못했어요. 인터넷이 될 때 한 번 열어 주세요.' : ''}</p>`;
@@ -6406,7 +6425,7 @@ const TideHarm = (() => {
       if (!WQ) wqReady();   // 실측 물색 바탕 (들어오면 다음 셈부터)
       const k0 = `${me.lat.toFixed(3)},${me.lon.toFixed(3)}`;
       if (lvC && lvC.k === k0 && at - lvC.t < 20000) return lvC.v;
-      const n = kstDay(at), h = Math.floor((at - dayStartOf(n)) / 3600000), P = planGet(n), pe = P ? P.pe : '1.0';
+      const n = kstDay(at), h = Math.floor((at - dayStartOf(n)) / 3600000), P = planGet(n), pe = peGet();
       let row = P ? P.hours.find(r => r.h === h) || null : null, live = null;
       if (0 && !row && SP) {   // (길잡이가 10분마다 셈하므로 여기서는 안 함)
         try { const m = spotTide(me), cc = spotCur(me), k = tripPortK(); live = simHour({ p: me, k, n, m, cc, sp: 'jj', pe, flat: lvFlat(me), rainHours: [], rainYday: false }, at); } catch (_) { live = null; }
@@ -6439,8 +6458,10 @@ const TideHarm = (() => {
       try {
         await nowLoad(force); await loadSpots(); dpIndex(); await learnBuild();
         for (let i = 0; i < 40 && !DPI && dpiSt !== 'err'; i++) await new Promise(r => setTimeout(r, 150));
-        const h = Math.floor((now - dayStartOf(n)) / 3600000), P = planGet(n), pe = (gdG && gdG.pe) || (P && P.pe) || '1.0', p = { lat: me.lat, lon: me.lon };
-        const R = await simRun({ k: tripPortK(), p, n, h0: h, h1: Math.min(23, h + 3), sp: 'jj', pe });
+        const h = Math.floor((now - dayStartOf(n)) / 3600000), P = planGet(n), pe = peGet(), p = { lat: me.lat, lon: me.lon };
+        let tc = board && board.since ? board.since + 30 * 60000 : null;   // 야광 충전 시각: 오늘 첫 포인트(낚시 시작) · 없으면 선상 모드 켠 뒤 30분
+        try { const f0 = points.filter(q => !q.virtual && kstDay(q.t) === n && (!board || !board.since || q.t >= board.since - 3 * 3600000)).reduce((a, q) => Math.min(a, q.t), Infinity); if (f0 < Infinity) tc = f0; } catch (_) {}
+        const R = await simRun({ k: tripPortK(), p, n, h0: h, h1: Math.min(23, h + 3), sp: 'jj', pe, tc });
         gdG = { t: now, p, R, n, h, pe };
       } catch (_) {}
       gdBusy = false; planChip(me);
@@ -6448,14 +6469,14 @@ const TideHarm = (() => {
     function gdNext(G) {   // 앞으로 3시간 안에 바뀌는 것 (가장 먼저 오는 하나)
       const H = G.R.hours, now = Date.now(), d0 = dayStartOf(G.n), x0 = gdNowRow(G); if (!x0) return null;
       const ex = (G.R.exs || []).filter(e => e.ms > now && e.ms - now < 3 * 3600000).sort((a, b) => a.ms - b.ms)[0];
-      let msg = ex ? `${ampm((ex.ms - d0) / 60000)} ${ex.type === 'H' ? '만조' : '간조'} · 물이 멈춰요` : null; const at = ex ? ex.ms : Infinity;
+      let msg = ex ? `${ampm((ex.ms - d0) / 60000)} ${ex.type === 'H' ? '만조' : '간조'} · 물이 멈춰요` : null; const at = ex ? ex.ms : Infinity; G.nextAt = msg ? at : null;
       for (const x of H.filter(r => r.h > x0.h)) {
         const t = d0 + x.h * 3600000; if (t >= at) break;
         const E0 = x0.EG, E = x.EG;
-        if (E0 && E && (E.bf || '') !== (E0.bf || '')) { msg = `${x.h}시부터 ${E.bf ? plFn(E.bf) : '기능 없이'} · ${E.list.slice(0, 2).map(e => e.n).join('·')}`; break; }
-        if (E0 && E && !E.flat && !E0.list.slice(0, 2).some(e => e.id === E.list[0].id)) { msg = `${x.h}시부터 ${E.list[0].n} 쪽`; break; }
+        if (E0 && E && (E.bf || '') !== (E0.bf || '')) { msg = `${x.h}시부터 ${E.bf ? plFn(E.bf) : '기능 없이'} · ${E.list.slice(0, 2).map(e => e.n).join('·')}`; G.nextAt = t; break; }
+        if (E0 && E && !E.flat && !E0.list.slice(0, 2).some(e => e.id === E.list[0].id)) { msg = `${x.h}시부터 ${E.list[0].n} 쪽`; G.nextAt = t; break; }
         const s0 = x0.sink && x0.sink[G.pe], s1 = x.sink && x.sink[G.pe];
-        if (s0 && s1 && s0.main && s1.main && s1.main !== s0.main) { msg = `${x.h}시쯤 봉돌 ${s1.main}호 쪽`; break; }
+        if (s0 && s1 && s0.main && s1.main && s1.main !== s0.main) { msg = `${x.h}시쯤 봉돌 ${s1.main}호 쪽`; G.nextAt = t; break; }
       }
       return msg;
     }
@@ -6465,21 +6486,24 @@ const TideHarm = (() => {
       const hide = () => { if (!el.hidden) { el.hidden = true; planChipPos(); } }, show = () => { if (el.hidden) el.hidden = false; planChipPos(); };
       if (!here || !onBoard || here.virtual || mode !== 'info' || spNow() !== 'jg') return hide();
       const put = (t, lab) => { if (mb.innerHTML !== t) mb.innerHTML = t; mb.setAttribute('aria-label', lab); };
-      if (!gdOn) { ob.hidden = true; put(`<span><b class="pc">길잡이 꺼짐</b><small>누르면 다시 켜요</small></span>`, '길잡이 꺼짐. 누르면 다시 켜요'); return show(); }
-      ob.hidden = false;
+      if (!gdOn) { el.classList.remove('soon', 'sw'); ob.hidden = true; put(`<span><b class="pc">길잡이 꺼짐</b><small>누르면 다시 켜요</small></span>`, '길잡이 꺼짐. 누르면 다시 켜요'); return show(); }
       const now = Date.now(), x = gdNowRow(gdG);
       if (!x || gdG.n !== kstDay(now) || now - gdG.t >= 600000 || distKm(gdG.p, here) >= 0.5) guideCalc();
       let L = null; try { L = liveCalc(now); } catch (_) { L = null; }
-      if (!x && !(L && L.sk)) { put(`<span><b class="pc">길잡이 셈하는 중…</b><small><span class="gt">길잡이</span> · 지금 이 자리로 셈해요</small></span>`, '길잡이 셈하는 중'); return show(); }
+      if (!x && !(L && L.sk)) { el.classList.remove('soon', 'sw'); put(`<span><b class="pc">길잡이 셈하는 중…</b><small><span class="gt">길잡이</span> · 지금 이 자리로 셈해요</small></span>`, '길잡이 셈하는 중'); return show(); }
       const pe = (gdG && gdG.pe) || '1.0', s = L && L.sk, sx = x && x.sink && x.sink[pe];
       const skT = s ? (s.std ? `${s.std}호` : '40호↑') : sx ? (sx.main ? `${sx.main}호` : '40호↑') : '', vc = s ? s.vcat : x ? plVc(x, { pe }) : null;
       const E = x && x.EG, bfN = E && E.bf ? plFn(E.bf) : '';
       const cols = E ? [bfN, ...E.list.slice(0, 2).map(e => e.n + (e.best !== (E.bf || '') ? `(${plFn(e.best, e.fn.lz.lc)})` : ''))].filter(Boolean).join(' · ') : '';
-      const warn = s && s.cur && s.std && s.cur < s.ho * 0.9;
-      const nx = gdG ? gdNext(gdG) : null;
-      const l2 = warn ? `단 ${s.cur}호는 가벼워요 → ${s.std}호` : s && s.vcat === 2 ? '에기가 빨라요 · 내려놓기를 길게' : nx ? `다음: ${nx}` : '앞으로 3시간 크게 바뀔 것 없어요';
-      const t = `<span>${skT ? `<b class="pk">${esc(skT)}${vc != null ? `<i class="pl-dot d${vc}" aria-hidden="true"></i>` : ''}</b>` : ''}<b class="pc">${esc(cols || '색 셈하는 중…')}</b><small class="${warn || (s && s.vcat === 2) ? 'warn' : ''}"><span class="gt">길잡이</span> · ${esc(l2)}</small></span><i aria-hidden="true">›</i>`;
-      put(t, `길잡이. 봉돌 ${skT}. ${cols}. ${l2}. 누르면 자세히`); show();
+      const warn = s && s.cur && s.std && s.cur < s.ho * 0.9, fast = s && s.vcat === 2;
+      const nx = gdG ? gdNext(gdG) : null, soon = !!(gdG && gdG.nextAt && gdG.nextAt - now <= 30 * 60000);
+      // 색 견본 알약 (사용자 2026-11-20 2번): [호수 · 바닥 속도 점] [색 견본 둘 — 야광이면 연두 빛 테두리] [곧 바뀌면 시각] · 누르면 바로 자세히
+      const ring = f => /g/.test(f || '') ? ' gl' : /k/.test(f || '') ? ' kei' : '';
+      const sws = E ? E.list.slice(0, 2).map(e => `<span class="gsw${ring(e.best)}">${plSw(e.id)}</span>`).join('') : '';
+      const atT = soon ? ampm((gdG.nextAt - dayStartOf(gdG.n)) / 60000).replace(/^오[전후] /, '') : '', tag = warn ? `→${s.std}호` : fast ? '빠름' : atT;
+      el.classList.toggle('soon', !!(soon || warn || fast)); el.classList.add('sw'); ob.hidden = true;
+      const t = `<span class="gp">${skT ? `<b class="pk">${esc(skT)}</b>` : ''}${vc != null ? `<i class="pl-dot d${vc}" aria-hidden="true"></i>` : ''}${sws}${tag ? `<em class="gt2">${esc(tag)}</em>` : ''}</span>`;
+      put(t, ['길잡이', `봉돌 ${skT}`, cols, warn ? `봉돌이 가벼워요 ${s.std}호로` : fast ? '에기가 빨라요' : nx ? '다음: ' + nx : '', '누르면 자세히'].filter(Boolean).join('. ')); show();
     }
     function guideTap() {
       if (!gdOn) { gdOn = true; try { localStorage.setItem(GD_KEY, '1'); } catch (_) {} guideCalc(true); planChip(me); return; }
@@ -8931,10 +8955,10 @@ const TideHarm = (() => {
       const a = SIM_COL_ALL.find(s => s.app === e.c); if (a) return a.id;
       if (!SIM_MINE_BY[e.c]) simMine(); return SIM_MINE_BY[e.c] ? e.c : null;
     }
-    async function fpCalc(p) {   // 지문이 없는 예전 포인트: 그 자리·그 시각으로 한 번 셈 (적어 둔 하늘·바람·파도를 씀)
+    async function fpCalc(p, tc) {   // 지문이 없는 예전 포인트: 그 자리·그 시각으로 한 번 셈 (적어 둔 하늘·바람·파도를 씀)
       try {
         for (let i = 0; i < 30 && depthRaw(p).st === 'load'; i++) await new Promise(r => setTimeout(r, 100));
-        const n = kstDay(p.t), ctx = { p, k: nearest(p).k, n, m: spotTide(p), cc: spotCur(p), sp: 'jj', pe: '1.0', flat: simFlat(p, {}), rainHours: [], rainYday: !!p.rainPrev, satK: 1, noLearn: true,
+        const n = kstDay(p.t), ctx = { tc: tc != null ? tc : null, p, k: nearest(p).k, n, m: spotTide(p), cc: spotCur(p), sp: 'jj', pe: '1.0', flat: simFlat(p, {}), rainHours: [], rainYday: !!p.rainPrev, satK: 1, noLearn: true,
           wx: () => ({ src: 'rec', wind: p.wind != null ? p.wind : null, dir: null, wave: p.wave != null ? p.wave : null, sky: p.sky != null ? p.sky : null, rain: !!p.rain }) };
         return fpOf(simHour(ctx, p.t));
       } catch (_) { return null; }
@@ -8955,7 +8979,7 @@ const TideHarm = (() => {
             const win = { dawn: [], am: [], pm: [] };
             for (const p of tp) {
               let f = p.fp || fpMem[p.id];
-              if (!f) { await new Promise(r => setTimeout(r, 0)); f = await fpCalc(p); if (f) { fpMem[p.id] = f; dirty = true; } }   // 한 점씩 쉬어 가며 (화면이 멈추지 않게)
+              if (!f) { await new Promise(r => setTimeout(r, 0)); f = await fpCalc(p, tp.reduce((a, q) => Math.min(a, q.t), Infinity)); if (f) { fpMem[p.id] = f; dirty = true; } }   // 한 점씩 쉬어 가며 (화면이 멈추지 않게)
               if (f) win[tmOfT(p.t)].push(f);
             }
             for (const e of cd.egi) {
@@ -11273,7 +11297,7 @@ const TideHarm = (() => {
 
 <script>
 if ('serviceWorker' in navigator) addEventListener('load', () => {
-  const sw = navigator.serviceWorker, VER = '2080c4f9'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
+  const sw = navigator.serviceWorker, VER = '8bd7ec9a'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
   // 화면에 손을 대기 시작했는지 (쓰는 중에는 새로 열지 않으려고)
   ['pointerdown', 'keydown'].forEach(t => addEventListener(t, () => { touched = true; }, { capture: true, passive: true }));
   const reload = () => {
