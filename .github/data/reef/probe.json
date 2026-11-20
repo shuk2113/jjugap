@@ -1,0 +1,359 @@
+{
+ "dataset": "15130108",
+ "files": [
+  "해양수산부 국립해양조사원_암초_20250813\\TL_DGSATC_SUBMEROC_P 암초_컬럼맵핑정보.xlsx",
+  "해양수산부 국립해양조사원_암초_20250813\\TL_DGSATC_SUBMEROC_P.cpg",
+  "해양수산부 국립해양조사원_암초_20250813\\TL_DGSATC_SUBMEROC_P.dbf",
+  "해양수산부 국립해양조사원_암초_20250813\\TL_DGSATC_SUBMEROC_P.prj",
+  "해양수산부 국립해양조사원_암초_20250813\\TL_DGSATC_SUBMEROC_P.shp",
+  "해양수산부 국립해양조사원_암초_20250813\\TL_DGSATC_SUBMEROC_P.shx"
+ ],
+ "layers": [
+  {
+   "shp": "해양수산부 국립해양조사원_암초_20250813\\TL_DGSATC_SUBMEROC_P.shp",
+   "n": 3567,
+   "fields": [
+    "gid",
+    "obj_sn",
+    "inst_cd",
+    "cst_bzone_",
+    "ewtwy_bzon",
+    "bch_bzone_",
+    "fbctn_ymd",
+    "clsf_cd",
+    "dtlv_effc_",
+    "sodp_chrct",
+    "sfclyr_chr",
+    "sodp_expln",
+    "srfc_chrct",
+    "srock_se_c",
+    "korn_nm",
+    "eng_nm",
+    "stts_cd",
+    "sodp_tcnq",
+    "sodp_vl",
+    "eng_etc_in",
+    "korn_etc_i",
+    "txt_file_k",
+    "min_scal",
+    "txt_file_e",
+    "data_crt_y",
+    "orgnl_data",
+    "chrt_lv_se"
+   ],
+   "prj": "PROJCS[\"Korea_2000_Korea_Unified_Coordinate_System\",GEOGCS[\"GCS_Korea_2000\",DATUM[\"D_Korea_2000\",SPHEROID[\"GRS_1980\",6378137.0,298.257222101]],PRIMEM[\"Greenwich\",0.0],UNIT[\"Degree\",0.0174532925199433]],PROJECTION[\"Transverse_Mercator\"],PARAMETER[\"False_Easting\",1000000.0],PARAMETER[\"False_Northing\",",
+   "bbox": [
+    776472.86729853,
+    1564382.47699917,
+    1027611.4325,
+    1958825.99229999
+   ],
+   "sample": [
+    {
+     "rec": {
+      "gid": "1",
+      "obj_sn": "200001",
+      "inst_cd": "1192136",
+      "cst_bzone_": "",
+      "ewtwy_bzon": "",
+      "bch_bzone_": "",
+      "fbctn_ymd": "20161014",
+      "clsf_cd": "COD006",
+      "dtlv_effc_": "WTV004",
+      "sodp_chrct": "",
+      "sfclyr_chr": "NSR009",
+      "sodp_expln": "",
+      "srfc_chrct": "",
+      "srock_se_c": "",
+      "korn_nm": "",
+      "eng_nm": "",
+      "stts_cd": "",
+      "sodp_tcnq": "",
+      "sodp_vl": "0.0",
+      "eng_etc_in": "",
+      "korn_etc_i": "",
+      "txt_file_k": "",
+      "min_scal": "0",
+      "txt_file_e": "",
+      "data_crt_y": "",
+      "orgnl_data": "",
+      "chrt_lv_se": "LV2"
+     },
+     "pt": [
+      [
+       913440.260299989,
+       1777492.3255
+      ]
+     ],
+     "type": "POINT"
+    },
+    {
+     "rec": {
+      "gid": "2",
+      "obj_sn": "200003",
+      "inst_cd": "1192136",
+      "cst_bzone_": "",
+      "ewtwy_bzon": "",
+      "bch_bzone_": "",
+      "fbctn_ymd": "20161014",
+      "clsf_cd": "COD006",
+      "dtlv_effc_": "WTV004",
+      "sodp_chrct": "",
+      "sfclyr_chr": "NSR009",
+      "sodp_expln": "",
+      "srfc_chrct": "",
+      "srock_se_c": "",
+      "korn_nm": "",
+      "eng_nm": "",
+      "stts_cd": "",
+      "sodp_tcnq": "",
+      "sodp_vl": "0.0",
+      "eng_etc_in": "",
+      "korn_etc_i": "",
+      "txt_file_k": "",
+      "min_scal": "0",
+      "txt_file_e": "",
+      "data_crt_y": "",
+      "orgnl_data": "",
+      "chrt_lv_se": "LV2"
+     },
+     "pt": [
+      [
+       905796.729999984,
+       1722905.14129999
+      ]
+     ],
+     "type": "POINT"
+    },
+    {
+     "rec": {
+      "gid": "3",
+      "obj_sn": "200004",
+      "inst_cd": "1192136",
+      "cst_bzone_": "",
+      "ewtwy_bzon": "",
+      "bch_bzone_": "",
+      "fbctn_ymd": "20161014",
+      "clsf_cd": "COD006",
+      "dtlv_effc_": "WTV004",
+      "sodp_chrct": "",
+      "sfclyr_chr": "NSR009",
+      "sodp_expln": "",
+      "srfc_chrct": "",
+      "srock_se_c": "",
+      "korn_nm": "",
+      "eng_nm": "",
+      "stts_cd": "",
+      "sodp_tcnq": "",
+      "sodp_vl": "0.0",
+      "eng_etc_in": "",
+      "korn_etc_i": "",
+      "txt_file_k": "",
+      "min_scal": "0",
+      "txt_file_e": "",
+      "data_crt_y": "",
+      "orgnl_data": "",
+      "chrt_lv_se": "LV2"
+     },
+     "pt": [
+      [
+       854826.160299847,
+       1691595.54669991
+      ]
+     ],
+     "type": "POINT"
+    },
+    {
+     "rec": {
+      "gid": "4",
+      "obj_sn": "200005",
+      "inst_cd": "1192136",
+      "cst_bzone_": "",
+      "ewtwy_bzon": "",
+      "bch_bzone_": "",
+      "fbctn_ymd": "20161014",
+      "clsf_cd": "COD006",
+      "dtlv_effc_": "WTV004",
+      "sodp_chrct": "",
+      "sfclyr_chr": "NSR009",
+      "sodp_expln": "",
+      "srfc_chrct": "",
+      "srock_se_c": "",
+      "korn_nm": "",
+      "eng_nm": "",
+      "stts_cd": "",
+      "sodp_tcnq": "",
+      "sodp_vl": "0.0",
+      "eng_etc_in": "",
+      "korn_etc_i": "",
+      "txt_file_k": "",
+      "min_scal": "0",
+      "txt_file_e": "",
+      "data_crt_y": "",
+      "orgnl_data": "",
+      "chrt_lv_se": "LV2"
+     },
+     "pt": [
+      [
+       917924.272399993,
+       1777931.808
+      ]
+     ],
+     "type": "POINT"
+    },
+    {
+     "rec": {
+      "gid": "5",
+      "obj_sn": "200006",
+      "inst_cd": "1192136",
+      "cst_bzone_": "",
+      "ewtwy_bzon": "",
+      "bch_bzone_": "",
+      "fbctn_ymd": "20161014",
+      "clsf_cd": "COD006",
+      "dtlv_effc_": "WTV004",
+      "sodp_chrct": "",
+      "sfclyr_chr": "NSR009",
+      "sodp_expln": "",
+      "srfc_chrct": "",
+      "srock_se_c": "",
+      "korn_nm": "",
+      "eng_nm": "",
+      "stts_cd": "",
+      "sodp_tcnq": "",
+      "sodp_vl": "0.0",
+      "eng_etc_in": "",
+      "korn_etc_i": "",
+      "txt_file_k": "",
+      "min_scal": "999999",
+      "txt_file_e": "",
+      "data_crt_y": "",
+      "orgnl_data": "",
+      "chrt_lv_se": "LV2"
+     },
+     "pt": [
+      [
+       870850.352899915,
+       1766719.67049995
+      ]
+     ],
+     "type": "POINT"
+    },
+    {
+     "rec": {
+      "gid": "6",
+      "obj_sn": "200007",
+      "inst_cd": "1192136",
+      "cst_bzone_": "",
+      "ewtwy_bzon": "",
+      "bch_bzone_": "",
+      "fbctn_ymd": "20161014",
+      "clsf_cd": "COD006",
+      "dtlv_effc_": "WTV004",
+      "sodp_chrct": "",
+      "sfclyr_chr": "NSR009",
+      "sodp_expln": "",
+      "srfc_chrct": "",
+      "srock_se_c": "",
+      "korn_nm": "",
+      "eng_nm": "",
+      "stts_cd": "",
+      "sodp_tcnq": "",
+      "sodp_vl": "0.0",
+      "eng_etc_in": "",
+      "korn_etc_i": "",
+      "txt_file_k": "",
+      "min_scal": "0",
+      "txt_file_e": "",
+      "data_crt_y": "",
+      "orgnl_data": "",
+      "chrt_lv_se": "LV2"
+     },
+     "pt": [
+      [
+       916003.87769999,
+       1776812.2008
+      ]
+     ],
+     "type": "POINT"
+    },
+    {
+     "rec": {
+      "gid": "7",
+      "obj_sn": "200008",
+      "inst_cd": "1192136",
+      "cst_bzone_": "",
+      "ewtwy_bzon": "",
+      "bch_bzone_": "",
+      "fbctn_ymd": "20161014",
+      "clsf_cd": "COD006",
+      "dtlv_effc_": "WTV004",
+      "sodp_chrct": "",
+      "sfclyr_chr": "NSR009",
+      "sodp_expln": "",
+      "srfc_chrct": "",
+      "srock_se_c": "",
+      "korn_nm": "",
+      "eng_nm": "",
+      "stts_cd": "",
+      "sodp_tcnq": "",
+      "sodp_vl": "0.0",
+      "eng_etc_in": "",
+      "korn_etc_i": "",
+      "txt_file_k": "",
+      "min_scal": "0",
+      "txt_file_e": "",
+      "data_crt_y": "",
+      "orgnl_data": "",
+      "chrt_lv_se": "LV2"
+     },
+     "pt": [
+      [
+       917978.991399991,
+       1732188.8944
+      ]
+     ],
+     "type": "POINT"
+    },
+    {
+     "rec": {
+      "gid": "8",
+      "obj_sn": "200009",
+      "inst_cd": "1192136",
+      "cst_bzone_": "",
+      "ewtwy_bzon": "",
+      "bch_bzone_": "",
+      "fbctn_ymd": "20161014",
+      "clsf_cd": "COD006",
+      "dtlv_effc_": "WTV004",
+      "sodp_chrct": "",
+      "sfclyr_chr": "NSR009",
+      "sodp_expln": "",
+      "srfc_chrct": "",
+      "srock_se_c": "",
+      "korn_nm": "",
+      "eng_nm": "",
+      "stts_cd": "",
+      "sodp_tcnq": "",
+      "sodp_vl": "0.0",
+      "eng_etc_in": "",
+      "korn_etc_i": "",
+      "txt_file_k": "",
+      "min_scal": "999999",
+      "txt_file_e": "",
+      "data_crt_y": "",
+      "orgnl_data": "",
+      "chrt_lv_se": "LV2"
+     },
+     "pt": [
+      [
+       896235.026299972,
+       1763601.94739999
+      ]
+     ],
+     "type": "POINT"
+    }
+   ]
+  }
+ ]
+}

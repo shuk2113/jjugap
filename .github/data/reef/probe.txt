@@ -1,0 +1,47 @@
+--- robots.txt ---
+User-agent: Googlebot
+Disallow: /tcs/dss/selectDataSetList.do
+Disallow: /tcs/vas/
+Disallow: /tcs/lms/mpm/
+Disallow: /bbs/dnb/
+Disallow: /bbs/dsb/
+Disallow: /bbs/qna/selectQna.do
+dataset 15130108
+라이선스 ['이용허락범위 제한 없음","url":"https://www.data.go.kr/ugs/selectPortalPolicyView.do","@type":"Cr', '이용허락범위', '이용허락범위 제한 없음\n\t\t\t\t']
+단서 Down('15130108', 'uddi:e2caa6f5-4057-4ebb-ac28-e07dffeb79b6', '','1', '3')
+단서 uddi:e2caa6f5-4057-4ebb-ac28-e07dffeb79b6
+단서 uddi:e2caa6f5-4057-4ebb-ac28-e07dffeb79b6
+단서 uddi:e2caa6f5-4057-4ebb-ac28-e07dffeb79b6
+단서 uddi:e2caa6f5-4057-4ebb-ac28-e07dffeb79b6
+단서 Down()
+단서 fileDetailSn: $('#limitFileDetailSn').val()
+    			}
+robots OK https://www.data.go.kr/tcs/dss/selectFileDataDownload.do?publicDataPk=15130108&publicDataDetailPk=uddi%3Ae2caa6f5-4057-4ebb-ac28-e07dffeb79b6&fileDetailSn=1
+시도 /tcs/dss/selectFileDataDownload.do 200 text/html;charset=UTF-8 10662 b'{"dataSetFileDetailInfo":{"rn":"","searchCondition1":"","sea'
+json키 {'pageSize': 10, 'excelFileNm': '', 'excelSheetNm': '', 'atachFileYn': 'N', 'deleteFileSnArray': None, 'publicDataHistSn': 3, 'prePublicDataHistSn': 0, 'confmNm': None, 'provdReqstSn': '', 'usePrmisnEnnc': 'N', 'useScopeResn': None, 'ctLevyUnitNm': '', 'nextRegistPrarnde': None, 'dataRegistCycleNm': None, 'deleteResnCode': None, 'registerNm': None, 'updusrNm': None, 'publicDataTyCodeNm': None, 'publicDataTyDetailCodeNm': None, 'useScopeCodeNm': None, 'rsrchPblictnUseScopeCodeNm': None, 'jrsdMiryfcCodeNm': None, 'insttCodeNm': None, 'processSttusCodeNm': None, 'processResultCodeNm': None, 'brmCdNm': None, 'brmCodeNm': '해양수산 - 해양수산·어촌', 'brmUpperCodeNm': None, 'insttNm': '해양수산부 국립해양조사원', 'processSttusTyCodeNm': None, 'processTyResultCodeNm': None, 'ctLevyUnitCodeNm': None, 'mberAuthorNm': None, 'reprsntchargerNm': None, 'reprsntchargerPsitnDept': None, 'encReprsntchargerTelno': None, 'reprsntchargerEmail': None, 'atchFileId': None, 'atchFileTyCode': 'DATD01', 'fileDetailSn': '1', 'fileUseAt': None, 'atchFileTyCount': None, 'changefileAt': None, 'operDeptNm': None, 'chargerNm': None, 'recommendExtsn': None, 'fileDataNm': None, 'chargerConfmNm': None, 'dataNm': '해양수산부 국립해양조사원_암초_20250813', 'langCodeNm': None, 'nextRegistPrearngeEnnc': None, 'mediaTyNm': None, 'atchFileExtsn': None, 'atchFileCo': '1', 'prufDtaFileYn': None, 'fileDataYn': None, 'orginlFileNm': ''}
+최상위키 ['dataSetFileDetailInfo', 'fileDataRegistVO', 'fileDetailSn', 'dpk', 'status', 'atchFileId']
+   atachFileYn "N"
+   atchFileTyCode "DATD01"
+   fileDetailSn "1"
+   atchFileCo "1"
+   detailUrl "/data/15130108/fileData.do"
+   enDetailUrl "/en/data/15130108/fileData.do"
+   atachFileYn "N"
+   atchFileId "FILE_000000003213404"
+   atchFileTyCode "DATD01"
+   fileDetailSn "1"
+   atchFileExtsn "shp"
+   atchFileCo "1"
+   orginlFileNm "36. TL_DGSATC_SUBMEROC_P 암초.zip"
+   detailUrl "/data/null/fileData.do"
+   enDetailUrl "/en/data/null/fileData.do"
+   fileDetailSn "1"
+   atchFileId "FILE_000000003213404"
+robots OK https://www.data.go.kr/cmm/cmm/fileDownload.do?atchFileId=FILE_000000003213404&fileDetailSn=1&dataNm=%ED%95%B4%EC%96%91%EC%88%98%EC%82%B0%EB%B6%80+%EA%B5%AD%EB%A6%BD%ED%95%B4%EC%96%91%EC%A1%B0%EC%82%AC%EC%9B%90_%EC%95%94%EC%B4%88_20250813
+파일 200 application/octet-stream; charset=UTF-8 152337 b'PK\x03\x04'
+robots OK https://www.data.go.kr/cmm/cmm/fileDownload.do?publicDataPk=15130108&publicDataDetailPk=uddi%3Ae2caa6f5-4057-4ebb-ac28-e07dffeb79b6&fileDetailSn=1
+실패 /cmm/cmm/fileDownload.do HTTP Error 500: Internal Server Error
+atchFileId []
+fileDetailSn []
+zip ['해양수산부 국립해양조사원_암초_20250813\\TL_DGSATC_SUBMEROC_P 암초_컬럼맵핑정보.xlsx', '해양수산부 국립해양조사원_암초_20250813\\TL_DGSATC_SUBMEROC_P.cpg', '해양수산부 국립해양조사원_암초_20250813\\TL_DGSATC_SUBMEROC_P.dbf', '해양수산부 국립해양조사원_암초_20250813\\TL_DGSATC_SUBMEROC_P.prj', '해양수산부 국립해양조사원_암초_20250813\\TL_DGSATC_SUBMEROC_P.shp', '해양수산부 국립해양조사원_암초_20250813\\TL_DGSATC_SUBMEROC_P.shx']
+해양수산부 국립해양조사원_암초_20250813\TL_DGSATC_SUBMEROC_P.shp 3567 ['gid', 'obj_sn', 'inst_cd', 'cst_bzone_', 'ewtwy_bzon', 'bch_bzone_', 'fbctn_ymd', 'clsf_cd', 'dtlv_effc_', 'sodp_chrct', 'sfclyr_chr', 'sodp_expln', 'srfc_chrct', 'srock_se_c', 'korn_nm', 'eng_nm', 'stts_cd', 'sodp_tcnq', 'sodp_vl', 'eng_etc_in', 'korn_etc_i', 'txt_file_k', 'min_scal', 'txt_file_e', 'data_crt_y', 'orgnl_data', 'chrt_lv_se'] BBox(xmin=776472.86729853, ymin=1564382.47699917, xmax=1027611.4325, ymax=1958825.99229999)
