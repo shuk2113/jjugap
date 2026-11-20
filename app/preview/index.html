@@ -4413,17 +4413,22 @@ const TideHarm = (() => {
       if (RM.matches || fxIdle()) { windMode = 'still'; windStatic(windF); windLeg(true); return; }   // 30초 안 만지면 멈춘 화살표로 (만지면 다시)
       if (t - windLast >= 32) {   // 초당 30번쯤
         windLast = t; const g = windG;
-        g.setTransform(1, 0, 0, 1, 0, 0); g.globalCompositeOperation = 'destination-in'; g.fillStyle = 'rgba(0,0,0,0.9)'; g.fillRect(0, 0, windCv.width, windCv.height); g.globalCompositeOperation = 'source-over';
-        g.setTransform(dpr, 0, 0, dpr, 0, 0); g.lineCap = 'round'; g.lineWidth = 1.7;
-        const P = WIND_COL.map(() => new Path2D());
+        // 잔상은 그림판에 남기지 않고 선마다 최근 10걸음만 다시 그림 (꼬리가 짧고 깨끗하게 · 사용자 2026-11-21: 잔상이 길어 선이 많아 보임)
+        g.setTransform(1, 0, 0, 1, 0, 0); g.clearRect(0, 0, windCv.width, windCv.height);
+        g.setTransform(dpr, 0, 0, dpr, 0, 0); g.lineCap = 'round'; g.lineJoin = 'round';
+        const P = WIND_COL.map(() => [new Path2D(), new Path2D()]);   // 꼬리 끝(흐림) · 머리 쪽(진함)
         for (const p of windParts) {
           const q = windAt(windF, p.x, p.y);
-          if (!q || ++p.a > 90) { Object.assign(p, windNewPart(), { a: 0 }); continue; }
+          if (!q || ++p.a > 90) { Object.assign(p, windNewPart(), { a: 0, h: [] }); continue; }
           const w = Math.hypot(q[0], q[1]), k = 0.55, nx = p.x + q[0] * k, ny = p.y - q[1] * k;   // 1m/s = 화면에서 초당 약 16점
-          P[windBand(w)].moveTo(p.x, p.y); P[windBand(w)].lineTo(nx, ny); p.x = nx; p.y = ny;
-          if (nx < -5 || ny < -5 || nx > W + 5 || ny > H + 5) Object.assign(p, windNewPart(), { a: 0 });
+          (p.h || (p.h = [])).push([p.x, p.y]); if (p.h.length > 10) p.h.shift(); p.x = nx; p.y = ny; p.b = windBand(w);
+          if (nx < -5 || ny < -5 || nx > W + 5 || ny > H + 5) { Object.assign(p, windNewPart(), { a: 0, h: [] }); continue; }
+          const H2 = p.h, m = Math.floor(H2.length / 2), A = P[p.b];
+          if (H2.length > 1) { A[0].moveTo(H2[0][0], H2[0][1]); for (let i = 1; i <= m; i++) A[0].lineTo(H2[i][0], H2[i][1]); }
+          A[1].moveTo(H2[m][0], H2[m][1]); for (let i = m + 1; i < H2.length; i++) A[1].lineTo(H2[i][0], H2[i][1]); A[1].lineTo(nx, ny);
         }
-        for (let i = 0; i < P.length; i++) { g.strokeStyle = WIND_COL[i]; g.stroke(P[i]); }
+        for (let i = 0; i < P.length; i++) { g.strokeStyle = WIND_COL[i]; g.lineWidth = 1.4; g.globalAlpha = 0.4; g.stroke(P[i][0]); g.lineWidth = 1.9; g.globalAlpha = 0.95; g.stroke(P[i][1]); }
+        g.globalAlpha = 1;
       }
       windRaf = requestAnimationFrame(windLoop);
     }
@@ -11454,7 +11459,7 @@ const TideHarm = (() => {
 
 <script>
 if ('serviceWorker' in navigator) addEventListener('load', () => {
-  const sw = navigator.serviceWorker, VER = 'd891fdbc'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
+  const sw = navigator.serviceWorker, VER = '3c5c2246'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
   // 화면에 손을 대기 시작했는지 (쓰는 중에는 새로 열지 않으려고)
   ['pointerdown', 'keydown'].forEach(t => addEventListener(t, () => { touched = true; }, { capture: true, passive: true }));
   const reload = () => {
