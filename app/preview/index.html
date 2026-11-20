@@ -2557,11 +2557,22 @@ const TideHarm = (() => {
   }
   // 그 지점(k: 출항지)·그날(n)의 비: 1/0/null(모름)
   // 매시간 받는 기상청 초단기실황(data/now.json)이 있으면 비는 예보 대신 실황으로 (사용자 2026-11-20) · 3시간 넘게 묵은 건 안 씀
-  const nowOf = st => { try { const N = window.__NOWX; if (!N || !st || !st.grid || Date.now() - Date.parse(N.generated) > 3 * 3600000) return null; return { g: N.g && N.g[st.grid.join(',')], rd: N.rd && N.rd[st.grid.join(',')] }; } catch (_) { return null; } };
+  const nowOf = st => { try { const N = window.__NOWX; if (!N || !st || !st.grid || Date.now() - Date.parse(N.generated) > 3 * 3600000) return null; return { g: N.g && N.g[st.grid.join(',')] }; } catch (_) { return null; } };
+  // 실황 비 기록 (data/now.json: rr 격자별 시간 강수량 · rh 받은 시간 · rd 날짜 합계 · rdh 날짜별 받은 시간 수) — 최근 7일 · 밤비 포함
+  const hrKey = ms => { const d = new Date(ms + 9 * 3600000); return d.toISOString().slice(0, 13).replace(/[-T]/g, ''); };   // KST YYYYMMDDHH
+  function rainMmDay(k, n) {   // 그날(0~24시) 강수량 mm · 18시간 넘게 받은 날만 · 모르면 null
+    try { const N = window.__NOWX, st = WX && WX.stations && WX.stations[wxOf(k)]; if (!N || !N.rdh || !st || !st.grid) return null; const d = wxYmd(n); if ((N.rdh[d] || 0) < 18) return null; const v = N.rd && N.rd[st.grid.join(',')]; return Math.round(((v && v[d]) || 0) * 10) / 10; } catch (_) { return null; }
+  }
+  function rainMmSpan(k, t0, t1) {   // (t0, t1] 강수량 mm · 그 사이 80% 넘게 받았을 때만
+    try { const N = window.__NOWX, st = WX && WX.stations && WX.stations[wxOf(k)]; if (!N || !N.rh || !st || !st.grid) return null;
+      const H = new Set(N.rh), hs = (N.rr && N.rr[st.grid.join(',')]) || {}; let need = 0, have = 0, mm = 0;
+      for (let t = Math.floor(t0 / 3600000) * 3600000 + 3600000; t <= t1; t += 3600000) { const k2 = hrKey(t); need++; if (H.has(k2)) { have++; mm += hs[k2] || 0; } }
+      return need && have / need >= 0.8 ? Math.round(mm * 10) / 10 : null; } catch (_) { return null; }
+  }
   function rainFor(k, n) {
     try {
       const wk = wxOf(k), st = WX && WX.stations && WX.stations[wk], d = wxYmd(n);
-      { const N = nowOf(st); if (N && N.rd && N.rd[d] != null) return N.rd[d] ? 1 : 0; }
+      { const mm = rainMmDay(k, n); if (mm != null) return mm >= 0.5 ? 1 : 0; }   // 실황 합계 0.5mm 넘으면 비 (밤비 포함)
       if (st && st.rain && st.rain[d] != null) return st.rain[d] ? 1 : 0;
       if (st && st.fc) { let c = 0, r = 0; for (let h = 6; h <= 18; h++) { const q = st.fc[d + String(h).padStart(2, '0')]; if (q) { c++; if (isRain(q)) r = 1; } } if (r || c >= 4) return r; }
       const y = rainLog()[d]; if (y && y[wk] != null) return y[wk] ? 1 : 0;
@@ -2576,6 +2587,7 @@ const TideHarm = (() => {
       if (r) { if (r[3] != null) o.sky = r[3]; o.rain = isRain(r) ? 1 : 0; }
       { const N = nowOf(st), ob = N && N.g && N.g.o; if (ob && ob[3] != null) { o.rain = (ob[3] > 0 || (ob[4] || 0) > 0) ? 1 : 0; o.rainSrc = 'now'; } const f = N && N.g && N.g.f && N.g.f[td === Math.floor(now / DAY) ? wxYmd(td) + String(Math.floor((now % DAY) / 3600000)).padStart(2, '0') : '']; if (f && f[2] != null) o.sky = f[2]; }
       const rp = rainFor(k, td - 1); if (rp != null) o.rainPrev = rp;
+      { const a = rainMmSpan(k, Date.now() - 24 * 3600000, Date.now()), b = rainMmDay(k, td - 1); if (a != null) o.rain24 = a; if (b != null) o.rainPrevMm = b; }
     } catch (_) {}
     return o;
   }
@@ -5595,6 +5607,7 @@ const TideHarm = (() => {
     }
     // 그 시각 날씨 (단기 예보 시간별 → 중기 예보 오전/오후 → 모름)
     let NOWX = null, nowT = 0;
+    setTimeout(() => { try { nowLoad(true); } catch (_) {} }, 2500);   // 앱 켤 때 한 번 (출조 정리의 비·전날 비 양)
     async function nowLoad(force) {   // 10분에 한 번만
       if (!force && Date.now() - nowT < 600000) return; nowT = Date.now();
       try { const r = await fetch('/jjugap/data/now.json', { cache: 'no-cache' }); if (r.ok) { NOWX = await r.json(); window.__NOWX = NOWX; } } catch (_) {}
@@ -5792,7 +5805,9 @@ const TideHarm = (() => {
     // 그 시각 물색: 바탕 × 달 × 물살(바닥 흙이 뜸, 1시간 늦게 따라옴) × 들물·날물(바깥 물/연안 물) + 파도가 띄운 흙
     function simWater(F, o) {
       const { st, pct, pct1, wave, wind, dir, depth, rainNow, rainBefore, rainYday, mon, B, sat } = o, why = [];
-      const rm = 1 + 0.8 * (rainYday ? 1 : 0) + 0.5 * (rainNow || rainBefore ? 1 : 0);
+      // 비: 양을 알면(실황 · 밤비 포함) 지난 24시간·그 전 24시간 강수량으로 강어귀 흙탕물을 키움 — 3mm 아래는 거의 없음, 많을수록 가파르게(유사량 ∝ 유량^1.3 꼴 · 가정), 큰비면 다음 날까지
+      const eff = mm => mm == null || mm <= 3 ? 0 : Math.min(3, ((mm - 3) / 15) ** 1.3);
+      const rm = o.mm1 != null ? 1 + 0.8 * eff(o.mm1) + 0.4 * eff(o.mm2) + 0.5 * (rainNow ? 1 : 0) : 1 + 0.8 * (rainYday ? 1 : 0) + 0.5 * (rainNow || rainBefore ? 1 : 0);
       const rivT = F.riv.reduce((s, r) => s + r.A * r.inf, 0) * rm, rivI = F.riv.reduce((s, r) => s + r.inf, 0);
       // 바탕 뜬 흙(mg/L 어림): 실측 바탕이 있으면 그것(물때 평균) + 이 자리 갯벌·강어귀 (가정값) · 없으면 지형만으로 (가정값)
       let base = B ? Math.max(0, (B.kd - SIM_KW) / SIM_KS) + 15 * F.fl + 10 * F.fl15 + rivT : (F.geo + rivT) * SIM_MON[mon];
@@ -5807,7 +5822,7 @@ const TideHarm = (() => {
       if (WA && wave != null && depth != null && wsOf(simWaveUb(wave, depth)) - ws > 1) why.push(`바람 쪽이 섬·육지에 가려 파도가 예보의 ${Math.round(WA.r * 100)}%`);
       const tsm = base * fc * adv + ws;
       if (pc > 0.5) why.push('센 물살'); if (adv > 1.08) why.push('날물이라 연안 물'); else if (adv < 0.92) why.push('들물이라 바깥 물');
-      if (ws > 1) why.push(`파도 ${H.toFixed(1)}m`); if (rm > 1 && F.riv.length) why.push('비로 강물'); if (!B && SIM_MON[mon] >= 1.3) why.push('늦가을~겨울 바람철');
+      if (ws > 1) why.push(`파도 ${H.toFixed(1)}m`); if (rm > 1 && F.riv.length) why.push(o.mm1 != null ? [o.mm1 > 3 ? `지난 24시간 비 ${o.mm1}mm` : '', o.mm2 > 3 ? `그 전 하루 비 ${o.mm2}mm` : '', rainNow ? '지금 비' : ''].filter(Boolean).join(' · ') + '로 강물' : '비로 강물'); if (!B && SIM_MON[mon] >= 1.3) why.push('늦가을~겨울 바람철');
       // 위성으로 맞춘 몫: 자리·달 몫은 곱하고, 물살·날물 몫은 위성에서 덜 나타나 줄임 (물살² 몫 ^0.70 · 날물·들물 몫 ^0.36)
       const SB = B && B.sk != null && WQ && WQ.sat ? Math.exp(B.sk) * fc ** WQ.sat.be[0] * adv ** WQ.sat.be[1] : 1;
       const kd = (SIM_KW + SIM_KS * tsm) * SIM_OPT.kdMul * SB * (sat ? sat.k : 1), zsd = 1.44 / kd;
@@ -6056,7 +6071,8 @@ const TideHarm = (() => {
       // 물색 (1-2단계): 뜬 흙(mg/L) · 투명도(m)
       const rainNow = !!wx.rain, rainBefore = ctx.rainHours.some(x => x < h);
       let pct1 = null; if (cc) { const q1 = curNow(cc.c, t - 3600000); pct1 = Math.min(1, q1.sp / cc.c.mx); }
-      const W = simWater(flat, { st, pct: cur ? cur.pct / 100 : null, pct1, wave: wx.wave, wind: wx.wind, dir: wx.dir, depth, rainNow, sat: ctx.satK === 1 ? null : ctx.sat, rainBefore, rainYday: ctx.rainYday, mon: new Date(t + 9 * 3600000).getUTCMonth(), B: wqBase(p, t) });
+      const mm1 = ctx.mmFix ? ctx.mmFix.d1 : rainMmSpan(k, t - 24 * 3600000, t), mm2 = ctx.mmFix ? ctx.mmFix.d2 : rainMmSpan(k, t - 48 * 3600000, t - 24 * 3600000);
+      const W = simWater(flat, { mm1, mm2, st, pct: cur ? cur.pct / 100 : null, pct1, wave: wx.wave, wind: wx.wind, dir: wx.dir, depth, rainNow, sat: ctx.satK === 1 ? null : ctx.sat, rainBefore, rainYday: ctx.rainYday, mon: new Date(t + 9 * 3600000).getUTCMonth(), B: wqBase(p, t) });
       if (ctx.waterOnly) return { t, h, st, depth, cur, W };   // 셈 바로잡기용 (물색만)
       const T = Math.max(0, Math.min(1, Math.log10(W.tsm / 2) / Math.log10(50)));   // 빛 셈(1-3단계 전)에 이어 주는 0~1
       // 바닥 빛 (1-3단계): 물 위 밝기·빛깔 → 수심(+물 높이)만큼 파장별로 줄어듦 → 쭈갑이 눈 기준 밝기
@@ -6120,7 +6136,7 @@ const TideHarm = (() => {
       }
       return out;
     }
-    if (window.__JJ_TEST) window.__jjSim = { learn: async () => { const L = await learnBuild(); if (!L) return -1; const m = {}; for (const r of L.E) { const q = m[r.c] || (m[r.c] = [0, 0]); q[r.y]++; } return L.E.length + ' ' + JSON.stringify(m) + ' ' + JSON.stringify(L.E.slice(0, 2)); }, planOpen: n => planOpen(n), simWaterPts, simRun, simHour, simSun, skAngle, skNeed, skPlan, skLive, skSinker, simPick, simSkTxt, simFlat, simWater, simWaveUb, simFetch, simWaveFD, simWaveAt, satReady, satNear, simSat, wqBase, wqReady, simEgi, SIM_COL, simHas, simRecMap, setOpt: o => Object.assign(SIM_OPT, o) };
+    if (window.__JJ_TEST) window.__jjSim = { rainMmDay, rainMmSpan, rainFor, learn: async () => { const L = await learnBuild(); if (!L) return -1; const m = {}; for (const r of L.E) { const q = m[r.c] || (m[r.c] = [0, 0]); q[r.y]++; } return L.E.length + ' ' + JSON.stringify(m) + ' ' + JSON.stringify(L.E.slice(0, 2)); }, planOpen: n => planOpen(n), simWaterPts, simRun, simHour, simSun, skAngle, skNeed, skPlan, skLive, skSinker, simPick, simSkTxt, simFlat, simWater, simWaveUb, simFetch, simWaveFD, simWaveAt, satReady, satNear, simSat, wqBase, wqReady, simEgi, SIM_COL, simHas, simRecMap, setOpt: o => Object.assign(SIM_OPT, o) };
     // ---------- 출조 계획: 고른 날(출조 전)을 미리 셈해 시간별 에기 색 · 예상 봉돌 → 저장해 두면 바다에서도 (인터넷 없이) 본다
     const PLAN_KEY = 'jjukgap-plans', PL_WD = ['일', '월', '화', '수', '목', '금', '토'];
     const PL_COL = { 빨강: '#D7262E', 검정: '#1E1E1E', 퍼플: '#6B3FA0', 흰: '#F4F4F4', 민트: '#5FD3C6', 블루: '#2F6FD6', 야광: '#CFF5A8', 핑크: '#F27BB0', 레몬: '#F2E14C', 초록: '#3FA34D', 갈색: '#6B4A2E' };
@@ -7868,8 +7884,9 @@ const TideHarm = (() => {
       // 오늘 바다: 정리해 둔 것 → 포인트에 남은 날씨 → 날씨 자료 (모르면 null)
       { const n = kstDay(tr.pts[0].t), k0 = tr.pts[0].port || tideSt, pv = q => (tr.pts.some(p => p[q] === 1) ? 1 : tr.pts.some(p => p[q] === 0) ? 0 : null);
         form.water = S && S.water ? S.water : null;
-        form.rain = S && S.rain != null ? S.rain : pv('rain') ?? rainFor(k0, n);
-        form.rainPrev = S && S.rainPrev != null ? S.rainPrev : pv('rainPrev') ?? rainFor(k0, n - 1); }
+        const m0 = rainMmDay(k0, n), m1 = rainMmDay(k0, n - 1); form.rainMm = m0; form.rainPrevMm = m1;   // 실황 합계(밤비 포함)가 있으면 그게 먼저
+        form.rain = S && S.rain != null ? S.rain : m0 != null ? (m0 >= 0.5 ? 1 : 0) : pv('rain') ?? rainFor(k0, n);
+        form.rainPrev = S && S.rainPrev != null ? S.rainPrev : m1 != null ? (m1 >= 0.5 ? 1 : 0) : pv('rainPrev') ?? rainFor(k0, n - 1); }
       // 낚시 방식: 정리해 둔 것 → 포인트에 적힌 것 → 쭈갑 기록이 있으면 쭈갑 → 지금 고른 방식
       form.sp = S ? S.sp || 'jg' : (tr.pts.find(p => p.sp) || {}).sp || (tr.pts.some(p => p.jj || p.gap || (p.egi || []).length) ? 'jg' : spNow());
       if (recOf(form)) {
@@ -7926,7 +7943,7 @@ const TideHarm = (() => {
         ${rigRows(f, false)}
         <div class="mv-sec">오늘 바다<em>안 골라도 돼요 · 비는 앱이 알아낸 대로, 틀리면 톡</em></div>
         <div class="mv-sea" id="mv-sea"><span class="lb">물색</span><div class="sg" role="group" aria-label="물색">${[['clear', '맑음'], ['mid', '보통'], ['murky', '탁함']].map(([v, t]) => `<button type="button" data-act="sea-w" data-v="${v}" class="${f.water === v ? 'on' : ''}" aria-pressed="${f.water === v}">${t}</button>`).join('')}</div>
-          <div class="rn"><button type="button" data-act="sea-rain" class="${f.rain ? 'on' : ''}" aria-pressed="${!!f.rain}">☔ 비</button><button type="button" data-act="sea-rprev" class="${f.rainPrev ? 'on' : ''}" aria-pressed="${!!f.rainPrev}">☔ 전날 비</button></div></div>
+          <div class="rn"><button type="button" data-act="sea-rain" class="${f.rain ? 'on' : ''}" aria-pressed="${!!f.rain}">☔ 비${f.rainMm ? ` ${f.rainMm}mm` : ''}</button><button type="button" data-act="sea-rprev" class="${f.rainPrev ? 'on' : ''}" aria-pressed="${!!f.rainPrev}">☔ 전날 비${f.rainPrevMm ? ` ${f.rainPrevMm}mm` : ''}</button></div></div>
         <input class="mv-memo" id="mv-memo" maxlength="120" placeholder="${recOf(f) ? recOf(f).memo : '메모 (예: 오후 들물에 갑오징어 잘 나옴)'}" value="${esc(f.memo || '')}">
         <div class="mv-sec">머문 자리<em>잘 나온 곳만 톡 (안 해도 돼요)</em></div>
         <p class="mv-tip" id="mv-skhint"${(f.sink || []).filter(n => n > 0).length > 1 ? '' : ' hidden'}>봉돌을 바꿨다면 <b>바꾼 자리만</b> 봉돌 칸을 톡 — 다음 자리로 저절로 이어져요 (안 해도 돼요)</p>
@@ -7943,7 +7960,7 @@ const TideHarm = (() => {
       const big = bigClean(f, f.big), rgs = (f.rg || []).slice();
       all[tr.key] = { jj: clampN(f.jj), gap: clampN(f.gap), etc: f.etc.map(e => ({ n: e.n.trim(), c: clampN(e.c) })).filter(e => e.c > 0), sink: f.sink.slice(), egi: egiClean(f.egi), ...(Object.keys(sinkM).length ? { sinkM } : {}), memo, ...(party.length ? { party } : {}), lbl: f.lbl || 'base', t: Date.now(),
         ...(recOf(f) ? { sp: f.sp } : {}), ...(Object.keys(big).length ? { big } : {}), ...(rgs.length ? { rg: rgs } : {}),
-        ...(f.water ? { water: f.water } : {}), ...(f.rain != null ? { rain: f.rain ? 1 : 0 } : {}), ...(f.rainPrev != null ? { rainPrev: f.rainPrev ? 1 : 0 } : {}) };
+        ...(f.water ? { water: f.water } : {}), ...(f.rain != null ? { rain: f.rain ? 1 : 0 } : {}), ...(f.rainPrev != null ? { rainPrev: f.rainPrev ? 1 : 0 } : {}), ...(f.rainMm != null ? { rainMm: f.rainMm } : {}), ...(f.rainPrevMm != null ? { rainPrevMm: f.rainPrevMm } : {}) };
       try { localStorage.setItem(LBL_KEY, f.lbl || 'base'); } catch (_) {}   // 다음 출조 정리는 이 모양으로 시작
       if (party.length) { const names = party.map(q => q.n), rec = loadJ(PARTY_KEY, []) || []; saveJ(PARTY_KEY, [...names, ...rec.filter(n => !names.includes(n))].slice(0, 8)); }
       saveJ(SUM_KEY, all);
@@ -8968,7 +8985,7 @@ const TideHarm = (() => {
     async function fpCalc(p, tc) {   // 지문이 없는 예전 포인트: 그 자리·그 시각으로 한 번 셈 (적어 둔 하늘·바람·파도를 씀)
       try {
         for (let i = 0; i < 30 && depthRaw(p).st === 'load'; i++) await new Promise(r => setTimeout(r, 100));
-        const n = kstDay(p.t), ctx = { tc: tc != null ? tc : null, p, k: nearest(p).k, n, m: spotTide(p), cc: spotCur(p), sp: 'jj', pe: '1.0', flat: simFlat(p, {}), rainHours: [], rainYday: !!p.rainPrev, satK: 1, noLearn: true,
+        const n = kstDay(p.t), ctx = { tc: tc != null ? tc : null, p, k: nearest(p).k, n, m: spotTide(p), cc: spotCur(p), sp: 'jj', pe: '1.0', flat: simFlat(p, {}), rainHours: [], rainYday: !!p.rainPrev, mmFix: p.rain24 != null ? { d1: p.rain24, d2: null } : null, satK: 1, noLearn: true,
           wx: () => ({ src: 'rec', wind: p.wind != null ? p.wind : null, dir: null, wave: p.wave != null ? p.wave : null, sky: p.sky != null ? p.sky : null, rain: !!p.rain }) };
         return fpOf(simHour(ctx, p.t));
       } catch (_) { return null; }
@@ -11307,7 +11324,7 @@ const TideHarm = (() => {
 
 <script>
 if ('serviceWorker' in navigator) addEventListener('load', () => {
-  const sw = navigator.serviceWorker, VER = '077da28a'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
+  const sw = navigator.serviceWorker, VER = 'd4d3dbab'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
   // 화면에 손을 대기 시작했는지 (쓰는 중에는 새로 열지 않으려고)
   ['pointerdown', 'keydown'].forEach(t => addEventListener(t, () => { touched = true; }, { capture: true, passive: true }));
   const reload = () => {
