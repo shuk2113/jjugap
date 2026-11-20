@@ -22,9 +22,10 @@ SKY = {'1': 1, '3': 3, '4': 4}
 
 def num(v):
     try:
-        return round(float(v), 1)
+        x = round(float(v), 1)
     except (TypeError, ValueError):
         return None
+    return None if x <= -900 else x   # -998.9 같은 '자료 없음' 값
 
 
 def grids():
