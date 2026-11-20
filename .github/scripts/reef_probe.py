@@ -44,11 +44,28 @@ if not ds:
 
 page_url = f'{BASE}/data/{ds}/fileData.do'
 p = get(page_url)
-lic = re.findall(r'(공공저작물[^<]{0,40})', p)[:3]; L('라이선스', lic)
+lic = re.findall(r'(공공저작물[^<]{0,40}|이용허락범위[^<]{0,80})', p)[:4]; L('라이선스', lic)
+for m in re.finditer(r'(uddi:[0-9a-f\-]+|[Dd]own[A-Za-z]*\([^)]{0,160}\)|fileDetailSn[^,;]{0,40}|selectFileData[A-Za-z]*\.do[^"\']{0,120})', p):
+    L('단서', m.group(0))
+uddi = list(dict.fromkeys(re.findall(r'uddi:[0-9a-f\-]+', p)))
+for u0 in uddi[:3]:
+    for path in ['/tcs/dss/selectFileDataDownload.do', '/cmm/cmm/fileDownload.do']:
+        u = BASE + path + '?' + urllib.parse.urlencode({'publicDataPk': ds, 'publicDataDetailPk': u0, 'fileDetailSn': '1'})
+        if not ok(u): continue
+        try:
+            rq = urllib.request.Request(u, headers={'User-Agent': UA, 'Referer': page_url})
+            with urllib.request.urlopen(rq, timeout=120) as r:
+                b = r.read(); L('시도', path, r.status, r.headers.get('Content-Type'), len(b), b[:60])
+                if b[:2] == b'PK': cand_bytes = b; raise StopIteration
+                try:
+                    j = json.loads(b.decode('utf-8','replace')); L('json', str(j)[:400])
+                except Exception: pass
+        except StopIteration: break
+        except Exception as e: L('실패', path, e)
 cand = sorted(set(re.findall(r"atchFileId[=\"':\s]+([A-Z0-9_]{10,})", p)))
 L('atchFileId', cand)
 sn = re.findall(r"fileDetailSn[=\"':\s]+(\d+)", p); L('fileDetailSn', sn[:3])
-got = None
+got = globals().get('cand_bytes')
 for a in cand:
     u = f'{BASE}/cmm/cmm/fileDownload.do?' + urllib.parse.urlencode({'atchFileId': a, 'fileDetailSn': (sn[0] if sn else '1'), 'dataNm': 'reef'})
     if not ok(u): continue
