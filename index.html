@@ -2551,9 +2551,12 @@ const TideHarm = (() => {
     } catch (_) {}
   }
   // 그 지점(k: 출항지)·그날(n)의 비: 1/0/null(모름)
+  // 매시간 받는 기상청 초단기실황(data/now.json)이 있으면 비는 예보 대신 실황으로 (사용자 2026-11-20) · 3시간 넘게 묵은 건 안 씀
+  const nowOf = st => { try { const N = window.__NOWX; if (!N || !st || !st.grid || Date.now() - Date.parse(N.generated) > 3 * 3600000) return null; return { g: N.g && N.g[st.grid.join(',')], rd: N.rd && N.rd[st.grid.join(',')] }; } catch (_) { return null; } };
   function rainFor(k, n) {
     try {
       const wk = wxOf(k), st = WX && WX.stations && WX.stations[wk], d = wxYmd(n);
+      { const N = nowOf(st); if (N && N.rd && N.rd[d] != null) return N.rd[d] ? 1 : 0; }
       if (st && st.rain && st.rain[d] != null) return st.rain[d] ? 1 : 0;
       if (st && st.fc) { let c = 0, r = 0; for (let h = 6; h <= 18; h++) { const q = st.fc[d + String(h).padStart(2, '0')]; if (q) { c++; if (isRain(q)) r = 1; } } if (r || c >= 4) return r; }
       const y = rainLog()[d]; if (y && y[wk] != null) return y[wk] ? 1 : 0;
@@ -2566,6 +2569,7 @@ const TideHarm = (() => {
     try {
       const wk = wxOf(k), st = WX && WX.stations && WX.stations[wk], now = Date.now() + 9 * 3600000, td = Math.floor(now / DAY), r = st ? wxRow(st, td, Math.floor((now % DAY) / 3600000)) : null;
       if (r) { if (r[3] != null) o.sky = r[3]; o.rain = isRain(r) ? 1 : 0; }
+      { const N = nowOf(st), ob = N && N.g && N.g.o; if (ob && ob[3] != null) { o.rain = (ob[3] > 0 || (ob[4] || 0) > 0) ? 1 : 0; o.rainSrc = 'now'; } const f = N && N.g && N.g.f && N.g.f[td === Math.floor(now / DAY) ? wxYmd(td) + String(Math.floor((now % DAY) / 3600000)).padStart(2, '0') : '']; if (f && f[2] != null) o.sky = f[2]; }
       const rp = rainFor(k, td - 1); if (rp != null) o.rainPrev = rp;
     } catch (_) {}
     return o;
@@ -5588,7 +5592,7 @@ const TideHarm = (() => {
     let NOWX = null, nowT = 0;
     async function nowLoad(force) {   // 10분에 한 번만
       if (!force && Date.now() - nowT < 600000) return; nowT = Date.now();
-      try { const r = await fetch('data/now.json', { cache: 'no-cache' }); if (r.ok) NOWX = await r.json(); } catch (_) {}
+      try { const r = await fetch('data/now.json', { cache: 'no-cache' }); if (r.ok) { NOWX = await r.json(); window.__NOWX = NOWX; } } catch (_) {}
     }
     function simWx(k, n, h) {
       const st = typeof WX !== 'undefined' && WX && WX.stations && WX.stations[wxOf(k)]; if (!st) return { src: 'none' };
@@ -6523,7 +6527,7 @@ const TideHarm = (() => {
     }
     function guideOff() { gdOn = false; gdG = null; try { localStorage.setItem(GD_KEY, '0'); } catch (_) {} planChip(me); }
     document.addEventListener('visibilitychange', () => { if (!document.hidden && onBoard && gdOn && me) { guideCalc(); planChip(me); } });
-    setInterval(() => { if (!document.hidden && onBoard && gdOn && me) planChip(me); }, 60000);   // 1분마다 봉돌·시간 · 색은 10분 지났거나 500m 넘게 옮겼을 때만 다시 셈
+    setInterval(() => { if (!document.hidden && onBoard && gdOn && me) planChip(me); if (onBoard) nowLoad(); }, 60000);   // 지금 날씨는 선상 모드면 길잡이를 꺼도 받음(비 기록용 · 10분에 한 번)   // 1분마다 봉돌·시간 · 색은 10분 지났거나 500m 넘게 옮겼을 때만 다시 셈
     let plcB = -1;
     function planChipPos() {
       const el = $('mv-plan'), a = $('mv-area'); if (!el) return;
@@ -11298,7 +11302,7 @@ const TideHarm = (() => {
 
 <script>
 if ('serviceWorker' in navigator) addEventListener('load', () => {
-  const sw = navigator.serviceWorker, VER = 'c519d335'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
+  const sw = navigator.serviceWorker, VER = '077da28a'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
   // 화면에 손을 대기 시작했는지 (쓰는 중에는 새로 열지 않으려고)
   ['pointerdown', 'keydown'].forEach(t => addEventListener(t, () => { touched = true; }, { capture: true, passive: true }));
   const reload = () => {
