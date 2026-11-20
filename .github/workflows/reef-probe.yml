@@ -1,0 +1,30 @@
+# 국립해양조사원 암초 자료 확인 · 손으로만
+name: 암초 자료 확인
+
+on:
+  workflow_dispatch:
+    inputs:
+      dsid: { description: '공공데이터포털 데이터 번호(모르면 비움)', default: '' }
+
+permissions:
+  contents: write
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+      - run: pip install -q pyshp
+      - name: 확인
+        env:
+          DSID: ${{ github.event.inputs.dsid }}
+        run: python3 .github/scripts/reef_probe.py
+      - name: 저장
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add .github/data/reef/probe.txt .github/data/reef/probe.json 2>/dev/null || true
+          git diff --cached --quiet && exit 0
+          git commit -m "암초 자료 확인 결과"
+          for i in 1 2 3; do git pull --rebase -q origin main && git push -q origin HEAD:main && break; sleep 5; done
