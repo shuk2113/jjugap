@@ -5896,6 +5896,10 @@ const TideHarm = (() => {
     //        · 통과하는 빛은 몸통 색으로 물듦 · 겉에서 되돌리는 빛은 천의 60%(가정) · 뒤쪽 배경 빛이 비쳐 배경에 섞임 · 속 야광·케이무라 빛도 몸통 색을 지나 나옴
     const SIM_NUD = { t: 0.40, tmax: 0.85, r: 0.60 };
     const SIM_OPT = { lh: 0.24, glow: 0.03, kdMul: 1 };   // 점검(민감도)용 · 앱에서는 그대로
+    //  야광은 충전 뒤 시간이 지날수록 약해짐 (사용자 2026-11-20: 낚시 시작 때 축광기로 한 번 충전)
+    //    근거: 스트론튬 알루미네이트 축광 감쇠 측정 예 — 10분 386 · 1시간 50 · 5시간 약 8 mcd/m² (≈ 시간^-1.15) · DIN 67510 Class D 10분 260 · 60분 35
+    //    0.03cd/m²(30mcd/m²)를 충전 90분 뒤 값으로 보고 그 곡선을 따름 · 충전 직후 10분보다 밝게는 안 봄 · 12시간 뒤까지 · 바닷물에 담긴 채라 다시 충전되지는 않는다고 가정
+    const glowK = (tc, t) => { if (tc == null) return 1; const m = Math.min(720, Math.max(10, (t - tc) / 60000)); return (m / 90) ** -1.15; };
     const SIM_GLOWN = SIM_GLOW.reduce((a, x, i) => a + x * SIM_V[i], 0);
     const SIM_LZID = { silver: '은', gold: '금', red: '빨강', blue: '파랑', green: '초록', purple: '보라', rainbow: '무지개' };
     // 상자에 있나: 앱 에기 목록(기본 + 내가 만든 것, 숨긴 것 빼고)에 같은 색 에기가 있거나 이름이 맞으면 (기능은 따로 모름)
@@ -5920,7 +5924,7 @@ const TideHarm = (() => {
       const L0 = 0.01, Lab = 1e-6, th = Lb => Math.max(Lab, Lb >= L0 ? 0.15 * Lb : 0.15 * Math.sqrt(L0 * Lb));
       const dist = (dL, Lb, k = 1) => { const T = th(Lb) * k; return dL > T ? Math.log(dL / T) / c : 0; };
       // 바탕 빛 (천 없을 때 · 파장별): 야광 0.03cd/m² 초록빛 · 케이무라 = 바닥까지 온 자외선 30%를 푸른빛으로
-      const G = SIM_GLOW.map(x => x * SIM_OPT.glow / SIM_GLOWN);
+      const G = SIM_GLOW.map(x => x * SIM_OPT.glow * (o.gk != null ? o.gk : 1) / SIM_GLOWN);
       const uv = o.surf[0] * 10 * 0.9 * Math.exp(-1.5 * o.Kd[0] * o.zd), K = SIM_KEI.map(x => x * 0.3 * uv / SIM_KEIS / Math.PI);
       const qe = (src, T) => src.reduce((a, x, i) => a + x * T[i] * S[i], 0) / qn;   // 천을 지난 바탕 빛 (쭈갑이 눈 기준)
       const sc = r => Math.round(100 * r / (r + 1));
@@ -6059,7 +6063,7 @@ const TideHarm = (() => {
       const qb = ez.reduce((a, x, i) => a + x * Sv[i], 0) / qn, qs = SF.spec.reduce((a, x, i) => a + x * Sv[i], 0) / qn;   // 쭈갑이 눈 기준 (낮 햇빛이면 lux와 같은 값)
       let pk = 0; ez.forEach((x, i) => { if (x > ez[pk]) pk = i; });
       const LB = { surf: SF.E, qs, qb, frac: qs > 0 ? qb / qs : 0, pk: SIM_L[pk], kdMin: Math.min(...Kd), tr: tr0 };
-      const EG = simEgi({ ez, sp, zsd: W.zsd, kd: W.kd, Kd, zd, surf: SF.spec });
+      const EG = simEgi({ ez, sp, zsd: W.zsd, kd: W.kd, Kd, zd, surf: SF.spec, gk: glowK(ctx.tc, t) });
       const light = qb < 0.1 ? '깜깜' : qb < 5 ? '어둑' : qb < 50 ? '보통' : '밝음';
       const key = light !== '어둑' ? light : rainNow ? '어둑비' : (el < 12 && h < 12) ? '어둑새' : wx.sky === 1 ? '어둑맑' : '어둑흐';
       let [head, body, tape, one, alt] = SIM_RULE[key]; const cBeam = 3.5 * Math.min(...Kd);
@@ -6088,7 +6092,7 @@ const TideHarm = (() => {
       for (let h = 0; h <= 23; h++) { const w = wx ? wx(h) : simWx(o.k, n, h); if (w.rain) rainHours.push(h); }
       const st = typeof WX !== 'undefined' && WX && WX.stations && WX.stations[wxOf(o.k)];
       const rainYday = o.rainYday != null ? o.rainYday : !!(st && st.rain && st.rain[wxYmd(n - 1)]);
-      const fi = {}, ctx = { p: o.p, k: o.k, n, m, cc, sp: o.sp || 'jj', pe: o.pe || '1.0', flat: simFlat(o.p, fi), rainHours, rainYday, wx };
+      const fi = {}, ctx = { tc: o.tc !== undefined ? o.tc : dayStartOf(n) + (o.h0 ?? 6) * 3600000, p: o.p, k: o.k, n, m, cc, sp: o.sp || 'jj', pe: o.pe || '1.0', flat: simFlat(o.p, fi), rainHours, rainYday, wx };
       ctx.sat = o.noSat ? null : simSat(ctx); ctx.satK = ctx.sat ? ctx.sat.k : 1;
       let hours = []; for (let h = o.h0 ?? 6; h <= (o.h1 ?? 17); h++) hours.push(simHour(ctx, dayStartOf(n) + h * 3600000));
       // 바닥 빛이 문턱(0.1·5·50lux) 근처에서 한 시간씩 오락가락하면 색이 들쭉날쭉 → 앞뒤 시각과 고르게 (로그로 1:2:1)
@@ -6350,7 +6354,7 @@ const TideHarm = (() => {
       if (s.why.has(x.h)) h += `<p class="why">${plWhy(x, s)}</p>`;
       return h + '</div></div>';
     }
-    const plWhy = (x, s) => `바닥 빛(쭈갑이 눈 기준) 약 ${simNum(x.LB.qb)}lux · ${simLvTxt(x.LB.qb)} · 물 위 ${simNum(x.LB.surf)}lux의 ${x.LB.frac >= 0.001 ? (x.LB.frac * 100).toFixed(1) : simNum(x.LB.frac * 100)}% · 남은 빛 ${x.LB.pk}nm<br>해 높이 ${Math.round(x.el)}° · 에기가 보이는 거리 약 ${x.see.toFixed(1)}m<br>물색 ${x.W.label} · 투명도 약 ${x.W.zsd < 1 ? x.W.zsd.toFixed(1) : (Math.round(x.W.zsd * 2) / 2).toFixed(1)}m (${esc(x.W.why.join(' · '))})${WQ ? '<br>물색 바탕: 국립수산과학원 정선해양관측 실측(2000~2020)' : ''}${WQ && WQ.sat ? '<br>물색 보정: 천리안위성 2B호(국립해양조사원 국가해양위성센터) 자료로 셈 맞춤' : ''}<br>누드: 천 없는 반투명 색 몸통으로 셈 — 빛의 약 40%가 몸통 색으로 물들어 통과(반투명 색 플라스틱 판 측정값 30~50%를 에기 몸통에 맞춘 가정)<br>단색: ${esc(x.one)}${x.alt ? ` · 대안: ${esc(x.alt)}` : ''}${x.after ? '<br>비 그친 뒤라 톤을 낮추지 않음 (내 기록 11/5)' : ''}${x.sink ? `<br>봉돌(합사 ${s.pe === '1.0' ? '1' : s.pe}호): ${simSkTxt(x.sink[s.pe])}${skBoxTxt(x.sink[s.pe])}${x.sink[s.pe].main != null ? ` · 배가 바람에 덜 밀리면 ${x.sink[s.pe].lo ? x.sink[s.pe].lo + '호' : '40호↑'}, 더 밀리면 ${x.sink[s.pe].hi ? x.sink[s.pe].hi + '호' : '40호↑'}` : ''}<br>줄이 30° 안으로 서는 가장 가벼운 무게 · 보통 낚싯배가 자연스럽게 흐른다고 봄(배 위에서 GPS로 바로잡음)${x.sink.v ? `<br>${skVTxt(x.sink, s.sp)}<br>${skMethTxt(x.sink, s.sp)}` : ''}` : ''}`;
+    const plWhy = (x, s) => `바닥 빛(쭈갑이 눈 기준) 약 ${simNum(x.LB.qb)}lux · ${simLvTxt(x.LB.qb)} · 물 위 ${simNum(x.LB.surf)}lux의 ${x.LB.frac >= 0.001 ? (x.LB.frac * 100).toFixed(1) : simNum(x.LB.frac * 100)}% · 남은 빛 ${x.LB.pk}nm<br>해 높이 ${Math.round(x.el)}° · 에기가 보이는 거리 약 ${x.see.toFixed(1)}m<br>물색 ${x.W.label} · 투명도 약 ${x.W.zsd < 1 ? x.W.zsd.toFixed(1) : (Math.round(x.W.zsd * 2) / 2).toFixed(1)}m (${esc(x.W.why.join(' · '))})${WQ ? '<br>물색 바탕: 국립수산과학원 정선해양관측 실측(2000~2020)' : ''}${WQ && WQ.sat ? '<br>물색 보정: 천리안위성 2B호(국립해양조사원 국가해양위성센터) 자료로 셈 맞춤' : ''}<br>야광: 낚시 시작 때 한 번 충전했다고 보고 시간이 지날수록 약해지게 셈(축광 야광 감쇠: 10분 뒤의 약 8분의 1이 1시간 뒤, 50분의 1이 5시간 뒤)<br>누드: 천 없는 반투명 색 몸통으로 셈 — 빛의 약 40%가 몸통 색으로 물들어 통과(반투명 색 플라스틱 판 측정값 30~50%를 에기 몸통에 맞춘 가정)<br>단색: ${esc(x.one)}${x.alt ? ` · 대안: ${esc(x.alt)}` : ''}${x.after ? '<br>비 그친 뒤라 톤을 낮추지 않음 (내 기록 11/5)' : ''}${x.sink ? `<br>봉돌(합사 ${s.pe === '1.0' ? '1' : s.pe}호): ${simSkTxt(x.sink[s.pe])}${skBoxTxt(x.sink[s.pe])}${x.sink[s.pe].main != null ? ` · 배가 바람에 덜 밀리면 ${x.sink[s.pe].lo ? x.sink[s.pe].lo + '호' : '40호↑'}, 더 밀리면 ${x.sink[s.pe].hi ? x.sink[s.pe].hi + '호' : '40호↑'}` : ''}<br>줄이 30° 안으로 서는 가장 가벼운 무게 · 보통 낚싯배가 자연스럽게 흐른다고 봄(배 위에서 GPS로 바로잡음)${x.sink.v ? `<br>${skVTxt(x.sink, s.sp)}<br>${skMethTxt(x.sink, s.sp)}` : ''}` : ''}`;
     function planRender(keep) {   // keep: 스크롤 자리 그대로 (원줄 바꿀 때 깜빡임·튐 없이)
       const s = plS; if (!s || !plEl) return;
       if (keep) { const y = plEl.scrollTop; plRenderIn(s); plEl.scrollTop = y; return; }
@@ -6460,7 +6464,9 @@ const TideHarm = (() => {
         await nowLoad(force); await loadSpots(); dpIndex(); await learnBuild();
         for (let i = 0; i < 40 && !DPI && dpiSt !== 'err'; i++) await new Promise(r => setTimeout(r, 150));
         const h = Math.floor((now - dayStartOf(n)) / 3600000), P = planGet(n), pe = peGet(), p = { lat: me.lat, lon: me.lon };
-        const R = await simRun({ k: tripPortK(), p, n, h0: h, h1: Math.min(23, h + 3), sp: 'jj', pe });
+        let tc = board && board.since ? board.since + 30 * 60000 : null;   // 야광 충전 시각: 오늘 첫 포인트(낚시 시작) · 없으면 선상 모드 켠 뒤 30분
+        try { const f0 = points.filter(q => !q.virtual && kstDay(q.t) === n && (!board || !board.since || q.t >= board.since - 3 * 3600000)).reduce((a, q) => Math.min(a, q.t), Infinity); if (f0 < Infinity) tc = f0; } catch (_) {}
+        const R = await simRun({ k: tripPortK(), p, n, h0: h, h1: Math.min(23, h + 3), sp: 'jj', pe, tc });
         gdG = { t: now, p, R, n, h, pe };
       } catch (_) {}
       gdBusy = false; planChip(me);
@@ -8954,10 +8960,10 @@ const TideHarm = (() => {
       const a = SIM_COL_ALL.find(s => s.app === e.c); if (a) return a.id;
       if (!SIM_MINE_BY[e.c]) simMine(); return SIM_MINE_BY[e.c] ? e.c : null;
     }
-    async function fpCalc(p) {   // 지문이 없는 예전 포인트: 그 자리·그 시각으로 한 번 셈 (적어 둔 하늘·바람·파도를 씀)
+    async function fpCalc(p, tc) {   // 지문이 없는 예전 포인트: 그 자리·그 시각으로 한 번 셈 (적어 둔 하늘·바람·파도를 씀)
       try {
         for (let i = 0; i < 30 && depthRaw(p).st === 'load'; i++) await new Promise(r => setTimeout(r, 100));
-        const n = kstDay(p.t), ctx = { p, k: nearest(p).k, n, m: spotTide(p), cc: spotCur(p), sp: 'jj', pe: '1.0', flat: simFlat(p, {}), rainHours: [], rainYday: !!p.rainPrev, satK: 1, noLearn: true,
+        const n = kstDay(p.t), ctx = { tc: tc != null ? tc : null, p, k: nearest(p).k, n, m: spotTide(p), cc: spotCur(p), sp: 'jj', pe: '1.0', flat: simFlat(p, {}), rainHours: [], rainYday: !!p.rainPrev, satK: 1, noLearn: true,
           wx: () => ({ src: 'rec', wind: p.wind != null ? p.wind : null, dir: null, wave: p.wave != null ? p.wave : null, sky: p.sky != null ? p.sky : null, rain: !!p.rain }) };
         return fpOf(simHour(ctx, p.t));
       } catch (_) { return null; }
@@ -8978,7 +8984,7 @@ const TideHarm = (() => {
             const win = { dawn: [], am: [], pm: [] };
             for (const p of tp) {
               let f = p.fp || fpMem[p.id];
-              if (!f) { await new Promise(r => setTimeout(r, 0)); f = await fpCalc(p); if (f) { fpMem[p.id] = f; dirty = true; } }   // 한 점씩 쉬어 가며 (화면이 멈추지 않게)
+              if (!f) { await new Promise(r => setTimeout(r, 0)); f = await fpCalc(p, tp.reduce((a, q) => Math.min(a, q.t), Infinity)); if (f) { fpMem[p.id] = f; dirty = true; } }   // 한 점씩 쉬어 가며 (화면이 멈추지 않게)
               if (f) win[tmOfT(p.t)].push(f);
             }
             for (const e of cd.egi) {
@@ -11296,7 +11302,7 @@ const TideHarm = (() => {
 
 <script>
 if ('serviceWorker' in navigator) addEventListener('load', () => {
-  const sw = navigator.serviceWorker, VER = '13496b6a'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
+  const sw = navigator.serviceWorker, VER = '8bd7ec9a'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
   // 화면에 손을 대기 시작했는지 (쓰는 중에는 새로 열지 않으려고)
   ['pointerdown', 'keydown'].forEach(t => addEventListener(t, () => { touched = true; }, { capture: true, passive: true }));
   const reload = () => {
