@@ -1,0 +1,48 @@
+# 지금 날씨 받기: 선상 모드 '길잡이'용 기상청 초단기실황·초단기예보를 매시간 받아
+# 앱 칸(gh-pages)의 data/now.json 으로 저장한다. 한국 시각 새벽 4시~밤 9시 사이 매시 52분쯤.
+name: 지금 날씨 받기
+
+on:
+  schedule:
+    - cron: '52 19-23,0-12 * * *'   # UTC 19~23시, 0~12시 = 한국 시각 04~21시
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: now-data
+  cancel-in-progress: false
+
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: 수집 프로그램 받기
+        uses: actions/checkout@v5
+
+      - name: 앱 칸(gh-pages) 받기
+        uses: actions/checkout@v5
+        with:
+          ref: gh-pages
+          path: site
+
+      - name: 지금 날씨 받기
+        env:
+          DATA_GO_KR_KEY: ${{ secrets.DATA_GO_KR_KEY }}
+        run: python3 .github/scripts/collect_now.py site
+
+      - name: 앱 칸에 올리기
+        working-directory: site
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/now.json
+          if git diff --cached --quiet; then echo "바뀐 내용 없음"; exit 0; fi
+          git commit -q -m "지금 날씨 갱신"
+          for i in 1 2 3 4; do
+            git push -q origin HEAD:gh-pages && exit 0
+            sleep 7; git pull -q --rebase origin gh-pages
+          done
+          exit 1
