@@ -337,7 +337,7 @@ html.mv-on .app *{animation-play-state:paused !important} html.mv-hide .app{visi
 /* 이 일대 지난 기록: 지도 아래 판 바로 위 조용한 한 줄 (누르면 화면 전체 카드) */
 .mv-area{position:absolute; left:10px; bottom:42px; z-index:1; transform:translate3d(0,calc(-1 * var(--sheet-h, 0px)),0); transition:transform .28s cubic-bezier(.2,.85,.25,1); max-width:calc(100% - 104px); display:flex; align-items:center; gap:6px; min-height:36px; padding:6px 12px 6px 10px; border:1px solid var(--line); border-radius:18px; background:var(--card); color:var(--ink); font:inherit; font-size:calc(12.5px * var(--k)); font-weight:700; text-align:left; box-shadow:0 4px 14px rgba(0,0,0,.18); -webkit-tap-highlight-color:transparent}
 .mv-area span{display:flex; flex-direction:column; min-width:0} .mv-area b, .mv-area small{overflow:hidden; text-overflow:ellipsis; white-space:nowrap} .mv-area b{font-weight:800} .mv-area small{font-size:calc(12px * var(--k)); font-weight:700; color:var(--accent, #2F7DF6)} .mv-area i{flex:none; font-style:normal; color:var(--ink-2)}
-.mv-area small.warn{color:var(--strong)} .mv-plan{bottom:42px; padding:0; gap:0; overflow:hidden} .mv-plan .gd-main{flex:1; min-width:0; display:flex; align-items:center; gap:6px; min-height:40px; padding:6px 8px 6px 10px; border:0; background:none; color:inherit; font:inherit; text-align:left; -webkit-tap-highlight-color:transparent} .mv-plan .gd-off{flex:none; align-self:stretch; width:38px; display:grid; place-items:center; border:0; border-left:1px solid var(--line); background:none; color:var(--ink-2); padding:0} .mv-plan .gd-off svg{width:17px; height:17px} .mv-plan .gd-off[hidden]{display:none} .mv-plan.min small{display:none} .mv-plan.min .gd-main{min-height:34px; padding-top:4px; padding-bottom:4px} .mv-plan.min .gd-main > i{display:none} .mv-plan small .gt{display:inline; color:var(--ink-2); font-weight:800}
+.mv-area small.warn{color:var(--strong)} .mv-plan{bottom:42px; padding:0; gap:0; overflow:hidden} .mv-plan .gd-main{flex:1; min-width:0; display:flex; align-items:center; gap:6px; min-height:40px; padding:6px 8px 6px 10px; border:0; background:none; color:inherit; font:inherit; text-align:left; -webkit-tap-highlight-color:transparent} .mv-plan .gd-off{flex:none; align-self:stretch; width:38px; display:grid; place-items:center; border:0; border-left:1px solid var(--line); background:none; color:var(--ink-2); padding:0} .mv-plan .gd-off svg{width:17px; height:17px} .mv-plan .gd-off[hidden]{display:none} .mv-plan.sw .gd-main{min-height:38px; padding:5px 12px 5px 10px} .mv-plan .gp{display:flex !important; flex-direction:row !important; align-items:center; gap:7px} .mv-plan .gp b.pk{font-size:calc(15px * var(--k))} .mv-plan .gsw{display:inline-flex; border-radius:7px} .mv-plan .gsw .pl-sw{width:26px; height:13px; margin:0} .mv-plan .gsw.gl{box-shadow:0 0 0 2px rgba(182,240,58,.6)} .mv-plan .gsw.kei{box-shadow:0 0 0 2px rgba(120,150,255,.6)} .mv-plan .gt2{font-style:normal; font-size:calc(12px * var(--k)); font-weight:800; color:#E0A800} .mv-plan.soon{border-color:#FFC93C} .mv-plan .gd-off{display:none} .mv-plan.min small{display:none} .mv-plan.min .gd-main{min-height:34px; padding-top:4px; padding-bottom:4px} .mv-plan.min .gd-main > i{display:none} .mv-plan small .gt{display:inline; color:var(--ink-2); font-weight:800}
 .mv-plan span{display:grid; grid-template-columns:auto minmax(0, 1fr); column-gap:8px; align-items:center} .mv-plan small{grid-column:1 / -1} .mv-plan b.pk{display:inline-flex; align-items:center; gap:5px; font-size:calc(15px * var(--k))}
 .mv-areab{display:flex; align-items:center; gap:6px; width:100%; margin:10px 0 2px; padding:11px 12px; border:1px solid var(--line); border-radius:14px; background:var(--card); color:var(--ink); font:inherit; font-size:calc(13px * var(--k)); font-weight:700; text-align:left}
 .mv-areab span{flex:1; min-width:0} .mv-areab i{flex:none; font-style:normal; color:var(--ink-2)}
@@ -6206,6 +6206,7 @@ const TideHarm = (() => {
       if (a === 'pe' && s.guide) { if (s.pe === b.dataset.v || !gdG) return; s.pe = gdG.pe = b.dataset.v; s.busy = true; planRender(); return guideCalc(true).then(() => { if (plS === s && gdG) { s.res = gdG.R; s.busy = false; planRender(); } }); }
       if (a === 'pe') { s.pe = b.dataset.v; s.saved = false; return planRender(); }
       if (a === 'hours') { s.allH = !s.allH; return planRender(); }
+      if (a === 'gdoff') { guideOff(); return planClose(); }
       if (a === 'row') { const h = +b.dataset.h; if (s.open.has(h)) s.open.delete(h); else s.open.add(h); return planRender(); }
       if (a === 'more' || a === 'fn' || a === 'why') { const h = +b.dataset.h, S = s[a] || (s[a] = new Set()); if (S.has(h)) S.delete(h); else S.add(h); return planRender(); }
       if (a === 'auto') { s.how = null; s.p = null; s.saved = false; return planCalc(); }
@@ -6279,6 +6280,7 @@ const TideHarm = (() => {
       const nx = gdG ? gdNext(gdG) : null, mins = gdG ? Math.round((now - gdG.t) / 60000) : 0;
       h += `<div class="pl-day"><div class="pl-dh"><b>${esc(whereTxt(s.p, s.k))}</b><small>${esc(wsrc)} · ${mins < 1 ? '방금' : `${mins}분 전`} 셈</small></div>${nx ? `<p class="pl-note">다음: ${esc(nx)}</p>` : ''}</div>` + `<p class="pl-note">색 점수는 쭈갑이 눈에 보이는 정도만 셈한 가설이에요. 서해처럼 탁하고 어두운 날은 색끼리 차이가 작게 나와요.</p>`;
       h += `<div class="pl-hours">`; for (const x of R.hours.filter(x => x.h >= hNow)) h += plHour(x, s); h += `</div>`;
+      h += `<button type="button" class="pl-allh" data-pl="gdoff">길잡이 끄기 · 지도에서 숨겨요</button>`;
       h += `<p class="bk-none">자료: 국립해양조사원 조석·조류 예측·격자 수심(BADA2024) · 기상청 예보·초단기실황·초단기예보 · 물색 바탕: 국립수산과학원 정선해양관측 · 물색 보정: 천리안위성 2B호(국립해양조사원 국가해양위성센터). 해도가 아니니 항해·안전에는 쓰지 마세요.</p>`;
       return head + h;
     }
@@ -6470,28 +6472,26 @@ const TideHarm = (() => {
       const hide = () => { if (!el.hidden) { el.hidden = true; planChipPos(); } }, show = () => { if (el.hidden) el.hidden = false; planChipPos(); };
       if (!here || !onBoard || here.virtual || mode !== 'info' || spNow() !== 'jg') return hide();
       const put = (t, lab) => { if (mb.innerHTML !== t) mb.innerHTML = t; mb.setAttribute('aria-label', lab); };
-      if (!gdOn) { el.classList.remove('min'); ob.hidden = true; put(`<span><b class="pc">길잡이 꺼짐</b><small>누르면 다시 켜요</small></span>`, '길잡이 꺼짐. 누르면 다시 켜요'); return show(); }
-      ob.hidden = false;
+      if (!gdOn) { el.classList.remove('soon', 'sw'); ob.hidden = true; put(`<span><b class="pc">길잡이 꺼짐</b><small>누르면 다시 켜요</small></span>`, '길잡이 꺼짐. 누르면 다시 켜요'); return show(); }
       const now = Date.now(), x = gdNowRow(gdG);
       if (!x || gdG.n !== kstDay(now) || now - gdG.t >= 600000 || distKm(gdG.p, here) >= 0.5) guideCalc();
       let L = null; try { L = liveCalc(now); } catch (_) { L = null; }
-      if (!x && !(L && L.sk)) { el.classList.remove('min'); put(`<span><b class="pc">길잡이 셈하는 중…</b><small><span class="gt">길잡이</span> · 지금 이 자리로 셈해요</small></span>`, '길잡이 셈하는 중'); return show(); }
+      if (!x && !(L && L.sk)) { el.classList.remove('soon', 'sw'); put(`<span><b class="pc">길잡이 셈하는 중…</b><small><span class="gt">길잡이</span> · 지금 이 자리로 셈해요</small></span>`, '길잡이 셈하는 중'); return show(); }
       const pe = (gdG && gdG.pe) || '1.0', s = L && L.sk, sx = x && x.sink && x.sink[pe];
       const skT = s ? (s.std ? `${s.std}호` : '40호↑') : sx ? (sx.main ? `${sx.main}호` : '40호↑') : '', vc = s ? s.vcat : x ? plVc(x, { pe }) : null;
       const E = x && x.EG, bfN = E && E.bf ? plFn(E.bf) : '';
       const cols = E ? [bfN, ...E.list.slice(0, 2).map(e => e.n + (e.best !== (E.bf || '') ? `(${plFn(e.best, e.fn.lz.lc)})` : ''))].filter(Boolean).join(' · ') : '';
-      const warn = s && s.cur && s.std && s.cur < s.ho * 0.9;
-      const nx = gdG ? gdNext(gdG) : null;
-      const l2 = warn ? `단 ${s.cur}호는 가벼워요 → ${s.std}호` : s && s.vcat === 2 ? '에기가 빨라요 · 내려놓기를 길게' : nx ? `다음: ${nx}` : '앞으로 3시간 크게 바뀔 것 없어요';
-      const t = `<span>${skT ? `<b class="pk">${esc(skT)}${vc != null ? `<i class="pl-dot d${vc}" aria-hidden="true"></i>` : ''}</b>` : ''}<b class="pc">${esc(cols || '색 셈하는 중…')}</b><small class="${warn || (s && s.vcat === 2) ? 'warn' : ''}"><span class="gt">길잡이</span> · ${esc(l2)}</small></span><i aria-hidden="true">›</i>`;
-      const open = now < gdExpT || warn || (s && s.vcat === 2) || (gdG && gdG.nextAt && gdG.nextAt - now <= 30 * 60000);
-      el.classList.toggle('min', !open); ob.hidden = !open;
-      put(t, `길잡이. 봉돌 ${skT}. ${cols}. ${open ? l2 + '. 누르면 자세히' : '누르면 펼쳐요'}`); show();
+      const warn = s && s.cur && s.std && s.cur < s.ho * 0.9, fast = s && s.vcat === 2;
+      const nx = gdG ? gdNext(gdG) : null, soon = !!(gdG && gdG.nextAt && gdG.nextAt - now <= 30 * 60000);
+      // 색 견본 알약 (사용자 2026-11-20 2번): [호수 · 바닥 속도 점] [색 견본 둘 — 야광이면 연두 빛 테두리] [곧 바뀌면 시각] · 누르면 바로 자세히
+      const ring = f => /g/.test(f || '') ? ' gl' : /k/.test(f || '') ? ' kei' : '';
+      const sws = E ? E.list.slice(0, 2).map(e => `<span class="gsw${ring(e.best)}">${plSw(e.id)}</span>`).join('') : '';
+      const atT = soon ? ampm((gdG.nextAt - dayStartOf(gdG.n)) / 60000).replace(/^오[전후] /, '') : '', tag = warn ? `→${s.std}호` : fast ? '빠름' : atT;
+      el.classList.toggle('soon', !!(soon || warn || fast)); el.classList.add('sw'); ob.hidden = true;
+      const t = `<span class="gp">${skT ? `<b class="pk">${esc(skT)}</b>` : ''}${vc != null ? `<i class="pl-dot d${vc}" aria-hidden="true"></i>` : ''}${sws}${tag ? `<em class="gt2">${esc(tag)}</em>` : ''}</span>`;
+      put(t, ['길잡이', `봉돌 ${skT}`, cols, warn ? `봉돌이 가벼워요 ${s.std}호로` : fast ? '에기가 빨라요' : nx ? '다음: ' + nx : '', '누르면 자세히'].filter(Boolean).join('. ')); show();
     }
-    let gdExpT = 0;
     function guideTap() {
-      const el = $('mv-plan');
-      if (gdOn && el && el.classList.contains('min')) { gdExpT = Date.now() + 10000; planChip(me); setTimeout(() => planChip(me), 10200); return; }   // 접혀 있으면 먼저 10초 펼침
       if (!gdOn) { gdOn = true; try { localStorage.setItem(GD_KEY, '1'); } catch (_) {} guideCalc(true); planChip(me); return; }
       if (!gdG) { guideCalc(true); return; }
       let L = null; try { L = liveCalc(Date.now()); } catch (_) {}
@@ -11283,7 +11283,7 @@ const TideHarm = (() => {
 
 <script>
 if ('serviceWorker' in navigator) addEventListener('load', () => {
-  const sw = navigator.serviceWorker, VER = '7b81dc39'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
+  const sw = navigator.serviceWorker, VER = '8392baa0'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
   // 화면에 손을 대기 시작했는지 (쓰는 중에는 새로 열지 않으려고)
   ['pointerdown', 'keydown'].forEach(t => addEventListener(t, () => { touched = true; }, { capture: true, passive: true }));
   const reload = () => {
