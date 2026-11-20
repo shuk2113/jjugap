@@ -811,7 +811,7 @@ a.mv-row-btn{text-decoration:none; gap:10px} .mv-row-btn span{font-size:calc(20p
 .pl-cr .nm em{font-style:normal; font-size:calc(10px * var(--k)); font-weight:800; padding:0 5px; border-radius:5px; white-space:nowrap}
 .pl-cr .nm em.nb{background:transparent; box-shadow:inset 0 0 0 1px var(--line); color:var(--ink-2); font-weight:700} .pl-cr .nm em.mr{background:color-mix(in srgb, var(--accent, #2F7DF6) 18%, var(--card)); color:var(--ink)}
 .pl-cr .bar{height:calc(8px * var(--k)); border-radius:5px; background:color-mix(in srgb, var(--ink) 9%, var(--card)); overflow:hidden} .pl-cr .bar i{display:block; height:100%; border-radius:5px; background:var(--accent, #2F7DF6)}
-.pl-cr .sc{font-weight:800; font-size:calc(13.5px * var(--k)); text-align:right} .pl-cr .fn{font-style:normal; font-size:calc(10.5px * var(--k)); font-weight:800; color:var(--ink-2); line-height:1.25; word-break:keep-all}
+.pl-cr .sc{font-weight:800; font-size:calc(13.5px * var(--k)); text-align:right} .pl-cr .sc small{display:block; font-size:calc(10px * var(--k)); font-weight:700; color:var(--ink-2); white-space:nowrap} .pl-cr .fn{font-style:normal; font-size:calc(10.5px * var(--k)); font-weight:800; color:var(--ink-2); line-height:1.25; word-break:keep-all}
 .pl-cr .fx{grid-column:2 / -1; color:var(--ink-2); font-size:calc(11px * var(--k)); margin-top:-3px}
 .pl-bt{display:flex; gap:8px} .pl-bt button, .pl-wb{flex:1; padding:9px; border:1px solid var(--line); border-radius:11px; background:var(--card); color:var(--ink); font:inherit; font-size:calc(12.5px * var(--k)); font-weight:700}
 .pl-bt button[aria-pressed="true"]{border-color:var(--accent, #2F7DF6); color:var(--accent, #2F7DF6)}
@@ -5564,7 +5564,7 @@ const TideHarm = (() => {
     //  기상청 하늘: 맑음(구름 0~5할 → 2/8) · 구름많음(6~8할 → 5.6/8) · 흐림(9~10할 → 7.6/8) · 비는 0.2 (가정값)
     //  해 진 뒤·뜨기 전: 해 질 녘 약 500lux → 해가 6° 아래 3.4lux → 12° 아래 0.008lux (박명 밝기) · 빛깔은 푸르게
     function simSurf(el, wx, rainNow) {
-      const N = wx.sky === 1 ? 2 : wx.sky === 3 ? 5.6 : wx.sky === 4 ? 7.6 : 5, cf = rainNow ? 0.2 : 1 - 0.75 * (N / 8) ** 3.4;
+      const N = wx.sky === 1 ? 2 : wx.sky === 3 ? 5.6 : wx.sky === 4 ? 7.6 : 5, cf = wx.cf != null ? wx.cf : rainNow ? 0.2 : 1 - 0.75 * (N / 8) ** 3.4;   // wx.cf: 관측 일사로 잰 맑음 대비 비율(지난 날 다시 셈할 때)
       let E;
       if (el > 0) { const cz = Math.sin(el * Math.PI / 180), H = 1098 * cz * Math.exp(-0.057 / cz) * 110; E = el < 6 ? Math.max(H, 500 * 10 ** (0.15 * el)) : H; }   // 해가 아주 낮을 땐 하늘빛(산란)이 더 커서
       else E = el > -6 ? 500 * 10 ** (0.361 * el) : 3.4 * 10 ** (0.438 * (el + 6));
@@ -5991,7 +5991,9 @@ const TideHarm = (() => {
       // 아래서 올려다볼 때 (기능 없는 천의 실루엣) · 이 시간 기능 효과 (색들 평균으로 오른 점수)
       let rUp = 0; for (const e of SIM_COL) { let d = 0; for (const pt of e.p) d += pt.a * Math.abs(0.08 * q(o.ez.map((x, i) => x * SIM_REF[pt.c][i])) - Lup); rUp = Math.max(rUp, dist(d, Lup)); }
       const gain = f => Math.round(out.reduce((a, e) => a + e.fn[f].sc - e.fn[''].sc, 0) / out.length);
-      return { list: out, pairs: top, bf, flat, bfG: Math.round(avg(bf || '') - avg('')), c, E: E * Math.PI, rUp, gain: { g: gain('g'), k: gain('k'), gk: gain('gk'), lz: gain('lz') } };
+      // 야광이 약해져 바탕에서 빠졌을 때: 막 충전한 셈으로 다시 보면 야광이 살아나는지 (사용자 2026-11-21: 이유 문구를 셈의 실제 이유대로)
+      let fresh = 0; if (!o._r && o.gk != null && o.gk < 0.6 && !(bf || '').includes('g')) { const F = simEgi({ ...o, gk: 1, _r: 1 }); fresh = (F.bf || '').includes('g') ? 1 : 0; }
+      return { list: out, pairs: top, bf, flat, gk: o.gk, fresh, bfG: Math.round(avg(bf || '') - avg('')), c, E: E * Math.PI, rUp, gain: { g: gain('g'), k: gain('k'), gk: gain('gk'), lz: gain('lz') } };
     }
     // 봉돌 (2단계 · 물리): 배가 흐르는 동안 줄·봉돌·에기 2개가 받는 물 힘 → 줄이 30° 안으로 서는 가장 가벼운 무게
     //  근거: 1호 = 3.75g(납 11.34g/cm³) · 합사 굵기 0.8호 0.153mm · 1호 0.171mm(PE 1호 = 200데니어, 일본釣用品工業会 · 제조사 공칭 지름)
@@ -6341,6 +6343,7 @@ const TideHarm = (() => {
     }
     const plActTxt = B => [B.eg.slice(0, 2).join(' · ') + (B.eg.length > 2 ? ` 외 ${B.eg.length - 2}` : ''), B.sk.size ? [...B.sk].sort((a, b) => a - b).join('·') + '호' : '', `${B.c}마리`].filter(Boolean).join(' · ');
     let plRec = null;
+    const plCm = r => r <= 0.05 ? '5cm↓' : r < 1 ? `${Math.round(r * 20) * 5}cm` : `${(Math.round(r * 10) / 10).toFixed(1)}m`;   // 쭈갑이가 알아보는 거리 (점수의 바탕 값)
     function plHour(x, s) {
       const on = s.open.has(x.h), L = x.EG.list, sk = x.sink && x.sink[s.pe], vc = plVc(x, s), AB = s.act && s.act.byH[x.h];
       const skT = sk ? (sk.main ? `${sk.main}호` : '40↑') : '–';
@@ -6350,12 +6353,16 @@ const TideHarm = (() => {
       if (!on) return h + '</div>';
       if (!plRec) { try { plRec = simRecMap(); } catch (_) { plRec = {}; } }
       const all = s.more.has(x.h), fnOn = s.fn.has(x.h), list = all ? L : L.slice(0, 6), top = L[0].sc || 1;
-      const bf = x.EG.bf || '', bfN = bf ? plFn(bf) : '기능 없이', bfW = bf === 'gk' ? '바닥이 어둡고 자외선도 닿아요' : bf === 'g' ? '바닥이 어두워 야광이 잘 보여요' : bf === 'k' ? '자외선이 바닥까지 닿아요' : '바닥이 밝아 기능 없이도 잘 보여요';
-      h += `<div class="pl-dx"><p class="pl-bf"><b>이 시각 기본: ${esc(bfN)}</b><span>${bfW}</span></p><p class="pl-k">에기 색 · ${bf ? esc(bfN) + ' 켠 채로' : '눈에 띔'}</p><div class="pl-cl">`;
+      const bf = x.EG.bf || '', bfN = bf ? plFn(bf) : '기능 없이', bfW = bf === 'gk' ? '바닥이 어둡고 자외선도 닿아요' : bf === 'g' ? '바닥이 어두워 야광이 잘 보여요' : bf === 'k' ? '자외선이 바닥까지 닿아요'
+        : x.EG.fresh ? '충전한 지 오래돼 야광이 약해졌어요 · 축광기로 다시 충전하면 야광이 살아나요'
+        : x.EG.gk != null && x.EG.gk < 0.6 ? '주변이 밝아져 약해진 야광이 묻혀요 · 다시 충전해도 차이가 작아요' : '바닥이 밝아 기능 없이도 잘 보여요';
+      const tm = {}; for (const e of L.slice(0, 3)) { const m = e.fn[e.best].m; tm[m] = (tm[m] || 0) + 1; }
+      const tmK = Object.entries(tm).sort((a, b) => b[1] - a[1])[0], tmW = { '어둡게 보임': '어두운 색이 물빛보다 짙어 실루엣이 또렷해요', '밝게 보임': '물속이 어두워 밝은 색이 잘 보여요', '빛을 냄': '어두운 물에서 빛을 내는 에기가 잘 보여요', '무늬가 보임': '머리·몸통 밝기 경계(무늬)가 잘 보여요' }[tmK && tmK[0]] || '';
+      h += `<div class="pl-dx"><p class="pl-bf"><b>이 시각 기본: ${esc(bfN)}</b><span>${bfW}</span>${tmW ? `<span>위 색들: ${tmW}</span>` : ''}</p><p class="pl-k">에기 색 · ${bf ? esc(bfN) + ' 켠 채로' : '눈에 띔'} · 점수 밑 거리 = 쭈갑이가 알아보는 거리</p><div class="pl-cl">`;
       for (const e of list) {
         const rec = e.app && plRec[e.app], tags = (e.mine ? '<em class="mr">내 에기</em>' : simHas(e) ? '' : '<em class="nb">사 두면 좋아요</em>') + (rec ? `<em class="mr">내 기록 ${rec.map(n => { const v = ymd(n); return `${v.m}/${v.d}`; }).join('·')}</em>` : '');
         h += `<div class="pl-cr">${plSw(e.id)}<span class="nm"><b>${esc(e.n)}</b>${PL_SUB[e.id] ? `<small>${PL_SUB[e.id]}</small>` : e.mine ? '<small>색 코드로 어림</small>' : ''}${tags}</span>`
-          + `<span class="bar"><i style="width:${Math.max(3, Math.round(e.sc / Math.max(top, 40) * 100))}%"></i></span><span class="sc">${e.sc}</span>`
+          + `<span class="bar"><i style="width:${Math.max(3, Math.round(e.sc / Math.max(top, 40) * 100))}%"></i></span><span class="sc">${e.sc}<small>${plCm(e.r)}</small></span>`
           + `<em class="fn">${e.best !== bf ? esc(plFn(e.best, e.fn.lz.lc)) : ''}</em>`
           + (fnOn ? `<small class="fx">기본 ${e.fn[''].sc} · 야광 ${e.fn.g.sc} · 케이 ${e.fn.k.sc} · 둘다 ${e.fn.gk.sc} · 레이저 ${e.fn.lz.sc}${e.fn.n ? ` · 누드 ${Math.max(e.fn.n.sc, e.fn.ng.sc, e.fn.nk.sc, e.fn.ngk.sc)}` : ''}</small>` : '') + `</div>`;
       }
@@ -11324,7 +11331,7 @@ const TideHarm = (() => {
 
 <script>
 if ('serviceWorker' in navigator) addEventListener('load', () => {
-  const sw = navigator.serviceWorker, VER = 'd4d3dbab'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
+  const sw = navigator.serviceWorker, VER = '4676a46d'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
   // 화면에 손을 대기 시작했는지 (쓰는 중에는 새로 열지 않으려고)
   ['pointerdown', 'keydown'].forEach(t => addEventListener(t, () => { touched = true; }, { capture: true, passive: true }));
   const reload = () => {
