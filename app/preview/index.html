@@ -4334,43 +4334,13 @@ const TideHarm = (() => {
     // ---------- 바람 (기상청 초단기실황·초단기예보, 매시간 받는 now.json): 지도 단추로 켜고 끔 (기본 꺼짐 · 꺼 두면 아무것도 안 함)
     // 켜면 바람 부는 쪽으로 가는 선이 흐르고(셀수록 빠르고 색이 진함), 지도를 30초 안 만지면 멈춘 화살표로 (배터리) · 만지면 다시 흐름
     const WIND_KEY = 'jjukgap-map-wind';
-    // 선 색은 지도 모양의 바다 밝기에 맞춰 고름 (사용자 2026-11-21: 밝은 청록 바다에서 파란 선이 묻힘) · 흰색은 조류 화살표와 헷갈려 안 씀
-    const WIND_DK = { c: ['#5AA9E6', '#3DBB7A', '#F0A020', '#E5484D'], h: 'rgba(0,0,0,.5)' };    // 어두운 바다: 밝은 색 + 검은빛 테두리
-    const WIND_LT = { c: ['#1B3A94', '#0B6E35', '#C95A00', '#B80F2B'], h: 'rgba(255,255,255,.6)' };   // 밝은 바다: 진한 색 + 흰빛 테두리
-    let WIND_COL = WIND_DK.c, windHalo = WIND_DK.h, windSea = '';
-    // 지도 모양마다 바다(와 땅)색과의 명암 대비를 계산해 가장 잘 보이는 색을 고름 (사용자 2026-11-21)
-    // 기준: 웹 접근성 지침(WCAG 2.1, 1.4.11)의 그림·선 명암비 3:1 이상. 색 계열(파랑·초록·주황·빨강)은 지키고, 3:1을 넘는 색 중 가장 선명한(채도 높은) 색을 고름
-    // 바다가 중간 밝기라 3:1이 안 나오면 대비가 가장 큰 색 + 반대 밝기 테두리로 보완
-    const hex2 = h => { const m = /^#([0-9a-f]{6})$/i.exec(h || ''); if (!m) return null; const n = parseInt(m[1], 16); return [n >> 16, (n >> 8) & 255, n & 255]; };
-    const lin = x => { x /= 255; return x <= 0.04045 ? x / 12.92 : Math.pow((x + 0.055) / 1.055, 2.4); };
-    const lum = c => 0.2126 * lin(c[0]) + 0.7152 * lin(c[1]) + 0.0722 * lin(c[2]);
-    const cr = (a, b) => { const x = lum(a), y = lum(b); return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05); };
-    function oklch(L, C, h) {   // OKLCH → sRGB (화면 밖 색이면 null)
-      const a = C * Math.cos(h * Math.PI / 180), b = C * Math.sin(h * Math.PI / 180);
-      const l = (L + 0.3963377774 * a + 0.2158037573 * b) ** 3, m = (L - 0.1055613458 * a - 0.0638541728 * b) ** 3, s2 = (L - 0.0894841775 * a - 1.2914855480 * b) ** 3;
-      const r = [4.0767416621 * l - 3.3077115913 * m + 0.2309699292 * s2, -1.2684380046 * l + 2.6097574011 * m - 0.3413193965 * s2, -0.0041960863 * l - 0.7034186147 * m + 1.7076147010 * s2];
-      const g2 = x => (x <= 0.0031308 ? 12.92 * x : 1.055 * Math.pow(x, 1 / 2.4) - 0.055);
-      const o = r.map(x => g2(x) * 255); return o.every(x => x >= -0.5 && x <= 255.5) ? o.map(x => Math.max(0, Math.min(255, Math.round(x)))) : null;
-    }
-    const WIND_HUES = [[245, 260, 275, 290, 305], [135, 145, 155, 165], [50, 58, 66], [20, 28, 352, 340]];   // 약(파랑~보라) · 보통(초록) · 셈(주황) · 아주 셈(빨강~자홍)
+    let WIND_COL = ['#D8F3FF', '#A8FF78', '#FFC93C', '#FF5C7A'], windHalo = 'rgba(8,28,48,.85)', windSea = '';
+    // 맑은 4색 + 짙은 남색 테두리 (지하철 노선도처럼): 어떤 지도 모양에서도 같은 색 · 테두리가 바다색과 갈라 줌 (사용자 2026-11-21 고름)
+    const WIND_A = { c: ['#D8F3FF', '#A8FF78', '#FFC93C', '#FF5C7A'], h: 'rgba(8,28,48,.85)' };
     function windPal() {
-      const cs = getComputedStyle(document.documentElement), sc = cs.getPropertyValue('--map-sea').trim(), lc = cs.getPropertyValue('--map-land').trim();
-      const k = sc + lc; if (k === windSea) return; windSea = k;
-      if (window.__JJ_TEST && window.__WINDPAL) { WIND_COL = window.__WINDPAL.c; windHalo = window.__WINDPAL.h; return; }   // (시험용 색 비교)
-      const sea = hex2(sc), land = hex2(lc); if (!sea) { WIND_COL = WIND_DK.c; windHalo = WIND_DK.h; return; }
-      const Ls = lum(sea), dark = (Ls + 0.05) / 0.05 > 1.05 / (Ls + 0.05);   // 바다보다 어둡게 칠할 때 대비가 더 크게 나오면 어두운 쪽
-      const Ls2 = dark ? [0.62, 0.58, 0.54, 0.5, 0.46, 0.42, 0.38, 0.34, 0.3] : [0.72, 0.76, 0.8, 0.84, 0.88, 0.92, 0.95];   // 선명한 쪽부터
-      WIND_COL = WIND_HUES.map(hs => {
-        let best = null, bs = -1;
-        for (const L of Ls2) for (const h of hs) {
-          let c = null, C = 0.26; while (C > 0.02 && !(c = oklch(L, C, h))) C -= 0.01; if (!c) continue;
-          const a = cr(c, sea), b2 = land ? cr(c, land) : a, ok = a >= 3;
-          const sc2 = (ok ? 10 : 0) + Math.min(a, 3.6) + 0.3 * Math.min(b2, 3) + 14 * C;   // 3:1 넘는 것 중 선명한 색 우선, 땅 위에서도 보이면 덤
-          if (sc2 > bs) { bs = sc2; best = c; }
-        }
-        return best ? '#' + best.map(x => x.toString(16).padStart(2, '0')).join('') : '#888888';
-      });
-      windHalo = dark ? 'rgba(255,255,255,.7)' : 'rgba(0,0,0,.6)';
+      const k = getComputedStyle(document.documentElement).getPropertyValue('--map-sea').trim(); if (k === windSea) return; windSea = k;
+      const P = window.__JJ_TEST && window.__WINDPAL ? window.__WINDPAL : WIND_A;   // (__WINDPAL: 시험용 색 비교)
+      WIND_COL = P.c; windHalo = P.h;
     }
     const windBand = w => (w < 4 ? 0 : w < 8 ? 1 : w < 12 ? 2 : 3);
     let windOn = false; try { windOn = localStorage.getItem(WIND_KEY) === 'on'; } catch (_) {}
@@ -11501,7 +11471,7 @@ const TideHarm = (() => {
 
 <script>
 if ('serviceWorker' in navigator) addEventListener('load', () => {
-  const sw = navigator.serviceWorker, VER = '6f4c7282'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
+  const sw = navigator.serviceWorker, VER = '71732ca3'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
   // 화면에 손을 대기 시작했는지 (쓰는 중에는 새로 열지 않으려고)
   ['pointerdown', 'keydown'].forEach(t => addEventListener(t, () => { touched = true; }, { capture: true, passive: true }));
   const reload = () => {
