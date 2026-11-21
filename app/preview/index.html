@@ -4414,7 +4414,16 @@ const TideHarm = (() => {
       for (let i = 0; i < P.length; i++) { g.globalAlpha = 0.9; g.strokeStyle = windHalo; g.lineWidth = 4.4; g.stroke(P[i]); g.strokeStyle = WIND_COL[i]; g.lineWidth = 2.2; g.stroke(P[i]); }
       g.globalAlpha = 1;
     }
-    const windNewPart = () => ({ x: Math.random() * W, y: Math.random() * H, a: Math.floor(Math.random() * 160) });
+    // 선이 생길 자리: 바람이 센 곳일수록 더 자주 (밀도로 세기를 보여 줌 · 전체 개수는 그대로 · 사용자 2026-11-21)
+    // 3m/s 자리는 약 45%, 10m/s 넘는 자리는 거의 100% 받아들여 → 센 곳이 2~3배 빽빽
+    function windNewPart() {
+      let x = 0, y = 0;
+      for (let t = 0; t < 8; t++) {
+        x = Math.random() * W; y = Math.random() * H; if (!windF) break;
+        const q = windAt(windF, x, y); if (!q) continue; if (Math.random() < Math.min(1, 0.2 + Math.hypot(q[0], q[1]) / 12)) break;
+      }
+      return { x, y, a: Math.floor(Math.random() * 160) };
+    }
     function windLoop(t) {
       windRaf = 0;
       if (!isOpen || !windOn || document.hidden) return;
@@ -11474,7 +11483,7 @@ const TideHarm = (() => {
 
 <script>
 if ('serviceWorker' in navigator) addEventListener('load', () => {
-  const sw = navigator.serviceWorker, VER = '732ddbaf'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
+  const sw = navigator.serviceWorker, VER = '4d25fa50'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
   // 화면에 손을 대기 시작했는지 (쓰는 중에는 새로 열지 않으려고)
   ['pointerdown', 'keydown'].forEach(t => addEventListener(t, () => { touched = true; }, { capture: true, passive: true }));
   const reload = () => {
