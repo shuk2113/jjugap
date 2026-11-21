@@ -4413,21 +4413,20 @@ const TideHarm = (() => {
       if (RM.matches || fxIdle()) { windMode = 'still'; windStatic(windF); windLeg(true); return; }   // 30초 안 만지면 멈춘 화살표로 (만지면 다시)
       if (t - windLast >= 32) {   // 초당 30번쯤
         windLast = t; const g = windG;
-        // 잔상은 그림판에 남기지 않고 선마다 최근 10걸음만 다시 그림 (꼬리가 짧고 깨끗하게 · 사용자 2026-11-21: 잔상이 길어 선이 많아 보임)
+        // 잔상은 그림판에 남기지 않고 선마다 최근 22걸음(예전 물감식 잔상과 같은 길이)을 다시 그림: 꼬리 길이는 그대로, 선이 끝나면 꼬리도 바로 사라짐 (사용자 2026-11-21)
         g.setTransform(1, 0, 0, 1, 0, 0); g.clearRect(0, 0, windCv.width, windCv.height);
         g.setTransform(dpr, 0, 0, dpr, 0, 0); g.lineCap = 'round'; g.lineJoin = 'round';
-        const P = WIND_COL.map(() => [new Path2D(), new Path2D()]);   // 꼬리 끝(흐림) · 머리 쪽(진함)
+        const P = WIND_COL.map(() => [new Path2D(), new Path2D(), new Path2D()]);   // 꼬리 끝(흐림) · 가운데 · 머리 쪽(진함)
         for (const p of windParts) {
           const q = windAt(windF, p.x, p.y);
           if (!q || ++p.a > 90) { Object.assign(p, windNewPart(), { a: 0, h: [] }); continue; }
           const w = Math.hypot(q[0], q[1]), k = 0.55, nx = p.x + q[0] * k, ny = p.y - q[1] * k;   // 1m/s = 화면에서 초당 약 16점
-          (p.h || (p.h = [])).push([p.x, p.y]); if (p.h.length > 10) p.h.shift(); p.x = nx; p.y = ny; p.b = windBand(w);
+          (p.h || (p.h = [])).push([p.x, p.y]); if (p.h.length > 22) p.h.shift(); p.x = nx; p.y = ny; p.b = windBand(w);
           if (nx < -5 || ny < -5 || nx > W + 5 || ny > H + 5) { Object.assign(p, windNewPart(), { a: 0, h: [] }); continue; }
-          const H2 = p.h, m = Math.floor(H2.length / 2), A = P[p.b];
-          if (H2.length > 1) { A[0].moveTo(H2[0][0], H2[0][1]); for (let i = 1; i <= m; i++) A[0].lineTo(H2[i][0], H2[i][1]); }
-          A[1].moveTo(H2[m][0], H2[m][1]); for (let i = m + 1; i < H2.length; i++) A[1].lineTo(H2[i][0], H2[i][1]); A[1].lineTo(nx, ny);
+          const H2 = p.h, A = P[p.b], n = H2.length, c1 = Math.floor(n / 3), c2 = Math.floor(n * 2 / 3), pt = i => (i < n ? H2[i] : [nx, ny]);
+          for (const [z, i0, i1] of [[0, 0, c1], [1, c1, c2], [2, c2, n]]) { if (i1 <= i0 && z < 2) continue; A[z].moveTo(...pt(i0)); for (let i = i0 + 1; i <= i1; i++) A[z].lineTo(...pt(i)); }
         }
-        for (let i = 0; i < P.length; i++) { g.strokeStyle = WIND_COL[i]; g.lineWidth = 1.4; g.globalAlpha = 0.4; g.stroke(P[i][0]); g.lineWidth = 1.9; g.globalAlpha = 0.95; g.stroke(P[i][1]); }
+        for (let i = 0; i < P.length; i++) { g.strokeStyle = WIND_COL[i]; g.lineWidth = 1.3; g.globalAlpha = 0.25; g.stroke(P[i][0]); g.lineWidth = 1.6; g.globalAlpha = 0.55; g.stroke(P[i][1]); g.lineWidth = 1.9; g.globalAlpha = 0.95; g.stroke(P[i][2]); }
         g.globalAlpha = 1;
       }
       windRaf = requestAnimationFrame(windLoop);
@@ -11459,7 +11458,7 @@ const TideHarm = (() => {
 
 <script>
 if ('serviceWorker' in navigator) addEventListener('load', () => {
-  const sw = navigator.serviceWorker, VER = '3c5c2246'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
+  const sw = navigator.serviceWorker, VER = 'fd701070'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
   // 화면에 손을 대기 시작했는지 (쓰는 중에는 새로 열지 않으려고)
   ['pointerdown', 'keydown'].forEach(t => addEventListener(t, () => { touched = true; }, { capture: true, passive: true }));
   const reload = () => {
