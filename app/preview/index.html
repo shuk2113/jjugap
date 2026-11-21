@@ -4418,11 +4418,16 @@ const TideHarm = (() => {
         g.setTransform(dpr, 0, 0, dpr, 0, 0); g.lineCap = 'butt'; g.lineJoin = 'round';   // 끝을 둥글게 하면 단계 이음매마다 점이 겹쳐 보임
         const NL = 20, P = WIND_COL.map(() => Array.from({ length: NL }, () => new Path2D()));   // 꼬리 끝(흐림) → 머리(진함) 20단계로 자연스럽게
         for (const p of windParts) {
-          const q = windAt(windF, p.x, p.y);
-          if (!q || ++p.a > 180) { Object.assign(p, windNewPart(), { a: 0, h: [] }); continue; }
-          const w = Math.hypot(q[0], q[1]), k = 0.275, nx = p.x + q[0] * k, ny = p.y - q[1] * k;   // 1m/s = 화면에서 초당 약 16점 (초당 60걸음)
-          (p.h || (p.h = [])).push([p.x, p.y]); if (p.h.length > 44) p.h.shift(); p.x = nx; p.y = ny; p.b = windBand(w);
-          if (nx < -5 || ny < -5 || nx > W + 5 || ny > H + 5) { Object.assign(p, windNewPart(), { a: 0, h: [] }); continue; }
+          // 수명이 다하면 바로 지우지 않고 꼬리부터 빠르게 거둬들이며 사라짐 (약 0.2초 · 사용자 2026-11-21)
+          const q = p.d ? null : windAt(windF, p.x, p.y);
+          if (!p.d && (!q || ++p.a > 180)) p.d = 1;
+          if (p.d) { if (!p.h || p.h.length <= 4) { Object.assign(p, windNewPart(), { a: 0, h: [], d: 0 }); continue; } p.h.splice(0, 4); }
+          else {
+            const w = Math.hypot(q[0], q[1]), k = 0.275, nx0 = p.x + q[0] * k, ny0 = p.y - q[1] * k;   // 1m/s = 화면에서 초당 약 16점 (초당 60걸음)
+            (p.h || (p.h = [])).push([p.x, p.y]); if (p.h.length > 44) p.h.shift(); p.x = nx0; p.y = ny0; p.b = windBand(w);
+            if (nx0 < -5 || ny0 < -5 || nx0 > W + 5 || ny0 > H + 5) p.d = 1;
+          }
+          const nx = p.x, ny = p.y;
           const H2 = p.h, A = P[p.b], n = H2.length, pt = i => (i < n ? H2[i] : [nx, ny]);
           for (let i = 0; i < n; i++) { const z = Math.min(NL - 1, Math.floor((i + 1) / n * NL)), a0 = pt(i), a1 = pt(i + 1); A[z].moveTo(a0[0], a0[1]); A[z].lineTo(a1[0], a1[1]); }
         }
@@ -11458,7 +11463,7 @@ const TideHarm = (() => {
 
 <script>
 if ('serviceWorker' in navigator) addEventListener('load', () => {
-  const sw = navigator.serviceWorker, VER = '2e1a1e04'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
+  const sw = navigator.serviceWorker, VER = '0711788e'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
   // 화면에 손을 대기 시작했는지 (쓰는 중에는 새로 열지 않으려고)
   ['pointerdown', 'keydown'].forEach(t => addEventListener(t, () => { touched = true; }, { capture: true, passive: true }));
   const reload = () => {
