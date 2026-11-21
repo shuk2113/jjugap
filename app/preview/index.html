@@ -300,7 +300,7 @@ html.mv-on .app *{animation-play-state:paused !important} html.mv-hide .app{visi
 .mv-tools button svg{width:20px; height:20px; color:var(--ink-2); font-weight:500} .mv-tools button.on svg{color:#2F7DF6}
 .mv-tools button.mini{width:34px; height:34px; border-radius:10px; align-self:center} .mv-tools button.mini svg{width:18px; height:18px}
 #mv-wind{position:absolute; left:0; top:0; width:100%; height:100%; pointer-events:none}
-.mv-wleg{position:absolute; left:10px; top:60px; display:flex; flex-direction:column; align-items:flex-start; gap:3px; padding:4px 7px; border-radius:9px; background:color-mix(in srgb, var(--card) 88%, transparent); font-size:calc(9.5px * var(--k)); font-weight:700; color:var(--ink-2); pointer-events:none; white-space:nowrap} .mv-wleg[hidden]{display:none} .mv-wleg b{font-weight:800; color:var(--ink)} .mv-wleg span{display:flex; align-items:center; gap:3px} .mv-wleg i{width:12px; height:4px; border-radius:2px} .mv-wleg em{font-style:normal; margin-right:3px} .mv-drag .mv-wleg{transition:none}
+.mv-wleg{position:absolute; left:6px; top:50px; display:flex; flex-direction:column; align-items:flex-start; gap:3px; padding:4px 7px; border-radius:9px; background:color-mix(in srgb, var(--card) 88%, transparent); font-size:calc(9.5px * var(--k)); font-weight:700; color:var(--ink-2); pointer-events:none; white-space:nowrap} .mv-wleg[hidden]{display:none} .mv-wleg b{font-weight:800; color:var(--ink)} .mv-wleg span{display:flex; align-items:center; gap:3px} .mv-wleg i{width:12px; height:4px; border-radius:2px} .mv-wleg em{font-style:normal; margin-right:3px} .mv-drag .mv-wleg{transition:none}
 #mv-pnm .sl{display:none} #mv-pnm.off .sl{display:inline} #mv-pnm.off svg{opacity:.8}
 .mv-scale{position:absolute; left:10px; bottom:10px; transform:translate3d(0,calc(-1 * var(--sheet-h, 0px)),0); transition:transform .28s cubic-bezier(.2,.85,.25,1); display:flex; flex-direction:column; gap:2px; font-size:calc(10.5px * var(--k)); font-weight:700; color:var(--map-lab); pointer-events:none}
 .mv-scale i{display:block; height:5px; border:1.5px solid var(--map-lab); border-top:0}
@@ -11072,7 +11072,6 @@ const TideHarm = (() => {
     wBtn.onclick = () => {
       windOn = !windOn; try { localStorage.setItem(WIND_KEY, windOn ? 'on' : 'off'); } catch (_) {}
       paintW(); windMode = 'flow'; windVk = ''; fxTouchT = Date.now(); windSync();
-      toast(windOn ? (windData() ? '바람을 보여 줘요 · 30초 흐른 뒤 멈춰요 (지도를 만지면 다시)' : '바람 자료를 불러오는 중이에요') : '바람을 숨겼어요');
     };
     $('mv-zout').onclick = () => zoomAt(1 / 1.8);
     $('mv-me').onclick = () => {
@@ -11463,7 +11462,7 @@ const TideHarm = (() => {
 
 <script>
 if ('serviceWorker' in navigator) addEventListener('load', () => {
-  const sw = navigator.serviceWorker, VER = '0711788e'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
+  const sw = navigator.serviceWorker, VER = '89f7a760'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
   // 화면에 손을 대기 시작했는지 (쓰는 중에는 새로 열지 않으려고)
   ['pointerdown', 'keydown'].forEach(t => addEventListener(t, () => { touched = true; }, { capture: true, passive: true }));
   const reload = () => {
