@@ -4423,7 +4423,7 @@ const TideHarm = (() => {
         windLast = t; const g = windG;
         // 잔상은 그림판에 남기지 않고 선마다 최근 44걸음(예전 물감식 잔상과 같은 길이)을 다시 그림: 꼬리 길이는 그대로, 선이 끝나면 꼬리도 바로 사라짐 (사용자 2026-11-21)
         g.setTransform(1, 0, 0, 1, 0, 0); g.clearRect(0, 0, windCv.width, windCv.height);
-        g.setTransform(dpr, 0, 0, dpr, 0, 0); g.lineCap = 'butt'; g.lineJoin = 'round';   // 끝을 둥글게 하면 단계 이음매마다 점이 겹쳐 보임
+        g.setTransform(dpr, 0, 0, dpr, 0, 0); g.lineCap = 'round'; g.lineJoin = 'round';   // 불투명하게 그려서 둥근 끝이 겹쳐도 점이 안 보임
         const NL = 20, P = WIND_COL.map(() => Array.from({ length: NL }, () => new Path2D()));   // 꼬리 끝(흐림) → 머리(진함) 20단계로 자연스럽게
         for (const p of windParts) {
           // 수명이 다하면 바로 지우지 않고 꼬리부터 빠르게 거둬들이며 사라짐 (약 0.2초 · 사용자 2026-11-21)
@@ -4437,10 +4437,12 @@ const TideHarm = (() => {
           }
           const nx = p.x, ny = p.y;
           const H2 = p.h, A = P[p.b], n = H2.length, pt = i => (i < n ? H2[i] : [nx, ny]);
-          for (let i = 0; i < n; i++) { const z = Math.min(NL - 1, Math.floor((i + 1) / n * NL)), a0 = pt(i), a1 = pt(i + 1); A[z].moveTo(a0[0], a0[1]); A[z].lineTo(a1[0], a1[1]); }
+          let pz = -1; for (let i = 0; i < n; i++) { const z = Math.min(NL - 1, Math.floor((i + 1) / n * NL)), a0 = pt(i), a1 = pt(i + 1); if (z !== pz) { A[z].moveTo(a0[0], a0[1]); pz = z; } A[z].lineTo(a1[0], a1[1]); }   // 같은 단계는 이어 그려 이음매 없이
         }
-        g.strokeStyle = windHalo; for (let i = 0; i < P.length; i++) for (let z = NL >> 1; z < NL; z++) { const f = (z + 1) / NL; g.globalAlpha = 0.75 * f * f; g.lineWidth = 3.6 + 1.1 * f; g.stroke(P[i][z]); }   // 얇은 테두리 (머리 쪽 절반만)
-        for (let i = 0; i < P.length; i++) { g.strokeStyle = WIND_COL[i]; for (let z = 0; z < NL; z++) { const f = (z + 1) / NL; g.globalAlpha = 0.1 + 0.9 * f * f; g.lineWidth = 1.3 + 1.1 * f; g.stroke(P[i][z]); } }
+        // 또렷하게: 투명도 대신 굵기로 꼬리를 가늘게(끝은 거의 0) · 테두리도 같은 모양으로 진하게 (사용자 2026-11-21: 뿌옇게 보임)
+        const tw = f => 0.35 + 2.3 * f;   // 꼬리 끝 → 머리 굵기
+        g.strokeStyle = windHalo; for (let i = 0; i < P.length; i++) for (let z = 0; z < NL; z++) { const f = (z + 1) / NL; g.globalAlpha = 0.85; g.lineWidth = tw(f) + 1.8; g.stroke(P[i][z]); }
+        for (let i = 0; i < P.length; i++) { g.strokeStyle = WIND_COL[i]; for (let z = 0; z < NL; z++) { const f = (z + 1) / NL; g.globalAlpha = 1; g.lineWidth = tw(f); g.stroke(P[i][z]); } }
         g.globalAlpha = 1;
       }
       windRaf = requestAnimationFrame(windLoop);
@@ -11471,7 +11473,7 @@ const TideHarm = (() => {
 
 <script>
 if ('serviceWorker' in navigator) addEventListener('load', () => {
-  const sw = navigator.serviceWorker, VER = '71732ca3'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
+  const sw = navigator.serviceWorker, VER = '4cac089c'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
   // 화면에 손을 대기 시작했는지 (쓰는 중에는 새로 열지 않으려고)
   ['pointerdown', 'keydown'].forEach(t => addEventListener(t, () => { touched = true; }, { capture: true, passive: true }));
   const reload = () => {
