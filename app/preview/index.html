@@ -4333,7 +4333,17 @@ const TideHarm = (() => {
     }
     // ---------- 바람 (기상청 초단기실황·초단기예보, 매시간 받는 now.json): 지도 단추로 켜고 끔 (기본 꺼짐 · 꺼 두면 아무것도 안 함)
     // 켜면 바람 부는 쪽으로 가는 선이 흐르고(셀수록 빠르고 색이 진함), 지도를 30초 안 만지면 멈춘 화살표로 (배터리) · 만지면 다시 흐름
-    const WIND_KEY = 'jjukgap-map-wind', WIND_COL = ['#5AA9E6', '#3DBB7A', '#F0A020', '#E5484D'];   // 4m/s 아래 · 4~8 · 8~12 · 12 넘음
+    const WIND_KEY = 'jjukgap-map-wind';
+    // 선 색은 지도 모양의 바다 밝기에 맞춰 고름 (사용자 2026-11-21: 밝은 청록 바다에서 파란 선이 묻힘) · 흰색은 조류 화살표와 헷갈려 안 씀
+    const WIND_DK = { c: ['#5AA9E6', '#3DBB7A', '#F0A020', '#E5484D'], h: 'rgba(0,0,0,.5)' };    // 어두운 바다: 밝은 색 + 검은빛 테두리
+    const WIND_LT = { c: ['#1B3A94', '#0B6E35', '#C95A00', '#B80F2B'], h: 'rgba(255,255,255,.6)' };   // 밝은 바다: 진한 색 + 흰빛 테두리
+    let WIND_COL = WIND_DK.c, windHalo = WIND_DK.h, windSea = '';
+    function windPal() {   // 4m/s 아래 · 4~8 · 8~12 · 12 넘음
+      const c = getComputedStyle(document.documentElement).getPropertyValue('--map-sea').trim(); if (c === windSea) return; windSea = c;
+      const m = c.match(/^#([0-9a-f]{6})$/i); let L = 0.1;
+      if (m) { const n = parseInt(m[1], 16), f = x => { x /= 255; return x <= 0.04045 ? x / 12.92 : Math.pow((x + 0.055) / 1.055, 2.4); }; L = 0.2126 * f(n >> 16) + 0.7152 * f((n >> 8) & 255) + 0.0722 * f(n & 255); }
+      const P = L > 0.18 ? WIND_LT : WIND_DK; WIND_COL = P.c; windHalo = P.h;
+    }
     const windBand = w => (w < 4 ? 0 : w < 8 ? 1 : w < 12 ? 2 : 3);
     let windOn = false; try { windOn = localStorage.getItem(WIND_KEY) === 'on'; } catch (_) {}
     let windPts = null, windPk = '', windHh = '', windFetchT = 0, windCv = null, windG = null, windRaf = 0, windLast = 0, windVk = '', windF = null, windParts = [], windMode = '';
@@ -4389,7 +4399,7 @@ const TideHarm = (() => {
     function windLeg(show) {
       let el = $('mv-wleg'); if (!el) { el = document.createElement('div'); el.id = 'mv-wleg'; el.className = 'mv-wleg'; $('mv-map').appendChild(el); }
       el.hidden = !show; if (!show) return;
-      const t = `바람 ${+windHh || 0}시 · 기상청`, k = t + windMode; if (el.dataset.k === k) return; el.dataset.k = k;
+      const t = `바람 ${+windHh || 0}시 · 기상청`, k = t + windMode + WIND_COL[0]; if (el.dataset.k === k) return; el.dataset.k = k;
       el.innerHTML = `<b>${t}</b><span>${WIND_COL.map((c, i) => `<i style="background:${c}"></i><em>${['~4', '~8', '~12', '12↑'][i]}</em>`).join('')}<em>m/s</em></span>`;
     }
     function windStop() { if (windRaf) cancelAnimationFrame(windRaf); windRaf = 0; }
@@ -4403,7 +4413,7 @@ const TideHarm = (() => {
         const ux = q[0] / w, uy = -q[1] / w, L = 10 + Math.min(1, w / 14) * 20, x0 = x - ux * L / 2, y0 = y - uy * L / 2, x1 = x + ux * L / 2, y1 = y + uy * L / 2, p = P[windBand(w)];
         p.moveTo(x0, y0); p.lineTo(x1, y1); p.moveTo(x1 - ux * 6 + uy * 4, y1 - uy * 6 - ux * 4); p.lineTo(x1, y1); p.lineTo(x1 - ux * 6 - uy * 4, y1 - uy * 6 + ux * 4);
       }
-      for (let i = 0; i < P.length; i++) { g.globalAlpha = 0.9; g.strokeStyle = 'rgba(0,0,0,.35)'; g.lineWidth = 4; g.stroke(P[i]); g.strokeStyle = WIND_COL[i]; g.lineWidth = 2.2; g.stroke(P[i]); }
+      for (let i = 0; i < P.length; i++) { g.globalAlpha = 0.9; g.strokeStyle = windHalo; g.lineWidth = 4.4; g.stroke(P[i]); g.strokeStyle = WIND_COL[i]; g.lineWidth = 2.2; g.stroke(P[i]); }
       g.globalAlpha = 1;
     }
     const windNewPart = () => ({ x: Math.random() * W, y: Math.random() * H, a: Math.floor(Math.random() * 160) });
@@ -4431,6 +4441,7 @@ const TideHarm = (() => {
           const H2 = p.h, A = P[p.b], n = H2.length, pt = i => (i < n ? H2[i] : [nx, ny]);
           for (let i = 0; i < n; i++) { const z = Math.min(NL - 1, Math.floor((i + 1) / n * NL)), a0 = pt(i), a1 = pt(i + 1); A[z].moveTo(a0[0], a0[1]); A[z].lineTo(a1[0], a1[1]); }
         }
+        g.strokeStyle = windHalo; for (let i = 0; i < P.length; i++) for (let z = NL >> 1; z < NL; z++) { const f = (z + 1) / NL; g.globalAlpha = 0.7 * f * f; g.lineWidth = 3.3 + 0.9 * f; g.stroke(P[i][z]); }   // 얇은 테두리 (머리 쪽 절반만)
         for (let i = 0; i < P.length; i++) { g.strokeStyle = WIND_COL[i]; for (let z = 0; z < NL; z++) { const f = (z + 1) / NL; g.globalAlpha = 0.08 + 0.87 * f * f; g.lineWidth = 1.1 + 0.9 * f; g.stroke(P[i][z]); } }
         g.globalAlpha = 1;
       }
@@ -4439,9 +4450,9 @@ const TideHarm = (() => {
     // 지도가 다시 그려질 때마다 부른다 (가벼움: 화면이 바뀐 때만 칸을 다시 셈)
     function windSync() {
       if (!windOn || !isOpen) { windStop(); if (windCv) windCv.hidden = true; windLeg(false); return; }
-      windFetch(); const P = windData(); windCanvas();
+      windFetch(); windPal(); const P = windData(); windCanvas();
       if (!P || !P.length) { windStop(); windG.setTransform(1, 0, 0, 1, 0, 0); windG.clearRect(0, 0, windCv.width, windCv.height); windLeg(false); return; }
-      const vk = [v.lon, v.lat, v.s, W, H, windPk].join('|');
+      const vk = [v.lon, v.lat, v.s, W, H, windPk, windSea].join('|');
       if (vk !== windVk) {
         windVk = vk; windF = windField(P);
         windG.setTransform(1, 0, 0, 1, 0, 0); windG.clearRect(0, 0, windCv.width, windCv.height);
@@ -11462,7 +11473,7 @@ const TideHarm = (() => {
 
 <script>
 if ('serviceWorker' in navigator) addEventListener('load', () => {
-  const sw = navigator.serviceWorker, VER = '89f7a760'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
+  const sw = navigator.serviceWorker, VER = 'f33151e0'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
   // 화면에 손을 대기 시작했는지 (쓰는 중에는 새로 열지 않으려고)
   ['pointerdown', 'keydown'].forEach(t => addEventListener(t, () => { touched = true; }, { capture: true, passive: true }));
   const reload = () => {
