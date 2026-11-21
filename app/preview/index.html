@@ -4426,15 +4426,16 @@ const TideHarm = (() => {
         g.setTransform(dpr, 0, 0, dpr, 0, 0); g.lineCap = 'round'; g.lineJoin = 'round';   // 불투명하게 그려서 둥근 끝이 겹쳐도 점이 안 보임
         const NL = 20, P = WIND_COL.map(() => Array.from({ length: NL }, () => new Path2D()));   // 꼬리 끝(흐림) → 머리(진함) 20단계로 자연스럽게
         for (const p of windParts) {
-          // 수명이 다하면 바로 지우지 않고 꼬리부터 빠르게 거둬들이며 사라짐 (약 0.2초 · 사용자 2026-11-21)
-          const q = p.d ? null : windAt(windF, p.x, p.y);
+          // 수명이 다하면 나타날 때와 같은 빠르기로 사라짐: 나타날 때 꼬리가 한 걸음씩 자라듯, 꼬리 끝을 한 걸음씩 거둬들임 (머리는 계속 흐름 · 사용자 2026-11-21)
+          const q = windAt(windF, p.x, p.y);
           if (!p.d && (!q || ++p.a > 180)) p.d = 1;
-          if (p.d) { if (!p.h || p.h.length <= 4) { Object.assign(p, windNewPart(), { a: 0, h: [], d: 0 }); continue; } p.h.splice(0, 4); }
-          else {
+          if (p.d && (!p.h || p.h.length <= 1)) { Object.assign(p, windNewPart(), { a: 0, h: [], d: 0 }); continue; }
+          if (q && p.x > -5 && p.y > -5 && p.x < W + 5 && p.y < H + 5) {
             const w = Math.hypot(q[0], q[1]), k = 0.275, nx0 = p.x + q[0] * k, ny0 = p.y - q[1] * k;   // 1m/s = 화면에서 초당 약 16점 (초당 60걸음)
-            (p.h || (p.h = [])).push([p.x, p.y]); if (p.h.length > 44) p.h.shift(); p.x = nx0; p.y = ny0; p.b = windBand(w);
-            if (nx0 < -5 || ny0 < -5 || nx0 > W + 5 || ny0 > H + 5) p.d = 1;
-          }
+            (p.h || (p.h = [])).push([p.x, p.y]); p.x = nx0; p.y = ny0; if (!p.d) p.b = windBand(w);
+            if (p.d) p.h.splice(0, 2); else if (p.h.length > 44) p.h.shift();   // 사라질 때: 머리가 한 걸음 가는 동안 꼬리 두 걸음 → 한 걸음씩 짧아짐
+            if (!p.d && (nx0 < -5 || ny0 < -5 || nx0 > W + 5 || ny0 > H + 5)) p.d = 1;
+          } else { p.d = 1; if (p.h) p.h.splice(0, 1); }   // 바람 자료 밖·화면 밖: 머리는 멈추고 한 걸음씩 짧아짐
           const nx = p.x, ny = p.y;
           const H2 = p.h, A = P[p.b], n = H2.length, pt = i => (i < n ? H2[i] : [nx, ny]);
           let pz = -1; for (let i = 0; i < n; i++) { const z = Math.min(NL - 1, Math.floor((i + 1) / n * NL)), a0 = pt(i), a1 = pt(i + 1); if (z !== pz) { A[z].moveTo(a0[0], a0[1]); pz = z; } A[z].lineTo(a1[0], a1[1]); }   // 같은 단계는 이어 그려 이음매 없이
@@ -11473,7 +11474,7 @@ const TideHarm = (() => {
 
 <script>
 if ('serviceWorker' in navigator) addEventListener('load', () => {
-  const sw = navigator.serviceWorker, VER = '759af3c6'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
+  const sw = navigator.serviceWorker, VER = '308bd609'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
   // 화면에 손을 대기 시작했는지 (쓰는 중에는 새로 열지 않으려고)
   ['pointerdown', 'keydown'].forEach(t => addEventListener(t, () => { touched = true; }, { capture: true, passive: true }));
   const reload = () => {
