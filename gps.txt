@@ -1,0 +1,55 @@
+11-21 16:06:52.381  3193  3193 I jjugap  : gps rest (app on screen)
+11-21 16:06:52.381  3193  3193 I jjugap  : service started
+11-21 16:07:23.819  3193  3193 I jjugap  : gps slow 10s fused batch 30s
+11-21 16:07:24.291  3193  3193 I jjugap  : gps batch 1
+11-21 16:08:26.468  3193  3193 I jjugap  : gps batch 4
+11-21 16:09:01.472  3193  3193 I jjugap  : gps batch 3
+11-21 16:09:01.473  3193  3193 I jjugap  : gps fast 30s fused batch 30s
+11-21 16:09:01.477  3193  3193 I jjugap  : gps batch 1
+11-21 16:09:05.298  3193  3193 I jjugap  : gps batch 1
+11-21 16:09:05.299  3193  3193 I jjugap  : gps slow 10s fused batch 30s
+11-21 16:09:05.304  3193  3193 I jjugap  : gps batch 1
+11-21 16:09:40.318  3193  3193 I jjugap  : gps batch 3
+11-21 16:10:15.324  3193  3193 I jjugap  : gps batch 3
+11-21 16:10:50.329  3193  3193 I jjugap  : gps batch 4
+11-21 16:11:25.335  3193  3193 I jjugap  : gps batch 3
+11-21 16:12:00.339  3193  3193 I jjugap  : gps batch 4
+11-21 16:12:35.343  3193  3193 I jjugap  : gps batch 3
+11-21 16:13:10.347  3193  3193 I jjugap  : gps batch 4
+11-21 16:13:45.354  3193  3193 I jjugap  : gps batch 3
+11-21 16:14:20.359  3193  3193 I jjugap  : gps batch 4
+11-21 16:14:20.360  3193  3193 I jjugap  : gps fast 30s fused batch 30s
+11-21 16:14:20.365  3193  3193 I jjugap  : gps batch 1
+11-21 16:14:34.742  3193  3193 I jjugap  : gps rest (app on screen)
+11-21 16:14:35.679  3193  3193 I jjugap  : gps batch 1
+11-21 16:14:43.466  3193  3193 I jjugap  : gps batch 1
+11-21 16:15:32.430  3193  3193 I jjugap  : gps slow 10s fused batch 30s
+11-21 16:15:32.528  3193  3193 I jjugap  : gps batch 1
+11-21 16:16:12.542  3193  3193 I jjugap  : gps batch 3
+11-21 16:16:52.560  3193  3193 I jjugap  : gps batch 4
+11-21 16:17:32.570  3193  3193 I jjugap  : gps batch 4
+11-21 16:18:12.591  3193  3193 I jjugap  : gps batch 4
+11-21 16:18:12.595  3193  3193 I jjugap  : gps fast 30s fused batch 30s
+11-21 16:18:12.601  3193  3193 I jjugap  : gps batch 1
+11-21 16:18:16.419  3193  3193 I jjugap  : gps batch 1
+11-21 16:18:46.423  3193  3193 I jjugap  : gps batch 1
+11-21 16:18:46.424  3193  3193 I jjugap  : gps slow 10s fused batch 30s
+11-21 16:18:46.428  3193  3193 I jjugap  : gps batch 1
+11-21 16:19:26.451  3193  3193 I jjugap  : gps batch 3
+11-21 16:19:26.452  3193  3193 I jjugap  : gps fast 30s fused batch 30s
+11-21 16:19:26.467  3193  3193 I jjugap  : gps batch 1
+11-21 16:19:30.431  3193  3193 I jjugap  : gps batch 1
+11-21 16:20:00.434  3193  3193 I jjugap  : gps batch 1
+11-21 16:20:00.435  3193  3193 I jjugap  : gps slow 10s fused batch 30s
+11-21 16:20:00.441  3193  3193 I jjugap  : gps batch 1
+11-21 16:20:40.460  3193  3193 I jjugap  : gps batch 3
+11-21 16:21:20.470  3193  3193 I jjugap  : gps batch 4
+11-21 16:21:20.513  3193  3193 I jjugap  : saved note 오전 1:21 · 5분 머문 곳을 포인트로 남겼어요
+11-21 16:22:00.485  3193  3193 I jjugap  : gps batch 4
+11-21 16:22:40.493  3193  3193 I jjugap  : gps batch 4
+11-21 16:22:40.494  3193  3193 I jjugap  : gps fast 30s fused batch 30s
+11-21 16:22:40.500  3193  3193 I jjugap  : gps batch 1
+11-21 16:22:44.461  3193  3193 I jjugap  : gps batch 1
+11-21 16:22:44.461  3193  3193 I jjugap  : gps slow 10s fused batch 30s
+11-21 16:22:44.465  3193  3193 I jjugap  : gps batch 1
+11-21 16:22:47.311  3193  3193 I jjugap  : gps rest (app on screen)
