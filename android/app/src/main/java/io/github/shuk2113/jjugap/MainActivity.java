@@ -89,8 +89,11 @@ public class MainActivity extends Activity {
             public boolean onShowFileChooser(WebView v, ValueCallback<Uri[]> cb, FileChooserParams p) {
                 if (fileCb != null) fileCb.onReceiveValue(null);
                 fileCb = cb;
-                Intent i = new Intent(Intent.ACTION_GET_CONTENT).addCategory(Intent.CATEGORY_OPENABLE).setType("image/*");
-                try { startActivityForResult(Intent.createChooser(i, "사진 고르기"), REQ_FILE); Log.i("jjugap", "photo pick"); return true; }
+                // 기록 불러오기(백업 파일)면 아무 파일이나, 아니면 사진만
+                boolean any = false; String[] at = p != null ? p.getAcceptTypes() : null;
+                if (at != null) for (String t : at) if (t != null && (t.contains("json") || t.equals("*/*"))) any = true;
+                Intent i = new Intent(Intent.ACTION_GET_CONTENT).addCategory(Intent.CATEGORY_OPENABLE).setType(any ? "*/*" : "image/*");
+                try { startActivityForResult(Intent.createChooser(i, any ? "백업 파일 고르기" : "사진 고르기"), REQ_FILE); Log.i("jjugap", any ? "file pick" : "photo pick"); return true; }
                 catch (Exception e) { fileCb = null; Log.w("jjugap", "photo pick", e); return false; }
             }
         });
@@ -334,7 +337,8 @@ public class MainActivity extends Activity {
 
     /** 웹 앱에서 부르는 것들 (window.JjugapNative) */
     class Bridge {
-        @JavascriptInterface public String version() { return "4"; }   // 3: 조과 카드 보내기·저장·글 복사·사진 넣기 · 4: 길안내 앱(intent:) 열기, 없으면 플레이 스토어
+        @JavascriptInterface public String version() { return "5"; }   // 3: 조과 카드 보내기·저장·글 복사·사진 넣기 · 4: 길안내 앱(intent:) 열기, 없으면 플레이 스토어 · 5: 기록 백업 파일 보내기·고르기
+        @JavascriptInterface public void shareText(String t, String name) { CardShare.shareText(MainActivity.this, t, name); }
         @JavascriptInterface public void shareImage(String b64, String name) { CardShare.share(MainActivity.this, b64, name); }
         @JavascriptInterface public String saveImage(String b64, String name) { return CardShare.save(MainActivity.this, b64, name); }
         @JavascriptInterface public void copyText(String t) { CardShare.copy(MainActivity.this, t); }

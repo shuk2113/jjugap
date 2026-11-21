@@ -42,6 +42,34 @@ public final class CardShare {
         return s.length() > 80 ? s.substring(s.length() - 80) : s;
     }
 
+    /** 기록 백업 파일 이름 (영문·숫자·.-_ 만, .json 으로 끝남) */
+    static String safeJson(String n) {
+        String s = n == null ? "" : n.replaceAll("[^A-Za-z0-9._-]", "");
+        if (s.isEmpty() || s.startsWith(".")) s = "jjugap-backup.json";
+        if (!s.endsWith(".json")) s += ".json";
+        return s.length() > 80 ? s.substring(s.length() - 80) : s;
+    }
+    static boolean okName(String n) { return n != null && (n.equals(safeName(n)) || n.equals(safeJson(n))); }
+    static String mime(String n) { return n != null && n.endsWith(".json") ? "application/json" : "image/jpeg"; }
+
+    /** 기록 백업 파일 보내기 창 (카카오톡 나와의 채팅·드라이브·내 파일 등) */
+    static void shareText(Activity a, String text, String name) {
+        try {
+            byte[] b = text.getBytes(java.nio.charset.StandardCharsets.UTF_8);
+            File d = dir(a);
+            File[] old = d.listFiles();
+            if (old != null) for (File f : old) if (System.currentTimeMillis() - f.lastModified() > 3600_000L) f.delete();
+            File f = new File(d, safeJson(name));
+            try (FileOutputStream o = new FileOutputStream(f)) { o.write(b); }
+            Uri u = Uri.parse("content://" + AUTH + "/" + f.getName());
+            Intent send = new Intent(Intent.ACTION_SEND).setType("application/json").putExtra(Intent.EXTRA_STREAM, u)
+                .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            send.setClipData(ClipData.newRawUri("", u));
+            Intent ch = Intent.createChooser(send, "기록 백업 파일 보내기").addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            a.runOnUiThread(() -> { try { a.startActivity(ch); Log.i("jjugap", "backup share " + b.length); } catch (Exception e) { Log.w("jjugap", "backup share", e); } });
+        } catch (Exception e) { Log.w("jjugap", "backup share", e); }
+    }
+
     static File dir(Activity a) { File d = new File(a.getCacheDir(), "cards"); if (!d.exists()) d.mkdirs(); return d; }
 
     /** 보내기 창 열기 (오래된 카드 파일은 지운다) */
@@ -105,13 +133,13 @@ public final class CardShare {
     public static class Files extends ContentProvider {
         File file(Uri u) throws FileNotFoundException {
             String n = u.getLastPathSegment();
-            if (n == null || !n.equals(safeName(n))) throw new FileNotFoundException();
+            if (!okName(n)) throw new FileNotFoundException();
             File f = new File(new File(getContext().getCacheDir(), "cards"), n);
             if (!f.exists()) throw new FileNotFoundException();
             return f;
         }
         @Override public boolean onCreate() { return true; }
-        @Override public String getType(Uri u) { return "image/jpeg"; }
+        @Override public String getType(Uri u) { return mime(u.getLastPathSegment()); }
         @Override public ParcelFileDescriptor openFile(Uri u, String mode) throws FileNotFoundException {
             return ParcelFileDescriptor.open(file(u), ParcelFileDescriptor.MODE_READ_ONLY);
         }
@@ -123,7 +151,7 @@ public final class CardShare {
                 for (int i = 0; i < cols.length; i++) {
                     if (OpenableColumns.DISPLAY_NAME.equals(cols[i])) row[i] = f.getName();
                     else if (OpenableColumns.SIZE.equals(cols[i])) row[i] = f.length();
-                    else if (MediaStore.MediaColumns.MIME_TYPE.equals(cols[i])) row[i] = "image/jpeg";
+                    else if (MediaStore.MediaColumns.MIME_TYPE.equals(cols[i])) row[i] = mime(f.getName());
                 }
                 c.addRow(row);
             } catch (FileNotFoundException ignored) { }
