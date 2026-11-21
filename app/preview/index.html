@@ -4406,22 +4406,22 @@ const TideHarm = (() => {
       for (let i = 0; i < P.length; i++) { g.globalAlpha = 0.9; g.strokeStyle = 'rgba(0,0,0,.35)'; g.lineWidth = 4; g.stroke(P[i]); g.strokeStyle = WIND_COL[i]; g.lineWidth = 2.2; g.stroke(P[i]); }
       g.globalAlpha = 1;
     }
-    const windNewPart = () => ({ x: Math.random() * W, y: Math.random() * H, a: Math.floor(Math.random() * 80) });
+    const windNewPart = () => ({ x: Math.random() * W, y: Math.random() * H, a: Math.floor(Math.random() * 160) });
     function windLoop(t) {
       windRaf = 0;
       if (!isOpen || !windOn || document.hidden) return;
       if (RM.matches || fxIdle()) { windMode = 'still'; windStatic(windF); windLeg(true); return; }   // 30초 안 만지면 멈춘 화살표로 (만지면 다시)
-      if (t - windLast >= 32) {   // 초당 30번쯤
+      if (t - windLast >= 15) {   // 초당 60번쯤 (부드럽게 · 흐르는 30초 동안만)
         windLast = t; const g = windG;
-        // 잔상은 그림판에 남기지 않고 선마다 최근 22걸음(예전 물감식 잔상과 같은 길이)을 다시 그림: 꼬리 길이는 그대로, 선이 끝나면 꼬리도 바로 사라짐 (사용자 2026-11-21)
+        // 잔상은 그림판에 남기지 않고 선마다 최근 44걸음(예전 물감식 잔상과 같은 길이)을 다시 그림: 꼬리 길이는 그대로, 선이 끝나면 꼬리도 바로 사라짐 (사용자 2026-11-21)
         g.setTransform(1, 0, 0, 1, 0, 0); g.clearRect(0, 0, windCv.width, windCv.height);
         g.setTransform(dpr, 0, 0, dpr, 0, 0); g.lineCap = 'butt'; g.lineJoin = 'round';   // 끝을 둥글게 하면 단계 이음매마다 점이 겹쳐 보임
-        const NL = 10, P = WIND_COL.map(() => Array.from({ length: NL }, () => new Path2D()));   // 꼬리 끝(흐림) → 머리(진함) 10단계로 자연스럽게
+        const NL = 20, P = WIND_COL.map(() => Array.from({ length: NL }, () => new Path2D()));   // 꼬리 끝(흐림) → 머리(진함) 20단계로 자연스럽게
         for (const p of windParts) {
           const q = windAt(windF, p.x, p.y);
-          if (!q || ++p.a > 90) { Object.assign(p, windNewPart(), { a: 0, h: [] }); continue; }
-          const w = Math.hypot(q[0], q[1]), k = 0.55, nx = p.x + q[0] * k, ny = p.y - q[1] * k;   // 1m/s = 화면에서 초당 약 16점
-          (p.h || (p.h = [])).push([p.x, p.y]); if (p.h.length > 22) p.h.shift(); p.x = nx; p.y = ny; p.b = windBand(w);
+          if (!q || ++p.a > 180) { Object.assign(p, windNewPart(), { a: 0, h: [] }); continue; }
+          const w = Math.hypot(q[0], q[1]), k = 0.275, nx = p.x + q[0] * k, ny = p.y - q[1] * k;   // 1m/s = 화면에서 초당 약 16점 (초당 60걸음)
+          (p.h || (p.h = [])).push([p.x, p.y]); if (p.h.length > 44) p.h.shift(); p.x = nx; p.y = ny; p.b = windBand(w);
           if (nx < -5 || ny < -5 || nx > W + 5 || ny > H + 5) { Object.assign(p, windNewPart(), { a: 0, h: [] }); continue; }
           const H2 = p.h, A = P[p.b], n = H2.length, pt = i => (i < n ? H2[i] : [nx, ny]);
           for (let i = 0; i < n; i++) { const z = Math.min(NL - 1, Math.floor((i + 1) / n * NL)), a0 = pt(i), a1 = pt(i + 1); A[z].moveTo(a0[0], a0[1]); A[z].lineTo(a1[0], a1[1]); }
@@ -4440,7 +4440,7 @@ const TideHarm = (() => {
       if (vk !== windVk) {
         windVk = vk; windF = windField(P);
         windG.setTransform(1, 0, 0, 1, 0, 0); windG.clearRect(0, 0, windCv.width, windCv.height);
-        const n = Math.min(130, Math.round(W * H / 3500)); windParts = Array.from({ length: n }, windNewPart);
+        const n = Math.min(170, Math.round(W * H / 2700)); windParts = Array.from({ length: n }, windNewPart);
         if (windMode === 'still' || RM.matches || fxIdle()) { windMode = 'still'; windStatic(windF); }
       }
       windLeg(true); windKick();
@@ -11458,7 +11458,7 @@ const TideHarm = (() => {
 
 <script>
 if ('serviceWorker' in navigator) addEventListener('load', () => {
-  const sw = navigator.serviceWorker, VER = 'c1464763'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
+  const sw = navigator.serviceWorker, VER = '2e1a1e04'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
   // 화면에 손을 대기 시작했는지 (쓰는 중에는 새로 열지 않으려고)
   ['pointerdown', 'keydown'].forEach(t => addEventListener(t, () => { touched = true; }, { capture: true, passive: true }));
   const reload = () => {
