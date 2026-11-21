@@ -4342,7 +4342,7 @@ const TideHarm = (() => {
       const P = window.__JJ_TEST && window.__WINDPAL ? window.__WINDPAL : WIND_A;   // (__WINDPAL: 시험용 색 비교)
       WIND_COL = P.c; windHalo = P.h;
     }
-    const windBand = w => (w < 4 ? 0 : w < 8 ? 1 : w < 12 ? 2 : 3);
+    const windBand = w => (w < 4 ? 0 : w < 9 ? 1 : w < 14 ? 2 : 3);   // 기상청 예보 용어: 약 4 미만 · 약간 강 4~9 · 강 9~14 · 매우 강 14 이상(풍랑주의보 기준)
     let windOn = false; try { windOn = localStorage.getItem(WIND_KEY) === 'on'; } catch (_) {}
     let windPts = null, windPk = '', windHh = '', windFetchT = 0, windCv = null, windG = null, windRaf = 0, windLast = 0, windVk = '', windF = null, windParts = [], windMode = '';
     // 기상청 격자(nx, ny) → 위경도 (기상청 동네예보 격자 LCC 역변환)
@@ -4398,7 +4398,7 @@ const TideHarm = (() => {
       let el = $('mv-wleg'); if (!el) { el = document.createElement('div'); el.id = 'mv-wleg'; el.className = 'mv-wleg'; $('mv-map').appendChild(el); }
       el.hidden = !show; if (!show) return;
       const t = `바람 ${+windHh || 0}시 · 기상청`, k = t + windMode + WIND_COL[0]; if (el.dataset.k === k) return; el.dataset.k = k;
-      el.innerHTML = `<b>${t}</b><span>${WIND_COL.map((c, i) => `<i style="background:${c}"></i><em>${['~4', '~8', '~12', '12↑'][i]}</em>`).join('')}<em>m/s</em></span>`;
+      el.innerHTML = `<b>${t}</b><span>${WIND_COL.map((c, i) => `<i style="background:${c}"></i><em>${['~4', '~9', '~14', '14↑'][i]}</em>`).join('')}<em>m/s</em></span>`;
     }
     function windStop() { if (windRaf) cancelAnimationFrame(windRaf); windRaf = 0; }
     // 그림 한 장 (멈춘 화살표): 바람 부는 쪽으로, 셀수록 길고 진하게
@@ -11473,7 +11473,7 @@ const TideHarm = (() => {
 
 <script>
 if ('serviceWorker' in navigator) addEventListener('load', () => {
-  const sw = navigator.serviceWorker, VER = '4cac089c'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
+  const sw = navigator.serviceWorker, VER = '759af3c6'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
   // 화면에 손을 대기 시작했는지 (쓰는 중에는 새로 열지 않으려고)
   ['pointerdown', 'keydown'].forEach(t => addEventListener(t, () => { touched = true; }, { capture: true, passive: true }));
   const reload = () => {
