@@ -4365,14 +4365,18 @@ const TideHarm = (() => {
       const hk = wxYmd(n) + String(new Date(now + 9 * 3600000).getUTCHours()).padStart(2, '0');
       if (windPts && windPk === hk + N.generated) return windPts;
       const a = [];
+      // 지금 시각 자료가 없으면(밤 22~새벽 3시엔 초단기예보를 안 받음) 가까운 시각의 실황·예보로 (3시간 안 · 사용자 2026-11-22: 새벽에 바람 선이 안 나옴)
+      const hrOf = k => Date.UTC(+k.slice(0, 4), +k.slice(4, 6) - 1, +k.slice(6, 8), +k.slice(8, 10)) - 9 * 3600000, cnt = {};
       for (const [gk, o] of Object.entries(N.g)) {
-        let w = null, d = null; const f = o.f && o.f[hk];
-        if (o.o && o.o[0] === hk && o.o[1] != null && o.o[2] != null) { w = o.o[1]; d = o.o[2]; } else if (f && f[0] != null && f[1] != null) { w = f[0]; d = f[1]; }
-        if (w == null || d == null || w < 0) continue;
+        let w = null, d = null, bk = null, bd = 3.01 * 3600000;
+        if (o.o && o.o[1] != null && o.o[2] != null) { const dd = Math.abs(now - 1800000 - hrOf(o.o[0])); if (dd < bd) { bd = dd - 3600000; bk = o.o[0]; w = o.o[1]; d = o.o[2]; } }   // 실황은 1시간 덤으로 우선
+        for (const [fk, f] of Object.entries(o.f || {})) { if (!f || f[0] == null || f[1] == null) continue; const dd = Math.abs(now - 1800000 - hrOf(fk)); if (dd < bd) { bd = dd; bk = fk; w = f[0]; d = f[1]; } }
+        if (bk == null || w == null || d == null || w < 0) continue; cnt[bk] = (cnt[bk] || 0) + 1;
         const [nx, ny] = gk.split(',').map(Number), p = kmaLL(nx, ny), r = (d + 180) * Math.PI / 180;   // 풍향은 불어오는 쪽 → 불어가는 쪽으로
         a.push({ lat: p.lat, lon: p.lon, u: Math.sin(r) * w, v: Math.cos(r) * w });
       }
-      windPts = a; windPk = hk + N.generated; windHh = hk.slice(8); return a;
+      const top = Object.entries(cnt).sort((x, y) => y[1] - x[1])[0];   // 설명 칸에는 실제로 쓴 시각
+      windPts = a; windPk = hk + N.generated; windHh = top ? top[0].slice(8) : hk.slice(8); return a;
     }
     // 화면을 24점 칸으로 나눠 칸마다 바람을 한 번만 셈 (가까운 기상청 격자들의 거리 가중 평균 · 45km 넘게 떨어지면 비움)
     function windField(P) {
@@ -11550,7 +11554,7 @@ const TideHarm = (() => {
 
 <script>
 if ('serviceWorker' in navigator) addEventListener('load', () => {
-  const sw = navigator.serviceWorker, VER = 'c61dcbda'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
+  const sw = navigator.serviceWorker, VER = 'd45e8121'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
   // 화면에 손을 대기 시작했는지 (쓰는 중에는 새로 열지 않으려고)
   ['pointerdown', 'keydown'].forEach(t => addEventListener(t, () => { touched = true; }, { capture: true, passive: true }));
   const reload = () => {
