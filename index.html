@@ -295,7 +295,7 @@ html.mv-on .app *{animation-play-state:paused !important} html.mv-hide .app{visi
 .mv-tools button svg{width:20px; height:20px; color:var(--ink-2); font-weight:500} .mv-tools button.on svg{color:#2F7DF6}
 .mv-tools button.mini{width:34px; height:34px; border-radius:10px; align-self:center} .mv-tools button.mini svg{width:18px; height:18px}
 #mv-wind{position:absolute; left:0; top:0; width:100%; height:100%; pointer-events:none}
-.mv-wleg{position:absolute; left:6px; top:50px; display:flex; flex-direction:column; align-items:flex-start; gap:3px; padding:4px 7px; border-radius:9px; background:color-mix(in srgb, var(--card) 88%, transparent); font-size:calc(9.5px * var(--k)); font-weight:700; color:var(--ink-2); pointer-events:none; white-space:nowrap} .mv-wleg[hidden]{display:none} .mv-wleg b{font-weight:800; color:var(--ink)} .mv-wleg span{display:flex; align-items:center; gap:3px} .mv-wleg i{width:12px; height:4px; border-radius:2px} .mv-wleg em{font-style:normal; margin-right:3px} .mv-drag .mv-wleg{transition:none}
+.mv-wleg{position:absolute; left:6px; top:50px; display:flex; flex-direction:column; align-items:flex-start; gap:3px; padding:4px 7px; border-radius:9px; background:color-mix(in srgb, var(--card) 88%, transparent); font-size:calc(9.5px * var(--k)); font-weight:700; color:var(--ink-2); pointer-events:none; white-space:nowrap} .mv-wleg[hidden]{display:none} .mv-wleg b{font-weight:800; color:var(--ink)} .mv-wleg span{display:flex; align-items:center; gap:3px} .mv-wleg i{width:14px; height:5px; border-radius:2px; box-shadow:0 0 0 2.5px var(--map-sea); margin:0 2px}   /* 지도 바다색 위에 놓인 모습 그대로 */ .mv-wleg em{font-style:normal; margin-right:3px} .mv-drag .mv-wleg{transition:none}
 #mv-pnm .sl{display:none} #mv-pnm.off .sl{display:inline} #mv-pnm.off svg{opacity:.8}
 .mv-scale{position:absolute; left:10px; bottom:10px; transform:translate3d(0,calc(-1 * var(--sheet-h, 0px)),0); transition:transform .28s cubic-bezier(.2,.85,.25,1); display:flex; flex-direction:column; gap:2px; font-size:calc(10.5px * var(--k)); font-weight:700; color:var(--map-lab); pointer-events:none}
 .mv-scale i{display:block; height:5px; border:1.5px solid var(--map-lab); border-top:0}
@@ -4328,8 +4328,16 @@ const TideHarm = (() => {
     }
     // ---------- 바람 (기상청 초단기실황·초단기예보, 매시간 받는 now.json): 지도 단추로 켜고 끔 (기본 꺼짐 · 꺼 두면 아무것도 안 함)
     // 켜면 바람 부는 쪽으로 가는 선이 흐르고(셀수록 빠르고 색이 진함), 지도를 30초 안 만지면 멈춘 화살표로 (배터리) · 만지면 다시 흐름
-    const WIND_KEY = 'jjukgap-map-wind', WIND_COL = ['#5AA9E6', '#3DBB7A', '#F0A020', '#E5484D'];   // 4m/s 아래 · 4~8 · 8~12 · 12 넘음
-    const windBand = w => (w < 4 ? 0 : w < 8 ? 1 : w < 12 ? 2 : 3);
+    const WIND_KEY = 'jjukgap-map-wind';
+    let WIND_COL = ['#D8F3FF', '#A8FF78', '#FFC93C', '#FF5C7A'], windHalo = 'rgba(8,28,48,.85)', windSea = '';
+    // 맑은 4색 + 짙은 남색 테두리 (지하철 노선도처럼): 어떤 지도 모양에서도 같은 색 · 테두리가 바다색과 갈라 줌 (사용자 2026-11-21 고름)
+    const WIND_A = { c: ['#D8F3FF', '#A8FF78', '#FFC93C', '#FF5C7A'], h: 'rgba(8,28,48,.85)' };
+    function windPal() {
+      const k = getComputedStyle(document.documentElement).getPropertyValue('--map-sea').trim(); if (k === windSea) return; windSea = k;
+      const P = window.__JJ_TEST && window.__WINDPAL ? window.__WINDPAL : WIND_A;   // (__WINDPAL: 시험용 색 비교)
+      WIND_COL = P.c; windHalo = P.h;
+    }
+    const windBand = w => (w < 4 ? 0 : w < 9 ? 1 : w < 14 ? 2 : 3);   // 기상청 예보 용어: 약 4 미만 · 약간 강 4~9 · 강 9~14 · 매우 강 14 이상(풍랑주의보 기준)
     let windOn = false; try { windOn = localStorage.getItem(WIND_KEY) === 'on'; } catch (_) {}
     let windPts = null, windPk = '', windHh = '', windFetchT = 0, windCv = null, windG = null, windRaf = 0, windLast = 0, windVk = '', windF = null, windParts = [], windMode = '';
     // 기상청 격자(nx, ny) → 위경도 (기상청 동네예보 격자 LCC 역변환)
@@ -4384,8 +4392,8 @@ const TideHarm = (() => {
     function windLeg(show) {
       let el = $('mv-wleg'); if (!el) { el = document.createElement('div'); el.id = 'mv-wleg'; el.className = 'mv-wleg'; $('mv-map').appendChild(el); }
       el.hidden = !show; if (!show) return;
-      const t = `바람 ${+windHh || 0}시 · 기상청`, k = t + windMode; if (el.dataset.k === k) return; el.dataset.k = k;
-      el.innerHTML = `<b>${t}</b><span>${WIND_COL.map((c, i) => `<i style="background:${c}"></i><em>${['~4', '~8', '~12', '12↑'][i]}</em>`).join('')}<em>m/s</em></span>`;
+      const t = `바람 ${+windHh || 0}시 · 기상청`, k = t + windMode + WIND_COL[0]; if (el.dataset.k === k) return; el.dataset.k = k;
+      el.innerHTML = `<b>${t}</b><span>${WIND_COL.map((c, i) => `<i style="background:${c}"></i><em>${['~4', '~9', '~14', '14↑'][i]}</em>`).join('')}<em>m/s</em></span>`;
     }
     function windStop() { if (windRaf) cancelAnimationFrame(windRaf); windRaf = 0; }
     // 그림 한 장 (멈춘 화살표): 바람 부는 쪽으로, 셀수록 길고 진하게
@@ -4398,10 +4406,19 @@ const TideHarm = (() => {
         const ux = q[0] / w, uy = -q[1] / w, L = 10 + Math.min(1, w / 14) * 20, x0 = x - ux * L / 2, y0 = y - uy * L / 2, x1 = x + ux * L / 2, y1 = y + uy * L / 2, p = P[windBand(w)];
         p.moveTo(x0, y0); p.lineTo(x1, y1); p.moveTo(x1 - ux * 6 + uy * 4, y1 - uy * 6 - ux * 4); p.lineTo(x1, y1); p.lineTo(x1 - ux * 6 - uy * 4, y1 - uy * 6 + ux * 4);
       }
-      for (let i = 0; i < P.length; i++) { g.globalAlpha = 0.9; g.strokeStyle = 'rgba(0,0,0,.35)'; g.lineWidth = 4; g.stroke(P[i]); g.strokeStyle = WIND_COL[i]; g.lineWidth = 2.2; g.stroke(P[i]); }
+      for (let i = 0; i < P.length; i++) { g.globalAlpha = 0.9; g.strokeStyle = windHalo; g.lineWidth = 4.4; g.stroke(P[i]); g.strokeStyle = WIND_COL[i]; g.lineWidth = 2.2; g.stroke(P[i]); }
       g.globalAlpha = 1;
     }
-    const windNewPart = () => ({ x: Math.random() * W, y: Math.random() * H, a: Math.floor(Math.random() * 160) });
+    // 선이 생길 자리: 바람이 센 곳일수록 더 자주 (밀도로 세기를 보여 줌 · 전체 개수는 그대로 · 사용자 2026-11-21)
+    // 3m/s 자리는 약 45%, 10m/s 넘는 자리는 거의 100% 받아들여 → 센 곳이 2~3배 빽빽
+    function windNewPart() {
+      let x = 0, y = 0;
+      for (let t = 0; t < 8; t++) {
+        x = Math.random() * W; y = Math.random() * H; if (!windF) break;
+        const q = windAt(windF, x, y); if (!q) continue; if (Math.random() < Math.min(1, 0.2 + Math.hypot(q[0], q[1]) / 12)) break;
+      }
+      return { x, y, a: Math.floor(Math.random() * 160) };
+    }
     function windLoop(t) {
       windRaf = 0;
       if (!isOpen || !windOn || document.hidden) return;
@@ -4410,23 +4427,27 @@ const TideHarm = (() => {
         windLast = t; const g = windG;
         // 잔상은 그림판에 남기지 않고 선마다 최근 44걸음(예전 물감식 잔상과 같은 길이)을 다시 그림: 꼬리 길이는 그대로, 선이 끝나면 꼬리도 바로 사라짐 (사용자 2026-11-21)
         g.setTransform(1, 0, 0, 1, 0, 0); g.clearRect(0, 0, windCv.width, windCv.height);
-        g.setTransform(dpr, 0, 0, dpr, 0, 0); g.lineCap = 'butt'; g.lineJoin = 'round';   // 끝을 둥글게 하면 단계 이음매마다 점이 겹쳐 보임
+        g.setTransform(dpr, 0, 0, dpr, 0, 0); g.lineCap = 'round'; g.lineJoin = 'round';   // 불투명하게 그려서 둥근 끝이 겹쳐도 점이 안 보임
         const NL = 20, P = WIND_COL.map(() => Array.from({ length: NL }, () => new Path2D()));   // 꼬리 끝(흐림) → 머리(진함) 20단계로 자연스럽게
         for (const p of windParts) {
-          // 수명이 다하면 바로 지우지 않고 꼬리부터 빠르게 거둬들이며 사라짐 (약 0.2초 · 사용자 2026-11-21)
-          const q = p.d ? null : windAt(windF, p.x, p.y);
+          // 수명이 다하면 나타날 때와 같은 빠르기로 사라짐: 나타날 때 꼬리가 한 걸음씩 자라듯, 꼬리 끝을 한 걸음씩 거둬들임 (머리는 계속 흐름 · 사용자 2026-11-21)
+          const q = windAt(windF, p.x, p.y);
           if (!p.d && (!q || ++p.a > 180)) p.d = 1;
-          if (p.d) { if (!p.h || p.h.length <= 4) { Object.assign(p, windNewPart(), { a: 0, h: [], d: 0 }); continue; } p.h.splice(0, 4); }
-          else {
+          if (p.d && (!p.h || p.h.length <= 1)) { Object.assign(p, windNewPart(), { a: 0, h: [], d: 0 }); continue; }
+          if (q && p.x > -5 && p.y > -5 && p.x < W + 5 && p.y < H + 5) {
             const w = Math.hypot(q[0], q[1]), k = 0.275, nx0 = p.x + q[0] * k, ny0 = p.y - q[1] * k;   // 1m/s = 화면에서 초당 약 16점 (초당 60걸음)
-            (p.h || (p.h = [])).push([p.x, p.y]); if (p.h.length > 44) p.h.shift(); p.x = nx0; p.y = ny0; p.b = windBand(w);
-            if (nx0 < -5 || ny0 < -5 || nx0 > W + 5 || ny0 > H + 5) p.d = 1;
-          }
+            (p.h || (p.h = [])).push([p.x, p.y]); p.x = nx0; p.y = ny0; if (!p.d) p.b = windBand(w);
+            if (p.d) p.h.splice(0, 2); else if (p.h.length > 44) p.h.shift();   // 사라질 때: 머리가 한 걸음 가는 동안 꼬리 두 걸음 → 한 걸음씩 짧아짐
+            if (!p.d && (nx0 < -5 || ny0 < -5 || nx0 > W + 5 || ny0 > H + 5)) p.d = 1;
+          } else { p.d = 1; if (p.h) p.h.splice(0, 1); }   // 바람 자료 밖·화면 밖: 머리는 멈추고 한 걸음씩 짧아짐
           const nx = p.x, ny = p.y;
           const H2 = p.h, A = P[p.b], n = H2.length, pt = i => (i < n ? H2[i] : [nx, ny]);
-          for (let i = 0; i < n; i++) { const z = Math.min(NL - 1, Math.floor((i + 1) / n * NL)), a0 = pt(i), a1 = pt(i + 1); A[z].moveTo(a0[0], a0[1]); A[z].lineTo(a1[0], a1[1]); }
+          let pz = -1; for (let i = 0; i < n; i++) { const z = Math.min(NL - 1, Math.floor((i + 1) / n * NL)), a0 = pt(i), a1 = pt(i + 1); if (z !== pz) { A[z].moveTo(a0[0], a0[1]); pz = z; } A[z].lineTo(a1[0], a1[1]); }   // 같은 단계는 이어 그려 이음매 없이
         }
-        for (let i = 0; i < P.length; i++) { g.strokeStyle = WIND_COL[i]; for (let z = 0; z < NL; z++) { const f = (z + 1) / NL; g.globalAlpha = 0.08 + 0.87 * f * f; g.lineWidth = 1.1 + 0.9 * f; g.stroke(P[i][z]); } }
+        // 또렷하게: 투명도 대신 굵기로 꼬리를 가늘게(끝은 거의 0) · 테두리도 같은 모양으로 진하게 (사용자 2026-11-21: 뿌옇게 보임)
+        const tw = f => 0.35 + 2.3 * f;   // 꼬리 끝 → 머리 굵기
+        g.strokeStyle = windHalo; for (let i = 0; i < P.length; i++) for (let z = 0; z < NL; z++) { const f = (z + 1) / NL; g.globalAlpha = 0.85; g.lineWidth = tw(f) + 1.8; g.stroke(P[i][z]); }
+        for (let i = 0; i < P.length; i++) { g.strokeStyle = WIND_COL[i]; for (let z = 0; z < NL; z++) { const f = (z + 1) / NL; g.globalAlpha = 1; g.lineWidth = tw(f); g.stroke(P[i][z]); } }
         g.globalAlpha = 1;
       }
       windRaf = requestAnimationFrame(windLoop);
@@ -4434,13 +4455,13 @@ const TideHarm = (() => {
     // 지도가 다시 그려질 때마다 부른다 (가벼움: 화면이 바뀐 때만 칸을 다시 셈)
     function windSync() {
       if (!windOn || !isOpen) { windStop(); if (windCv) windCv.hidden = true; windLeg(false); return; }
-      windFetch(); const P = windData(); windCanvas();
+      windFetch(); windPal(); const P = windData(); windCanvas();
       if (!P || !P.length) { windStop(); windG.setTransform(1, 0, 0, 1, 0, 0); windG.clearRect(0, 0, windCv.width, windCv.height); windLeg(false); return; }
-      const vk = [v.lon, v.lat, v.s, W, H, windPk].join('|');
+      const vk = [v.lon, v.lat, v.s, W, H, windPk, windSea].join('|');
       if (vk !== windVk) {
         windVk = vk; windF = windField(P);
         windG.setTransform(1, 0, 0, 1, 0, 0); windG.clearRect(0, 0, windCv.width, windCv.height);
-        const n = Math.min(170, Math.round(W * H / 2700)); windParts = Array.from({ length: n }, windNewPart);
+        const n = Math.min(135, Math.round(W * H / 3400)); windParts = Array.from({ length: n }, windNewPart);
         if (windMode === 'still' || RM.matches || fxIdle()) { windMode = 'still'; windStatic(windF); }
       }
       windLeg(true); windKick();
@@ -11457,7 +11478,7 @@ const TideHarm = (() => {
 
 <script>
 if ('serviceWorker' in navigator) addEventListener('load', () => {
-  const sw = navigator.serviceWorker, VER = '89f7a760'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
+  const sw = navigator.serviceWorker, VER = '4d25fa50'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
   // 화면에 손을 대기 시작했는지 (쓰는 중에는 새로 열지 않으려고)
   ['pointerdown', 'keydown'].forEach(t => addEventListener(t, () => { touched = true; }, { capture: true, passive: true }));
   const reload = () => {
