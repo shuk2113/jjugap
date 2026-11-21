@@ -300,7 +300,7 @@ html.mv-on .app *{animation-play-state:paused !important} html.mv-hide .app{visi
 .mv-tools button svg{width:20px; height:20px; color:var(--ink-2); font-weight:500} .mv-tools button.on svg{color:#2F7DF6}
 .mv-tools button.mini{width:34px; height:34px; border-radius:10px; align-self:center} .mv-tools button.mini svg{width:18px; height:18px}
 #mv-wind{position:absolute; left:0; top:0; width:100%; height:100%; pointer-events:none}
-.mv-wleg{position:absolute; left:6px; top:50px; display:flex; flex-direction:column; align-items:flex-start; gap:3px; padding:4px 7px; border-radius:9px; background:color-mix(in srgb, var(--card) 88%, transparent); font-size:calc(9.5px * var(--k)); font-weight:700; color:var(--ink-2); pointer-events:none; white-space:nowrap} .mv-wleg[hidden]{display:none} .mv-wleg b{font-weight:800; color:var(--ink)} .mv-wleg span{display:flex; align-items:center; gap:3px} .mv-wleg i{width:12px; height:4px; border-radius:2px} .mv-wleg em{font-style:normal; margin-right:3px} .mv-drag .mv-wleg{transition:none}
+.mv-wleg{position:absolute; left:6px; top:50px; display:flex; flex-direction:column; align-items:flex-start; gap:3px; padding:4px 7px; border-radius:9px; background:color-mix(in srgb, var(--card) 88%, transparent); font-size:calc(9.5px * var(--k)); font-weight:700; color:var(--ink-2); pointer-events:none; white-space:nowrap} .mv-wleg[hidden]{display:none} .mv-wleg b{font-weight:800; color:var(--ink)} .mv-wleg span{display:flex; align-items:center; gap:3px} .mv-wleg i{width:14px; height:5px; border-radius:2px; box-shadow:0 0 0 2.5px var(--map-sea); margin:0 2px}   /* 지도 바다색 위에 놓인 모습 그대로 */ .mv-wleg em{font-style:normal; margin-right:3px} .mv-drag .mv-wleg{transition:none}
 #mv-pnm .sl{display:none} #mv-pnm.off .sl{display:inline} #mv-pnm.off svg{opacity:.8}
 .mv-scale{position:absolute; left:10px; bottom:10px; transform:translate3d(0,calc(-1 * var(--sheet-h, 0px)),0); transition:transform .28s cubic-bezier(.2,.85,.25,1); display:flex; flex-direction:column; gap:2px; font-size:calc(10.5px * var(--k)); font-weight:700; color:var(--map-lab); pointer-events:none}
 .mv-scale i{display:block; height:5px; border:1.5px solid var(--map-lab); border-top:0}
@@ -4338,11 +4338,39 @@ const TideHarm = (() => {
     const WIND_DK = { c: ['#5AA9E6', '#3DBB7A', '#F0A020', '#E5484D'], h: 'rgba(0,0,0,.5)' };    // 어두운 바다: 밝은 색 + 검은빛 테두리
     const WIND_LT = { c: ['#1B3A94', '#0B6E35', '#C95A00', '#B80F2B'], h: 'rgba(255,255,255,.6)' };   // 밝은 바다: 진한 색 + 흰빛 테두리
     let WIND_COL = WIND_DK.c, windHalo = WIND_DK.h, windSea = '';
-    function windPal() {   // 4m/s 아래 · 4~8 · 8~12 · 12 넘음
-      const c = getComputedStyle(document.documentElement).getPropertyValue('--map-sea').trim(); if (c === windSea) return; windSea = c;
-      const m = c.match(/^#([0-9a-f]{6})$/i); let L = 0.1;
-      if (m) { const n = parseInt(m[1], 16), f = x => { x /= 255; return x <= 0.04045 ? x / 12.92 : Math.pow((x + 0.055) / 1.055, 2.4); }; L = 0.2126 * f(n >> 16) + 0.7152 * f((n >> 8) & 255) + 0.0722 * f(n & 255); }
-      const P = L > 0.18 ? WIND_LT : WIND_DK; WIND_COL = P.c; windHalo = P.h;
+    // 지도 모양마다 바다(와 땅)색과의 명암 대비를 계산해 가장 잘 보이는 색을 고름 (사용자 2026-11-21)
+    // 기준: 웹 접근성 지침(WCAG 2.1, 1.4.11)의 그림·선 명암비 3:1 이상. 색 계열(파랑·초록·주황·빨강)은 지키고, 3:1을 넘는 색 중 가장 선명한(채도 높은) 색을 고름
+    // 바다가 중간 밝기라 3:1이 안 나오면 대비가 가장 큰 색 + 반대 밝기 테두리로 보완
+    const hex2 = h => { const m = /^#([0-9a-f]{6})$/i.exec(h || ''); if (!m) return null; const n = parseInt(m[1], 16); return [n >> 16, (n >> 8) & 255, n & 255]; };
+    const lin = x => { x /= 255; return x <= 0.04045 ? x / 12.92 : Math.pow((x + 0.055) / 1.055, 2.4); };
+    const lum = c => 0.2126 * lin(c[0]) + 0.7152 * lin(c[1]) + 0.0722 * lin(c[2]);
+    const cr = (a, b) => { const x = lum(a), y = lum(b); return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05); };
+    function oklch(L, C, h) {   // OKLCH → sRGB (화면 밖 색이면 null)
+      const a = C * Math.cos(h * Math.PI / 180), b = C * Math.sin(h * Math.PI / 180);
+      const l = (L + 0.3963377774 * a + 0.2158037573 * b) ** 3, m = (L - 0.1055613458 * a - 0.0638541728 * b) ** 3, s2 = (L - 0.0894841775 * a - 1.2914855480 * b) ** 3;
+      const r = [4.0767416621 * l - 3.3077115913 * m + 0.2309699292 * s2, -1.2684380046 * l + 2.6097574011 * m - 0.3413193965 * s2, -0.0041960863 * l - 0.7034186147 * m + 1.7076147010 * s2];
+      const g2 = x => (x <= 0.0031308 ? 12.92 * x : 1.055 * Math.pow(x, 1 / 2.4) - 0.055);
+      const o = r.map(x => g2(x) * 255); return o.every(x => x >= -0.5 && x <= 255.5) ? o.map(x => Math.max(0, Math.min(255, Math.round(x)))) : null;
+    }
+    const WIND_HUES = [[245, 260, 275, 290, 305], [135, 145, 155, 165], [50, 58, 66], [20, 28, 352, 340]];   // 약(파랑~보라) · 보통(초록) · 셈(주황) · 아주 셈(빨강~자홍)
+    function windPal() {
+      const cs = getComputedStyle(document.documentElement), sc = cs.getPropertyValue('--map-sea').trim(), lc = cs.getPropertyValue('--map-land').trim();
+      const k = sc + lc; if (k === windSea) return; windSea = k;
+      if (window.__JJ_TEST && window.__WINDPAL) { WIND_COL = window.__WINDPAL.c; windHalo = window.__WINDPAL.h; return; }   // (시험용 색 비교)
+      const sea = hex2(sc), land = hex2(lc); if (!sea) { WIND_COL = WIND_DK.c; windHalo = WIND_DK.h; return; }
+      const Ls = lum(sea), dark = (Ls + 0.05) / 0.05 > 1.05 / (Ls + 0.05);   // 바다보다 어둡게 칠할 때 대비가 더 크게 나오면 어두운 쪽
+      const Ls2 = dark ? [0.62, 0.58, 0.54, 0.5, 0.46, 0.42, 0.38, 0.34, 0.3] : [0.72, 0.76, 0.8, 0.84, 0.88, 0.92, 0.95];   // 선명한 쪽부터
+      WIND_COL = WIND_HUES.map(hs => {
+        let best = null, bs = -1;
+        for (const L of Ls2) for (const h of hs) {
+          let c = null, C = 0.26; while (C > 0.02 && !(c = oklch(L, C, h))) C -= 0.01; if (!c) continue;
+          const a = cr(c, sea), b2 = land ? cr(c, land) : a, ok = a >= 3;
+          const sc2 = (ok ? 10 : 0) + Math.min(a, 3.6) + 0.3 * Math.min(b2, 3) + 14 * C;   // 3:1 넘는 것 중 선명한 색 우선, 땅 위에서도 보이면 덤
+          if (sc2 > bs) { bs = sc2; best = c; }
+        }
+        return best ? '#' + best.map(x => x.toString(16).padStart(2, '0')).join('') : '#888888';
+      });
+      windHalo = dark ? 'rgba(255,255,255,.7)' : 'rgba(0,0,0,.6)';
     }
     const windBand = w => (w < 4 ? 0 : w < 8 ? 1 : w < 12 ? 2 : 3);
     let windOn = false; try { windOn = localStorage.getItem(WIND_KEY) === 'on'; } catch (_) {}
@@ -4441,8 +4469,8 @@ const TideHarm = (() => {
           const H2 = p.h, A = P[p.b], n = H2.length, pt = i => (i < n ? H2[i] : [nx, ny]);
           for (let i = 0; i < n; i++) { const z = Math.min(NL - 1, Math.floor((i + 1) / n * NL)), a0 = pt(i), a1 = pt(i + 1); A[z].moveTo(a0[0], a0[1]); A[z].lineTo(a1[0], a1[1]); }
         }
-        g.strokeStyle = windHalo; for (let i = 0; i < P.length; i++) for (let z = NL >> 1; z < NL; z++) { const f = (z + 1) / NL; g.globalAlpha = 0.7 * f * f; g.lineWidth = 3.3 + 0.9 * f; g.stroke(P[i][z]); }   // 얇은 테두리 (머리 쪽 절반만)
-        for (let i = 0; i < P.length; i++) { g.strokeStyle = WIND_COL[i]; for (let z = 0; z < NL; z++) { const f = (z + 1) / NL; g.globalAlpha = 0.08 + 0.87 * f * f; g.lineWidth = 1.1 + 0.9 * f; g.stroke(P[i][z]); } }
+        g.strokeStyle = windHalo; for (let i = 0; i < P.length; i++) for (let z = NL >> 1; z < NL; z++) { const f = (z + 1) / NL; g.globalAlpha = 0.75 * f * f; g.lineWidth = 3.6 + 1.1 * f; g.stroke(P[i][z]); }   // 얇은 테두리 (머리 쪽 절반만)
+        for (let i = 0; i < P.length; i++) { g.strokeStyle = WIND_COL[i]; for (let z = 0; z < NL; z++) { const f = (z + 1) / NL; g.globalAlpha = 0.1 + 0.9 * f * f; g.lineWidth = 1.3 + 1.1 * f; g.stroke(P[i][z]); } }
         g.globalAlpha = 1;
       }
       windRaf = requestAnimationFrame(windLoop);
@@ -11473,7 +11501,7 @@ const TideHarm = (() => {
 
 <script>
 if ('serviceWorker' in navigator) addEventListener('load', () => {
-  const sw = navigator.serviceWorker, VER = 'f33151e0'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
+  const sw = navigator.serviceWorker, VER = '6f4c7282'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
   // 화면에 손을 대기 시작했는지 (쓰는 중에는 새로 열지 않으려고)
   ['pointerdown', 'keydown'].forEach(t => addEventListener(t, () => { touched = true; }, { capture: true, passive: true }));
   const reload = () => {
