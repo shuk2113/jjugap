@@ -299,6 +299,8 @@ html.mv-on .app *{animation-play-state:paused !important} html.mv-hide .app{visi
 .mv-tools button{width:42px; height:42px; display:grid; place-items:center; padding:0; border:1px solid var(--line); border-radius:12px; background:var(--card); font:inherit; font-size:calc(22px * var(--k)); line-height:1; color:var(--ink); box-shadow:0 2px 8px rgba(0,0,0,.12); -webkit-tap-highlight-color:transparent}
 .mv-tools button svg{width:20px; height:20px; color:var(--ink-2); font-weight:500} .mv-tools button.on svg{color:#2F7DF6}
 .mv-tools button.mini{width:34px; height:34px; border-radius:10px; align-self:center} .mv-tools button.mini svg{width:18px; height:18px}
+.mv-wrn{position:absolute; left:10px; top:10px; z-index:2; max-width:calc(100% - 150px); display:flex; flex-direction:column; gap:1px; padding:6px 11px; border-radius:12px; background:var(--strong); color:#fff; font-size:calc(12.5px * var(--k)); line-height:1.35; box-shadow:0 2px 8px rgba(0,0,0,.25); pointer-events:none} .mv-wrn[hidden]{display:none} .mv-wrn b{font-weight:800} .mv-wrn span{font-size:calc(10.5px * var(--k)); opacity:.92; font-weight:600}
+.mv-map.has-wrn .mv-auto{top:calc(10px + var(--wrn-h, 50px))} .mv-map.has-wrn .mv-wleg{top:calc(50px + var(--wrn-h, 50px))}
 #mv-wind{position:absolute; left:0; top:0; width:100%; height:100%; pointer-events:none}
 .mv-wleg{position:absolute; left:6px; top:50px; display:flex; flex-direction:column; align-items:flex-start; gap:3px; padding:4px 7px; border-radius:9px; background:color-mix(in srgb, var(--card) 88%, transparent); font-size:calc(9.5px * var(--k)); font-weight:700; color:var(--ink-2); pointer-events:none; white-space:nowrap} .mv-wleg[hidden]{display:none} .mv-wleg b{font-weight:800; color:var(--ink)} .mv-wleg span{display:flex; align-items:center; gap:3px} .mv-wleg i{width:14px; height:5px; border-radius:2px; box-shadow:0 0 0 2.5px var(--map-sea); margin:0 2px}   /* 지도 바다색 위에 놓인 모습 그대로 */ .mv-wleg em{font-style:normal; margin-right:3px} .mv-drag .mv-wleg{transition:none}
 #mv-pnm .sl{display:none} #mv-pnm.off .sl{display:inline} #mv-pnm.off svg{opacity:.8}
@@ -1453,7 +1455,7 @@ window.jjFunFont = function () { if (document.getElementById('fun-font')) return
     </ul>
   </section>
 
-  <p class="foot">물때·만조·간조·물 높이는 국립해양조사원 예보에 맞춘 계산이고, 바람·파도·하늘·수온은 기상청 단기예보와 국립해양조사원 관측을 하루 8번 받아 보여주는 참고 정보예요. 출항 여부는 꼭 선장님 공지를 따르세요.</p>
+  <p class="foot">물때·만조·간조·물 높이는 국립해양조사원 예보에 맞춘 계산이고, 바람·파도·하늘·수온은 기상청 단기예보와 국립해양조사원 관측을 하루 8번, 기상특보는 매시간 받아 보여주는 참고 정보예요. 출조 신호의 '어려움'은 낚시어선 출항 제한 기준(풍속 12m/s·파고 2m 이상 예보, 풍랑·강풍 특보와 예비특보)을 따랐어요. 출항 여부는 꼭 선장님 공지를 따르세요.</p>
 </div>
 
 <div class="mapv" id="mapv" role="dialog" aria-modal="true" aria-label="선상 모드 지도" hidden>
@@ -2340,8 +2342,60 @@ const TideHarm = (() => {
   let WX = null, wxState = 'loading', wxAt = 0;
   const WX_DIRS = ['북', '북북동', '북동', '동북동', '동', '동남동', '남동', '남남동', '남', '남남서', '남서', '서남서', '서', '서북서', '북서', '북북서'];
   const wxDir = deg => WX_DIRS[Math.round(((deg % 360) + 360) % 360 / 22.5) % 16] + '풍';
-  const windLv = v => v == null ? -1 : v >= 10 ? 2 : v >= 7 ? 1 : 0;
-  const waveLv = v => v == null ? -1 : v >= 1.5 ? 2 : v >= 1.0 ? 1 : 0;
+  // 출조 신호 (사용자 2026-11-22 합치기): 무난 바람 7m/s·파도 1.0m 아래 / 주의 그 위(거칠 수 있음) / 어려움 법정 출항 제한 기준 12m/s·2m 이상 (특보·예비특보도 어려움 → wrnFor)
+  const windLv = v => v == null ? -1 : v >= 12 ? 2 : v >= 7 ? 1 : 0;
+  const waveLv = v => v == null ? -1 : v >= 2.0 ? 2 : v >= 1.0 ? 1 : 0;
+  // ---------- 기상특보: now.json 의 wrn (기상청_기상특보 조회서비스 · 특보 현황 글) 에서 출항지 해역을 찾아 '출항 어려움' 근거로 쓴다 (사용자 2026-11-22)
+  // 법정 기준(낚시 관리 및 육성법 시행령 제19조): 풍속 12m/s 이상·파고 2m 이상 예보, 관련 특보, 특보 전 사전정보(예비특보)면 낚시어선 출항이 제한될 수 있다
+  // 서해 출항지는 위도로 앞바다 특보 구역을 고른다 (구역 경계 근처는 양쪽 구역 이름 모두 봄)
+  const WRN_SEA = [[37.45, 38.3, '인천·경기북부앞바다', '서해중부'], [36.9, 37.45, '인천·경기남부앞바다', '서해중부'], [36.55, 36.9, '충남북부앞바다', '서해중부'],
+    [36.02, 36.55, '충남남부앞바다', '서해중부'], [35.6, 36.02, '전북북부앞바다', '서해남부']   /* 금강 하구가 경계 */, [35.2, 35.6, '전북남부앞바다', '서해남부'], [34.7, 35.2, '전남북부서해앞바다', '서해남부'], [34.2, 34.7, '전남중부서해앞바다', '서해남부']];
+  const WRN_CITY = ['인천', '옹진', '강화', '김포', '안산', '시흥', '화성', '평택', '당진', '서산', '태안', '홍성', '보령', '서천', '군산', '부안', '고창', '영광', '신안', '무안', '목포'];
+  function wrnZones(k) {
+    const P = TideHarm.STATIONS[k]; if (!P || P.lon > 126.95) return null;
+    if (P.lat > 37.5 && P.lon < 125.95) return { near: ['서해5도'], big: '서해중부', city: ['옹진'] };
+    const near = new Set(); let big = null;
+    for (const [a, b, z, g] of WRN_SEA) { if (P.lat >= a - 0.04 && P.lat < b + 0.04) near.add(z); if (P.lat >= a && P.lat < b) big = g; }   // 큰 해역(서해중부·남부)은 경계 여유 없이
+    if (!near.size || !big) return null;
+    const city = WRN_CITY.filter(c => (P.name || '').includes(c));
+    return { near: [...near], big, city };
+  }
+  // 특보 글 → [{kind: '풍랑주의보'|'풍랑 예비특보'…, pre, n: 날짜(일 번호, 모르면 null), when: '23일 오전', zones}]
+  function wrnParse(txt, pre) {
+    const out = []; let kind = '';
+    const y0 = new Date(Date.now() + 9 * 3600000).getUTCFullYear();
+    for (const raw of String(txt || '').split('\n')) {
+      const l = raw.trim(); if (!l) continue;
+      const hk = l.match(/^\(\d+\)\s*(.+?예비특보)/); if (hk) { kind = hk[1].trim(); continue; }
+      const m = l.match(/^o\s*(.+?)\s*:\s*(.+)$/); if (!m) continue;
+      if (!pre) { out.push({ kind: m[1].trim(), pre: false, n: null, when: '', zones: m[2] }); continue; }
+      const d = m[1].match(/(\d+)월\s*(\d+)일\s*(새벽|오전|오후|밤|낮|저녁)?/);
+      out.push({ kind, pre: true, n: d ? Math.floor(Date.UTC(y0, +d[1] - 1, +d[2]) / 86400000) : null, when: d ? `${+d[2]}일${d[3] ? ' ' + d[3] : ''}` : '', zones: m[2] });
+    }
+    return out;
+  }
+  // 그날(n) 출항지(k)에 걸리는 특보: {lv: 2 앞바다·육상 / 1 먼바다만, txt}
+  function wrnFor(n, k = tideSt) {
+    const N = window.__NOWX, w = N && N.wrn, now = Date.now(); if (!w || !w.at || now - Date.parse(w.at) > 6 * 3600000) return null;
+    const Z = wrnZones(k); if (!Z) return null;
+    const td = Math.floor((now + 9 * 3600000) / 86400000);
+    let best = null;
+    for (const it of [...wrnParse(w.on, false), ...wrnParse(w.pre, true)]) {
+      if (!/풍랑|강풍|태풍|폭풍해일/.test(it.kind)) continue;
+      const day = it.pre ? (it.n ?? td) : td; if (day !== n) continue;
+      const zs = it.zones, sea = Z.near.some(z => zs.includes(z)) || zs.includes(Z.big + '앞바다') || zs.includes(Z.big + '전해상');
+      const els = zs.split(/[,()\s]+/).map(x => x.trim()).filter(Boolean);   // '군산어청도'·'인천영종' 같은 섬·일부 지역은 그 도시 전체가 아님 → 이름이 딱 같을 때만
+      const land = /강풍|태풍/.test(it.kind) && Z.city.some(c => els.includes(c));
+      const far = !sea && zs.includes(Z.big) && /먼바다/.test(zs);
+      const lv = sea || land ? 2 : far ? 1 : 0; if (!lv) continue;
+      const where = sea ? (Z.near.find(z => zs.includes(z)) || (zs.includes(Z.big + '전해상') ? Z.big + '전해상' : Z.big + '앞바다')) : land ? Z.city.find(c => els.includes(c)) : Z.big + ' 먼바다';
+      const txt = `${it.kind}${it.when ? ` (${it.when})` : it.pre ? '' : ' 발효 중'} · ${where}`;
+      if (!best || lv > best.lv || (lv === best.lv && !it.pre && best.pre)) best = { lv, txt, pre: it.pre };
+    }
+    return best;
+  }
+  window.__jjWrn = wrnFor;
+
   const windWord = v => v >= 10 ? '매우 강함' : v >= 7 ? '강함' : v >= 4 ? '보통' : '약함';
   const waveWord = v => v >= 1.5 ? '높음' : v >= 1.0 ? '다소 높음' : v >= 0.5 ? '약간' : '잔잔';
   const WX_SIG = [['t-calm', '출조 무난'], ['t-mid', '주의'], ['t-strong', '출조 어려움']];
@@ -2529,7 +2583,7 @@ const TideHarm = (() => {
       }
     } else {
       const [w0, vec, v0, sky, pty] = r, wsd = w0 == null ? null : Math.round(w0), wav = v0 == null ? null : Math.round(v0 * 10) / 10;
-      const lv = Math.max(windLv(wsd), waveLv(wav));
+      const wrH = wrnFor(sel), lv = Math.max(windLv(wsd), waveLv(wav), wrH && wrH.lv === 2 ? 2 : -1);   // 특보·예비특보가 걸린 날은 그림 위 신호도 '어려움'
       const parts = [];
       if (wsd != null) parts.push(`${vec == null ? '바람' : wxDir(vec).replace(/풍$/, '')} ${wsd}m/s`);
       if (wav != null) parts.push(`파도 ${wav.toFixed(1)}m`);
@@ -2537,8 +2591,9 @@ const TideHarm = (() => {
       Scene.setWeather({ wind: wsd ?? 0, vec, wave: wav, sky, pty, hud: { sig: sigTxt, color: sigCol, line: parts.join(' · '), temp } });
       let mw = null, mv = null;
       for (let h = 6; h <= 18; h++) { const q = st.fc[wxYmd(sel) + String(h).padStart(2, '0')]; if (!q) continue; if (q[0] != null) mw = Math.max(mw ?? 0, Math.round(q[0])); if (q[2] != null) mv = Math.max(mv ?? 0, Math.round(q[2] * 10) / 10); }
-      const dl = Math.max(windLv(mw), waveLv(mv));
-      const dayWord = dl === 2 ? '출항이 어려울 수 있으니 선장님 공지를 꼭 확인하세요.' : dl === 1 ? '바람·파도가 다소 있어요. 멀미약을 챙기세요.' : '바람·파도가 잔잔한 편이에요.';
+      const wr = wrnFor(sel), dl = Math.max(windLv(mw), waveLv(mv), wr ? wr.lv : -1);
+      const why = wr && wr.lv === 2 ? `${wr.txt}. ` : windLv(mw) === 2 || waveLv(mv) === 2 ? '출항 제한 기준(풍속 12m/s·파고 2m)에 닿아요. ' : '';
+      const dayWord = dl === 2 ? `${why}출항이 어려울 수 있으니 선장님 공지를 꼭 확인하세요.` : dl === 1 ? `${wr && wr.lv === 1 ? wr.txt + '. ' : ''}바람·파도가 다소 있어 거칠 수 있어요. 멀미약을 챙기세요.` : '바람·파도가 잔잔한 편이에요.';
       line = mw == null ? `바다 날씨: ${dayWord}` : `바다 날씨: 낮(6~18시) 최대 바람 ${mw}m/s${mv == null ? '' : ` · 파도 ${mv.toFixed(1)}m`}. ${dayWord}`;
     }
     $('adv-wx').textContent = line;
@@ -2850,6 +2905,7 @@ const TideHarm = (() => {
     calFit(dir > 0 ? $('cal-next') : $('cal-prev'), 190);
     calAnim = setTimeout(calFinish, 195);
   }
+  addEventListener('jjugap-now', () => { try { wtKey = ''; renderCal(); updateTime(); } catch (_) {} });   // 특보가 들어오면 달력 신호·바다 날씨 문장 다시
   function renderCal() {
     if (calAnim) { clearTimeout(calAnim); calAnim = null; }
     $('cal-title').textContent = `${view.y}년 ${view.m}월`;
@@ -2881,7 +2937,7 @@ const TideHarm = (() => {
     }
     if (cnt >= 4) { // 사흘째는 3시간 간격(06·09·12·15·18시)으로만 와서 5개
       const icon = rain ? 'rain' : snow ? 'snow' : skyC[4] >= skyC[3] && skyC[4] >= skyC[1] ? 'cloud' : skyC[3] >= skyC[1] ? 'part' : 'sun';
-      return { src: 'short', icon, wind: mw, wave: mv, lv: Math.max(windLv(mw), waveLv(mv)) };
+      const wr = wrnFor(n); return { src: 'short', icon, wind: mw, wave: mv, lv: Math.max(windLv(mw), waveLv(mv), wr ? wr.lv : -1), wrn: wr };
     }
     const md = WX.mid && st.mid && WX.mid[st.mid] && WX.mid[st.mid].days[key]; if (!md) return null;
     const ps = [md.am, md.pm, md.d].filter(Boolean); if (!ps.length) return null;
@@ -2889,7 +2945,7 @@ const TideHarm = (() => {
     // 중기 해상예보 파고는 먼바다까지 묶은 해역 전체의 범위(낮은값~높은값)라, 연안 선상낚시에는 낮은 쪽(앞바다)을 쓴다
     const waves = ps.map(p => p[1] ?? p[2]).filter(v => v != null), wave = waves.length ? Math.max(...waves) : null;
     const icon = /비|소나기/.test(wfs) ? 'rain' : /눈/.test(wfs) ? 'snow' : /흐/.test(wfs) ? 'cloud' : /구름/.test(wfs) ? 'part' : 'sun';
-    return { src: 'mid', icon, wind: null, wave, lv: waveLv(wave) };
+    const wr = wrnFor(n); return { src: 'mid', icon, wind: null, wave, lv: Math.max(waveLv(wave), wr ? wr.lv : -1), wrn: wr };
   }
   function calHTML(y, m) {
     const first = dnOf(y, m, 1);
@@ -4478,6 +4534,17 @@ const TideHarm = (() => {
       windLeg(true); windKick();
     }
     function windKick() { if (!windRaf && windOn && isOpen && windF && !RM.matches && !fxIdle() && !document.hidden) { windMode = 'flow'; windRaf = requestAnimationFrame(windLoop); } }
+    // 배 위 특보 알림 띠: 오늘 출항지 앞바다·육상에 풍랑·강풍 특보(또는 오늘 예비특보)가 있으면 지도 위에 (지금 날씨 자료에 함께 오므로 배터리 그대로)
+    let wrnK = '', wrnT = 0;
+    function wrnBand(force) {
+      if (!isOpen || (!force && Date.now() - wrnT < 30000)) return; wrnT = Date.now();
+      const f = window.__jjWrn, r = f ? f(kstDayOf(Date.now())) : null, on = r && r.lv === 2;
+      const k = on ? r.txt : ''; if (k === wrnK) return; wrnK = k;
+      let el = $('mv-wrn'); if (!el) { el = document.createElement('div'); el.id = 'mv-wrn'; el.className = 'mv-wrn'; el.setAttribute('role', 'status'); $('mv-map').appendChild(el); }
+      el.hidden = !on; $('mv-map').classList.toggle('has-wrn', !!on);
+      if (on) { el.innerHTML = `<b>⚠ ${esc(r.txt)}</b><span>선장님 안내를 따르세요 · 기상청</span>`; $('mv-map').style.setProperty('--wrn-h', el.offsetHeight + 8 + 'px'); }
+    }
+    addEventListener('jjugap-now', () => { try { wrnBand(true); } catch (_) {} });
     let mapPorts = null, mapPortsP = null;
     function loadMapPorts() {
       if (mapPortsP) return;
@@ -5157,6 +5224,7 @@ const TideHarm = (() => {
       sprBudget = 8;
       drawArrows(C, font);
       try { windSync(); } catch (_) {}
+      try { wrnBand(); } catch (_) {}
       if (!basemap) {
         const er = landState === 'error'; ctx.save(); ctx.fillStyle = C.lab; ctx.font = `600 13px ${font}`; ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic';
         if (er) { ctx.fillText('지도를 불러오지 못했어요', W / 2, 40); ctx.fillText('(인터넷 연결 후 한 번 열어 주세요)', W / 2, 59); } else ctx.fillText('지도를 불러오는 중…', W / 2, 40);
@@ -5760,8 +5828,9 @@ const TideHarm = (() => {
     setTimeout(() => { try { nowLoad(true); } catch (_) {} }, 2500);   // 앱 켤 때 한 번 (출조 정리의 비·전날 비 양)
     async function nowLoad(force) {   // 10분에 한 번만
       if (!force && Date.now() - nowT < 600000) return; nowT = Date.now();
-      try { const r = await fetch('/jjugap/data/now.json', { cache: 'no-cache' }); if (r.ok) { NOWX = await r.json(); window.__NOWX = NOWX; } } catch (_) {}
+      try { const r = await fetch('/jjugap/data/now.json', { cache: 'no-cache' }); if (r.ok) { NOWX = await r.json(); window.__NOWX = NOWX; dispatchEvent(new Event('jjugap-now')); } } catch (_) {}
     }
+    document.addEventListener('visibilitychange', () => { if (!document.hidden) nowLoad(); });   // 앱을 다시 열 때 (10분 지났으면) 특보·지금 날씨 새로
     function simWx(k, n, h) {
       const st = typeof WX !== 'undefined' && WX && WX.stations && WX.stations[wxOf(k)]; if (!st) return { src: 'none' };
       const fc = st.fc || {};
@@ -11554,7 +11623,7 @@ const TideHarm = (() => {
 
 <script>
 if ('serviceWorker' in navigator) addEventListener('load', () => {
-  const sw = navigator.serviceWorker, VER = 'd45e8121'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
+  const sw = navigator.serviceWorker, VER = 'd0bebe17'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
   // 화면에 손을 대기 시작했는지 (쓰는 중에는 새로 열지 않으려고)
   ['pointerdown', 'keydown'].forEach(t => addEventListener(t, () => { touched = true; }, { capture: true, passive: true }));
   const reload = () => {
