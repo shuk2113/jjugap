@@ -119,8 +119,8 @@ body{
   margin:0;
   background:var(--paper); color:var(--ink); font-family:var(--font-body);
   font-size:calc(15px * var(--k)); line-height:1.5; -webkit-font-smoothing:antialiased;
-  padding-left:max(12px, env(safe-area-inset-left, 0px));
-  padding-right:max(12px, env(safe-area-inset-right, 0px));
+  padding-left:max(6px, env(safe-area-inset-left, 0px));   /* 좌우 여백 12→6px: 화면을 더 넓게 (사용자 2026-11-23) */
+  padding-right:max(6px, env(safe-area-inset-right, 0px));
   padding-block:max(14px, env(safe-area-inset-top, 0px)) 36px;
 }
 button{font:inherit; color:inherit; cursor:pointer}
@@ -992,7 +992,7 @@ a.mv-row-btn{text-decoration:none; gap:10px} .mv-row-btn span{font-size:calc(20p
 .cal-head{align-items:center}
 .cal-head h2{flex:1; text-align:center}
 .small-btn{flex:none; width:34px; height:34px; display:grid; place-items:center; border-radius:50%; border:1px solid var(--line); background:var(--card); font-size:calc(17px * var(--k)); line-height:1}
-.cal-week, .cal{display:grid; grid-template-columns:repeat(7, minmax(0,1fr)); gap:4px}
+.cal-week, .cal{display:grid; grid-template-columns:repeat(7, minmax(0,1fr)); gap:2px}
 #cal-section{scroll-margin-bottom:40px}
 .cal-stage{overflow:hidden; touch-action:pan-y; -webkit-tap-highlight-color:transparent}
 .cal-track{display:flex; align-items:flex-start; will-change:transform}
@@ -1019,7 +1019,7 @@ a.mv-row-btn{text-decoration:none; gap:10px} .mv-row-btn span{font-size:calc(20p
 .cell.blank{visibility:hidden}
 /* 날짜를 누르면 뜨는 작은 달력: 아래 큰 달력과 같은 정보, 힘을 뺀 모양 */
 .pc-back{position:fixed; inset:0; z-index:44; background:rgba(0,0,0,.22); touch-action:none; animation:fadeIn .18s ease}
-.pcal{position:fixed; z-index:45; left:0; right:0; top:120px; width:min(calc(100vw - 24px), 380px); margin:0 auto; padding:8px 10px 10px; border-radius:20px; background:var(--card); border:1px solid var(--line);
+.pcal{position:fixed; z-index:45; left:0; right:0; top:120px; width:min(calc(100vw - 12px), 400px); margin:0 auto; padding:8px 6px 10px; border-radius:20px; background:var(--card); border:1px solid var(--line);
   box-shadow:0 16px 40px rgba(0,0,0,.26), 0 2px 8px rgba(0,0,0,.1); touch-action:none; outline:none; transform-origin:50% 0; animation:pcIn .24s cubic-bezier(.2,.8,.2,1)}
 .pcal.closing{animation:pcOut .15s ease forwards} .pc-back.closing{animation:fadeOut .15s ease forwards}
 @keyframes pcIn{from{opacity:0; transform:translateY(-10px) scale(.97)}} @keyframes pcOut{to{opacity:0; transform:translateY(-6px) scale(.985)}}
@@ -1061,7 +1061,7 @@ a.mv-row-btn{text-decoration:none; gap:10px} .mv-row-btn span{font-size:calc(20p
 .pcal .cell.lv-strong{background:color-mix(in srgb, var(--strong) 6%, transparent)}
 .pcal .c-n{font-size:calc(12.5px * var(--k)); font-weight:600}
 .pcal .c-m{font-size:calc(9.5px * var(--k)); font-weight:500}
-.pcal .c-v{height:11px; font-size:calc(8.5px * var(--k)); font-weight:600; line-height:11px}
+.pcal .c-v{height:12px; font-size:calc(9.5px * var(--k)); font-weight:600; line-height:12px}
 .pcal .c-w, .pcal .c-w svg{width:9px; height:9px}
 .pcal .cell.is-today .c-n{text-decoration-thickness:1.5px; text-underline-offset:2.5px}
 .pcal .cell.wx-bad{box-shadow:inset 0 0 0 2px var(--strong)}   /* 위 날짜 고르기 달력에도 출조 어려움 빨간 테두리 (사용자 2026-11-23) */
@@ -1075,12 +1075,12 @@ a.mv-row-btn{text-decoration:none; gap:10px} .mv-row-btn span{font-size:calc(20p
 .c-w{flex:none; width:10px; height:10px; color:var(--ink-2); font-weight:500}
 .c-w svg{display:block; width:10px; height:10px}
 .c-w.sun{color:#E9A92E} .c-w.rain{color:var(--hi)}
-.c-v.c-sky{height:calc(13px * var(--k)); gap:2px} .c-sky .c-w, .c-sky .c-w svg{width:calc(13px * var(--k)); height:calc(13px * var(--k))}
-.pcal .c-v.c-sky{height:calc(12px * var(--k))} .pcal .c-sky .c-w, .pcal .c-sky .c-w svg{width:calc(11.5px * var(--k)); height:calc(11.5px * var(--k))}
+.c-v.c-sky{height:calc(14px * var(--k)); gap:2px} .c-sky .c-w, .c-sky .c-w svg{width:calc(14px * var(--k)); height:calc(14px * var(--k))}
+.pcal .c-v.c-sky{height:calc(13px * var(--k))} .pcal .c-sky .c-w, .pcal .c-sky .c-w svg{width:calc(12.5px * var(--k)); height:calc(12.5px * var(--k))}
 .c-v.c-wave{position:relative} .c-wv{position:absolute; right:calc(100% + 1px); top:50%; transform:translateY(-50%); width:9px; height:5px}
 .c-wv svg{display:block; width:9px; height:5px; fill:none; stroke:currentColor; stroke-width:1.5; stroke-linecap:round}
 .pcal .c-wv, .pcal .c-wv svg{width:8px; height:4.5px}
-.c-v{display:flex; align-items:center; justify-content:center; gap:1.5px; height:12px; font-size:calc(9px * var(--k)); font-weight:700; line-height:12px; font-variant-numeric:tabular-nums; white-space:nowrap; color:var(--ink-2)}
+.c-v{display:flex; align-items:center; justify-content:center; gap:1.5px; height:13px; font-size:calc(10px * var(--k)); font-weight:700; line-height:13px; font-variant-numeric:tabular-nums; white-space:nowrap; color:var(--ink-2)}
 .c-v.w1{color:var(--mid)} .c-v.w2{color:var(--strong)}
 .c-v.c-air{position:relative; color:var(--ink-2)} .c-deg{position:absolute; left:100%; top:0; font-style:normal} .c-v.c-air.f1{color:var(--ink)} .c-v.c-air.f2{color:#3A8DDE} .c-v.c-air.f3{color:#7A5CFA; font-weight:800}   /* 기온 5° 이하 · 0° 이하 · -5° 이하 */
 .cell.wx-bad{box-shadow:inset 0 0 0 2.5px var(--strong)}   /* 출조 어려움: 또렷한 빨간 테두리 (전엔 흐려서 안 보였음) · 고른 날은 바깥 흰 테두리 + 안쪽 빨강 */
@@ -1140,7 +1140,7 @@ a.mv-row-btn{text-decoration:none; gap:10px} .mv-row-btn span{font-size:calc(20p
 /* 조과 카드 화면 */
 html.cv-lock, html.cv-lock body{overflow:hidden}
 .cardv{position:fixed; inset:0; z-index:80; overflow-x:hidden; overflow-y:auto; overscroll-behavior:contain; background:var(--paper); color:var(--ink); animation:mvIn .22s cubic-bezier(.2,.8,.2,1)}
-.cv-in{max-width:480px; margin:0 auto; overflow-x:clip; padding:calc(6px + env(safe-area-inset-top, 0px)) 14px calc(18px + env(safe-area-inset-bottom, 0px))}
+.cv-in{max-width:480px; margin:0 auto; overflow-x:clip; padding:calc(6px + env(safe-area-inset-top, 0px)) 8px calc(18px + env(safe-area-inset-bottom, 0px))}
 .cv-h{display:flex; align-items:center; gap:6px; height:48px}
 .cv-h b{font-size:calc(17px * var(--k)); font-weight:700}
 .cv-h span{flex:1; min-width:0; font-size:calc(12.5px * var(--k)); color:var(--ink-2); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; font-weight:500}
@@ -11656,7 +11656,7 @@ const TideHarm = (() => {
 
 <script>
 if ('serviceWorker' in navigator) addEventListener('load', () => {
-  const sw = navigator.serviceWorker, VER = '18776d76'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
+  const sw = navigator.serviceWorker, VER = '28b40fee'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
   // 화면에 손을 대기 시작했는지 (쓰는 중에는 새로 열지 않으려고)
   ['pointerdown', 'keydown'].forEach(t => addEventListener(t, () => { touched = true; }, { capture: true, passive: true }));
   const reload = () => {
