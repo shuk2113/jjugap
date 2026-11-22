@@ -1,0 +1,6 @@
+after share: 
+CARD SHARE SHEET NOT SEEN
+CARD NOT IN GALLERY
+after photo: 
+PHOTO PICKER NOT SEEN
+after back: 

@@ -1,0 +1,59 @@
+11-22 06:04:55.101  3301  3301 I jjugap  : gps rest (app on screen)
+11-22 06:04:55.101  3301  3301 I jjugap  : service started
+11-22 06:05:30.888  3301  3301 I jjugap  : gps slow 10s fused batch 30s
+11-22 06:05:31.418  3301  3301 I jjugap  : gps batch 1
+11-22 06:06:30.351  3301  3301 I jjugap  : gps batch 4
+11-22 06:07:05.391  3301  3301 I jjugap  : gps batch 3
+11-22 06:07:40.395  3301  3301 I jjugap  : gps batch 4
+11-22 06:08:15.400  3301  3301 I jjugap  : gps batch 3
+11-22 06:08:50.404  3301  3301 I jjugap  : gps batch 4
+11-22 06:09:25.407  3301  3301 I jjugap  : gps batch 3
+11-22 06:10:00.411  3301  3301 I jjugap  : gps batch 4
+11-22 06:10:35.415  3301  3301 I jjugap  : gps batch 3
+11-22 06:10:35.415  3301  3301 I jjugap  : gps fast 30s fused batch 30s
+11-22 06:10:35.422  3301  3301 I jjugap  : gps batch 1
+11-22 06:10:35.554  3301  3301 I jjugap  : saved note 오후 3:10 · 5분 머문 곳을 포인트로 남겼어요
+11-22 06:10:39.936  3301  3301 I jjugap  : gps batch 1
+11-22 06:11:09.938  3301  3301 I jjugap  : gps batch 1
+11-22 06:11:09.938  3301  3301 I jjugap  : gps slow 10s fused batch 30s
+11-22 06:11:09.943  3301  3301 I jjugap  : gps batch 1
+11-22 06:11:44.952  3301  3301 I jjugap  : gps batch 3
+11-22 06:12:19.957  3301  3301 I jjugap  : gps batch 3
+11-22 06:12:38.659  3301  3301 I jjugap  : gps rest (app on screen)
+11-22 06:12:39.013  3301  3301 I jjugap  : gps batch 2
+11-22 06:13:35.754  3301  3301 I jjugap  : gps slow 10s fused batch 30s
+11-22 06:13:35.794  3301  3301 I jjugap  : gps batch 1
+11-22 06:14:15.851  3301  3301 I jjugap  : gps batch 3
+11-22 06:14:55.857  3301  3301 I jjugap  : gps batch 4
+11-22 06:14:55.858  3301  3301 I jjugap  : gps fast 30s fused batch 30s
+11-22 06:14:55.870  3301  3301 I jjugap  : gps batch 1
+11-22 06:14:59.977  3301  3301 I jjugap  : gps batch 1
+11-22 06:14:59.977  3301  3301 I jjugap  : gps slow 10s fused batch 30s
+11-22 06:14:59.980  3301  3301 I jjugap  : gps batch 1
+11-22 06:15:40.000  3301  3301 I jjugap  : gps batch 3
+11-22 06:16:15.996  3301  3301 I jjugap  : gps batch 4
+11-22 06:16:52.003  3301  3301 I jjugap  : gps batch 3
+11-22 06:17:30.026  3301  3301 I jjugap  : gps batch 3
+11-22 06:18:10.037  3301  3301 I jjugap  : gps batch 4
+11-22 06:18:10.037  3301  3301 I jjugap  : gps fast 30s fused batch 30s
+11-22 06:18:10.045  3301  3301 I jjugap  : gps batch 1
+11-22 06:18:14.013  3301  3301 I jjugap  : gps batch 1
+11-22 06:18:44.027  3301  3301 I jjugap  : gps batch 1
+11-22 06:18:44.027  3301  3301 I jjugap  : gps slow 10s fused batch 30s
+11-22 06:18:44.040  3301  3301 I jjugap  : gps batch 1
+11-22 06:19:24.056  3301  3301 I jjugap  : gps batch 3
+11-22 06:19:24.056  3301  3301 I jjugap  : gps fast 30s fused batch 30s
+11-22 06:19:24.074  3301  3301 I jjugap  : gps batch 1
+11-22 06:19:24.109  3301  3301 I jjugap  : saved note 오후 3:19 · 5분 머문 곳을 포인트로 남겼어요
+11-22 06:19:28.033  3301  3301 I jjugap  : gps batch 1
+11-22 06:19:28.033  3301  3301 I jjugap  : gps slow 10s fused batch 30s
+11-22 06:19:28.043  3301  3301 I jjugap  : gps batch 1
+11-22 06:20:08.071  3301  3301 I jjugap  : gps batch 3
+11-22 06:20:08.071  3301  3301 I jjugap  : gps fast 30s fused batch 30s
+11-22 06:20:08.078  3301  3301 I jjugap  : gps batch 1
+11-22 06:20:12.029  3301  3301 I jjugap  : gps batch 1
+11-22 06:20:42.048  3301  3301 I jjugap  : gps batch 1
+11-22 06:20:42.050  3301  3301 I jjugap  : gps slow 10s fused batch 30s
+11-22 06:20:42.059  3301  3301 I jjugap  : gps batch 1
+11-22 06:20:50.462  3301  3301 I jjugap  : gps rest (app on screen)
+11-22 06:20:51.555  3301  3301 I jjugap  : gps batch 1
