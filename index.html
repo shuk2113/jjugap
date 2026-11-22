@@ -1001,7 +1001,7 @@ a.mv-row-btn{text-decoration:none; gap:10px} .mv-row-btn span{font-size:calc(20p
 .cal-note .c-rec-k{flex:none; width:7px; height:7px; border-radius:50%; background:#2F7DF6}
 .cal-week{font-size:calc(12px * var(--k)); color:var(--ink-2); text-align:center; font-weight:500}
 .cal-week span:first-child{color:var(--sun)} .cal-week span:last-child{color:var(--sat)}
-.cell{position:relative; min-width:0; max-width:100%; aspect-ratio:1/1.12; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1px; padding:2px 0; border-radius:10px; border:1.5px solid transparent; background:transparent}
+.cell{position:relative; min-width:0; max-width:100%; aspect-ratio:1/1.34; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1px; padding:2px 0; border-radius:10px; border:1.5px solid transparent; background:transparent}
 .cell.lv-calm{background:var(--calm-soft)} .cell.lv-mid{background:var(--mid-soft)} .cell.lv-strong{background:var(--strong-soft)}
 .c-n{font-size:calc(14px * var(--k)); font-weight:700; font-variant-numeric:tabular-nums}
 .c-m{font-size:calc(10.5px * var(--k)); font-weight:500; white-space:nowrap}
@@ -1050,7 +1050,7 @@ a.mv-row-btn{text-decoration:none; gap:10px} .mv-row-btn span{font-size:calc(20p
 .pc-track{display:flex; align-items:flex-start; will-change:transform; transform:translate3d(-100%,0,0)}
 .pc-track > .cal{flex:0 0 100%; min-width:0}
 .pcal .cell{transition:transform .12s} .pcal .cell:active{transform:scale(.94)}
-.pcal .cell{aspect-ratio:1/1.02; gap:0; padding:1px 0; border:0; border-radius:9px}
+.pcal .cell{aspect-ratio:1/1.22; gap:0; padding:1px 0; border:0; border-radius:9px}
 .pcal .cell.lv-calm{background:color-mix(in srgb, var(--calm) 7%, transparent)}
 .pcal .cell.lv-mid{background:color-mix(in srgb, var(--mid) 7%, transparent)}
 .pcal .cell.lv-strong{background:color-mix(in srgb, var(--strong) 6%, transparent)}
@@ -1072,6 +1072,7 @@ a.mv-row-btn{text-decoration:none; gap:10px} .mv-row-btn span{font-size:calc(20p
 .c-w.sun{color:#E9A92E} .c-w.rain{color:var(--hi)}
 .c-v{display:flex; align-items:center; justify-content:center; gap:1.5px; height:12px; font-size:calc(9px * var(--k)); font-weight:700; line-height:12px; font-variant-numeric:tabular-nums; white-space:nowrap; color:var(--ink-2)}
 .c-v.w1{color:var(--mid)} .c-v.w2{color:var(--strong)}
+.c-v.c-air{position:relative; color:var(--ink-2)} .c-deg{position:absolute; left:100%; top:0; font-style:normal} .c-v.c-air.f1{color:var(--ink)} .c-v.c-air.f2{color:#3A8DDE} .c-v.c-air.f3{color:#7A5CFA; font-weight:800}   /* 기온 5° 이하 · 0° 이하 · -5° 이하 */
 .cell.wx-bad{box-shadow:inset 0 0 0 2.5px var(--strong)}   /* 출조 어려움: 또렷한 빨간 테두리 (전엔 흐려서 안 보였음) · 고른 날은 바깥 흰 테두리 + 안쪽 빨강 */
 
 /* 색 읽는 법 */
@@ -1500,7 +1501,7 @@ window.jjFunFont = function () { if (document.getElementById('fun-font')) return
   <div class="pc-body" id="pc-body">
   <div class="cal-week" aria-hidden="true"><span>일</span><span>월</span><span>화</span><span>수</span><span>목</span><span>금</span><span>토</span></div>
   <div class="pc-stage" id="pc-stage"><div class="pc-track" id="pc-track"><div class="cal" aria-hidden="true"></div><div class="cal" id="pc-grid"></div><div class="cal" aria-hidden="true"></div></div></div>
-  <div class="pc-foot" aria-hidden="true"><span><i class="d-calm"></i>물 약함</span><span><i class="d-mid"></i>보통</span><span><i class="d-strong"></i>물 셈</span><span class="pc-sep">아래 줄은 날씨·파도</span></div>
+  <div class="pc-foot" aria-hidden="true"><span><i class="d-calm"></i>물 약함</span><span><i class="d-mid"></i>보통</span><span><i class="d-strong"></i>물 셈</span><span class="pc-sep">아래는 파도·기온</span></div>
   </div>
   <div class="pc-mp" id="pc-mp" hidden>
     <div class="pc-mp-year">
@@ -2582,6 +2583,7 @@ const TideHarm = (() => {
       else {
         const ks = Object.keys(st.fc).sort(), lastK = ks[ks.length - 1];
         line = lastK && wxYmd(sel) > lastK.slice(0, 8) ? `바다 날씨: 기상청 예보는 ${wxMd(lastK)}까지 나와요. 가까워지면 그림에 바람·파도가 함께 보여요.` : '바다 날씨: 이 시간의 예보가 없어요.';
+        const fm = dayFeel(sel); if (fm && fm.mid) line += ` 기온은 아침 최저 ${Math.round(fm.lo)}°C${fm.hi != null ? ` · 낮 최고 ${Math.round(fm.hi)}°C` : ''}예요(중기예보).`;
       }
     } else {
       const [w0, vec, v0, sky, pty] = r, wsd = w0 == null ? null : Math.round(w0), wav = v0 == null ? null : Math.round(v0 * 10) / 10;
@@ -2596,7 +2598,8 @@ const TideHarm = (() => {
       const wr = wrnFor(sel), dl = Math.max(windLv(mw), waveLv(mv), wr ? wr.lv : -1);
       const why = wr && wr.lv === 2 ? `${wr.txt}. ` : windLv(mw) === 2 || waveLv(mv) === 2 ? '출항 제한 기준(풍속 12m/s·파고 2m)에 닿아요. ' : '';
       const dayWord = dl === 2 ? `${why}출항이 어려울 수 있으니 선장님 공지를 꼭 확인하세요.` : dl === 1 ? `${wr && wr.lv === 1 ? wr.txt + '. ' : ''}바람·파도가 다소 있어 거칠 수 있어요. 멀미약을 챙기세요.` : '바람·파도가 잔잔한 편이에요.';
-      line = mw == null ? `바다 날씨: ${dayWord}` : `바다 날씨: 낮(6~18시) 최대 바람 ${mw}m/s${mv == null ? '' : ` · 파도 ${mv.toFixed(1)}m`}. ${dayWord}`;
+      const fl = dayFeel(sel), flT = !fl ? '' : ` · 기온 최저 ${Math.round(fl.lo)}°C${fl.hi != null ? ` · 최고 ${Math.round(fl.hi)}°C` : ''}`;
+      line = mw == null ? `바다 날씨: ${dayWord}` : `바다 날씨: 낮(6~18시) 최대 바람 ${mw}m/s${mv == null ? '' : ` · 파도 ${mv.toFixed(1)}m`}${flT}. ${dayWord}`;
     }
     $('adv-wx').textContent = line;
   }
@@ -2949,6 +2952,15 @@ const TideHarm = (() => {
     const icon = /비|소나기/.test(wfs) ? 'rain' : /눈/.test(wfs) ? 'snow' : /흐/.test(wfs) ? 'cloud' : /구름/.test(wfs) ? 'part' : 'sun';
     const wr = wrnFor(n); return { src: 'mid', icon, wind: null, wave, lv: Math.max(waveLv(wave), wr ? wr.lv : -1), wrn: wr };
   }
+  // 달력 '기온' 보기: 그날 최저·최고 기온 (사용자 2026-11-23) — 시간별 예보가 있는 날은 그 시간들 중 최저·최고, 그 뒤 날짜는 기상청 중기 아침 최저·낮 최고(가까운 도시)
+  function dayFeel(n) {
+    const st = typeof WX !== 'undefined' && WX && WX.stations && WX.stations[wxOf(tideSt)]; if (!st || !st.fc) return null;
+    const key = wxYmd(n); let lo = null, hi = null, cnt = 0;
+    for (let h = 0; h <= 23; h++) { const q = st.fc[key + String(h).padStart(2, '0')]; if (!q || q[6] == null) continue; cnt++; lo = lo == null ? q[6] : Math.min(lo, q[6]); hi = hi == null ? q[6] : Math.max(hi, q[6]); }
+    if (cnt >= 4) return { v: lo, lo, hi };
+    const mt = st.ta && WX.mta && WX.mta[st.ta] && WX.mta[st.ta].days[key];
+    return mt && mt[0] != null ? { v: mt[0], lo: mt[0], hi: mt[1], mid: true } : null;
+  }
   function calHTML(y, m) {
     const first = dnOf(y, m, 1);
     const len = dnOf(y, m + 1, 1) - first;
@@ -2963,10 +2975,13 @@ const TideHarm = (() => {
       const rc = recDays().get(n) || 0;
       const wd = n >= today ? dayWx(n) : null, w = wd && wd.lv >= 0 ? wd : null;
       if (w && w.lv === 2) cls.push('wx-bad');
+      const fl = n >= today ? dayFeel(n) : null;   // 칸 맨 아래 줄: 최저/최고 기온 (사용자 2026-11-23: 전환 없이 한 칸에 모두)
       const wtxt = w ? (w.wave != null ? `${w.wave.toFixed(1)}m` : CW_NAME[w.icon]) : '';
-      html += `<button class="${cls.join(' ')}" data-dn="${n}" aria-label="${v.m}월 ${v.d}일 ${dd.name}, ${LV[dd.lv].chip}${w ? `, ${CW_NAME[w.icon]}${w.wind != null ? `, 바람 초속 ${w.wind}미터` : ''}${w.wave != null ? `, 파도 ${w.wave.toFixed(1)}미터` : ''}` : ''}${rc ? `, 내 기록 ${rc}곳` : ''}">`
+      const ttxt = fl ? `${Math.round(fl.lo)}${fl.hi != null ? '/' + Math.round(fl.hi) : ''}<i class="c-deg">°</i>` : '';   // ° 는 칸 밖으로 빼서 숫자 묶음이 정가운데 (사용자 2026-11-23)
+      html += `<button class="${cls.join(' ')}" data-dn="${n}" aria-label="${v.m}월 ${v.d}일 ${dd.name}, ${LV[dd.lv].chip}${fl ? `, 최저 기온 ${Math.round(fl.lo)}도${fl.hi != null ? `, 최고 ${Math.round(fl.hi)}도` : ''}` : ''}${w ? `, ${CW_NAME[w.icon]}${w.wind != null ? `, 바람 초속 ${w.wind}미터` : ''}${w.wave != null ? `, 파도 ${w.wave.toFixed(1)}미터` : ''}` : ''}${rc ? `, 내 기록 ${rc}곳` : ''}">`
         + (rc ? '<i class="c-rec" aria-hidden="true"></i>' : '') + `<span class="c-n">${v.d}</span><span class="c-m">${dd.name}</span>`
-        + `<span class="c-v${w && w.lv > 0 ? ' w' + w.lv : ''}">${w ? `<i class="c-w ${w.icon}" aria-hidden="true">${CW_ICO[w.icon]}</i>` : ''}${wtxt}</span></button>`;
+        + `<span class="c-v${w && w.lv > 0 ? ' w' + w.lv : ''}">${w ? `<i class="c-w ${w.icon}" aria-hidden="true">${CW_ICO[w.icon]}</i>` : ''}${wtxt}</span>`
+        + `<span class="c-v c-air${fl ? (fl.v <= -5 ? ' f3' : fl.v <= 0 ? ' f2' : fl.v <= 5 ? ' f1' : '') : ''}">${ttxt}</span></button>`;
     }
     return html;
   }
@@ -11625,7 +11640,7 @@ const TideHarm = (() => {
 
 <script>
 if ('serviceWorker' in navigator) addEventListener('load', () => {
-  const sw = navigator.serviceWorker, VER = 'd0bebe17'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
+  const sw = navigator.serviceWorker, VER = 'c3179d47'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
   // 화면에 손을 대기 시작했는지 (쓰는 중에는 새로 열지 않으려고)
   ['pointerdown', 'keydown'].forEach(t => addEventListener(t, () => { touched = true; }, { capture: true, passive: true }));
   const reload = () => {
