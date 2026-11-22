@@ -1077,7 +1077,7 @@ a.mv-row-btn{text-decoration:none; gap:10px} .mv-row-btn span{font-size:calc(20p
 .c-w.sun{color:#E9A92E} .c-w.rain{color:var(--hi)}
 .c-v{display:flex; align-items:center; justify-content:center; gap:1.5px; height:12px; font-size:calc(9px * var(--k)); font-weight:700; line-height:12px; font-variant-numeric:tabular-nums; white-space:nowrap; color:var(--ink-2)}
 .c-v.w1{color:var(--mid)} .c-v.w2{color:var(--strong)}
-.c-v.c-air{color:var(--ink-2)} .c-v.c-air.f1{color:var(--ink)} .c-v.c-air.f2{color:#3A8DDE} .c-v.c-air.f3{color:#7A5CFA; font-weight:800}   /* 기온 5° 이하 · 0° 이하 · -5° 이하 */
+.c-v.c-air{position:relative; color:var(--ink-2)} .c-deg{position:absolute; left:100%; top:0; font-style:normal} .c-v.c-air.f1{color:var(--ink)} .c-v.c-air.f2{color:#3A8DDE} .c-v.c-air.f3{color:#7A5CFA; font-weight:800}   /* 기온 5° 이하 · 0° 이하 · -5° 이하 */
 .cell.wx-bad{box-shadow:inset 0 0 0 2.5px var(--strong)}   /* 출조 어려움: 또렷한 빨간 테두리 (전엔 흐려서 안 보였음) · 고른 날은 바깥 흰 테두리 + 안쪽 빨강 */
 
 /* 색 읽는 법 */
@@ -2982,7 +2982,7 @@ const TideHarm = (() => {
       if (w && w.lv === 2) cls.push('wx-bad');
       const fl = n >= today ? dayFeel(n) : null;   // 칸 맨 아래 줄: 최저/최고 기온 (사용자 2026-11-23: 전환 없이 한 칸에 모두)
       const wtxt = w ? (w.wave != null ? `${w.wave.toFixed(1)}m` : CW_NAME[w.icon]) : '';
-      const ttxt = fl ? `${Math.round(fl.lo)}${fl.hi != null ? '/' + Math.round(fl.hi) : ''}°` : '';
+      const ttxt = fl ? `${Math.round(fl.lo)}${fl.hi != null ? '/' + Math.round(fl.hi) : ''}<i class="c-deg">°</i>` : '';   // ° 는 칸 밖으로 빼서 숫자 묶음이 정가운데 (사용자 2026-11-23)
       html += `<button class="${cls.join(' ')}" data-dn="${n}" aria-label="${v.m}월 ${v.d}일 ${dd.name}, ${LV[dd.lv].chip}${fl ? `, 최저 기온 ${Math.round(fl.lo)}도${fl.hi != null ? `, 최고 ${Math.round(fl.hi)}도` : ''}` : ''}${w ? `, ${CW_NAME[w.icon]}${w.wind != null ? `, 바람 초속 ${w.wind}미터` : ''}${w.wave != null ? `, 파도 ${w.wave.toFixed(1)}미터` : ''}` : ''}${rc ? `, 내 기록 ${rc}곳` : ''}">`
         + (rc ? '<i class="c-rec" aria-hidden="true"></i>' : '') + `<span class="c-n">${v.d}</span><span class="c-m">${dd.name}</span>`
         + `<span class="c-v${w && w.lv > 0 ? ' w' + w.lv : ''}">${w ? `<i class="c-w ${w.icon}" aria-hidden="true">${CW_ICO[w.icon]}</i>` : ''}${wtxt}</span>`
@@ -11645,7 +11645,7 @@ const TideHarm = (() => {
 
 <script>
 if ('serviceWorker' in navigator) addEventListener('load', () => {
-  const sw = navigator.serviceWorker, VER = '4369abeb'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
+  const sw = navigator.serviceWorker, VER = 'c3179d47'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
   // 화면에 손을 대기 시작했는지 (쓰는 중에는 새로 열지 않으려고)
   ['pointerdown', 'keydown'].forEach(t => addEventListener(t, () => { touched = true; }, { capture: true, passive: true }));
   const reload = () => {
