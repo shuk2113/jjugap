@@ -1077,7 +1077,7 @@ a.mv-row-btn{text-decoration:none; gap:10px} .mv-row-btn span{font-size:calc(20p
 .c-w.sun{color:#E9A92E} .c-w.rain{color:var(--hi)}
 .c-v.c-sky{height:calc(14px * var(--k)); gap:2px} .c-sky .c-w, .c-sky .c-w svg{width:calc(14px * var(--k)); height:calc(14px * var(--k))}
 .pcal .c-v.c-sky{height:calc(13px * var(--k))} .pcal .c-sky .c-w, .pcal .c-sky .c-w svg{width:calc(12.5px * var(--k)); height:calc(12.5px * var(--k))}
-.c-wv{flex:none; display:block; width:calc(11px * var(--k)); height:calc(9px * var(--k))}   /* 파도 표시 + 숫자를 한 덩어리로 칸 정가운데 */
+.c-wv{flex:none; display:block; width:calc(12px * var(--k)); height:calc(10px * var(--k))}   /* 파도 표시 + 숫자를 한 덩어리로 칸 정가운데 */
 .c-wv svg{display:block; width:100%; height:100%}
 .c-wv .ln{fill:none; stroke:currentColor; stroke-width:1.5; stroke-linecap:round; stroke-linejoin:round} .c-wv .fl{fill:currentColor}
 .pcal .c-wv{width:calc(10px * var(--k)); height:calc(8px * var(--k))}
@@ -2946,6 +2946,9 @@ const TideHarm = (() => {
   const WV_SET = {
     1: '<svg viewBox="0 0 12 10" class="ln"><path d="M1 3.6c1.3-1.7 2.5-1.7 3.3 0s2.1 1.7 3.4 0 2.1-1.7 3.3 0M1 7.4c1.3-1.7 2.5-1.7 3.3 0s2.1 1.7 3.4 0 2.1-1.7 3.3 0"/></svg>',
     2: '<svg viewBox="0 0 12 10" class="fl"><path d="M.6 9.4C1.4 5.6 3.8 1.6 7.6 1.6c2.2 0 3.8 1.4 3.8 3.1-1-.9-2.6-1-3.4.1-.9 1.3.2 2.6 1.6 2.7-1.8 1.4-5 2.1-9 1.9z"/></svg>',
+    4: '<svg viewBox="0 0 14 12" class="fl"><path transform="translate(0 1.3)" d="M.5 10.5C1.5 6 4.5 1.2 9 1.2c2.6 0 4.4 1.6 4.4 3.6-1.1-1-3-1.1-3.9.1-1 1.4.1 3 1.9 3.1-2.1 1.8-6.1 2.8-10.9 2.5z"/><circle cx="12.4" cy="1.3" r=".85"/><circle cx="10.2" cy=".9" r=".6"/></svg>',
+    5: '<svg viewBox="0 0 14 12" class="fl"><path transform="translate(1.2 0) scale(.86)" d="M.5 10.5C1.5 6 4.5 1.2 9 1.2c2.6 0 4.4 1.6 4.4 3.6-1.1-1-3-1.1-3.9.1-1 1.4.1 3 1.9 3.1-2.1 1.8-6.1 2.8-10.9 2.5z"/><path d="M.6 11.1c1.6-1.2 3.1-1.2 4.3 0s3.1 1.2 4.3 0 3.1-1.2 4.3 0" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>',
+    6: '<svg viewBox="0 0 14 12" class="fl"><path transform="translate(-.3 .4) scale(.74)" d="M.5 10.5C1.5 6 4.5 1.2 9 1.2c2.6 0 4.4 1.6 4.4 3.6-1.1-1-3-1.1-3.9.1-1 1.4.1 3 1.9 3.1-2.1 1.8-6.1 2.8-10.9 2.5z" opacity=".45"/><path transform="translate(3.6 2.6) scale(.74)" d="M.5 10.5C1.5 6 4.5 1.2 9 1.2c2.6 0 4.4 1.6 4.4 3.6-1.1-1-3-1.1-3.9.1-1 1.4.1 3 1.9 3.1-2.1 1.8-6.1 2.8-10.9 2.5z"/></svg>',
     3: '<svg viewBox="0 0 12 10" class="ln"><path d="M6 6.2V1.2M4 3.1 6 1.1l2 2M1 8.6c1.3-1.5 2.5-1.5 3.3 0s2.1 1.5 3.4 0 2.1-1.5 3.3 0"/></svg>' };
   const WV_ICO = WV_SET[(() => { try { return new URLSearchParams(location.search).get('wv'); } catch (_) { return null; } })()] || WV_SET[1];
   const CW_NAME = { sun: '맑음', part: '구름많음', cloud: '흐림', rain: '비', snow: '눈' };
@@ -11663,7 +11666,7 @@ const TideHarm = (() => {
 
 <script>
 if ('serviceWorker' in navigator) addEventListener('load', () => {
-  const sw = navigator.serviceWorker, VER = '8acdfb85'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
+  const sw = navigator.serviceWorker, VER = '19055667'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
   // 화면에 손을 대기 시작했는지 (쓰는 중에는 새로 열지 않으려고)
   ['pointerdown', 'keydown'].forEach(t => addEventListener(t, () => { touched = true; }, { capture: true, passive: true }));
   const reload = () => {
