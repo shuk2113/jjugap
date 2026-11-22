@@ -996,7 +996,7 @@ a.mv-row-btn{text-decoration:none; gap:10px} .mv-row-btn span{font-size:calc(20p
 #cal-section{scroll-margin-bottom:40px}
 .cal-stage{overflow:hidden; touch-action:pan-y; -webkit-tap-highlight-color:transparent}
 .cal-track{display:flex; align-items:flex-start; will-change:transform}
-.cal-track > .cal{flex:0 0 100%; min-width:0}
+.cal-track > .cal{flex:0 0 100%; min-width:0; will-change:opacity}   /* 판마다 따로 층: 흐려질 때 칸 그림을 다시 그리지 않게 */   /* 판마다 따로 층: 흐려질 때 칸 그림을 다시 그리지 않게 */
 /* 달력 판 사이 틈: 무대(stage)를 양옆으로 반 틈씩 넓히고, 각 판 안쪽에 같은 만큼 여백을 둬서
    가만히 있을 땐 그대로, 밀 때만 지난달·다음 달 판 사이에 빈 틈이 보이게 (판끼리 붙어 보이지 않게) */
 .cal-stage, .mp-stage{--pgh:12px} .pc-stage, .pc-mp-stage{--pgh:10px}
@@ -1053,7 +1053,7 @@ a.mv-row-btn{text-decoration:none; gap:10px} .mv-row-btn span{font-size:calc(20p
 .pcal .cal{gap:3px}
 .pc-stage{overflow:hidden}
 .pc-track{display:flex; align-items:flex-start; will-change:transform; transform:translate3d(-100%,0,0)}
-.pc-track > .cal{flex:0 0 100%; min-width:0}
+.pc-track > .cal{flex:0 0 100%; min-width:0; will-change:opacity}
 .pcal .cell{transition:transform .12s} .pcal .cell:active{transform:scale(.94)}
 .pcal .cell{aspect-ratio:1/1.48; gap:0; padding:1px 0; border:0; border-radius:9px}
 .pcal .cell.lv-calm{background:color-mix(in srgb, var(--calm) 7%, transparent)}
@@ -1078,8 +1078,7 @@ a.mv-row-btn{text-decoration:none; gap:10px} .mv-row-btn span{font-size:calc(20p
 .c-v.c-sky{height:calc(14px * var(--k)); gap:2px} .c-sky .c-w, .c-sky .c-w svg{width:calc(14px * var(--k)); height:calc(14px * var(--k))}
 .pcal .c-v.c-sky{height:calc(13px * var(--k))} .pcal .c-sky .c-w, .pcal .c-sky .c-w svg{width:calc(12.5px * var(--k)); height:calc(12.5px * var(--k))}
 .c-wv{flex:none; display:block; width:calc(14px * var(--k)); height:calc(11.4px * var(--k))}   /* 파도 표시 + 숫자를 한 덩어리로 칸 정가운데 */
-.c-wv svg{display:block; width:100%; height:100%} .c-wv .emo{display:block; font-size:calc(11px * var(--k)); line-height:calc(10px * var(--k)); text-align:center}
-.c-wv .ln{fill:none; stroke:currentColor; stroke-width:1.5; stroke-linecap:round; stroke-linejoin:round} .c-wv .fl{fill:currentColor}
+.c-wv svg{display:block; width:100%; height:100%}
 .pcal .c-wv{width:calc(12.5px * var(--k)); height:calc(10.2px * var(--k))}
 .c-v{display:flex; align-items:center; justify-content:center; gap:1.5px; height:13px; font-size:calc(10px * var(--k)); font-weight:700; line-height:13px; font-variant-numeric:tabular-nums; white-space:nowrap; color:var(--ink-2)}
 .c-v.w1{color:var(--mid)} .c-v.w2{color:var(--strong)}
@@ -2903,28 +2902,45 @@ const TideHarm = (() => {
     ps[1].style.opacity = (1 - .6 * k).toFixed(3); ps[inc].style.opacity = (.4 + .6 * k).toFixed(3); ps[oth].style.opacity = '.4';
   };
   const monthStep = (v, d) => d > 0 ? (v.m === 12 ? { y: v.y + 1, m: 1 } : { y: v.y, m: v.m + 1 }) : (v.m === 1 ? { y: v.y - 1, m: 12 } : { y: v.y, m: v.m - 1 });
+  // 판 폭은 미리 재 둔다 — 밀 때마다 폭을 다시 재면 매 프레임 화면 배치를 새로 계산해서 끊긴다 (사용자 2026-11-23: 넘길 때 프레임 떨어짐)
+  let calW = 0; const calWid = () => calW || (calW = calStage.clientWidth);
   function calPlace(dx, ms) {
+    const w = calWid();
     calTrack.style.transition = ms ? `transform ${ms}ms cubic-bezier(.25,.8,.25,1)` : 'none';
-    calTrack.style.transform = `translateX(${-calStage.clientWidth + dx}px)`;
-    pageFade(calTrack, dx, calStage.clientWidth, ms);
+    calTrack.style.transform = `translate3d(${(-w + dx).toFixed(1)}px,0,0)`;
+    pageFade(calTrack, dx, w, ms);
   }
   function calFit(el, ms) {
     calStage.style.transition = ms ? `height ${ms}ms cubic-bezier(.25,.8,.25,1)` : 'none';
     calStage.style.height = el.offsetHeight + 'px';
   }
-  function calFinish() { if (!calAnim) return; clearTimeout(calAnim); calAnim = null; renderCal(); }
+  // 넘기기가 끝나면 세 판을 다 새로 그리지 않고 판 순서만 돌린 뒤 새로 들어올 한 판만 그린다
+  function calFinish() {
+    if (!calAnim) return; clearTimeout(calAnim.t); const d = calAnim.dir; calAnim = null;
+    const pv = $('cal-prev'), cu = $('cal'), nx = $('cal-next');
+    const [np, nc, nn] = d > 0 ? [cu, nx, pv] : [nx, pv, cu], re = d > 0 ? nn : np;   // re: 반대쪽 끝으로 옮겨 새 달을 그릴 판
+    np.id = 'cal-prev'; nc.id = 'cal'; nn.id = 'cal-next';
+    for (const el of [np, nn]) { el.setAttribute('aria-hidden', 'true'); el.inert = true; }
+    nc.removeAttribute('aria-hidden'); nc.inert = false;
+    if (d > 0) calTrack.appendChild(re); else calTrack.insertBefore(re, calTrack.firstElementChild);
+    const q = monthStep(view, d); re.innerHTML = calHTML(q.y, q.m);
+    $('cal-title').textContent = `${view.y}년 ${view.m}월`;
+    calPlace(0, 0); calFit(nc, 0);
+    if (pcRepaint) pcRepaint();
+    renderWt();
+  }
   function calGo(dir) {
     calFinish();
     view = monthStep(view, dir);
     if (matchMedia('(prefers-reduced-motion: reduce)').matches) { renderCal(); return; }
     $('cal-title').textContent = `${view.y}년 ${view.m}월`;
-    calPlace(-dir * calStage.clientWidth, 190);
+    calPlace(-dir * calWid(), 190);
     calFit(dir > 0 ? $('cal-next') : $('cal-prev'), 190);
-    calAnim = setTimeout(calFinish, 195);
+    calAnim = { dir, t: setTimeout(calFinish, 195) };
   }
   addEventListener('jjugap-now', () => { try { wtKey = ''; renderCal(); updateTime(); } catch (_) {} });   // 특보가 들어오면 달력 신호·바다 날씨 문장 다시
   function renderCal() {
-    if (calAnim) { clearTimeout(calAnim); calAnim = null; }
+    if (calAnim) { clearTimeout(calAnim.t); calAnim = null; }
     $('cal-title').textContent = `${view.y}년 ${view.m}월`;
     const p = monthStep(view, -1), q = monthStep(view, 1);
     $('cal-prev').innerHTML = calHTML(p.y, p.m);
@@ -2942,20 +2958,9 @@ const TideHarm = (() => {
     rain: '<svg viewBox="0 0 16 16"><path d="M4.5 9.5h7a2.8 2.8 0 0 0 0-5.6a3.6 3.6 0 0 0-6.8 1a2.3 2.3 0 0 0-.2 4.6z" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M5.5 11.5l-.8 2.3M8.5 11.5l-.8 2.3M11.5 11.5l-.8 2.3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>',
     snow: '<svg viewBox="0 0 16 16"><path d="M4.5 9.5h7a2.8 2.8 0 0 0 0-5.6a3.6 3.6 0 0 0-6.8 1a2.3 2.3 0 0 0-.2 4.6z" fill="none" stroke="currentColor" stroke-width="1.4"/><circle cx="5.5" cy="12.6" r=".9" fill="currentColor"/><circle cx="8.5" cy="13.4" r=".9" fill="currentColor"/><circle cx="11.5" cy="12.6" r=".9" fill="currentColor"/></svg>'
   };
-  // 파고 표시 후보 (사용자 2026-11-23: 더 파고처럼) — 미리보기 주소 끝 ?wv=1·2·3 으로 비교
-  const WV_SET = {
-    1: '<svg viewBox="0 0 12 10" class="ln"><path d="M1 3.6c1.3-1.7 2.5-1.7 3.3 0s2.1 1.7 3.4 0 2.1-1.7 3.3 0M1 7.4c1.3-1.7 2.5-1.7 3.3 0s2.1 1.7 3.4 0 2.1-1.7 3.3 0"/></svg>',
-    2: '<svg viewBox="0 0 12 10" class="fl"><path d="M.6 9.4C1.4 5.6 3.8 1.6 7.6 1.6c2.2 0 3.8 1.4 3.8 3.1-1-.9-2.6-1-3.4.1-.9 1.3.2 2.6 1.6 2.7-1.8 1.4-5 2.1-9 1.9z"/></svg>',
-    4: '<svg viewBox="0 0 14 12" class="fl"><path transform="translate(0 1.3)" d="M.5 10.5C1.5 6 4.5 1.2 9 1.2c2.6 0 4.4 1.6 4.4 3.6-1.1-1-3-1.1-3.9.1-1 1.4.1 3 1.9 3.1-2.1 1.8-6.1 2.8-10.9 2.5z"/><circle cx="12.4" cy="1.3" r=".85"/><circle cx="10.2" cy=".9" r=".6"/></svg>',
-    5: '<svg viewBox="0 0 14 12" class="fl"><path transform="translate(1.2 0) scale(.86)" d="M.5 10.5C1.5 6 4.5 1.2 9 1.2c2.6 0 4.4 1.6 4.4 3.6-1.1-1-3-1.1-3.9.1-1 1.4.1 3 1.9 3.1-2.1 1.8-6.1 2.8-10.9 2.5z"/><path d="M.6 11.1c1.6-1.2 3.1-1.2 4.3 0s3.1 1.2 4.3 0 3.1-1.2 4.3 0" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>',
-    6: '<svg viewBox="0 0 14 12" class="fl"><path transform="translate(-.3 .4) scale(.74)" d="M.5 10.5C1.5 6 4.5 1.2 9 1.2c2.6 0 4.4 1.6 4.4 3.6-1.1-1-3-1.1-3.9.1-1 1.4.1 3 1.9 3.1-2.1 1.8-6.1 2.8-10.9 2.5z" opacity=".45"/><path transform="translate(3.6 2.6) scale(.74)" d="M.5 10.5C1.5 6 4.5 1.2 9 1.2c2.6 0 4.4 1.6 4.4 3.6-1.1-1-3-1.1-3.9.1-1 1.4.1 3 1.9 3.1-2.1 1.8-6.1 2.8-10.9 2.5z"/></svg>',
-    3: '<svg viewBox="0 0 12 10" class="ln"><path d="M6 6.2V1.2M4 3.1 6 1.1l2 2M1 8.6c1.3-1.5 2.5-1.5 3.3 0s2.1 1.5 3.4 0 2.1-1.5 3.3 0"/></svg>' };
-  WV_SET[7] = '<span class="emo">🌊</span>';
-  WV_SET[8] = '<svg viewBox="0 0 16 13"><path fill="url(#jjWvG)" d="M1.3 12.4C.2 8.8 1.4 4.2 4.8 2.1 7.9.2 11.9.5 13.6 2.4c.9 1 .6 2.4-.7 2.6-1 .2-1.9-.3-2.6-.7-1.4-.8-3.1-.3-3.7 1.1-.7 1.7.3 3.5 2 4.6 1.8 1.2 4.1 1.6 6.4 1.5-1.6 1.3-3.9 1.7-6.4 1.3-2.6-.4-5-.3-7.3.6z"/><path fill="#fff" d="M2.1 10.6C1.3 7.6 2.4 4.4 5.1 2.9c2.5-1.4 5.7-1.3 7.2.2.5.5.3 1.2-.4 1.2-.9 0-1.7-.5-2.7-.8-1.9-.5-4 .5-4.7 2.3-.4 1 .8 1.5 1.6.9.8-.6 1.9-.9 2.8-.6-1.7.4-3.1 1.7-3.6 3.3-.4 1-.4 1.9-1.2 1.2z"/></svg>';
-  WV_SET[9] = '<svg viewBox="0 0 16 13"><path fill="currentColor" d="M1.3 12.4C.2 8.8 1.4 4.2 4.8 2.1 7.9.2 11.9.5 13.6 2.4c.9 1 .6 2.4-.7 2.6-1 .2-1.9-.3-2.6-.7-1.4-.8-3.1-.3-3.7 1.1-.7 1.7.3 3.5 2 4.6 1.8 1.2 4.1 1.6 6.4 1.5-1.6 1.3-3.9 1.7-6.4 1.3-2.6-.4-5-.3-7.3.6z"/><path fill="#fff" d="M2.1 10.6C1.3 7.6 2.4 4.4 5.1 2.9c2.5-1.4 5.7-1.3 7.2.2.5.5.3 1.2-.4 1.2-.9 0-1.7-.5-2.7-.8-1.9-.5-4 .5-4.7 2.3-.4 1 .8 1.5 1.6.9.8-.6 1.9-.9 2.8-.6-1.7.4-3.1 1.7-3.6 3.3-.4 1-.4 1.9-1.2 1.2z"/></svg>';
-  WV_SET[10] = '<svg viewBox="0 0 32 26"><path fill="url(#jjWvG2)" stroke="#0F4F8C" stroke-width="1.3" stroke-linejoin="round" d="M2.2 24.6C.4 19.4 1 12.2 5.4 7.2 9.4 2.6 15.8.8 21.6 1.6c4 .6 7.4 2.8 8.2 5.6.6 2.2-.6 4-2.6 4.2-1.6.2-2.6-.8-3.4-1.6-1.4-1.3-3.4-1.6-5.2-.8-2.4 1.1-3.4 3.8-2.8 6.4.8 3.4 4 6 7.8 7.2 2 .6 4.2.8 6.4.6-2.6 1.8-6.4 2.4-10.2 2-3.8-.4-7.4-1.4-11.2-1-2.2.2-4.4.6-6.4 1.2z"/><path fill="#fff" d="M3.4 20.4C2.6 15.6 3.8 10.6 7.2 7.2 10.6 3.8 15.8 2.4 20.6 3c3.4.4 6.6 2 7.4 4 .4 1-.2 1.8-1.2 1.6-1.2-.2-2-1.2-3.2-1.8-1.8-.9-4-.9-5.8 0 1.2.2 2.2.8 2.6 1.6-1.6-.4-3.4-.2-4.8.8-1.6 1.1-2.4 3-2.4 4.8 1-.8 2.2-1.2 3.2-1-1.8.8-3.2 2.6-3.6 4.6-.2 1.2 0 2.4.4 3.4-1.6-.4-3-1.2-3.8-2.4.2 1.2.6 2.2 1.2 3-2.2-.6-4.2-1.8-5.2-3.2z"/></svg>';   // 직접 그린 파도: 흰 물거품이 말리는 파란 파도 (사용자 2026-11-23)
-  try { document.body.insertAdjacentHTML('beforeend', '<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><linearGradient id="jjWvG2" x1="0" y1="0" x2=".3" y2="1"><stop offset="0" stop-color="#5ED8F7"/><stop offset=".55" stop-color="#2A9BDC"/><stop offset="1" stop-color="#1663AE"/></linearGradient><linearGradient id="jjWvG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#4FD0F2"/><stop offset="1" stop-color="#1A73BD"/></linearGradient></defs></svg>'); } catch (_) {}
-  const WV_ICO = WV_SET[(() => { try { return new URLSearchParams(location.search).get('wv'); } catch (_) { return null; } })()] || WV_SET[10];
+  // 파고 표시: 직접 그린 파도 — 흰 물거품이 말리는 파란 파도 (사용자 2026-11-23)
+  const WV_ICO = '<svg viewBox="0 0 32 26"><path fill="url(#jjWvG2)" stroke="#0F4F8C" stroke-width="1.3" stroke-linejoin="round" d="M2.2 24.6C.4 19.4 1 12.2 5.4 7.2 9.4 2.6 15.8.8 21.6 1.6c4 .6 7.4 2.8 8.2 5.6.6 2.2-.6 4-2.6 4.2-1.6.2-2.6-.8-3.4-1.6-1.4-1.3-3.4-1.6-5.2-.8-2.4 1.1-3.4 3.8-2.8 6.4.8 3.4 4 6 7.8 7.2 2 .6 4.2.8 6.4.6-2.6 1.8-6.4 2.4-10.2 2-3.8-.4-7.4-1.4-11.2-1-2.2.2-4.4.6-6.4 1.2z"/><path fill="#fff" d="M3.4 20.4C2.6 15.6 3.8 10.6 7.2 7.2 10.6 3.8 15.8 2.4 20.6 3c3.4.4 6.6 2 7.4 4 .4 1-.2 1.8-1.2 1.6-1.2-.2-2-1.2-3.2-1.8-1.8-.9-4-.9-5.8 0 1.2.2 2.2.8 2.6 1.6-1.6-.4-3.4-.2-4.8.8-1.6 1.1-2.4 3-2.4 4.8 1-.8 2.2-1.2 3.2-1-1.8.8-3.2 2.6-3.6 4.6-.2 1.2 0 2.4.4 3.4-1.6-.4-3-1.2-3.8-2.4.2 1.2.6 2.2 1.2 3-2.2-.6-4.2-1.8-5.2-3.2z"/></svg>';
+  try { document.body.insertAdjacentHTML('beforeend', '<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><linearGradient id="jjWvG2" x1="0" y1="0" x2=".3" y2="1"><stop offset="0" stop-color="#5ED8F7"/><stop offset=".55" stop-color="#2A9BDC"/><stop offset="1" stop-color="#1663AE"/></linearGradient></defs></svg>'); } catch (_) {}
   const CW_NAME = { sun: '맑음', part: '구름많음', cloud: '흐림', rain: '비', snow: '눈' };
   const skyWord = w => !w ? '' : w.ap && w.ap.length === 2 && w.ap[0] !== w.ap[1] ? `오전 ${CW_NAME[w.ap[0]]} · 오후 ${CW_NAME[w.ap[1]]}` : CW_NAME[w.icon];
   function dayWx(n) {
@@ -3760,12 +3765,15 @@ const TideHarm = (() => {
       const rest = () => { clearTimeout(hideT); if (mapvEl.hidden) { de.classList.remove('mv-on', 'mv-hide'); return; } de.classList.add('mv-on'); hideT = setTimeout(() => { if (!mapvEl.hidden) de.classList.add('mv-hide'); }, 300); };
       new MutationObserver(rest).observe(mapvEl, { attributes: true, attributeFilter: ['hidden'] }); rest();
     }
-    let sceneRest = false;
+    let sceneRest = false, sceneOff = false;
+    // 물때 그림이 화면 밖으로 스크롤되어 안 보이면 쉰다 — 아래 달력을 넘길 때 프레임을 뺏지 않게 (사용자 2026-11-23)
+    try { new IntersectionObserver(es => { for (const e of es) { sceneOff = !e.isIntersecting; if (!sceneOff && sceneRest && running && (!mapvEl || mapvEl.hidden)) { sceneRest = false; last = performance.now(); requestAnimationFrame(frame); } } }).observe(cv); } catch (_) {}
     if (mapvEl) new MutationObserver(() => { if (mapvEl.hidden && sceneRest && running) { sceneRest = false; last = performance.now(); requestAnimationFrame(frame); } }).observe(mapvEl, { attributes: true, attributeFilter: ['hidden'] });
     function frame(now) {
       if (!running) return;
       // 바다 지도가 화면을 덮고 있으면 뒤의 물때 그림은 쉰다 (지도가 매끄럽게 움직이도록)
       if (mapvEl && !mapvEl.hidden) { last = now; sceneRest = true; return; }   // 지도를 닫으면 다시 (아래 지켜보기)
+      if (sceneOff) { last = now; sceneRest = true; return; }   // 다시 보이면 IntersectionObserver가 깨운다
       const dt = Math.min(0.05, (now - last) / 1000); last = now;
       sCur += (sTarget - sCur) * Math.min(1, dt * 2.5);
       lev += (levT - lev) * Math.min(1, dt * 9);
@@ -3841,11 +3849,11 @@ const TideHarm = (() => {
       const dt = e.timeStamp - g.lt;
       if (dt > 0) g.vx = (e.clientX - g.lx) / dt;
       g.lx = e.clientX; g.lt = e.timeStamp;
-      calPlace(dx, 0);
+      g.dx = dx; if (!g.raf) g.raf = requestAnimationFrame(() => { if (g) { g.raf = 0; calPlace(g.dx, 0); } });   // 손가락 움직임이 화면 새로고침보다 잦아도 한 프레임에 한 번만 옮긴다
     });
     calStage.addEventListener('pointerup', e => {
       if (!g || e.pointerId !== g.id) return;
-      const dx = e.clientX - g.x0, { mode, vx } = g; g = null;
+      const dx = e.clientX - g.x0, { mode, vx } = g; if (g.raf) cancelAnimationFrame(g.raf); g = null;
       if (mode !== 'drag') {
         // 거의 안 움직이고 뗐으면 브라우저의 click을 기다리지 않고 바로 그 날짜를 고른다
         // (밀어서 달을 넘긴 직후에는 폰 브라우저가 다음 한 번의 click을 삼키는 경우가 있다)
@@ -3854,13 +3862,13 @@ const TideHarm = (() => {
         return;
       }
       const flick = Math.abs(vx) > 0.35 && Math.abs(dx) > 16;
-      if (Math.abs(dx) > calStage.clientWidth * 0.2 || flick) calGo(dx < 0 ? 1 : -1); else calPlace(0, 160);
+      if (Math.abs(dx) > calWid() * 0.2 || flick) calGo(dx < 0 ? 1 : -1); else calPlace(0, 160);
     });
-    calStage.addEventListener('pointercancel', () => { if (g && g.mode === 'drag') calPlace(0, 160); g = null; });
+    calStage.addEventListener('pointercancel', () => { if (g && g.raf) cancelAnimationFrame(g.raf); if (g && g.mode === 'drag') calPlace(0, 160); g = null; });
     // 밀다가 손을 뗀 자리의 날짜가 눌리지 않게
     calStage.addEventListener('click', e => { if (dragged) { e.stopPropagation(); e.preventDefault(); dragged = false; } }, true);
     // 달력이 가려졌다 다시 보이거나 화면 폭이 바뀌면 가운데 판에 다시 맞춘다
-    new ResizeObserver(() => { if (!calAnim) { calPlace(0, 0); calFit($('cal'), 0); } }).observe(calStage);
+    new ResizeObserver(() => { calW = 0; if (!calAnim) { calPlace(0, 0); calFit($('cal'), 0); } }).observe(calStage);
   }
 
   // 달력을 원하는 연·월로 옮기고 살짝 떠오르듯 바꿔 보여준다
@@ -11671,7 +11679,7 @@ const TideHarm = (() => {
 
 <script>
 if ('serviceWorker' in navigator) addEventListener('load', () => {
-  const sw = navigator.serviceWorker, VER = '733c0458'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
+  const sw = navigator.serviceWorker, VER = 'c9a8427a'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
   // 화면에 손을 대기 시작했는지 (쓰는 중에는 새로 열지 않으려고)
   ['pointerdown', 'keydown'].forEach(t => addEventListener(t, () => { touched = true; }, { capture: true, passive: true }));
   const reload = () => {
