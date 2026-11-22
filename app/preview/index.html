@@ -1064,8 +1064,8 @@ a.mv-row-btn{text-decoration:none; gap:10px} .mv-row-btn span{font-size:calc(20p
 .pcal .c-v{height:11px; font-size:calc(8.5px * var(--k)); font-weight:600; line-height:11px}
 .pcal .c-w, .pcal .c-w svg{width:9px; height:9px}
 .pcal .cell.is-today .c-n{text-decoration-thickness:1.5px; text-underline-offset:2.5px}
-.pcal .cell.wx-bad{box-shadow:none}
-.pcal .cell.is-sel, .pcal .cell.is-sel.wx-bad{box-shadow:inset 0 0 0 1.5px var(--ink)}
+.pcal .cell.wx-bad{box-shadow:inset 0 0 0 2px var(--strong)}   /* 위 날짜 고르기 달력에도 출조 어려움 빨간 테두리 (사용자 2026-11-23) */
+.pcal .cell.is-sel{box-shadow:inset 0 0 0 1.5px var(--ink)} .pcal .cell.is-sel.wx-bad{box-shadow:inset 0 0 0 1.5px var(--ink), inset 0 0 0 3.5px var(--strong)}
 .pc-foot{display:flex; justify-content:center; align-items:center; gap:10px; margin-top:8px; font-size:calc(10.5px * var(--k)); color:var(--ink-2); white-space:nowrap; font-weight:500}
 .pc-foot i{display:inline-block; width:6px; height:6px; margin-right:4px; border-radius:50%; vertical-align:1px}
 .pc-foot .pc-sep{padding-left:10px; border-left:1px solid var(--line)}
@@ -1079,7 +1079,7 @@ a.mv-row-btn{text-decoration:none; gap:10px} .mv-row-btn span{font-size:calc(20p
 .c-v.w1{color:var(--mid)} .c-v.w2{color:var(--strong)}
 .c-v.c-air{color:var(--ink-2)} .c-v.c-air.f1{color:var(--ink)} .c-v.c-air.f2{color:#3A8DDE} .c-v.c-air.f3{color:#7A5CFA; font-weight:800}   /* 기온 5° 이하 · 0° 이하 · -5° 이하 */
 .cal-mode{display:flex; justify-content:flex-end; gap:2px; margin:-2px 2px 6px} .cal-mode button{height:26px; padding:0 11px; border:1px solid var(--line); background:transparent; color:var(--ink-2); font:inherit; font-size:calc(12px * var(--k)); font-weight:700; cursor:pointer} .cal-mode button:first-child{border-radius:999px 0 0 999px} .cal-mode button:last-child{border-radius:0 999px 999px 0; margin-left:-1px} .cal-mode button[aria-pressed="true"]{background:var(--ink); color:var(--card); border-color:var(--ink)} .cal-mode button{-webkit-tap-highlight-color:transparent} .cal-mode button:focus, .cal-mode button:focus-visible{outline:none}   /* 누를 때 둘레 사각형 없게 (사용자 2026-11-23) */
-.cell.wx-bad{box-shadow:inset 0 0 0 1.5px color-mix(in srgb, var(--strong) 55%, transparent)}
+.cell.wx-bad{box-shadow:inset 0 0 0 2.5px var(--strong)}   /* 출조 어려움: 또렷한 빨간 테두리 (전엔 흐려서 안 보였음) · 고른 날은 바깥 흰 테두리 + 안쪽 빨강 */
 
 /* 색 읽는 법 */
 /* 색 읽는 법: 세 색은 한 줄 카드 세 칸, 파도·그림 설명은 한 줄씩 */
@@ -11652,7 +11652,7 @@ const TideHarm = (() => {
 
 <script>
 if ('serviceWorker' in navigator) addEventListener('load', () => {
-  const sw = navigator.serviceWorker, VER = 'ae63cf20'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
+  const sw = navigator.serviceWorker, VER = 'd6327abe'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
   // 화면에 손을 대기 시작했는지 (쓰는 중에는 새로 열지 않으려고)
   ['pointerdown', 'keydown'].forEach(t => addEventListener(t, () => { touched = true; }, { capture: true, passive: true }));
   const reload = () => {
