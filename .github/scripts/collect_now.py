@@ -6,6 +6,9 @@
 - 비 기록: 시간마다 1시간 강수량을 격자별로 쌓아 최근 7일 (rr: 비 온 시간만 · rh: 받은 시간 목록 · rd: 날짜별 합계 mm · rdh: 날짜별 받은 시간 수)
   · 바다 격자에서 '자료 없음'(-998.9)이면 같은 시각 가장 가까운(40km 안) 값 있는 격자로 메움
   · 자동 실행이 늦거나 빠져 빈 시간은 다음 실행 때 지난 6시간 안에서 다시 받아 메움
+- 기상특보 현황(기상청_기상특보 조회서비스 getPwnStatus): 지금 발효 중인 특보(t6)와 예비특보(t7) 글을 그대로 받아 wrn 에 넣는다
+  · 앱이 출항지의 특보 구역(예: 전북북부앞바다)을 글에서 찾아 '출항 어려움' 신호와 배 위 알림 띠에 쓴다
+  · 활용신청 전이거나 서버 오류면 지난 값(6시간 안)을 두고 지나감 — 다른 자료는 그대로 만든다
 격자는 단기예보와 같은 동네예보 격자. 앱이 이미 쓰는 예보 지점의 격자(data/wx/*.json 과 weather.json 의 grid)만 받는다.
 인증키는 GitHub 비밀 저장소(DATA_GO_KR_KEY)에서만 읽고, 로그나 파일에는 남기지 않는다.
 출처: 기상청 (공공데이터포털 · 공공누리 1유형)
@@ -19,6 +22,7 @@ from collect import KST, get_json, unwrap, log, note   # 같은 호출·키 처�
 
 NCST_URL = 'https://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getUltraSrtNcst'
 UFCST_URL = 'https://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getUltraSrtFcst'
+WRN_URL = 'https://apis.data.go.kr/1360000/WthrWrnInfoService/getPwnStatus'
 SITE = sys.argv[1] if len(sys.argv) > 1 and not sys.argv[1].startswith('--') else 'site'
 SKY = {'1': 1, '3': 3, '4': 4}
 KEEP_DAYS = 7
@@ -86,6 +90,30 @@ def fill_near(vals, gs):
             if (n[0] - g[0]) ** 2 + (n[1] - g[1]) ** 2 <= 8 ** 2:
                 out[g] = vals[n]
     return out
+
+
+def warnings(prev, now):
+    """기상특보 현황: {'at': 받은 시각, 'tm': 발표시각, 'on': 발효 중 글(t6), 'pre': 예비특보 글(t7)}. 못 받으면 지난 값(6시간 안) 또는 None"""
+    try:
+        raw = get_json(WRN_URL, {'pageNo': 1, 'numOfRows': 10, 'dataType': 'JSON'}, tries=2, timeout=15)
+        c, msg, items = unwrap(raw)
+        if c not in ('00', '') or not items:
+            raise RuntimeError(f'결과코드 {c} {msg}')
+        it = sorted(items, key=lambda x: str(x.get('tmFc', '')))[-1]
+        clean = lambda t: '\n'.join(l.rstrip() for l in str(t or '').replace('\r', '').split('\n')).strip()[:3000]
+        w = {'at': now.isoformat(timespec='minutes'), 'tm': str(it.get('tmFc', '')), 'on': clean(it.get('t6')), 'pre': clean(it.get('t7'))}
+        note(f'기상특보: {w["tm"]} 발표 · 발효 {len(w["on"])}자 · 예비 {len(w["pre"])}자')
+        log('기상특보 항목:', sorted(it.keys()))   # 항목 이름 확인용
+        return w
+    except Exception as e:
+        note(f'기상특보 못 받음: {str(e)[-160:]} (활용신청 전이면 정상)', 'warning')
+        pw = prev.get('wrn')
+        try:
+            if pw and now - datetime.fromisoformat(pw['at']) < timedelta(hours=6):
+                return pw
+        except Exception:
+            pass
+        return None
 
 
 def main():
@@ -178,6 +206,9 @@ def main():
         if e:
             out['g'][gk] = e
     note(f'지금 날씨: 실황 {ok_n}/{len(gs)}곳, 초단기예보 {ok_f}/{len(gs)}곳, 비 기록 {len(rh)}시간(최근 {KEEP_DAYS}일), 비 온 격자 {len(rr)}곳')
+    wrn = warnings(prev, now)
+    if wrn:
+        out['wrn'] = wrn
     if not out['g']:
         sys.exit('하나도 받지 못했어요')
     with open(p, 'w') as fp:
