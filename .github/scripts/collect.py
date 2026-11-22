@@ -59,6 +59,9 @@ def ok_temp(w):
 KMA_URL = 'https://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getVilageFcst'
 OBS_URL = 'https://apis.data.go.kr/1192136/dtRecent/GetDTRecentApiService'
 MID_URL = 'https://apis.data.go.kr/1360000/MidFcstInfoService/getMidSeaFcst'
+MIDTA_URL = 'https://apis.data.go.kr/1360000/MidFcstInfoService/getMidTa'
+# 중기 기온예보 구역(아침 최저·낮 최고, 4~10일 뒤): 출항지·포인트에서 가장 가까운 도시 (80km 안) · 사용자 2026-11-23 먼 날짜 체감
+TA_REGS = [('11A00101', '백령도', 37.97, 124.63), ('11B20201', '인천', 37.47, 126.62), ('11C20101', '서산', 36.77, 126.49), ('21F10501', '군산', 36.00, 126.76)]
 ROMS_URL = 'https://apis.data.go.kr/1192136/roms/GetRomsApiService'   # 해양조사원 ROMS 수치예측모델 (약 3km 격자, 1시간 간격, 약 7일)
 ROMS_EVERY_H = 8   # ROMS 는 하루 한 번 새로 계산되므로 이 시간마다만 다시 받는다   # 중기 해상예보 (3~10일 뒤 날씨·파고)
 
@@ -274,6 +277,45 @@ def fetch_mid(reg, now):
     return {'tmFc': tm, 'days': dict(sorted(days.items()))}
 
 
+def ta_reg(lat, lon):
+    best = None
+    for code, name, la, lo in TA_REGS:
+        d = math.hypot((lat - la) * 111, (lon - lo) * 111 * math.cos(math.radians(la)))
+        if d < 80 and (best is None or d < best[0]):
+            best = (d, code)
+    return best and best[1]
+
+
+def fetch_midta(reg, now):
+    """{'tmFc', 'days': {YYYYMMDD: [아침 최저, 낮 최고]}}"""
+    tm = mid_tmfc(now)
+    for _ in range(2):
+        try:
+            raw = get_json(MIDTA_URL, {'pageNo': 1, 'numOfRows': 10, 'dataType': 'JSON', 'regId': reg, 'tmFc': tm})
+        except RuntimeError as e:
+            note(f'중기 기온 {reg}: {str(e)[-120:]}', 'warning'); return None
+        c, msg, items = unwrap(raw)
+        if items:
+            break
+        note(f'중기 기온 {reg} {tm}: {c} {msg}', 'warning')
+        tm = (datetime.strptime(tm, '%Y%m%d%H%M') - timedelta(hours=12)).strftime('%Y%m%d%H%M')
+    else:
+        return None
+    base = datetime.strptime(tm[:8], '%Y%m%d')
+    days = {}
+    for k, v in items[0].items():
+        m = re.match(r'^ta(Min|Max)(\d+)$', k)
+        if not m:
+            continue
+        try:
+            val = round(float(v))
+        except (TypeError, ValueError):
+            continue
+        key = (base + timedelta(days=int(m.group(2)))).strftime('%Y%m%d')
+        days.setdefault(key, [None, None])[0 if m.group(1) == 'Min' else 1] = val
+    return {'tmFc': tm, 'days': dict(sorted(days.items()))}
+
+
 def rain_days(fc, prev, now):
     """날마다 낮(6~18시)에 비가 있었는지 (1/0): 예보 칸이 남아 있으면 그 값, 칸이 없어진 지난날은 예전 기록 그대로 · 지난 8일 (앱의 '전날 비')"""
     days = {}
@@ -359,6 +401,15 @@ def main():
         elif (prev.get('mid') or {}).get(reg):
             mids[reg] = prev['mid'][reg]   # 못 받으면 지난 것 유지
     out['mid'] = mids
+    mtas = {}
+    for code, name, la, lo in TA_REGS:
+        m = fetch_midta(code, now)
+        if m and m['days']:
+            mtas[code] = m
+            note(f'중기 기온 {name}({code}): {m["tmFc"]} 발표, {len(m["days"])}일')
+        elif (prev.get('mta') or {}).get(code):
+            mtas[code] = prev['mta'][code]
+    out['mta'] = mtas
     def make_station(key, cfg, pst):
         nonlocal ok_f, ok_o
         st = {'fc': {}}
@@ -422,6 +473,11 @@ def main():
             wt.append(f'{key} 없음')
         st['rain'] = rain_days(st.get('fc'), pst.get('rain'), now)
         st['mid'] = cfg['mid']
+        pos = cfg.get('pos') or (cfg.get('sea') or [None])[0]
+        if pos:
+            ta = ta_reg(pos[0], pos[1])
+            if ta:
+                st['ta'] = ta
         return st
     # 앞바다 예보 격자는 미리 한꺼번에 (여러 곳이 같은 격자를 쓴다)
     allsea = [g for cfg in STATIONS.values() for g in cfg['sea']] + [tuple(g) for p in WX_POINTS.values() for g in p['sea']]
