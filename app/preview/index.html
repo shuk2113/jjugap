@@ -1074,6 +1074,8 @@ a.mv-row-btn{text-decoration:none; gap:10px} .mv-row-btn span{font-size:calc(20p
 .c-w.sun{color:#E9A92E} .c-w.rain{color:var(--hi)}
 .c-v{display:flex; align-items:center; justify-content:center; gap:1.5px; height:12px; font-size:calc(9px * var(--k)); font-weight:700; line-height:12px; font-variant-numeric:tabular-nums; white-space:nowrap; color:var(--ink-2)}
 .c-v.w1{color:var(--mid)} .c-v.w2{color:var(--strong)}
+.c-v.c-air{color:var(--ink-2)} .c-v.c-air.f1{color:var(--ink)} .c-v.c-air.f2{color:#3A8DDE} .c-v.c-air.f3{color:#7A5CFA; font-weight:800}   /* 체감 5° 이하 · 0° 이하 · -5° 이하 */
+.cal-mode{display:flex; justify-content:flex-end; gap:2px; margin:-2px 2px 6px} .cal-mode button{height:26px; padding:0 11px; border:1px solid var(--line); background:transparent; color:var(--ink-2); font:inherit; font-size:calc(12px * var(--k)); font-weight:700; cursor:pointer} .cal-mode button:first-child{border-radius:999px 0 0 999px} .cal-mode button:last-child{border-radius:0 999px 999px 0; margin-left:-1px} .cal-mode button[aria-pressed="true"]{background:var(--ink); color:var(--card); border-color:var(--ink)}
 .cell.wx-bad{box-shadow:inset 0 0 0 1.5px color-mix(in srgb, var(--strong) 55%, transparent)}
 
 /* 색 읽는 법 */
@@ -1428,6 +1430,7 @@ window.jjFunFont = function () { if (document.getElementById('fun-font')) return
       <h2 class="cal-h"><button id="cal-pick" class="cal-title-btn" aria-expanded="false" aria-label="연도와 월 고르기"><span id="cal-title">2026년 10월</span><i class="chev" aria-hidden="true"></i></button></h2>
       <button id="next-month" class="small-btn" aria-label="다음 달">›</button>
     </div>
+    <div class="cal-mode" role="group" aria-label="달력 칸에 보일 것"><button type="button" data-cm="sea">바다</button><button type="button" data-cm="air">기온</button></div>
     <div class="cal-week" aria-hidden="true"><span>일</span><span>월</span><span>화</span><span>수</span><span>목</span><span>금</span><span>토</span></div>
     <div class="cal-stage" id="cal-stage"><div class="cal-track" id="cal-track"><div class="cal" id="cal-prev" aria-hidden="true" inert></div><div class="cal" id="cal"></div><div class="cal" id="cal-next" aria-hidden="true" inert></div></div></div>
     <p class="cal-note"><i class="c-rec-k" aria-hidden="true"></i><span>파란 점은 내 기록이 있는 날 · 누르면 지도로 봐요</span></p>
@@ -2594,7 +2597,8 @@ const TideHarm = (() => {
       const wr = wrnFor(sel), dl = Math.max(windLv(mw), waveLv(mv), wr ? wr.lv : -1);
       const why = wr && wr.lv === 2 ? `${wr.txt}. ` : windLv(mw) === 2 || waveLv(mv) === 2 ? '출항 제한 기준(풍속 12m/s·파고 2m)에 닿아요. ' : '';
       const dayWord = dl === 2 ? `${why}출항이 어려울 수 있으니 선장님 공지를 꼭 확인하세요.` : dl === 1 ? `${wr && wr.lv === 1 ? wr.txt + '. ' : ''}바람·파도가 다소 있어 거칠 수 있어요. 멀미약을 챙기세요.` : '바람·파도가 잔잔한 편이에요.';
-      line = mw == null ? `바다 날씨: ${dayWord}` : `바다 날씨: 낮(6~18시) 최대 바람 ${mw}m/s${mv == null ? '' : ` · 파도 ${mv.toFixed(1)}m`}. ${dayWord}`;
+      const fl = dayFeel(sel), flT = fl ? ` · 가장 추울 때 체감 ${Math.round(fl.v)}°C(${fl.h < 12 ? '오전' : '오후'} ${fl.h % 12 || 12}시)` : '';
+      line = mw == null ? `바다 날씨: ${dayWord}` : `바다 날씨: 낮(6~18시) 최대 바람 ${mw}m/s${mv == null ? '' : ` · 파도 ${mv.toFixed(1)}m`}${flT}. ${dayWord}`;
     }
     $('adv-wx').textContent = line;
   }
@@ -2947,6 +2951,19 @@ const TideHarm = (() => {
     const icon = /비|소나기/.test(wfs) ? 'rain' : /눈/.test(wfs) ? 'snow' : /흐/.test(wfs) ? 'cloud' : /구름/.test(wfs) ? 'part' : 'sun';
     const wr = wrnFor(n); return { src: 'mid', icon, wind: null, wave, lv: Math.max(waveLv(wave), wr ? wr.lv : -1), wrn: wr };
   }
+  // 배 위 체감온도: 기상청 단기예보 기온(TMP)과 바람으로 기상청 겨울철 체감온도식 (기온 10°C 이하·바람 초속 1.3m 이상일 때, 그 밖엔 기온 그대로)
+  // 하루 값 = 출조 시간(새벽 5시~오후 4시) 중 가장 낮은 체감과 그 시각 (사용자 2026-11-23: 옷차림은 각자, 체감온도만)
+  const feelOf = (t, w) => { if (t == null) return null; const v = (w || 0) * 3.6; if (t > 10 || v < 4.8) return t; const p = Math.pow(v, 0.16); return 13.12 + 0.6215 * t - 11.37 * p + 0.3965 * t * p; };
+  function dayFeel(n) {
+    const st = typeof WX !== 'undefined' && WX && WX.stations && WX.stations[wxOf(tideSt)]; if (!st || !st.fc) return null;
+    const key = wxYmd(n); let best = null;
+    for (let h = 5; h <= 16; h++) { const q = st.fc[key + String(h).padStart(2, '0')]; if (!q || q[6] == null) continue; const f = feelOf(q[6], q[0]); if (f != null && (!best || f < best.v)) best = { v: f, h, t: q[6] }; }
+    return best;
+  }
+  let calMode = 'sea'; try { if (localStorage.getItem('jjukgap-calmode') === 'air') calMode = 'air'; } catch (_) {}
+  const cmPaint = () => document.querySelectorAll('.cal-mode button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.cm === calMode)));
+  document.querySelectorAll('.cal-mode button').forEach(b => b.addEventListener('click', () => { calMode = b.dataset.cm; try { localStorage.setItem('jjukgap-calmode', calMode); } catch (_) {} cmPaint(); renderCal(); }));
+  cmPaint();
   function calHTML(y, m) {
     const first = dnOf(y, m, 1);
     const len = dnOf(y, m + 1, 1) - first;
@@ -2961,10 +2978,12 @@ const TideHarm = (() => {
       const rc = recDays().get(n) || 0;
       const wd = n >= today ? dayWx(n) : null, w = wd && wd.lv >= 0 ? wd : null;
       if (w && w.lv === 2) cls.push('wx-bad');
-      const wtxt = w ? (w.wave != null ? `${w.wave.toFixed(1)}m` : CW_NAME[w.icon]) : '';
-      html += `<button class="${cls.join(' ')}" data-dn="${n}" aria-label="${v.m}월 ${v.d}일 ${dd.name}, ${LV[dd.lv].chip}${w ? `, ${CW_NAME[w.icon]}${w.wind != null ? `, 바람 초속 ${w.wind}미터` : ''}${w.wave != null ? `, 파도 ${w.wave.toFixed(1)}미터` : ''}` : ''}${rc ? `, 내 기록 ${rc}곳` : ''}">`
+      const fl = calMode === 'air' && n >= today ? dayFeel(n) : null;
+      const wtxt = calMode === 'air' ? (fl ? `${Math.round(fl.v)}°` : '') : w ? (w.wave != null ? `${w.wave.toFixed(1)}m` : CW_NAME[w.icon]) : '';
+      html += `<button class="${cls.join(' ')}" data-dn="${n}" aria-label="${v.m}월 ${v.d}일 ${dd.name}, ${LV[dd.lv].chip}${fl ? `, 가장 추울 때 체감 ${Math.round(fl.v)}도` : ''}${w ? `, ${CW_NAME[w.icon]}${w.wind != null ? `, 바람 초속 ${w.wind}미터` : ''}${w.wave != null ? `, 파도 ${w.wave.toFixed(1)}미터` : ''}` : ''}${rc ? `, 내 기록 ${rc}곳` : ''}">`
         + (rc ? '<i class="c-rec" aria-hidden="true"></i>' : '') + `<span class="c-n">${v.d}</span><span class="c-m">${dd.name}</span>`
-        + `<span class="c-v${w && w.lv > 0 ? ' w' + w.lv : ''}">${w ? `<i class="c-w ${w.icon}" aria-hidden="true">${CW_ICO[w.icon]}</i>` : ''}${wtxt}</span></button>`;
+        + (calMode === 'air' ? `<span class="c-v c-air${fl ? (fl.v <= -5 ? ' f3' : fl.v <= 0 ? ' f2' : fl.v <= 5 ? ' f1' : '') : ''}">${w ? `<i class="c-w ${w.icon}" aria-hidden="true">${CW_ICO[w.icon]}</i>` : ''}${wtxt}</span></button>`
+          : `<span class="c-v${w && w.lv > 0 ? ' w' + w.lv : ''}">${w ? `<i class="c-w ${w.icon}" aria-hidden="true">${CW_ICO[w.icon]}</i>` : ''}${wtxt}</span></button>`);
     }
     return html;
   }
@@ -11623,7 +11642,7 @@ const TideHarm = (() => {
 
 <script>
 if ('serviceWorker' in navigator) addEventListener('load', () => {
-  const sw = navigator.serviceWorker, VER = 'd0bebe17'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
+  const sw = navigator.serviceWorker, VER = '42c8fb23'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
   // 화면에 손을 대기 시작했는지 (쓰는 중에는 새로 열지 않으려고)
   ['pointerdown', 'keydown'].forEach(t => addEventListener(t, () => { touched = true; }, { capture: true, passive: true }));
   const reload = () => {
