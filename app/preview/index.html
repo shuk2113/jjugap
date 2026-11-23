@@ -4621,19 +4621,19 @@ const TideHarm = (() => {
         labC = null; depCache.clear(); draw();
       }).catch(() => { mapPortsP = null; });
     }
-    let bv = null, BM = 0, interacting = false, bufs = {};   // 바탕을 그린 때의 화면 · 바깥 여유(점) · 손가락으로 움직이는 중
+    let bv = null, BM = 0, interacting = false, bufs = {}, gestFn = null;   // 바탕을 그린 때의 화면 · 바깥 여유(점) · 손가락으로 움직이는 중
     // 지금 화면에서 본 바탕 그림의 배율·위치
     const baseXf = () => { const k = v.s / bv.s; return { k, tx: W / 2 * (1 - k) + (bv.lon - v.lon) * KX * v.s, ty: H / 2 * (1 - k) - (bv.lat - v.lat) * v.s }; };
     function renderBase(C, font) {
       const okey = [W, H, dpr, C.sea, C.land, C.shallow, landState, mapSty, mapSet.dp].join('|');
       // 손으로 움직이는 중에 새로 그릴 때는 낮은 해상도로 빠르게 (이름표는 따로 또렷하게 그리니 흐려 보이지 않는다). 손을 떼면 또렷하게 다시
-      const R = interacting ? Math.min(dpr, 1.25) : dpr;
+      const R = interacting ? 1 : dpr;   // 움직이는 중 새로 그릴 땐 1배 (그리는 양이 1.25배보다 36% 적어 멈칫이 짧음 · 사용자 2026-11-23)
       const key = [v.lon, v.lat, v.s, okey, R].join('|');
       if (key === bkey && bcv) return;
       if (interacting && bcv && bv && bv.okey === okey) {
         const { k, tx, ty } = baseXf();
         // 그려 둔 그림이 화면을 다 덮고 배율 차이가 크지 않으면 그대로 옮겨 쓴다
-        if (k > 0.55 && k < 1.9 && tx - k * BM <= 0.5 && ty - k * BM <= 0.5 && tx + k * (W + BM) >= W - 0.5 && ty + k * (H + BM) >= H - 0.5) return;
+        if (k > 0.5 && k < 2.0 && tx - k * BM <= 0.5 && ty - k * BM <= 0.5 && tx + k * (W + BM) >= W - 0.5 && ty + k * (H + BM) >= H - 0.5) return;
       }
       bkey = key; BM = Math.round(Math.max(W, H) * 0.2); bv = { lon: v.lon, lat: v.lat, s: v.s, okey, r: R };
       bcv = bufs[R] || (bufs[R] = document.createElement('canvas'));   // 해상도마다 그림판을 따로 두어 크기를 바꾸느라 느려지지 않게
@@ -4871,7 +4871,7 @@ const TideHarm = (() => {
       if (curL == null || Math.abs(raw - curL) > 0.72) curL = Math.round(raw);
       const set = levelSet(curL, font);
       // 이웃 단계도 한가할 때 미리 계산해 두어 확대·축소 순간에 멈칫하지 않게
-      if (!preIdle && window.requestIdleCallback) preIdle = requestIdleCallback(() => { preIdle = 0; for (const d of [1, -1, 2, -2]) if (!levelSets.has(curL + d)) { levelSet(curL + d, font); break; } });
+      if (!preIdle && window.requestIdleCallback) preIdle = requestIdleCallback(dl => { preIdle = 0; for (const d of [1, -1, 2, -2, 3, -3]) if (!levelSets.has(curL + d)) { levelSet(curL + d, font); if (dl.timeRemaining() < 8) break; } });   // 한가한 틈에 이웃 단계를 되는 만큼 (확대·축소 중 처음 들어가는 단계에서 멈칫하지 않게)
       if (set !== lastSet) {
         const first = !shownL.size;
         for (const id of set) { const e = shownL.get(id); if (e) e.on = true; else shownL.set(id, { c: byId.get(id), a: first ? 1 : 0, on: true }); }
@@ -5274,6 +5274,7 @@ const TideHarm = (() => {
     function drawNow() {
       { const ab = document.getElementById('mv-area'); if (ab && !ab.hidden && mode !== 'info') ab.hidden = true; const pb = document.getElementById('mv-plan'); if (pb && !pb.hidden && mode !== 'info') pb.hidden = true; }   // 판이 정보 말고 다른 걸 보여 주면 한 줄은 숨김
       if (!isOpen || !W) return;
+      if (gestFn) { const f = gestFn; gestFn = null; f(); }
       fxItems = []; let dpShown = false;
       const C = mapColors(), font = fontC || (fontC = getComputedStyle(document.body).fontFamily);
       renderBase(C, font);
@@ -5314,7 +5315,7 @@ const TideHarm = (() => {
       for (const b of pbs) { b.off = keptB.some(o => b.bx < o.bx + o.w + 3 && b.bx + b.w + 3 > o.bx && b.by < o.by + o.h + 2 && b.by + b.h + 2 > o.by); if (!b.off) keptB.push(b); }
       for (const b of pbs) {
         if (!b.off) {
-          ctx.save(); ctx.shadowColor = 'rgba(0,0,0,.18)'; ctx.shadowBlur = 4; ctx.shadowOffsetY = 1;
+          ctx.save(); if (!interacting) { ctx.shadowColor = 'rgba(0,0,0,.18)'; ctx.shadowBlur = 4; ctx.shadowOffsetY = 1; }
           ctx.fillStyle = C.card; ctx.beginPath(); ctx.roundRect ? ctx.roundRect(b.bx, b.by, b.w, b.h, 10) : ctx.rect(b.bx, b.by, b.w, b.h); ctx.fill(); ctx.restore();
           ctx.fillStyle = C.ink; ctx.font = `700 11.5px ${font}`; ctx.textBaseline = 'middle'; ctx.fillText(b.t, b.bx + 8, b.by + b.h / 2 + 0.5); ctx.textBaseline = 'alphabetic';
         }
@@ -11318,7 +11319,7 @@ const TideHarm = (() => {
       mode = mode === 'save' ? 'save' : 'info'; selId = null; paintPanel(true); kick(); draw();
     };
     // ---------- 손가락: 끌기 · 두 손가락 확대 · 두 번 톡 확대 · 길게 눌러 가상 위치 · 포인트 누르기
-    const ptrs = new Map(); let g = null, lastTap = 0, lastTapX = 0, lastTapY = 0, pressT = 0;
+    const ptrs = new Map(); let sharpT = 0, g = null, lastTap = 0, lastTapX = 0, lastTapY = 0, pressT = 0;
     const pinchInfo = () => { const [a, b] = [...ptrs.values()]; return { d: Math.hypot(a.x - b.x, a.y - b.y), x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 }; };
     cv.addEventListener('pointerdown', e => {
       cv.setPointerCapture(e.pointerId); const r = cv.getBoundingClientRect(), x = e.clientX - r.left, y = e.clientY - r.top;
@@ -11338,10 +11339,11 @@ const TideHarm = (() => {
     cv.addEventListener('pointermove', e => {
       if (!ptrs.has(e.pointerId) || !g) return; const r = cv.getBoundingClientRect(); ptrs.set(e.pointerId, { x: e.clientX - r.left, y: e.clientY - r.top });
       if (g.pinch && ptrs.size === 2) {
-        const pi = pinchInfo(); v.s = clampS(g.pinch.s * pi.d / Math.max(10, g.pinch.d));
-        // 손가락 가운데 아래의 지점이 그대로 손가락 가운데에 오도록
-        v.lon = g.pinch.c.lon - (pi.x - W / 2) / (KX * v.s); v.lat = g.pinch.c.lat + (pi.y - H / 2) / v.s;
-        follow = false; $('mv-me').classList.remove('on'); interacting = true; draw(); return;
+        // 두 손가락 움직임은 손가락마다 따로 들어와서, 한쪽만 옮겨진 어중간한 때로 그리면 지도가 떨린다 → 그리기 직전에 두 손가락 최신 자리로 한 번만 (사용자 2026-11-23)
+        const gp = g.pinch; gestFn = () => { if (ptrs.size !== 2) return; const pi = pinchInfo(); v.s = clampS(gp.s * pi.d / Math.max(10, gp.d));
+          // 손가락 가운데 아래의 지점이 그대로 손가락 가운데에 오도록
+          v.lon = gp.c.lon - (pi.x - W / 2) / (KX * v.s); v.lat = gp.c.lat + (pi.y - H / 2) / v.s; };
+        if (follow) { follow = false; $('mv-me').classList.remove('on'); } interacting = true; draw(); return;
       }
       if (ptrs.size !== 1 || g.pinch) return;
       if (g.qz) {   // 한 손 확대·축소: 아래로 끌면 확대 · 위로 끌면 축소 (두 번째로 톡 한 자리를 기준으로)
@@ -11356,10 +11358,10 @@ const TideHarm = (() => {
       v.lon = g.lon - dx / (KX * v.s); v.lat = g.lat + dy / v.s; interacting = true; draw();
     });
     const up = e => {
-      if (!ptrs.has(e.pointerId)) return; ptrs.delete(e.pointerId); clearTimeout(pressT);
+      if (!ptrs.has(e.pointerId)) return; if (gestFn) { const f = gestFn; gestFn = null; f(); } ptrs.delete(e.pointerId); clearTimeout(pressT);
       if (ptrs.size === 1 && g && g.pinch) { const [q] = [...ptrs.values()]; g = { x0: q.x, y0: q.y, lon: v.lon, lat: v.lat, moved: true, pinch: null }; return; }
       if (ptrs.size) return;
-      if (interacting) { interacting = false; draw(); }   // 다 움직였으면 바탕을 또렷하게 새로
+      if (interacting) { clearTimeout(sharpT); sharpT = setTimeout(() => { if (ptrs.size) return; interacting = false; draw(); }, 140); }   // 다 움직였으면 바탕을 또렷하게 새로 — 손 뗀 직후 마지막 움직임과 겹쳐 멈칫하지 않게 잠깐 뒤에
       if (g && !g.moved) {
         const now = Date.now();
         // 포인트를 눌렀으면 그 포인트 보기
@@ -11688,7 +11690,7 @@ const TideHarm = (() => {
 
 <script>
 if ('serviceWorker' in navigator) addEventListener('load', () => {
-  const sw = navigator.serviceWorker, VER = '4b7b540c'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
+  const sw = navigator.serviceWorker, VER = '613ca784'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
   // 화면에 손을 대기 시작했는지 (쓰는 중에는 새로 열지 않으려고)
   ['pointerdown', 'keydown'].forEach(t => addEventListener(t, () => { touched = true; }, { capture: true, passive: true }));
   const reload = () => {
