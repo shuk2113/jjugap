@@ -344,7 +344,10 @@ html.mv-on .app *{animation-play-state:paused !important} html.mv-hide .app{visi
 /* 이 일대 지난 기록: 지도 아래 판 바로 위 조용한 한 줄 (누르면 화면 전체 카드) */
 .mv-area{position:absolute; left:10px; bottom:42px; z-index:1; transform:translate3d(0,calc(-1 * var(--sheet-h, 0px)),0); transition:transform .28s cubic-bezier(.2,.85,.25,1); max-width:calc(100% - 104px); display:flex; align-items:center; gap:6px; min-height:36px; padding:6px 12px 6px 10px; border:1px solid var(--line); border-radius:18px; background:var(--card); color:var(--ink); font:inherit; font-size:calc(12.5px * var(--k)); font-weight:700; text-align:left; box-shadow:0 4px 14px rgba(0,0,0,.18); -webkit-tap-highlight-color:transparent}
 .mv-area span{display:flex; flex-direction:column; min-width:0} .mv-area b, .mv-area small{overflow:hidden; text-overflow:ellipsis; white-space:nowrap} .mv-area b{font-weight:800} .mv-area small{font-size:calc(12px * var(--k)); font-weight:700; color:var(--accent, #2F7DF6)} .mv-area i{flex:none; font-style:normal; color:var(--ink-2)}
-.mv-area small.warn{color:var(--strong)} .mv-plan{bottom:42px; padding:0; gap:0; overflow:hidden} .mv-plan .gd-main{flex:1; min-width:0; display:flex; align-items:center; gap:6px; min-height:40px; padding:6px 8px 6px 10px; border:0; background:none; color:inherit; font:inherit; text-align:left; -webkit-tap-highlight-color:transparent} .mv-plan .gd-off{flex:none; align-self:stretch; width:38px; display:grid; place-items:center; border:0; border-left:1px solid var(--line); background:none; color:var(--ink-2); padding:0} .mv-plan .gd-off svg{width:17px; height:17px} .mv-plan .gd-off[hidden]{display:none} .mv-plan.sw .gd-main{min-height:38px; padding:5px 12px 5px 10px} .mv-plan .gp{display:flex !important; flex-direction:row !important; align-items:center; gap:7px} .mv-plan .gp b.pk{font-size:calc(15px * var(--k))} .mv-plan .gsw{display:inline-flex; border-radius:7px} .mv-plan .gsw .pl-sw{width:26px; height:13px; margin:0} .mv-plan .gsw.gl{box-shadow:0 0 0 2px rgba(182,240,58,.6)} .mv-plan .gsw.kei{box-shadow:0 0 0 2px rgba(120,150,255,.6)} .mv-plan .gt2{font-style:normal; font-size:calc(12px * var(--k)); font-weight:800; color:#E0A800} .mv-plan.soon{border-color:#FFC93C} .mv-plan .gd-off{display:none} .mv-plan.min small{display:none} .mv-plan.min .gd-main{min-height:34px; padding-top:4px; padding-bottom:4px} .mv-plan.min .gd-main > i{display:none} .mv-plan small .gt{display:inline; color:var(--ink-2); font-weight:800}
+.mv-area small.warn{color:var(--strong)} .mv-plan{bottom:42px; padding:0; gap:0; overflow:hidden} .mv-plan .gd-main{flex:1; min-width:0; display:flex; align-items:center; gap:6px; min-height:40px; padding:6px 8px 6px 10px; border:0; background:none; color:inherit; font:inherit; text-align:left; -webkit-tap-highlight-color:transparent} .mv-plan .gd-off{flex:none; align-self:stretch; width:38px; display:grid; place-items:center; border:0; border-left:1px solid var(--line); background:none; color:var(--ink-2); padding:0} .mv-plan .gd-off svg{width:17px; height:17px} .mv-plan .gd-off[hidden]{display:none} .mv-plan.sw .gd-main{min-height:38px; padding:5px 12px 5px 10px} .mv-plan .gp{display:flex !important; flex-direction:row !important; align-items:center; gap:7px} .mv-plan .gp b.pk{font-size:calc(15px * var(--k))} .mv-plan .gsw{display:inline-flex; border-radius:7px} .mv-plan .gsw .pl-sw{width:26px; height:13px; margin:0} .mv-plan .gsw.gl{box-shadow:0 0 0 2px rgba(182,240,58,.6)} .mv-plan .gsw.kei{box-shadow:0 0 0 2px rgba(120,150,255,.6)} .mv-plan .mv-plan .gp .gspd{display:inline-flex !important; flex-direction:row !important} .gspd{display:inline-flex; align-items:center; gap:3px; padding-left:7px; border-left:1px solid rgba(255,255,255,.18); font-size:calc(11.5px * var(--k)); font-weight:800; color:var(--ink-2); white-space:nowrap}
+.pl-hh .spd, .pl-hr .spd{display:flex; flex-direction:column; align-items:center; gap:3px} .spd small{color:var(--ink-2); font-size:calc(10px * var(--k))}
+.pl-why{display:block; margin-top:4px; font-style:normal; color:var(--ink-2); font-size:.92em}
+.gt2{font-style:normal; font-size:calc(12px * var(--k)); font-weight:800; color:#E0A800} .mv-plan.soon{border-color:#FFC93C} .mv-plan .gd-off{display:none} .mv-plan.min small{display:none} .mv-plan.min .gd-main{min-height:34px; padding-top:4px; padding-bottom:4px} .mv-plan.min .gd-main > i{display:none} .mv-plan small .gt{display:inline; color:var(--ink-2); font-weight:800}
 .mv-plan span{display:grid; grid-template-columns:auto minmax(0, 1fr); column-gap:8px; align-items:center} .mv-plan small{grid-column:1 / -1} .mv-plan b.pk{display:inline-flex; align-items:center; gap:5px; font-size:calc(15px * var(--k))}
 .mv-areab{display:flex; align-items:center; gap:6px; width:100%; margin:10px 0 2px; padding:11px 12px; border:1px solid var(--line); border-radius:14px; background:var(--card); color:var(--ink); font:inherit; font-size:calc(13px * var(--k)); font-weight:700; text-align:left}
 .mv-areab span{flex:1; min-width:0} .mv-areab i{flex:none; font-style:normal; color:var(--ink-2)}
@@ -6323,8 +6326,8 @@ const TideHarm = (() => {
     const simPick = h => SIM_SK.find(n => n >= Math.max(SK_MIN, h) * 0.95) || 0;   // 챙겨 가는 호수 중
     // 에기 바닥 속도 등급 (sp: jj 쭈꾸미 · gp 갑오징어)
     const skVcat = (v, sp) => (v <= (sp === 'gp' ? 0.13 : 0.19) ? 0 : v <= 0.6 ? 1 : 2);
-    const SK_VTXT = { jj: ['쭈꾸미가 따라와 올라탈 수도 있는 속도', '쭈꾸미가 곁을 지나가는 에기를 잡아야 하는 속도', '에기가 쭈꾸미 곁을 너무 빨리 지나가 잡을 틈이 짧을 수 있음 · 봉돌을 바꿔도 느려지지 않아요'],
-      gp: ['갑오징어가 따라와 덮치기 쉬운 속도', '갑오징어가 곁을 지나가는 에기를 덮쳐야 하는 속도', '에기가 갑오징어 곁을 너무 빨리 지나가 덮칠 틈이 짧을 수 있음 · 봉돌로는 안 느려져요'] };
+    const SK_VTXT = { jj: ['쭈꾸미가 따라와 올라탈 수도 있는 속도', '쭈꾸미가 곁을 지나가는 에기를 잡아야 하는 속도', '에기가 쭈꾸미 곁을 너무 빨리 지나가 잡을 틈이 짧을 수 있음 · 평균 속도는 배가 밀리는 속도라 봉돌로 못 바꿔요. 조금 무거운 봉돌로 줄을 풀어 주면 바닥에서 잠깐씩 멈출 수 있어요(가설)'],
+      gp: ['갑오징어가 따라와 덮치기 쉬운 속도', '갑오징어가 곁을 지나가는 에기를 덮쳐야 하는 속도', '에기가 갑오징어 곁을 너무 빨리 지나가 덮칠 틈이 짧을 수 있음 · 평균 속도는 배가 밀리는 속도라 봉돌로 못 바꿔요. 조금 무거운 봉돌로 줄을 풀어 주면 바닥에서 잠깐씩 멈출 수 있어요(가설)'] };
     //  방법(가설): 텐션 = 줄을 팽팽히 두고 살짝 들기(보이게·느끼기) · 내려놓기 = 봉돌을 바닥에 두어 에기를 멈춤(쭈꾸미는 가만있는 물건에 잘 오름 · 소라방)
     //        갑오징어는 움직이는 먹이를 눈으로 쫓다 덮쳐서 텐션 쪽 · 두 방법을 직접 견준 연구는 없음 → 출조 기록(쓴 방법)으로 확인할 것
     const SK_METH = { jj: ['텐션 위주로 충분', '텐션으로 보이게 → 내려놓아 2~3초 멈춤 → 다시 텐션으로 무게 확인, 번갈아', '내려놓기를 길게 (줄이 금방 휘니 짧게 끊어서)'],
@@ -6641,7 +6644,7 @@ const TideHarm = (() => {
       const skT = sk ? (sk.main ? `${sk.main}호` : '40↑') : '–';
       let h = `<div class="pl-hr2${on ? ' on' : ''}"><button type="button" class="pl-hh" data-pl="row" data-h="${x.h}" aria-expanded="${on}">`
         + `<span class="t">${x.h}시</span><span class="m"><span class="pl-chs">${plChip(L[0])}${plChip(L[1])}</span><small>${esc(x.st.txt)} · 물색 ${esc(x.W.label)}</small>${AB ? `<small class="act"><b>실제</b> ${esc(plActTxt(AB))}${[...AB.ids].some(id => id === L[0].id || id === L[1].id) ? ' <em>계획 색</em>' : ''}</small>` : ''}</span>`
-        + `<span class="sk"><b>${skT}</b><small>봉돌</small></span>${vc != null ? plDot(vc) : '<i class="pl-dot"></i>'}</button>`;
+        + `<span class="sk"><b>${skT}</b><small>봉돌</small></span><span class="spd">${vc != null ? plDot(vc) : '<i class="pl-dot"></i>'}<small>속도</small></span></button>`;
       if (!on) return h + '</div>';
       if (!plRec) { try { plRec = simRecMap(); } catch (_) { plRec = {}; } }
       const all = s.more.has(x.h), fnOn = s.fn.has(x.h), list = all ? L : L.slice(0, 6), top = L[0].sc || 1;
@@ -6664,7 +6667,7 @@ const TideHarm = (() => {
       const zt = x.W.zsd < 1 ? x.W.zsd.toFixed(1) : (Math.round(x.W.zsd * 2) / 2).toFixed(1);
       h += `<div class="pl-dg"><div class="pl-dt"><small>바닥 빛</small><b>${esc(simLvTxt(x.LB.qb))}</b></div><div class="pl-dt"><small>물색</small><b>${esc(x.W.label)}</b><span>투명도 약 ${zt}m</span></div>`;
       if (sk) h += `<div class="pl-dt"><small>봉돌 · PE ${s.pe === '1.0' ? '1' : s.pe}호</small><b>${skT}</b><span>${sk.wn ? '<em class="pl-wn">바람이 세서 배가 빨리 밀려요</em> · ' : ''}${sk.fl ? '물이 약해 더 가벼워도 줄이 서요 · ' : ''}${sk.lo === sk.hi && sk.lo === sk.main ? '배가 더·덜 밀려도 같아요' : `배가 덜 밀리면 ${sk.lo || '40↑'}호 · 더 밀리면 ${sk.hi || '40↑'}호`}${sk.main && sk.boxMain !== sk.main ? ` · 상자엔 ${sk.boxMain || '25↑'}호` : ''}</span></div>`
-        + `<div class="pl-dt"><small>에기 바닥 속도</small><b>${plDot(vc)}<span style="white-space:nowrap">초속 ${x.sink.v[1].toFixed(2)}m</span></b><span>${esc(SK_VTXT[s.sp === 'gp' ? 'gp' : 'jj'][vc].split(' · ')[0])}</span></div>`
+        + `<div class="pl-dt"><small>에기 바닥 속도</small><b>${plDot(vc)}<span style="white-space:nowrap">초속 ${x.sink.v[1].toFixed(2)}m</span></b><span>${(([a, b]) => esc(a) + (b ? `<em class="pl-why">${esc(b)}</em>` : ''))(SK_VTXT[s.sp === 'gp' ? 'gp' : 'jj'][vc].split(' · '))}</span></div>`
         + `<div class="pl-dt wide"><small>방법 (가설)</small><span>${esc(SK_METH[s.sp === 'gp' ? 'gp' : 'jj'][vc])}</span></div>`;
       h += `</div>`;
       if (s.live && s.live.h === x.h && s.live.sk) { const q = s.live.sk; h += `<div class="pl-dg"><div class="pl-dt wide live"><small>지금 배 위 (GPS로 셈)</small><b>${plDot(q.vcat)}${q.std ? q.std + '호' : '40호↑'}<span style="white-space:nowrap">· 바닥 초속 ${q.v.toFixed(2)}m</span></b>${q.cur && q.std && q.cur < q.ho * 0.9 ? `<span>지금 단 ${q.cur}호는 가벼워요 → ${q.std}호</span>` : ''}</div></div>`; }
@@ -6827,7 +6830,9 @@ const TideHarm = (() => {
       const sws = E ? E.list.slice(0, 2).map(e => `<span class="gsw${ring(e.best)}">${plSw(e.id)}</span>`).join('') : '';
       const atT = soon ? ampm((gdG.nextAt - dayStartOf(gdG.n)) / 60000).replace(/^오[전후] /, '') : '', tag = warn ? `→${s.std}호` : fast ? '빠름' : atT;
       el.classList.toggle('soon', !!(soon || warn || fast)); el.classList.add('sw'); ob.hidden = true;
-      const t = `<span class="gp">${skT ? `<b class="pk">${esc(skT)}</b>` : ''}${vc != null ? `<i class="pl-dot d${vc}" aria-hidden="true"></i>` : ''}${sws}${tag ? `<em class="gt2">${esc(tag)}</em>` : ''}</span>`;
+      const spdW = vc != null ? `<span class="gspd"><i class="pl-dot d${vc}" aria-hidden="true"></i>${['느림', '보통', '빠름'][vc]}</span>` : '';   // 바닥 속도는 봉돌과 따로 (사용자 2026-11-23: 12호 옆 빨간 점이 봉돌 점수처럼 보임)
+      const tag2 = warn ? `→${s.std}호` : (fast ? '' : atT);
+      const t = `<span class="gp">${skT ? `<b class="pk">${esc(skT)}</b>` : ''}${sws}${spdW}${tag2 ? `<em class="gt2">${esc(tag2)}</em>` : ''}</span>`;
       put(t, ['길잡이', `봉돌 ${skT}`, cols, warn ? `봉돌이 가벼워요 ${s.std}호로` : fast ? '에기가 빨라요' : nx ? '다음: ' + nx : '', '누르면 자세히'].filter(Boolean).join('. ')); show();
     }
     function guideTap() {
@@ -11699,7 +11704,7 @@ const TideHarm = (() => {
 
 <script>
 if ('serviceWorker' in navigator) addEventListener('load', () => {
-  const sw = navigator.serviceWorker, VER = '8a3b40bb'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
+  const sw = navigator.serviceWorker, VER = 'c7edf2bf'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
   // 화면에 손을 대기 시작했는지 (쓰는 중에는 새로 열지 않으려고)
   ['pointerdown', 'keydown'].forEach(t => addEventListener(t, () => { touched = true; }, { capture: true, passive: true }));
   const reload = () => {
