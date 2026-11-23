@@ -4631,27 +4631,53 @@ const TideHarm = (() => {
     let opening = false, openT = 0, bv = null, BM = 0, interacting = false, bufs = {}, gestFn = null;   // 바탕을 그린 때의 화면 · 바깥 여유(점) · 손가락으로 움직이는 중
     // 지금 화면에서 본 바탕 그림의 배율·위치
     const baseXf = () => { const k = v.s / bv.s; return { k, tx: W / 2 * (1 - k) + (bv.lon - v.lon) * KX * v.s, ty: H / 2 * (1 - k) - (bv.lat - v.lat) * v.s }; };
+    // 바탕 그리기 (사용자 2026-11-24: 확대·축소·이동 중 멈칫·다시 그려지는 게 보이지 않게)
+    //  · 손이 닿아 있는 동안엔 다시 그리지 않는다: 그려 둔 또렷한 바탕을 늘리고 줄이기만, 가장자리가 비면 '넓은 바탕'(화면 둘레 넓게, 가볍게 그려 둔 것)으로 메움
+    //  · 손을 뗀 뒤 한 번만 폰 해상도로 다시 그리고, 이전 그림에서 0.18초에 걸쳐 스며들게 (해안 띠 굵기는 지도와 같이 커지게 맞춰 둬서 모양은 같고 선명도만 오름)
+    //  · 옮기기만 했으면 다시 그리지 않는다
+    let bufA = null, bufB = null, bvPrev = null, bcvPrev = null, fadeT = 0, wv = null, wcv = null, wIdle = 0;
+    const B_FADE = 180;
+    const xfOf = b => { const k = v.s / b.s; return { k, tx: W / 2 * (1 - k) + (b.lon - v.lon) * KX * v.s, ty: H / 2 * (1 - k) - (b.lat - v.lat) * v.s }; };
+    const coversOf = b => { if (!b) return false; const { k, tx, ty } = xfOf(b); return tx - k * b.m <= 0.5 && ty - k * b.m <= 0.5 && tx + k * (W + b.m) >= W - 0.5 && ty + k * (H + b.m) >= H - 0.5; };
+    const baseOkey = C => [W, H, dpr, C.sea, C.land, C.shallow, landState, mapSty, mapSet.dp].join('|');
+    function renderInto(c, R, M, C) {   // v·W·H 기준, 둘레 M점 여유까지 c에 그림
+      const sB = BM; BM = M;
+      try {
+        const bw = Math.round((W + 2 * M) * R), bh = Math.round((H + 2 * M) * R);
+        if (c.width !== bw || c.height !== bh) { c.width = bw; c.height = bh; }
+        const g = c.getContext('2d'); g.setTransform(R, 0, 0, R, M * R, M * R); g.fillStyle = C.sea; g.fillRect(-M, -M, W + 2 * M, H + 2 * M);
+        baseBody(g, R, C);
+      } finally { BM = sB; }
+    }
+    function renderWide(C) {   // 넓은 바탕: 화면 둘레로 한 화면씩 더, 가벼운 해상도로 (손 움직이는 동안 가장자리 메움용)
+      const R = Math.min(dpr, 0.8), M = Math.round(Math.max(W, H));
+      wcv = wcv || document.createElement('canvas'); renderInto(wcv, R, M, C);
+      wv = { lon: v.lon, lat: v.lat, s: v.s, okey: baseOkey(C), r: R, m: M };
+    }
+    function wideSoon() {
+      if (wIdle || !window.requestIdleCallback) return;
+      wIdle = requestIdleCallback(() => { wIdle = 0; if (!isOpen || ptrs.size || interacting || !bv) return; try { renderWide(mapColors()); } catch (_) {} }, { timeout: 1200 });
+    }
     function renderBase(C, font) {
-      const okey = [W, H, dpr, C.sea, C.land, C.shallow, landState, mapSty, mapSet.dp].join('|');
-      // 손으로 움직이는 중에 새로 그릴 때는 낮은 해상도로 빠르게 (이름표는 따로 또렷하게 그리니 흐려 보이지 않는다). 손을 떼면 또렷하게 다시
-      const R = interacting ? Math.min(dpr, 1.6) : dpr;   // 움직이는 중 새로 그릴 땐 1.6배 (폰 해상도 2.5배의 40% 일 · 띠 굵기·모양은 같고 선명도만 살짝) · 손 떼면 폰 해상도로
-      const key = [v.lon, v.lat, v.s, okey, R].join('|');
-      if (key === bkey && bcv) return;
-      if (!interacting && bcv && bv && bv.okey === okey && Math.abs(v.s / bv.s - 1) < 1e-6) {   // 옮기기만 했으면(배율 그대로) 다시 그리지 않고 붙이기만 — 손 뗀 뒤 다시 그려지는 게 안 보이게
-        const { tx, ty } = baseXf(); if (tx - BM <= 0.5 && ty - BM <= 0.5 && tx + W + BM >= W - 0.5 && ty + H + BM >= H - 0.5) return;
+      const okey = baseOkey(C), force = bkey === '';
+      if (bv && bv.okey !== okey) { bv = null; bvPrev = null; wv = null; }
+      if (wv && wv.okey !== okey) wv = null;
+      const gesture = interacting || ptrs.size > 0;
+      if (bv && bcv && !force) {
+        if (gesture) {
+          if (coversOf(bv) || coversOf(wv)) return;   // 손 움직이는 동안엔 다시 그리지 않음
+          renderWide(C); if (coversOf(wv)) return;     // 아주 크게 축소해 넓은 바탕도 모자라면 넓은 바탕만 새로 (가볍게)
+        } else {
+          if (bv.s === v.s && coversOf(bv) && bv.r === dpr) return;   // 옮기기만 했으면 붙이기만
+        }
       }
-      if (interacting && bcv && bv && bv.okey === okey) {
-        const { k, tx, ty } = baseXf();
-        // 그려 둔 그림이 화면을 다 덮고 배율 차이가 크지 않으면 그대로 옮겨 쓴다
-        if (k > 0.5 && k < 2 && tx - k * BM <= 0.5 && ty - k * BM <= 0.5 && tx + k * (W + BM) >= W - 0.5 && ty + k * (H + BM) >= H - 0.5) return;   // 손 움직이는 동안 늘려 쓰는 건 2배까지 (띠 굵기는 지도와 같이 커지게 맞춰 둬서 다시 그려도 모양이 같음 · 손 떼면 또렷하게)
-      }
-      bkey = key; BM = Math.round(Math.max(W, H) * 0.28); bv = { lon: v.lon, lat: v.lat, s: v.s, okey, r: R };
-      bcv = bufs[R] || (bufs[R] = document.createElement('canvas'));   // 해상도마다 그림판을 따로 두어 크기를 바꾸느라 느려지지 않게
-      const bw = Math.round((W + 2 * BM) * R), bh = Math.round((H + 2 * BM) * R);
-      if (bcv.width !== bw || bcv.height !== bh) { bcv.width = bw; bcv.height = bh; }
-      const g = bcv.getContext('2d');
-      g.setTransform(R, 0, 0, R, BM * R, BM * R); g.fillStyle = C.sea; g.fillRect(-BM, -BM, W + 2 * BM, H + 2 * BM);
-      baseBody(g, R, C);
+      if (bv && bcv && !gesture) { bvPrev = bv; bcvPrev = bcv; fadeT = performance.now(); } else { bvPrev = null; bcvPrev = null; }
+      const R = dpr, M = Math.round(Math.max(W, H) * 0.28);
+      if (!bufA) { bufA = document.createElement('canvas'); bufB = document.createElement('canvas'); }
+      const c = bcv === bufA ? bufB : bufA;
+      renderInto(c, R, M, C);
+      bcv = c; BM = M; bv = { lon: v.lon, lat: v.lat, s: v.s, okey, r: R, m: M }; bkey = 'ok';
+      wideSoon();
     }
     function baseBody(g, R, C) {   // 지금 v·W·H·BM 기준으로 바탕(바다·갯벌·땅·수심·방파제)을 g에 그린다 (타일도 이걸 씀)
       if (!basemap) {
@@ -5388,12 +5414,12 @@ const TideHarm = (() => {
       if (tileMode()) tMore = tilesDraw(C);
       else {
         renderBase(C, font);
-        const { k, tx, ty } = baseXf();
-        ctx.setTransform(1, 0, 0, 1, 0, 0);
-        const covers = tx - k * BM <= 0 && ty - k * BM <= 0 && tx + k * (W + BM) >= W && ty + k * (H + BM) >= H;
-        if (!covers) { ctx.fillStyle = C.sea; ctx.fillRect(0, 0, cv.width, cv.height); }
-        ctx.imageSmoothingQuality = 'low';
-        const kk = k * dpr / bv.r, snap = Math.abs(k - 1) < 1e-6 ? Math.round : (q => q); ctx.setTransform(kk, 0, 0, kk, snap(dpr * (tx - k * BM)), snap(dpr * (ty - k * BM))); ctx.drawImage(bcv, 0, 0);   // 옮기기만 할 땐 화면 점에 딱 맞춰 (번지지 않게)
+        ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'low';
+        const put = (c, b, a) => { const { k, tx, ty } = xfOf(b), kk = k * dpr / b.r, snap = Math.abs(k - 1) < 1e-6 ? Math.round : (q => q); ctx.globalAlpha = a; ctx.setTransform(kk, 0, 0, kk, snap(dpr * (tx - k * b.m)), snap(dpr * (ty - k * b.m))); ctx.drawImage(c, 0, 0); ctx.globalAlpha = 1; ctx.setTransform(1, 0, 0, 1, 0, 0); };
+        const fa = bvPrev ? Math.min(1, (performance.now() - fadeT) / B_FADE) : 1; if (fa >= 1) { bvPrev = null; bcvPrev = null; }
+        if (!coversOf(bv) || (bvPrev && !coversOf(bvPrev))) { ctx.fillStyle = C.sea; ctx.fillRect(0, 0, cv.width, cv.height); if (wv && wcv) put(wcv, wv, 1); }   // 가장자리는 넓은 바탕으로
+        if (bvPrev) { put(bcvPrev, bvPrev, 1); put(bcv, bv, fa * fa * (3 - 2 * fa)); tMore = 1; }   // 새 그림이 스며드는 중
+        else if (bv) put(bcv, bv, 1);
       }
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       if (tMore) { if (inLoop) needDraw = true; else draw(); }   // 아직 못 그린 조각은 다음 장면에
@@ -11822,7 +11848,7 @@ const TideHarm = (() => {
 
 <script>
 if ('serviceWorker' in navigator) addEventListener('load', () => {
-  const sw = navigator.serviceWorker, VER = '50bcc497'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
+  const sw = navigator.serviceWorker, VER = 'f68bb79f'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
   // 화면에 손을 대기 시작했는지 (쓰는 중에는 새로 열지 않으려고)
   ['pointerdown', 'keydown'].forEach(t => addEventListener(t, () => { touched = true; }, { capture: true, passive: true }));
   const reload = () => {
