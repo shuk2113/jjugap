@@ -4656,7 +4656,7 @@ const TideHarm = (() => {
       while (lodNow > 0 && v.s < th[lodNow - 1] / hy) lodNow--;
       const lod = lodNow, m = (30 + BM) / v.s;
       // 선 굵기는 실제 거리처럼 배율에 비례(정해 둔 범위 안에서): 확대·축소 중 늘려 쓴 그림과 새로 그린 그림의 굵기가 같아 튀지 않는다
-      const wr = Math.max(0.45, Math.min(1.6, v.s / 2600)), lr = Math.max(0.75, Math.min(1.3, v.s / 2600));
+      zLayers(); const wr = 1, lr = 1;   // 선 굵기는 실제 거리처럼 배율에 정비례 (zStroke · 지도에 붙은 굵기): 늘려 쓴 그림과 새로 그린 그림의 굵기가 같아 손을 떼도 튀지 않는다
       const vx0 = v.lon * KX - W / 2 / v.s - m, vx1 = v.lon * KX + W / 2 / v.s + m, vy0 = -v.lat - H / 2 / v.s - m, vy1 = -v.lat + H / 2 / v.s + m;
       const vis = cs => cs.filter(c => c.x1 >= vx0 && c.x0 <= vx1 && c.y1 >= vy0 && c.y0 <= vy1);
       const lands = vis(basemap.L[lod]), flats = vis(basemap.F[lod]), waters = vis(basemap.W[lod]);
@@ -4668,16 +4668,16 @@ const TideHarm = (() => {
       // 해안 가까운 얕은 물: 육지 둘레를 넓게 두 번 그어 바깥으로 갈수록 옅어지게
       g.strokeStyle = C.shallow;
       g.lineJoin = 'bevel';   // 넓고 옅은 띠라 모서리를 둥글게 하지 않아도 티가 안 나고, 그리기가 가벼워진다
-      for (const w of [10, 4.5]) { g.lineWidth = w * wr / v.s; g.stroke(coastP); }
+      for (const w of [10, 4.5]) zStroke(g, coastP, w / v.s);
       g.lineJoin = 'round';
       // 갯벌
       if (flats.length) { g.fillStyle = C.flat; g.fill(merge(flats), 'evenodd'); }
       // 땅: 살짝 그림자 → 바탕 → 해안선
-      g.save(); g.translate(0, 1.6 * lr / v.s); g.fillStyle = C.shade; g.fill(landP, 'evenodd'); g.restore();
+      g.fillStyle = C.shade; zEach(g, z => { g.save(); g.translate(0, 1.6 * z / v.s); g.fill(landP, 'evenodd'); g.restore(); }, 1);
       g.fillStyle = C.land; g.fill(landP, 'evenodd');
-      g.strokeStyle = C.coast; g.lineWidth = 0.9 * lr / v.s; g.stroke(coastP);
+      g.strokeStyle = C.coast; zStroke(g, coastP, 0.9 / v.s, 0.5 / v.s);
       // 방조제 안 호수·저수지·큰 강은 물빛으로 (가장자리는 해안선처럼 가늘게)
-      if (waters.length) { const wp = merge(waters); g.fillStyle = C.sea; g.fill(wp, 'evenodd'); g.lineWidth = 0.7 * lr / v.s; g.stroke(wp); }
+      if (waters.length) { const wp = merge(waters); g.fillStyle = C.sea; g.fill(wp, 'evenodd'); zStroke(g, wp, 0.7 / v.s, 0.4 / v.s); }
       g.restore();
       dpLayer(g, R, landP, vx0, vx1, vy0, vy1);   // 수심 색칠 (켰을 때만)
       bwLayer(g, R, landP, vx0, vx1, vy0, vy1, C.land, C.coast);   // 바다 위 방파제·도류제
@@ -5123,6 +5123,71 @@ const TideHarm = (() => {
       rgShow(`<h3>지도 모양</h3><p class="sub">고르면 바로 바뀌어요 · 출조 경로와 숫자는 그대로</p><div class="mv-stygrid" role="group" aria-label="지도 모양">${STYS.map(([k, n, a, b]) => `<button type="button" data-act="sty-sel" data-v="${k}" class="${k === mapSty ? 'on' : ''}" aria-pressed="${k === mapSty}"><i style="--a:${a};--b:${b}" aria-hidden="true"></i><span>${n}</span></button>`).join('')}</div><button type="button" class="done" data-rg="close">다 됐어요</button>`);
     }
     const msHash = (i, j) => { let h = (i * 374761393 + j * 668265263) | 0; h = (h ^ (h >>> 13)) * 1274126177 | 0; return (h ^ (h >>> 16)) >>> 0; };
+    // ---------- 지도에 붙은 굵기·크기 (사용자 2026-11-24 A·①: 손을 떼도 해안 띠 굵기·무늬 크기가 다시 맞춰지지 않게)
+    // 띠·선·그림자 어긋남·바다 무늬를 배율에 정비례로 그린다 → 손가락으로 늘려 쓴 그림과 새로 그린 그림의 굵기·크기가 같다.
+    // 많이 확대해 너무 두꺼워진 띠는 서서히 흐려져 사라지고 그 사이 기준 굵기의 띠가 서서히 나타난다 (2배마다 되풀이). 축소 쪽은 그대로 가늘어진다
+    const ZN = 2600;
+    let zZ = 1;
+    function zLayers() { zZ = v.s / ZN; }
+    const zFade = (a, b) => { const u = Math.log2(zZ); if (u <= a) return 1; if (u >= b) return 0; const t = (u - a) / (b - a); return 1 - t * t * (3 - 2 * t); };
+    // 기준 굵기(점)에 따라: 넓은 띠는 10400배율부터, 중간 선(모래사장 등)은 14700배율부터 아주 크게 확대할 때 서서히 흐려진다 (자주 보는 배율에서는 그대로).
+    // 가는 해안선은 흐려지지 않고 기준의 0.5~2배 안에서만 비례 (너무 굵거나 끊겨 보이지 않게)
+    const zFadeOf = bp => (bp >= 7 ? zFade(2, 4) : bp >= 2.5 ? zFade(2.5, 4.5) : 1);
+    const zThin = () => Math.max(0.5, Math.min(2, zZ));
+    // 선 하나를 지도에 붙은 굵기로 (w: 기준 배율에서의 굵기, 지도 단위 · mn: 멀리 볼 때 이보다 가늘게는 안 함)
+    function zStroke(g, p, w, mn) {
+      const f = zFadeOf(w * v.s); if (f <= 0.01) return;
+      let lw = w * (w * v.s < 2.5 ? zThin() : zZ); if (mn) lw = Math.max(lw, mn); else if (lw * v.s < 0.3) return;
+      const a0 = g.globalAlpha; g.globalAlpha = a0 * f; g.lineWidth = lw; g.stroke(p); g.globalAlpha = a0;
+    }
+    // 그림자 어긋남·테두리 묶음을 지도에 붙은 크기로 (bp: 기준 굵기 → 흐려지는 때)
+    function zEach(g, fn, bp = 3) { const f = zFadeOf(bp); if (f <= 0.01) return 0; const a0 = g.globalAlpha; g.globalAlpha = a0 * f; fn(bp < 2.5 ? zThin() : zZ, f); g.globalAlpha = a0; return f; }
+    // 바다 낙서: 지도에 붙은 자리·크기. 2배 단계마다 한 벌씩, 단계 사이에서는 두 벌이 서로 서서히 바뀐다 (fn은 (0,0) 둘레에 기준 크기로 그림)
+    function decoCells(g, R, px, fn) {
+      const ax = v.lon * KX, lt = Math.log2(v.s / 3000);
+      for (let L = Math.ceil(lt - 0.6); L <= Math.floor(lt + 0.6); L++) {
+        const t = lt - L, w = Math.min(1, (0.6 - Math.abs(t)) / 0.2); if (w <= 0.04) continue;
+        const sc = 2 ** t, cs = px / (3000 * 2 ** L), mg = 16 * sc, hi = L * 92821, hj = L * 68917;
+        const x0 = Math.floor((ax - (W / 2 + BM) / v.s) / cs), x1 = Math.ceil((ax + (W / 2 + BM) / v.s) / cs), y0 = Math.floor((v.lat - (H / 2 + BM) / v.s) / cs), y1 = Math.ceil((v.lat + (H / 2 + BM) / v.s) / cs);
+        for (let i = x0; i <= x1; i++) for (let j = y0; j <= y1; j++) {
+          const h = msHash(i + hi, j - hj); if ((h >>> 22) % 5 === 0) continue;   // 두 벌이 겹치는 동안에도 그리는 수가 예전보다 많지 않게 조금 성기게
+          const gx = (i + (h % 97) / 97) * cs, gy = (j + ((h >>> 8) % 89) / 89) * cs, x = W / 2 + (gx - ax) * v.s, y = H / 2 - (gy - v.lat) * v.s;
+          if (x < -BM - mg || x > W + BM + mg || y < -BM - mg || y > H + BM + mg) continue;
+          g.setTransform(R * sc, 0, 0, R * sc, R * (BM + x), R * (BM + y)); g.globalAlpha = w; fn(0, 0, h, gy, gx / KX, w);
+        }
+      }
+      g.globalAlpha = 1; g.setTransform(R, 0, 0, R, BM * R, BM * R);
+    }
+    // 바탕 무늬(점·격자·줄): 한 번 그려 둔 조각을 지도에 붙여 깐다 (2배 단계마다 한 벌 · 사이에서는 서로 서서히) — 점을 하나하나 찍던 것보다 가벼움
+    const patT = {};
+    // 모눈·공책 줄: 지도에 붙은 간격·굵기의 줄 (2배 단계마다 한 벌 · 사이에서는 서로 서서히 · 단계마다 한 번에 긋기)
+    function gridLines(g, step, col, vert) {
+      const lt = Math.log2(v.s / 3000), ox0 = W / 2 - v.lon * KX * v.s + BM, oy0 = H / 2 + v.lat * v.s + BM;
+      g.strokeStyle = col;
+      for (let L = Math.ceil(lt - 0.6); L <= Math.floor(lt + 0.6); L++) {
+        const t = lt - L, w = Math.min(1, (0.6 - Math.abs(t)) / 0.2); if (w <= 0.04) continue;
+        const sc = 2 ** t, p = step * sc; g.globalAlpha = w; g.lineWidth = sc; g.beginPath();
+        for (let y = -BM + ((oy0 % p) + p) % p; y < H + BM; y += p) { g.moveTo(-BM, y); g.lineTo(W + BM, y); }
+        if (vert) for (let x = -BM + ((ox0 % p) + p) % p; x < W + BM; x += p) { g.moveTo(x, -BM); g.lineTo(x, H + BM); }
+        g.stroke();
+      }
+      g.globalAlpha = 1;
+    }
+    const SPK = Array.from({ length: 8 }, (_, i) => `rgba(110,70,30,${(0.04 + i * 0.01).toFixed(2)})`);
+    function patFill(g, R, key, tw, th, paint) {
+      const Q = 4; let T = patT[key];
+      if (!T) { const c = document.createElement('canvas'); c.width = Math.round(tw * Q); c.height = Math.round(th * Q); const q = c.getContext('2d'); q.scale(Q, Q); paint(q); T = patT[key] = { p: g.createPattern(c, 'repeat') }; }
+      if (!T.p || !T.p.setTransform) return;
+      const lt = Math.log2(v.s / 3000), ox0 = BM + W / 2 - v.lon * KX * v.s, oy0 = BM + H / 2 + v.lat * v.s;
+      g.save(); g.setTransform(1, 0, 0, 1, 0, 0); g.fillStyle = T.p; g.imageSmoothingEnabled = false;   // 조각을 그대로 찍기 (가벼움)
+      for (let L = Math.ceil(lt - 0.6); L <= Math.floor(lt + 0.6); L++) {
+        const t = lt - L, w = Math.min(1, (0.6 - Math.abs(t)) / 0.2); if (w <= 0.04) continue;
+        const sc = 2 ** t, pw = tw * sc, ph = th * sc, ox = ((ox0 % pw) + pw) % pw, oy = ((oy0 % ph) + ph) % ph;
+        T.p.setTransform(new DOMMatrix([R * sc / Q, 0, 0, R * sc / Q, R * ox, R * oy]));
+        g.globalAlpha = w; g.fillRect(0, 0, g.canvas.width, g.canvas.height);
+      }
+      g.restore();
+    }
     function msBase(g, R, landP, coastP, flatP, waterP, wr, lr) {
       if (MS2[mapSty]) return ms2(g, R, landP, coastP, flatP, waterP, wr, lr);
       const MS = mapSty, toG2 = () => g.setTransform(R * v.s, 0, 0, R * v.s, R * (BM + W / 2 - v.lon * KX * v.s), R * (BM + H / 2 + v.lat * v.s));
@@ -5134,47 +5199,41 @@ const TideHarm = (() => {
       }[MS];
       scr();
       const gr = g.createRadialGradient(W / 2, H * 0.4, 60, W / 2, H / 2, Math.max(W, H) * 0.85); gr.addColorStop(0, P.sea); gr.addColorStop(1, P.sea2); g.fillStyle = gr; g.fillRect(-BM, -BM, W + 2 * BM, H + 2 * BM);
-      // 바다 낙서 (지도에 붙은 자리)
-      const lvl = Math.pow(2, Math.round(Math.log2(v.s / 3000))), cs = 58 / (3000 * lvl);
-      const ax = v.lon * KX, x0 = Math.floor((ax - (W / 2 + BM) / v.s) / cs), x1 = Math.ceil((ax + (W / 2 + BM) / v.s) / cs), y0 = Math.floor((v.lat - (H / 2 + BM) / v.s) / cs), y1 = Math.ceil((v.lat + (H / 2 + BM) / v.s) / cs);
-      for (let i = x0; i <= x1; i++) for (let j = y0; j <= y1; j++) {
-        const h = msHash(i, j); if (h % 5 > 1) continue;
-        const gx = (i + (h % 97) / 97) * cs, gy = (j + ((h >>> 8) % 89) / 89) * cs, x = W / 2 + (gx - ax) * v.s, y = H / 2 - (gy - v.lat) * v.s;
-        g.save(); g.translate(x, y);
+      // 바다 낙서 (지도에 붙은 자리·크기)
+      decoCells(g, R, 58, (x, y, h, lat, lon, w) => {
+        if (h % 5 > 1) return;
         if (MS === 'toy') { g.strokeStyle = 'rgba(255,255,255,.62)'; g.lineWidth = 2; g.lineCap = 'round'; g.beginPath(); g.moveTo(-8, 0); g.quadraticCurveTo(-4, -4, 0, 0); g.quadraticCurveTo(4, 4, 8, 0); g.stroke(); if (h % 7 === 0) { g.beginPath(); g.moveTo(-4, 6); g.quadraticCurveTo(-1, 3, 2, 6); g.stroke(); } }
         else if (MS === 'map') { g.strokeStyle = 'rgba(120,80,35,.38)'; g.lineWidth = 1.2; g.lineCap = 'round'; for (const dy of [0, 4]) { g.beginPath(); g.moveTo(-7, dy); g.quadraticCurveTo(-3.5, dy - 3, 0, dy); g.quadraticCurveTo(3.5, dy + 3, 7, dy); g.stroke(); }
           if (h % 23 === 0) { g.fillStyle = 'rgba(120,80,35,.45)'; g.beginPath(); g.ellipse(0, 12, 6, 3, 0, 0, 2 * Math.PI); g.fill(); g.beginPath(); g.moveTo(5, 12); g.lineTo(10, 9); g.lineTo(10, 15); g.fill(); } }
-        else { const c = h % 3 === 0 ? '#FF7AC8' : h % 3 === 1 ? '#6CF5FF' : '#FFE27A', rr = 1 + (h % 4) * 0.5; g.fillStyle = c; g.globalAlpha = 0.55; g.beginPath(); g.arc(0, 0, rr, 0, 2 * Math.PI); g.fill();
-          if (h % 11 === 0) { g.globalAlpha = 0.8; g.strokeStyle = c; g.lineWidth = 1; g.beginPath(); g.moveTo(-5, 0); g.lineTo(5, 0); g.moveTo(0, -5); g.lineTo(0, 5); g.stroke(); } }
-        g.restore();
-      }
+        else { const c = h % 3 === 0 ? '#FF7AC8' : h % 3 === 1 ? '#6CF5FF' : '#FFE27A', rr = 1 + (h % 4) * 0.5; g.fillStyle = c; g.globalAlpha = 0.55 * w; g.beginPath(); g.arc(0, 0, rr, 0, 2 * Math.PI); g.fill();
+          if (h % 11 === 0) { g.globalAlpha = 0.8 * w; g.strokeStyle = c; g.lineWidth = 1; g.beginPath(); g.moveTo(-5, 0); g.lineTo(5, 0); g.moveTo(0, -5); g.lineTo(0, 5); g.stroke(); } }
+      });
       toG2(); g.lineJoin = 'round'; g.lineCap = 'round';
       const U = 1 / v.s;
       if (MS === 'toy') {
-        g.strokeStyle = 'rgba(255,255,255,.28)'; g.lineWidth = 16 * wr * U; g.stroke(coastP);
-        g.strokeStyle = 'rgba(255,255,255,.55)'; g.lineWidth = 7 * wr * U; g.stroke(coastP);
-        g.save(); g.translate(0, 4.5 * U); g.fillStyle = 'rgba(10,70,100,.35)'; g.fill(landP, 'evenodd'); g.restore();
-        g.strokeStyle = '#FFE4A3'; g.lineWidth = 5.5 * lr * U; g.stroke(coastP);
+        g.strokeStyle = 'rgba(255,255,255,.28)'; zStroke(g, coastP, 16 * U);
+        g.strokeStyle = 'rgba(255,255,255,.55)'; zStroke(g, coastP, 7 * U);
+        g.fillStyle = 'rgba(10,70,100,.35)'; zEach(g, z => { g.save(); g.translate(0, 4.5 * z * U); g.fill(landP, 'evenodd'); g.restore(); }, 1);
+        g.strokeStyle = '#FFE4A3'; zStroke(g, coastP, 5.5 * U);
         if (flatP) { g.fillStyle = '#F6E1A6'; g.fill(flatP, 'evenodd'); }
         g.fillStyle = '#A9DD72'; g.fill(landP, 'evenodd');
-        g.strokeStyle = '#2D5B37'; g.lineWidth = 1.7 * U; g.stroke(coastP);
-        if (waterP) { g.fillStyle = P.sea; g.fill(waterP, 'evenodd'); g.lineWidth = 1.2 * U; g.stroke(waterP); }
+        g.strokeStyle = '#2D5B37'; zStroke(g, coastP, 1.7 * U, 0.5 * U);
+        if (waterP) { g.fillStyle = P.sea; g.fill(waterP, 'evenodd'); zStroke(g, waterP, 1.2 * U, 0.5 * U); }
       } else if (MS === 'map') {
-        for (const w of [22, 15, 9]) { g.strokeStyle = 'rgba(110,70,30,.42)'; g.lineWidth = (w + 1.3) * wr * U; g.stroke(coastP); g.strokeStyle = P.sea; g.lineWidth = w * wr * U; g.stroke(coastP); }
-        g.save(); g.translate(1.5 * U, 2.5 * U); g.fillStyle = 'rgba(90,55,20,.28)'; g.fill(landP, 'evenodd'); g.restore();
+        zEach(g, z => { for (const w of [22, 15, 9]) { g.strokeStyle = 'rgba(110,70,30,.42)'; g.lineWidth = (w + 1.3) * z * U; g.stroke(coastP); g.strokeStyle = P.sea; g.lineWidth = w * z * U; g.stroke(coastP); } }, 10);
+        g.fillStyle = 'rgba(90,55,20,.28)'; zEach(g, z => { g.save(); g.translate(1.5 * z * U, 2.5 * z * U); g.fill(landP, 'evenodd'); g.restore(); }, 1);
         if (flatP) { g.fillStyle = '#E2CC97'; g.fill(flatP, 'evenodd'); }
         g.fillStyle = '#E8C384'; g.fill(landP, 'evenodd');
-        g.strokeStyle = '#6A4321'; g.lineWidth = 1.7 * U; g.stroke(coastP);
+        g.strokeStyle = '#6A4321'; zStroke(g, coastP, 1.7 * U, 0.5 * U);
         if (waterP) { g.fillStyle = '#D9C9A0'; g.fill(waterP, 'evenodd'); g.stroke(waterP); }
-        scr(); let sd = 11; const rnd = () => (sd = (sd * 16807) % 2147483647) / 2147483647;   // 종이 얼룩
-        for (let k = 0; k < 900; k++) { g.fillStyle = `rgba(110,70,30,${0.04 + rnd() * 0.07})`; g.fillRect(-BM + rnd() * (W + 2 * BM), -BM + rnd() * (H + 2 * BM), 1.2, 1.2); }
+        scr(); decoCells(g, R, 26, (x, y, h) => { g.fillStyle = SPK[h % 8]; g.fillRect(-0.6, -0.6, 1.2, 1.2); });   // 종이 얼룩 (지도에 붙은 자리·크기)
         const vg = g.createRadialGradient(W / 2, H / 2, Math.min(W, H) * 0.35, W / 2, H / 2, Math.max(W, H) * 0.75); vg.addColorStop(0, 'rgba(90,55,20,0)'); vg.addColorStop(1, 'rgba(90,55,20,.28)'); g.fillStyle = vg; g.fillRect(-BM, -BM, W + 2 * BM, H + 2 * BM);
       } else {
-        g.strokeStyle = 'rgba(100,240,255,.08)'; g.lineWidth = 18 * wr * U; g.stroke(coastP);
-        g.strokeStyle = 'rgba(100,240,255,.14)'; g.lineWidth = 8 * wr * U; g.stroke(coastP);
+        g.strokeStyle = 'rgba(100,240,255,.08)'; zStroke(g, coastP, 18 * U);
+        g.strokeStyle = 'rgba(100,240,255,.14)'; zStroke(g, coastP, 8 * U);
         if (flatP) { g.fillStyle = '#222A5E'; g.fill(flatP, 'evenodd'); }
         g.fillStyle = '#2C2160'; g.fill(landP, 'evenodd');
-        g.save(); g.shadowColor = 'rgba(88,255,214,.9)'; g.shadowBlur = 8 * R; g.strokeStyle = '#58FFD6'; g.lineWidth = 1.5 * U; g.stroke(coastP); g.restore();
+        g.save(); g.shadowColor = 'rgba(88,255,214,.9)'; g.strokeStyle = '#58FFD6'; zEach(g, z => { g.shadowBlur = 8 * R * Math.min(z, 1); g.lineWidth = Math.max(1.5 * z, 0.5) * U; g.stroke(coastP); }, 1); g.restore();
         if (waterP) { g.fillStyle = P.sea; g.fill(waterP, 'evenodd'); }
       }
       return true;
@@ -5186,21 +5245,22 @@ const TideHarm = (() => {
       const scr = () => g.setTransform(R, 0, 0, R, BM * R, BM * R);
       const geo = () => g.setTransform(R * v.s, 0, 0, R * v.s, R * (BM + W / 2 - ax * v.s), R * (BM + H / 2 + v.lat * v.s));
       const full = f => { g.fillStyle = f; g.fillRect(-BM, -BM, W + 2 * BM, H + 2 * BM); };
-      const cells = (px, fn) => {   // 지도에 붙은 칸마다 한 번씩 (낙서 자리)
+      const cells = (px, fn) => decoCells(g, R, px, fn);   // 지도에 붙은 자리·크기 (낙서)
+      const cellsP = (px, fn) => {   // 도트 지도: 화면 도트 칸에 맞춰 (지도 칸마다 한 번씩)
         const lvl = Math.pow(2, Math.round(Math.log2(v.s / 3000))), cs = px / (3000 * lvl);
         const x0 = Math.floor((ax - (W / 2 + BM) / v.s) / cs), x1 = Math.ceil((ax + (W / 2 + BM) / v.s) / cs), y0 = Math.floor((v.lat - (H / 2 + BM) / v.s) / cs), y1 = Math.ceil((v.lat + (H / 2 + BM) / v.s) / cs);
         for (let i = x0; i <= x1; i++) for (let j = y0; j <= y1; j++) { const h = msHash(i, j), gx = (i + (h % 97) / 97) * cs, gy = (j + ((h >>> 8) % 89) / 89) * cs; fn(W / 2 + (gx - ax) * v.s, H / 2 - (gy - v.lat) * v.s, h, gy, gx / KX); }
       };
-      const ring = (col, w, bg) => { g.strokeStyle = col; g.lineWidth = (w + 1.3) * wr * U; g.stroke(coastP); g.strokeStyle = bg; g.lineWidth = w * wr * U; g.stroke(coastP); };
+      const ring = (col, w, bg) => zEach(g, z => { g.strokeStyle = col; g.lineWidth = (w + 1.3) * z * U; g.stroke(coastP); g.strokeStyle = bg; g.lineWidth = w * z * U; g.stroke(coastP); }, 10);
       g.lineJoin = 'round'; g.lineCap = 'round';
       if (MS === 'water') {
         scr(); full('#D3ECF4');
         cells(90, (x, y, h) => { const rr = 30 + h % 40, gr = g.createRadialGradient(x, y, 2, x, y, rr); gr.addColorStop(0, 'rgba(140,200,228,.45)'); gr.addColorStop(1, 'rgba(140,200,228,0)'); g.fillStyle = gr; g.fillRect(x - rr, y - rr, rr * 2, rr * 2); });
-        geo(); g.strokeStyle = 'rgba(255,255,255,.55)'; g.lineWidth = 12 * wr * U; g.stroke(coastP);
+        geo(); g.strokeStyle = 'rgba(255,255,255,.55)'; zStroke(g, coastP, 12 * U);
         if (flatP) { g.fillStyle = 'rgba(232,214,180,.8)'; g.fill(flatP, 'evenodd'); }
-        g.save(); g.translate(1.2 * U, 1.2 * U); g.fillStyle = 'rgba(240,185,140,.55)'; g.fill(landP, 'evenodd'); g.restore();
+        g.fillStyle = 'rgba(240,185,140,.55)'; zEach(g, z => { g.save(); g.translate(1.2 * z * U, 1.2 * z * U); g.fill(landP, 'evenodd'); g.restore(); }, 1);
         g.fillStyle = 'rgba(250,218,186,.92)'; g.fill(landP, 'evenodd');
-        g.strokeStyle = 'rgba(120,90,70,.55)'; g.lineWidth = 0.9 * U; g.stroke(coastP); g.save(); g.translate(0.8 * U, -0.6 * U); g.globalAlpha = 0.35; g.stroke(coastP); g.restore();
+        g.strokeStyle = 'rgba(120,90,70,.55)'; zEach(g, (z, a) => { g.lineWidth = Math.max(0.9 * z, 0.5) * U; g.stroke(coastP); g.save(); g.translate(0.8 * z * U, -0.6 * z * U); g.globalAlpha = 0.35 * a; g.stroke(coastP); g.restore(); }, 1);
         if (waterP) { g.fillStyle = '#C6E6F2'; g.fill(waterP, 'evenodd'); }
       } else if (MS === 'pixel') {
         const K = 2, lw = Math.ceil((W + 2 * BM) / K), lh = Math.ceil((H + 2 * BM) / K);   // 도트 크기 2 (멀리·가까이 모두)
@@ -5214,13 +5274,13 @@ const TideHarm = (() => {
         if (waterP) { q.fillStyle = '#2E7CF6'; q.fill(waterP, 'evenodd'); }
         q.setTransform(1, 0, 0, 1, 0, 0); q.fillStyle = '#FFFFFF';
         scr(); g.imageSmoothingEnabled = false; g.drawImage(msPix, -BM, -BM, lw * K, lh * K); g.imageSmoothingEnabled = true;
-        cells(60, (x, y, h) => { if (h % 4) return; if (onLand(...[(H / 2 - y) / v.s + v.lat, (x - W / 2) / v.s / KX + v.lon]) === true) return; const X = Math.round(x / K) * K, Y = Math.round(y / K) * K; g.fillStyle = 'rgba(255,255,255,.75)'; g.fillRect(X, Y, K * 2, K); g.fillRect(X + K * 2, Y - K, K * 2, K); });
+        cellsP(60, (x, y, h) => { if (h % 4) return; if (onLand(...[(H / 2 - y) / v.s + v.lat, (x - W / 2) / v.s / KX + v.lon]) === true) return; const X = Math.round(x / K) * K, Y = Math.round(y / K) * K; g.fillStyle = 'rgba(255,255,255,.75)'; g.fillRect(X, Y, K * 2, K); g.fillRect(X + K * 2, Y - K, K * 2, K); });
       } else if (MS === 'tropic') {
         scr(); const gr = g.createLinearGradient(0, -BM, 0, H + BM); gr.addColorStop(0, '#13B5C9'); gr.addColorStop(1, '#0B8FB0'); full(gr);
-        geo(); g.strokeStyle = 'rgba(95,224,212,.6)'; g.lineWidth = 24 * wr * U; g.stroke(coastP); g.strokeStyle = 'rgba(170,246,232,.85)'; g.lineWidth = 11 * wr * U; g.stroke(coastP);
-        g.strokeStyle = '#FFF1C9'; g.lineWidth = 6 * lr * U; g.stroke(coastP);
+        geo(); g.strokeStyle = 'rgba(95,224,212,.6)'; zStroke(g, coastP, 24 * U); g.strokeStyle = 'rgba(170,246,232,.85)'; zStroke(g, coastP, 11 * U);
+        g.strokeStyle = '#FFF1C9'; zStroke(g, coastP, 6 * U);
         if (flatP) { g.fillStyle = '#FBE7B3'; g.fill(flatP, 'evenodd'); }
-        g.fillStyle = '#3FBF6A'; g.fill(landP, 'evenodd'); g.strokeStyle = '#1E7A43'; g.lineWidth = 1.2 * U; g.stroke(coastP);
+        g.fillStyle = '#3FBF6A'; g.fill(landP, 'evenodd'); g.strokeStyle = '#1E7A43'; zStroke(g, coastP, 1.2 * U, 0.5 * U);
         if (waterP) { g.fillStyle = '#13B5C9'; g.fill(waterP, 'evenodd'); }
         scr(); cells(54, (x, y, h, lat, lon) => {
           const L = onLand(lat, lon) === true;
@@ -5231,59 +5291,56 @@ const TideHarm = (() => {
       } else if (MS === 'candy') {
         scr(); full('#CDB8FF');
         cells(26, (x, y, h) => { g.fillStyle = 'rgba(255,255,255,.32)'; g.beginPath(); g.arc(x, y, 2.2 + (h % 3) * 0.6, 0, 2 * Math.PI); g.fill(); });
-        geo(); g.save(); g.translate(0, 3.5 * U); g.fillStyle = 'rgba(255,110,180,.45)'; g.fill(landP, 'evenodd'); g.restore();
-        g.strokeStyle = '#FF8CC6'; g.lineWidth = 7 * lr * U; g.stroke(coastP); g.strokeStyle = '#FFFFFF'; g.lineWidth = 4.5 * lr * U; g.stroke(coastP);
+        geo(); g.fillStyle = 'rgba(255,110,180,.45)'; zEach(g, z => { g.save(); g.translate(0, 3.5 * z * U); g.fill(landP, 'evenodd'); g.restore(); }, 1);
+        g.strokeStyle = '#FF8CC6'; zStroke(g, coastP, 7 * U); g.strokeStyle = '#FFFFFF'; zStroke(g, coastP, 4.5 * U);
         if (flatP) { g.fillStyle = '#FFE0F0'; g.fill(flatP, 'evenodd'); }
         g.fillStyle = '#9FF0CC'; g.fill(landP, 'evenodd');
         if (waterP) { g.fillStyle = '#CDB8FF'; g.fill(waterP, 'evenodd'); }
       } else if (MS === 'comic') {
         scr(); full('#E9F5FF');
-        for (let y = -BM; y < H + BM; y += 7) for (let x = -BM + ((y / 7) % 2) * 3.5; x < W + BM; x += 7) { g.fillStyle = 'rgba(80,165,255,.35)'; g.beginPath(); g.arc(x, y, 1.25, 0, 7); g.fill(); }
-        geo(); g.save(); g.translate(3 * U, 3 * U); g.fillStyle = '#111'; g.fill(landP, 'evenodd'); g.restore();
+        patFill(g, R, 'comic', 7, 14, q => { q.fillStyle = 'rgba(80,165,255,.35)'; for (const [x, y] of [[0, 0], [7, 0], [0, 14], [7, 14], [3.5, 7]]) { q.beginPath(); q.arc(x, y, 1.25, 0, 7); q.fill(); } });   // 망점 (지도에 붙은 무늬)
+        geo(); g.fillStyle = '#111'; zEach(g, z => { g.save(); g.translate(3 * z * U, 3 * z * U); g.fill(landP, 'evenodd'); g.restore(); }, 1);
         if (flatP) { g.fillStyle = '#FFF4B8'; g.fill(flatP, 'evenodd'); }
-        g.fillStyle = '#FFE45C'; g.fill(landP, 'evenodd'); g.strokeStyle = '#111'; g.lineWidth = 2.4 * U; g.stroke(coastP);
+        g.fillStyle = '#FFE45C'; g.fill(landP, 'evenodd'); g.strokeStyle = '#111'; zStroke(g, coastP, 2.4 * U, 0.5 * U);
         if (waterP) { g.fillStyle = '#E9F5FF'; g.fill(waterP, 'evenodd'); g.stroke(waterP); }
       } else if (MS === 'crayon') {
         scr(); full('#FBF7EC');
         cells(46, (x, y, h) => { if (h % 3 === 0) return; g.strokeStyle = 'rgba(80,160,230,.3)'; g.lineWidth = 2.2; g.lineCap = 'round'; const n = 2 + h % 2; for (let k = 0; k < n; k++) { const o = k * 5 - n * 2.5; g.beginPath(); g.moveTo(x - 10 + o, y + 6); g.lineTo(x + 6 + o, y - 8); g.stroke(); } });
         geo(); if (flatP) { g.fillStyle = 'rgba(255,220,150,.7)'; g.fill(flatP, 'evenodd'); }
         g.fillStyle = 'rgba(255,205,90,.92)'; g.fill(landP, 'evenodd');
-        g.strokeStyle = 'rgba(232,120,40,.6)'; g.lineWidth = 2.4 * U;
-        for (const [dx, dy] of [[0, 0], [0.9, -0.6], [-0.7, 0.8]]) { g.save(); g.translate(dx * U, dy * U); g.stroke(coastP); g.restore(); }
+        g.strokeStyle = 'rgba(232,120,40,.6)'; zEach(g, z => { g.lineWidth = Math.max(2.4 * z, 0.5) * U; for (const [dx, dy] of [[0, 0], [0.9, -0.6], [-0.7, 0.8]]) { g.save(); g.translate(dx * z * U, dy * z * U); g.stroke(coastP); g.restore(); } }, 1);
         if (waterP) { g.fillStyle = '#FBF7EC'; g.fill(waterP, 'evenodd'); }
       } else if (MS === 'blue') {
         scr(); full('#1D4E8E');
-        g.strokeStyle = 'rgba(255,255,255,.10)'; g.lineWidth = 1; const o0 = ((ax * v.s) % 24), o1 = ((v.lat * v.s) % 24);
-        for (let x = -BM - o0; x < W + BM; x += 24) { g.beginPath(); g.moveTo(x, -BM); g.lineTo(x, H + BM); g.stroke(); }
-        for (let y = -BM + o1; y < H + BM; y += 24) { g.beginPath(); g.moveTo(-BM, y); g.lineTo(W + BM, y); g.stroke(); }
+        gridLines(g, 24, 'rgba(255,255,255,.10)', true);   // 모눈 (지도에 붙은 간격)
         geo(); ring('rgba(255,255,255,.35)', 10, '#1D4E8E'); ring('rgba(255,255,255,.2)', 18, '#1D4E8E');
-        g.fillStyle = 'rgba(255,255,255,.09)'; g.fill(landP, 'evenodd'); g.strokeStyle = '#EAF3FF'; g.lineWidth = 1.4 * U; g.stroke(coastP);
+        g.fillStyle = 'rgba(255,255,255,.09)'; g.fill(landP, 'evenodd'); g.strokeStyle = '#EAF3FF'; zStroke(g, coastP, 1.4 * U, 0.5 * U);
         if (waterP) { g.fillStyle = '#1D4E8E'; g.fill(waterP, 'evenodd'); }
       } else if (MS === 'sunset') {
         scr(); const gr = g.createLinearGradient(0, -BM, 0, H + BM); gr.addColorStop(0, '#FFA66B'); gr.addColorStop(0.5, '#F2668B'); gr.addColorStop(1, '#6B48B5'); full(gr);
         cells(46, (x, y, h) => { if (h % 3) return; g.strokeStyle = 'rgba(255,240,210,.55)'; g.lineWidth = 2; g.beginPath(); g.moveTo(x - 7, y); g.lineTo(x + 7, y); g.stroke(); g.beginPath(); g.moveTo(x - 3, y + 4); g.lineTo(x + 4, y + 4); g.stroke(); });
-        geo(); g.strokeStyle = 'rgba(255,220,180,.18)'; g.lineWidth = 12 * wr * U; g.stroke(coastP);
+        geo(); g.strokeStyle = 'rgba(255,220,180,.18)'; zStroke(g, coastP, 12 * U);
         if (flatP) { g.fillStyle = '#5A3480'; g.fill(flatP, 'evenodd'); }
-        g.fillStyle = '#3A2160'; g.fill(landP, 'evenodd'); g.strokeStyle = '#FFC48A'; g.lineWidth = 1.1 * U; g.stroke(coastP);
+        g.fillStyle = '#3A2160'; g.fill(landP, 'evenodd'); g.strokeStyle = '#FFC48A'; zStroke(g, coastP, 1.1 * U, 0.5 * U);
         if (waterP) { g.fillStyle = '#F2668B'; g.fill(waterP, 'evenodd'); }
       } else if (MS === 'paper') {
         scr(); full('#2A86C8');
-        geo(); g.save(); g.shadowColor = 'rgba(0,30,60,.35)'; g.shadowBlur = 6 * R; g.shadowOffsetY = 2 * R;
-        for (const [w, c] of [[34, '#3E9AD6'], [22, '#5DB0E3'], [12, '#82C6EE']]) { g.strokeStyle = c; g.lineWidth = w * wr * U; g.stroke(coastP); }
-        g.shadowBlur = 8 * R; g.shadowOffsetY = 3 * R; g.fillStyle = '#5DBB63'; g.fill(landP, 'evenodd'); g.restore();
-        g.save(); g.clip(landP, 'evenodd'); g.strokeStyle = '#3F9A4A'; g.lineWidth = 9 * U; g.stroke(coastP); g.strokeStyle = '#7ED07F'; g.lineWidth = 3 * U; g.stroke(coastP); g.restore();
+        geo(); g.save(); g.shadowColor = 'rgba(0,30,60,.35)';
+        zEach(g, z => { g.shadowBlur = 6 * R * Math.min(z, 1); g.shadowOffsetY = 2 * R * z; for (const [w, c] of [[34, '#3E9AD6'], [22, '#5DB0E3'], [12, '#82C6EE']]) { g.strokeStyle = c; g.lineWidth = w * z * U; g.stroke(coastP); } }, 10);
+        g.fillStyle = '#5DBB63'; zEach(g, z => { g.shadowBlur = 8 * R * Math.min(z, 1); g.shadowOffsetY = 3 * R * z; g.fill(landP, 'evenodd'); }, 1);
+        g.restore();
+        g.save(); g.clip(landP, 'evenodd'); g.strokeStyle = '#3F9A4A'; zStroke(g, coastP, 9 * U, 0.5 * U); g.strokeStyle = '#7ED07F'; zStroke(g, coastP, 3 * U, 0.5 * U); g.restore();
         if (flatP) { g.fillStyle = '#E9D59B'; g.fill(flatP, 'evenodd'); }
         if (waterP) { g.fillStyle = '#82C6EE'; g.fill(waterP, 'evenodd'); }
       } else if (MS === 'note') {
-        scr(); full('#FDFCF4'); const o1 = ((v.lat * v.s) % 22 + 22) % 22;
-        g.strokeStyle = 'rgba(90,140,220,.32)'; g.lineWidth = 1; for (let y = -BM + o1; y < H + BM; y += 22) { g.beginPath(); g.moveTo(-BM, y); g.lineTo(W + BM, y); g.stroke(); }
-        g.strokeStyle = 'rgba(230,80,90,.45)'; g.beginPath(); g.moveTo(36, -BM); g.lineTo(36, H + BM); g.stroke();
+        scr(); full('#FDFCF4');
+        gridLines(g, 22, 'rgba(90,140,220,.32)', false);   // 공책 줄 (지도에 붙은 간격 · 빨간 여백 줄은 화면에 고정해 따로)
         cells(70, (x, y, h, lat, lon) => { if (h % 6 || onLand(lat, lon) === true) return; g.strokeStyle = 'rgba(45,77,179,.6)'; g.lineWidth = 1.3;
           if (h % 4 === 0) { g.beginPath(); for (let k = 0; k < 5; k++) { const a = -Math.PI / 2 + k * 4 * Math.PI / 5; g[k ? 'lineTo' : 'moveTo'](x + Math.cos(a) * 5, y + Math.sin(a) * 5); } g.closePath(); g.stroke(); }
           else { g.beginPath(); g.ellipse(x, y, 6, 3.2, 0, 0, 2 * Math.PI); g.moveTo(x + 6, y); g.lineTo(x + 10, y - 3); g.lineTo(x + 10, y + 3); g.lineTo(x + 6, y); g.stroke(); } });
         geo(); if (flatP) { g.fillStyle = 'rgba(255,200,120,.45)'; g.fill(flatP, 'evenodd'); }
         g.fillStyle = 'rgba(255,236,60,.72)'; g.fill(landP, 'evenodd');
-        g.strokeStyle = '#2D4DB3'; g.lineWidth = 1.2 * U; g.stroke(coastP); g.save(); g.translate(0.7 * U, 0.5 * U); g.globalAlpha = 0.4; g.stroke(coastP); g.restore();
+        g.strokeStyle = '#2D4DB3'; zEach(g, (z, a) => { g.lineWidth = Math.max(1.2 * z, 0.5) * U; g.stroke(coastP); g.save(); g.translate(0.7 * z * U, 0.5 * z * U); g.globalAlpha = 0.4 * a; g.stroke(coastP); g.restore(); }, 1);
         if (waterP) { g.fillStyle = '#FDFCF4'; g.fill(waterP, 'evenodd'); g.stroke(waterP); }
       }
       return true;
@@ -5302,6 +5359,7 @@ const TideHarm = (() => {
       ctx.imageSmoothingQuality = 'low';
       const kk = k * dpr / bv.r; ctx.setTransform(kk, 0, 0, kk, dpr * (tx - k * BM), dpr * (ty - k * BM)); ctx.drawImage(bcv, 0, 0);
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      if (basemap && mapSty === 'note') { ctx.strokeStyle = 'rgba(230,80,90,.45)'; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(36, 0); ctx.lineTo(36, H); ctx.stroke(); }   // 공책 여백 줄은 화면에 고정
       sprBudget = 8;
       drawArrows(C, font);
       try { windSync(); } catch (_) {}
@@ -5778,8 +5836,8 @@ const TideHarm = (() => {
       g.save(); g.setTransform(R * v.s, 0, 0, R * v.s, R * (BM + W / 2 - v.lon * KX * v.s), R * (BM + H / 2 + v.lat * v.s));
       const clip = new Path2D(); clip.rect(vx0, vy0, vx1 - vx0, vy1 - vy0); clip.addPath(landP); g.clip(clip, 'evenodd');
       g.lineJoin = 'round'; g.lineCap = 'round';
-      const U = 1 / v.s, w = Math.max(1.8, 22 / 111320 * v.s);
-      g.strokeStyle = edge; g.fillStyle = edge; g.lineWidth = (w + 1.4) * U; for (const c of Lc) g.stroke(c.p); for (const c of Ac) g.fill(c.p, 'evenodd');
+      const U = 1 / v.s, w = v.s / 3500;   // 배율에 정비례 (지도에 붙은 굵기 · 6300배율에서 1.8점)
+      g.strokeStyle = edge; g.fillStyle = edge; g.lineWidth = w * 1.78 * U; for (const c of Lc) g.stroke(c.p); for (const c of Ac) g.fill(c.p, 'evenodd');
       g.strokeStyle = fill; g.fillStyle = fill; g.lineWidth = w * U; for (const c of Lc) g.stroke(c.p); for (const c of Ac) g.fill(c.p, 'evenodd');
       g.restore();
     }
@@ -11318,6 +11376,7 @@ const TideHarm = (() => {
     new ResizeObserver(() => { if (isOpen) resize(); }).observe(box);
     setInterval(() => { if (isOpen && mode === 'info') paintPanel(true); }, 15000);
     setInterval(() => { if (isOpen && document.visibilityState === 'visible') draw(); }, 30000);   // 조류 화살표 등 시간에 따라 바뀌는 것 (지도는 바뀔 때만 그리니까)
+    if (window.__JJ_TEST) window.__jjMap = { set: o => { Object.assign(v, o); bkey = ''; draw(); }, sty: k => styApply(k), bench: (n, R) => { const C = mapColors(), font = fontC || getComputedStyle(document.body).fontFamily; let t = 0; for (let i = 0; i < n; i++) { bkey = ''; const t0 = performance.now(); renderBase(C, font); bcv.getContext('2d').getImageData(0, 0, 1, 1); t += performance.now() - t0; } return t / n; }, base: () => bcv.toDataURL(), info: () => ({ W, H, BM, dpr, s: v.s }) };   // 시험용 (평소엔 없음)
     // 확대 · 축소 · 내 위치로
     const zoomAt = (f, x = W / 2, y = focusY()) => { const g = toG(x, y); v.s = clampS(v.s * f); const g2 = toG(x, y); v.lon += g.lon - g2.lon; v.lat += g.lat - g2.lat; if (follow && me) placeAt(me.lon, me.lat, fy ?? focusY()); draw(); };
     $('mv-zin').onclick = () => zoomAt(1.8);
@@ -11727,7 +11786,7 @@ const TideHarm = (() => {
 
 <script>
 if ('serviceWorker' in navigator) addEventListener('load', () => {
-  const sw = navigator.serviceWorker, VER = 'f218356e'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
+  const sw = navigator.serviceWorker, VER = 'f73a0a46'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
   // 화면에 손을 대기 시작했는지 (쓰는 중에는 새로 열지 않으려고)
   ['pointerdown', 'keydown'].forEach(t => addEventListener(t, () => { touched = true; }, { capture: true, passive: true }));
   const reload = () => {
