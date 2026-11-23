@@ -4696,7 +4696,7 @@ const TideHarm = (() => {
     //  · 확대·축소: 지금 단계 조각을 늘리고 줄여 쓰다 단계가 바뀌면 그 단계 조각 · 이웃 단계는 한가할 때 미리
     //  · 화면 고정 효과가 있는 꾸민 지도 모양(장난감·보물지도 등)은 예전 방식 그대로
     const TS = 256, T_MAX = 48;
-    let tMap = new Map(), tKey = '', tUse = 0, tIdle = 0, tNeed = false;
+    let tMap = new Map(), tKey = '', tUse = 0, tIdle = 0, tNeed = false, tFading = false, tLastZ = null;
     const zS = z => 50 * Math.pow(2, z / 2), zFor = s => Math.max(0, Math.ceil(2 * Math.log2(s / 50) - 1e-6));
     const tileMode = () => !!basemap && mapSty === 'base';
     function tileMake(z, i, j, C) {
@@ -4711,8 +4711,9 @@ const TideHarm = (() => {
       return c;
     }
     function tileGet(z, i, j) { const e = tMap.get(z + ',' + i + ',' + j); if (e) e.u = ++tUse; return e ? e.c : null; }
-    function tilePut(z, i, j, c) {
-      tMap.set(z + ',' + i + ',' + j, { c, u: ++tUse, z });
+    const T_FADE = 220;   // 새 조각은 0.22초에 걸쳐 스며들게 (해안선이 '다시 그려지는' 게 보이지 않게 · 사용자 2026-11-24)
+    function tilePut(z, i, j, c, noFade) {
+      tMap.set(z + ',' + i + ',' + j, { c, u: ++tUse, z, t: noFade ? 0 : performance.now() });
       if (tMap.size > T_MAX) { const a = [...tMap.entries()].sort((x, y) => x[1].u - y[1].u); for (let n = 0; n < a.length - T_MAX; n++) tMap.delete(a[n][0]); }
     }
     const tRange = (z, s) => { const S = zS(z), X = v.lon * KX, Y = -v.lat; return [Math.floor((X - W / 2 / s) * S / TS), Math.floor((X + W / 2 / s) * S / TS), Math.floor((Y - H / 2 / s) * S / TS), Math.floor((Y + H / 2 / s) * S / TS)]; };
@@ -4722,20 +4723,22 @@ const TideHarm = (() => {
       let n = 0;
       for (let i = i0; i <= i1; i++) for (let j = j0; j <= j1; j++) {
         if (only && !only.has(i + ',' + j)) continue;
-        const c = tileGet(z, i, j); if (!c) { if (miss) miss.push([z, i, j]); continue; }
+        const e = tMap.get(z + ',' + i + ',' + j); if (!e) { if (miss) miss.push([z, i, j]); continue; } e.u = ++tUse;
         const x0 = sx(i * TS / S), x1 = sx((i + 1) * TS / S), y0 = sy(j * TS / S), y1 = sy((j + 1) * TS / S);
-        ctx.drawImage(c, x0, y0, x1 - x0, y1 - y0); n++;
+        const a = e.t ? Math.min(1, (performance.now() - e.t) / T_FADE) : 1; if (a < 1) { tFading = true; ctx.globalAlpha = a * a * (3 - 2 * a); }
+        ctx.drawImage(e.c, x0, y0, x1 - x0, y1 - y0); ctx.globalAlpha = 1; n++;
       }
       return n;
     }
     function tilesDraw(C) {
       const ok = [dpr, C.sea, C.land, C.shallow, C.flat, C.coast, C.shade, landState, mapSty, mapSet.dp, DPI ? 1 : 0, myStations().join(',')].join('|');
-      if (ok !== tKey) { tMap.clear(); tKey = ok; }
+      if (ok !== tKey) { tMap.clear(); tKey = ok; tLastZ = null; }
       const z = zFor(v.s), miss = [];
       ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.fillStyle = C.sea; ctx.fillRect(0, 0, cv.width, cv.height);
       ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'low';   // 움직일 때와 멈췄을 때 같은 품질 (바뀌는 게 안 보이게 · 예전 바탕과 같은 방식)
       // 이번 단계 조각 중 없는 게 있으면, 그 자리를 이웃 단계 조각으로 먼저 메운다 (가까운 단계부터 · 빈 바다로 보이지 않게)
-      const probe = []; { const [i0, i1, j0, j1] = tRange(z, v.s); for (let i = i0; i <= i1; i++) for (let j = j0; j <= j1; j++) if (!tMap.has(z + ',' + i + ',' + j)) probe.push([i, j]); }
+      tFading = false; const nowT = performance.now();
+      const probe = []; { const [i0, i1, j0, j1] = tRange(z, v.s); for (let i = i0; i <= i1; i++) for (let j = j0; j <= j1; j++) { const e = tMap.get(z + ',' + i + ',' + j); if (e && !e.sh) { e.sh = true; if (tLastZ != null && tLastZ !== z) e.t = nowT; } if (!e || (e.t && nowT - e.t < T_FADE)) probe.push([i, j]); } }   // 미리 그려 둔 조각도 단계가 바뀌어 처음 보일 때는 스며들게   // 없거나 스며드는 중인 자리는 밑에 이웃 단계를 깐다
       let filled = 0;
       if (probe.length) {   // 빈 자리만 잘라서, 가장 가까운 단계 하나로
         const S = zS(z), X = v.lon * KX, Y = -v.lat, sx = x => (W / 2 + (x - X) * v.s) * dpr, sy = y => (H / 2 + (y - Y) * v.s) * dpr;
@@ -4748,7 +4751,7 @@ const TideHarm = (() => {
       if (miss.length) {
         const cx = (v.lon * KX) * zS(z) / TS, cy = (-v.lat) * zS(z) / TS; miss.sort((a, b) => Math.hypot(a[1] + 0.5 - cx, a[2] + 0.5 - cy) - Math.hypot(b[1] + 0.5 - cx, b[2] + 0.5 - cy));
         const t0 = performance.now(), budget = !filled ? 1e9 : ptrs.size ? 6 : 14; let made = 0;   // 메울 조각이 하나도 없으면(처음 열 때) 한 번에 다 — 빈 바다가 보였다 채워지지 않게
-        for (const [zz, i, j] of miss) { if (made && performance.now() - t0 > budget) break; tilePut(zz, i, j, tileMake(zz, i, j, C)); made++; }
+        for (const [zz, i, j] of miss) { if (made && performance.now() - t0 > budget) break; tilePut(zz, i, j, tileMake(zz, i, j, C), !filled); made++; }   // 밑에 깔 것이 없으면(처음 열 때) 바로 또렷하게
         if (made) tileLayer(z, null, new Set(miss.slice(0, made).map(m => m[1] + ',' + m[2])));
         if (made < miss.length) tNeed = true;
       }
@@ -4758,9 +4761,10 @@ const TideHarm = (() => {
         tIdle = 0; if (!isOpen || !tileMode()) return; const C2 = mapColors();
         for (const zz of [z + 1, z - 1, z]) { if (zz < 0) continue; const S = zS(zz), X = v.lon * KX, Y = -v.lat, padX = zz === z ? W / 2 + TS / zS(z) * v.s : 0, padY = zz === z ? H / 2 + TS / zS(z) * v.s : 0;
           const i0 = Math.floor((X - (W / 2 + padX) / v.s) * S / TS), i1 = Math.floor((X + (W / 2 + padX) / v.s) * S / TS), j0 = Math.floor((Y - (H / 2 + padY) / v.s) * S / TS), j1 = Math.floor((Y + (H / 2 + padY) / v.s) * S / TS);
-          for (let i = i0; i <= i1; i++) for (let j = j0; j <= j1; j++) { if (tMap.has(zz + ',' + i + ',' + j)) continue; if (dl.timeRemaining() < 6 || tMap.size >= T_MAX - 4) return; tilePut(zz, i, j, tileMake(zz, i, j, C2)); } }
+          for (let i = i0; i <= i1; i++) for (let j = j0; j <= j1; j++) { if (tMap.has(zz + ',' + i + ',' + j)) continue; if (dl.timeRemaining() < 6 || tMap.size >= T_MAX - 4) return; tilePut(zz, i, j, tileMake(zz, i, j, C2), true); } }
       }, { timeout: 1500 });
-      return miss.length;
+      tLastZ = z;
+      return miss.length || tFading ? 1 : 0;
     }
     // ---------- 섬·만·항구 이름표: 늘 같은 자리에 박혀 있게
     // 섬 이름은 섬 가운데, 항구 이름은 항구 점 오른쪽에 붙어서 지도와 함께만 움직인다 (위치·방향을 바꾸지 않는다).
@@ -11812,7 +11816,7 @@ const TideHarm = (() => {
 
 <script>
 if ('serviceWorker' in navigator) addEventListener('load', () => {
-  const sw = navigator.serviceWorker, VER = '4c8eed18'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
+  const sw = navigator.serviceWorker, VER = '0fcd6982'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
   // 화면에 손을 대기 시작했는지 (쓰는 중에는 새로 열지 않으려고)
   ['pointerdown', 'keydown'].forEach(t => addEventListener(t, () => { touched = true; }, { capture: true, passive: true }));
   const reload = () => {
