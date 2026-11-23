@@ -302,8 +302,8 @@ html.mv-on .app *{animation-play-state:paused !important} html.mv-hide .app{visi
 .mv-tools button{width:42px; height:42px; display:grid; place-items:center; padding:0; border:1px solid var(--line); border-radius:12px; background:var(--card); font:inherit; font-size:calc(22px * var(--k)); line-height:1; color:var(--ink); box-shadow:0 2px 8px rgba(0,0,0,.12); -webkit-tap-highlight-color:transparent}
 .mv-tools button svg{width:20px; height:20px; color:var(--ink-2); font-weight:500} .mv-tools button.on svg{color:#2F7DF6}
 .mv-tools button.mini{width:34px; height:34px; border-radius:10px; align-self:center} .mv-tools button.mini svg{width:18px; height:18px}
-.mv-wrn{position:absolute; left:10px; top:10px; z-index:2; max-width:calc(100% - 150px); display:flex; flex-direction:column; gap:1px; padding:6px 11px; border-radius:12px; background:var(--strong); color:#fff; font-size:calc(12.5px * var(--k)); line-height:1.35; box-shadow:0 2px 8px rgba(0,0,0,.25); pointer-events:none} .mv-wrn[hidden]{display:none} .mv-wrn b{font-weight:800} .mv-wrn span{font-size:calc(10.5px * var(--k)); opacity:.92; font-weight:600}
-.mv-map.has-wrn .mv-auto{top:calc(10px + var(--wrn-h, 50px))} .mv-map.has-wrn .mv-wleg{top:calc(50px + var(--wrn-h, 50px))}
+.mv-wrn{position:absolute; left:0; right:0; top:0; z-index:3; display:block; padding:5px 12px; background:var(--strong); color:#fff; font-size:calc(12.5px * var(--k)); font-weight:800; line-height:1.35; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; box-shadow:0 1px 4px rgba(0,0,0,.25); pointer-events:none} .mv-wrn[hidden]{display:none}   /* 제목줄 바로 아래 얇은 띠 한 줄 (사용자 2026-11-24) */
+.mv-map.has-wrn .mv-auto, .mv-map.has-wrn .mv-tools{top:calc(10px + var(--wrn-h, 26px))} .mv-map.has-wrn .mv-wleg{top:calc(50px + var(--wrn-h, 26px))} .mv-map.has-wrn .mv-toast, .mv-map.has-wrn .mv-snack{top:calc(48px + var(--wrn-h, 26px))}
 #mv-wind{position:absolute; left:0; top:0; width:100%; height:100%; pointer-events:none}
 .mv-wleg{position:absolute; left:6px; top:50px; display:flex; flex-direction:column; align-items:flex-start; gap:3px; padding:4px 7px; border-radius:9px; background:color-mix(in srgb, var(--card) 88%, transparent); font-size:calc(9.5px * var(--k)); font-weight:700; color:var(--ink-2); pointer-events:none; white-space:nowrap} .mv-wleg[hidden]{display:none} .mv-wleg b{font-weight:800; color:var(--ink)} .mv-wleg span{display:flex; align-items:center; gap:3px} .mv-wleg i{width:14px; height:5px; border-radius:2px; box-shadow:0 0 0 2.5px var(--map-sea); margin:0 2px}   /* 지도 바다색 위에 놓인 모습 그대로 */ .mv-wleg em{font-style:normal; margin-right:3px} .mv-drag .mv-wleg{transition:none}
 #mv-pnm .sl{display:none} #mv-pnm.off .sl{display:inline} #mv-pnm.off svg{opacity:.8}
@@ -4610,7 +4610,7 @@ const TideHarm = (() => {
       const k = on ? r.txt : ''; if (k === wrnK) return; wrnK = k;
       let el = $('mv-wrn'); if (!el) { el = document.createElement('div'); el.id = 'mv-wrn'; el.className = 'mv-wrn'; el.setAttribute('role', 'status'); $('mv-map').appendChild(el); }
       el.hidden = !on; $('mv-map').classList.toggle('has-wrn', !!on);
-      if (on) { el.innerHTML = `<b>⚠ ${esc(r.txt)}</b><span>선장님 안내를 따르세요 · 기상청</span>`; $('mv-map').style.setProperty('--wrn-h', el.offsetHeight + 8 + 'px'); }
+      if (on) { el.textContent = '⚠ ' + r.txt.replace(/\s*발효 중/, ''); $('mv-map').style.setProperty('--wrn-h', el.offsetHeight + 'px'); }
     }
     addEventListener('jjugap-now', () => { try { wrnBand(true); } catch (_) {} });
     let mapPorts = null, mapPortsP = null;
@@ -11715,7 +11715,7 @@ const TideHarm = (() => {
 
 <script>
 if ('serviceWorker' in navigator) addEventListener('load', () => {
-  const sw = navigator.serviceWorker, VER = '55635b0f'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
+  const sw = navigator.serviceWorker, VER = '434d40ed'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
   // 화면에 손을 대기 시작했는지 (쓰는 중에는 새로 열지 않으려고)
   ['pointerdown', 'keydown'].forEach(t => addEventListener(t, () => { touched = true; }, { capture: true, passive: true }));
   const reload = () => {
