@@ -11278,8 +11278,6 @@ const TideHarm = (() => {
       sheetMode = 'peek';   // 지도에 처음 들어올 때는 늘 판을 접어 지도가 넓게 보이게 (저장·목록·출항지 고르기는 그 뒤에 알아서 펼친다)
       if (!(o && (o.pick || o.view))) boardOn();
       if (!viewMode) { startGps(); wakeOn(); }
-      // 처음 여는 장면은 가볍게(바탕 1.25배 · 이름표는 0.2초 뒤) → 누르자마자 지도가 뜨고, 곧바로 또렷하게 (사용자 2026-11-24: 지도 열 때 버벅임)
-      opening = true; interacting = true; clearTimeout(openT); openT = setTimeout(() => { opening = false; if (!ptrs.size) interacting = false; if (isOpen) draw(); }, 220);
       loadLand(); loadMapPorts(); loadSpots(); natFixes(); paintView(); paintPanel(true); applySheet(false); resize(); kick(); autoPill(); autoPill.last = '';
       if (rec) { const F = dayFilter == null ? fltList().flatMap(t => t.pts) : [], L = F.length ? F : points.filter(recVis); if (L.length) fitPts(L); if (onBoard) showList(); draw(); }
       if (useHist) { try { history.pushState({ mapv: 1 }, ''); } catch (_) {} }
@@ -11732,7 +11730,7 @@ const TideHarm = (() => {
 
 <script>
 if ('serviceWorker' in navigator) addEventListener('load', () => {
-  const sw = navigator.serviceWorker, VER = '11240c8e'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
+  const sw = navigator.serviceWorker, VER = 'c1fed423'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
   // 화면에 손을 대기 시작했는지 (쓰는 중에는 새로 열지 않으려고)
   ['pointerdown', 'keydown'].forEach(t => addEventListener(t, () => { touched = true; }, { capture: true, passive: true }));
   const reload = () => {
