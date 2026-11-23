@@ -4627,13 +4627,13 @@ const TideHarm = (() => {
     function renderBase(C, font) {
       const okey = [W, H, dpr, C.sea, C.land, C.shallow, landState, mapSty, mapSet.dp].join('|');
       // 손으로 움직이는 중에 새로 그릴 때는 낮은 해상도로 빠르게 (이름표는 따로 또렷하게 그리니 흐려 보이지 않는다). 손을 떼면 또렷하게 다시
-      const R = interacting ? 1 : dpr;   // 움직이는 중 새로 그릴 땐 1배 (그리는 양이 1.25배보다 36% 적어 멈칫이 짧음 · 사용자 2026-11-23)
+      const R = interacting ? Math.min(dpr, 1.25) : dpr;
       const key = [v.lon, v.lat, v.s, okey, R].join('|');
       if (key === bkey && bcv) return;
       if (interacting && bcv && bv && bv.okey === okey) {
         const { k, tx, ty } = baseXf();
         // 그려 둔 그림이 화면을 다 덮고 배율 차이가 크지 않으면 그대로 옮겨 쓴다
-        if (k > 0.5 && k < 2.0 && tx - k * BM <= 0.5 && ty - k * BM <= 0.5 && tx + k * (W + BM) >= W - 0.5 && ty + k * (H + BM) >= H - 0.5) return;
+        if (k > 0.55 && k < 1.9 && tx - k * BM <= 0.5 && ty - k * BM <= 0.5 && tx + k * (W + BM) >= W - 0.5 && ty + k * (H + BM) >= H - 0.5) return;
       }
       bkey = key; BM = Math.round(Math.max(W, H) * 0.2); bv = { lon: v.lon, lat: v.lat, s: v.s, okey, r: R };
       bcv = bufs[R] || (bufs[R] = document.createElement('canvas'));   // 해상도마다 그림판을 따로 두어 크기를 바꾸느라 느려지지 않게
@@ -5315,9 +5315,18 @@ const TideHarm = (() => {
       for (const b of pbs) { b.off = keptB.some(o => b.bx < o.bx + o.w + 3 && b.bx + b.w + 3 > o.bx && b.by < o.by + o.h + 2 && b.by + b.h + 2 > o.by); if (!b.off) keptB.push(b); }
       for (const b of pbs) {
         if (!b.off) {
-          ctx.save(); if (!interacting) { ctx.shadowColor = 'rgba(0,0,0,.18)'; ctx.shadowBlur = 4; ctx.shadowOffsetY = 1; }
-          ctx.fillStyle = C.card; ctx.beginPath(); ctx.roundRect ? ctx.roundRect(b.bx, b.by, b.w, b.h, 10) : ctx.rect(b.bx, b.by, b.w, b.h); ctx.fill(); ctx.restore();
-          ctx.fillStyle = C.ink; ctx.font = `700 11.5px ${font}`; ctx.textBaseline = 'middle'; ctx.fillText(b.t, b.bx + 8, b.by + b.h / 2 + 0.5); ctx.textBaseline = 'alphabetic';
+          // 출항지 이름표는 그림자까지 한 번 그려 둔 조각을 찍는다 — 모양은 같고, 매 장면 그림자 흐림을 새로 계산하지 않아 확대·축소가 가벼움 (사용자 2026-11-23)
+          const sp = sprite(`pb|${b.t}|${b.w}|${b.h}`, b.w + 10, b.h + 10, g => {
+            g.shadowColor = 'rgba(0,0,0,.18)'; g.shadowBlur = 4; g.shadowOffsetY = 1;
+            g.fillStyle = C.card; g.beginPath(); g.roundRect ? g.roundRect(5, 4, b.w, b.h, 10) : g.rect(5, 4, b.w, b.h); g.fill();
+            g.shadowColor = 'transparent'; g.fillStyle = C.ink; g.font = `700 11.5px ${font}`; g.textBaseline = 'middle'; g.fillText(b.t, 5 + 8, 4 + b.h / 2 + 0.5);
+          });
+          if (sp) { ctx.save(); ctx.setTransform(1, 0, 0, 1, 0, 0); putSprite(sp, b.bx - 5, b.by - 4); ctx.restore(); }
+          else {
+            ctx.save(); ctx.shadowColor = 'rgba(0,0,0,.18)'; ctx.shadowBlur = 4; ctx.shadowOffsetY = 1;
+            ctx.fillStyle = C.card; ctx.beginPath(); ctx.roundRect ? ctx.roundRect(b.bx, b.by, b.w, b.h, 10) : ctx.rect(b.bx, b.by, b.w, b.h); ctx.fill(); ctx.restore();
+            ctx.fillStyle = C.ink; ctx.font = `700 11.5px ${font}`; ctx.textBaseline = 'middle'; ctx.fillText(b.t, b.bx + 8, b.by + b.h / 2 + 0.5); ctx.textBaseline = 'alphabetic';
+          }
         }
         ctx.fillStyle = C.ink; ctx.strokeStyle = C.card; ctx.lineWidth = 2.2;
         ctx.beginPath(); ctx.arc(b.x, b.y, 4.6, 0, 2 * Math.PI); ctx.fill(); ctx.stroke();
@@ -11690,7 +11699,7 @@ const TideHarm = (() => {
 
 <script>
 if ('serviceWorker' in navigator) addEventListener('load', () => {
-  const sw = navigator.serviceWorker, VER = '613ca784'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
+  const sw = navigator.serviceWorker, VER = '8a3b40bb'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
   // 화면에 손을 대기 시작했는지 (쓰는 중에는 새로 열지 않으려고)
   ['pointerdown', 'keydown'].forEach(t => addEventListener(t, () => { touched = true; }, { capture: true, passive: true }));
   const reload = () => {
