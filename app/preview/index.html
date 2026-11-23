@@ -4700,7 +4700,7 @@ const TideHarm = (() => {
     const TS = 256, T_MAX = 48;
     let tMap = new Map(), tKey = '', tUse = 0, tIdle = 0, tNeed = false, tFading = false, tLastZ = null;
     const zS = z => 50 * Math.pow(2, z / 2), zFor = s => Math.max(0, Math.ceil(2 * Math.log2(s / 50) - 1e-6));
-    const tileMode = () => !!basemap && (mapSty === 'base' || mapSty === 'toy');   // 화면 고정 효과가 없는(또는 조각용으로 바꾼) 모양만
+    const tileMode = () => !!basemap && (mapSty === 'base' || mapSty === 'toy' || mapSty === 'tropic');   // 화면 고정 효과가 없는(또는 조각용으로 바꾼) 모양만
     const TMG = 24;   // 조각 둘레 여유: 경계에 걸친 해안 띠·바다 무늬가 잘리지 않게 넓게 그리고 가운데만 쓴다
     let tileDrawing = false;
     function tileMake(z, i, j, C) {
@@ -5305,7 +5305,7 @@ const TideHarm = (() => {
         scr(); g.imageSmoothingEnabled = false; g.drawImage(msPix, -BM, -BM, lw * K, lh * K); g.imageSmoothingEnabled = true;
         cells(60, (x, y, h) => { if (h % 4) return; if (onLand(...[(H / 2 - y) / v.s + v.lat, (x - W / 2) / v.s / KX + v.lon]) === true) return; const X = Math.round(x / K) * K, Y = Math.round(y / K) * K; g.fillStyle = 'rgba(255,255,255,.75)'; g.fillRect(X, Y, K * 2, K); g.fillRect(X + K * 2, Y - K, K * 2, K); });
       } else if (MS === 'tropic') {
-        scr(); const gr = g.createLinearGradient(0, -BM, 0, H + BM); gr.addColorStop(0, '#13B5C9'); gr.addColorStop(1, '#0B8FB0'); full(gr);
+        scr(); if (tileDrawing) full('#10A3BE'); else { const gr = g.createLinearGradient(0, -BM, 0, H + BM); gr.addColorStop(0, '#13B5C9'); gr.addColorStop(1, '#0B8FB0'); full(gr); }   // 조각일 땐 위아래 번짐 대신 그 가운데 색
         geo(); g.strokeStyle = 'rgba(95,224,212,.6)'; g.lineWidth = 24 * wr * U; g.stroke(coastP); g.strokeStyle = 'rgba(170,246,232,.85)'; g.lineWidth = 11 * wr * U; g.stroke(coastP);
         g.strokeStyle = '#FFF1C9'; g.lineWidth = 6 * lr * U; g.stroke(coastP);
         if (flatP) { g.fillStyle = '#FBE7B3'; g.fill(flatP, 'evenodd'); }
@@ -11821,7 +11821,7 @@ const TideHarm = (() => {
 
 <script>
 if ('serviceWorker' in navigator) addEventListener('load', () => {
-  const sw = navigator.serviceWorker, VER = '617a9864'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
+  const sw = navigator.serviceWorker, VER = 'f917b531'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
   // 화면에 손을 대기 시작했는지 (쓰는 중에는 새로 열지 않으려고)
   ['pointerdown', 'keydown'].forEach(t => addEventListener(t, () => { touched = true; }, { capture: true, passive: true }));
   const reload = () => {
