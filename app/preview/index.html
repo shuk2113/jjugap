@@ -346,6 +346,7 @@ html.mv-on .app *{animation-play-state:paused !important} html.mv-hide .app{visi
 .mv-area span{display:flex; flex-direction:column; min-width:0} .mv-area b, .mv-area small{overflow:hidden; text-overflow:ellipsis; white-space:nowrap} .mv-area b{font-weight:800} .mv-area small{font-size:calc(12px * var(--k)); font-weight:700; color:var(--accent, #2F7DF6)} .mv-area i{flex:none; font-style:normal; color:var(--ink-2)}
 .mv-area small.warn{color:var(--strong)} .mv-plan{bottom:42px; padding:0; gap:0; overflow:hidden} .mv-plan .gd-main{flex:1; min-width:0; display:flex; align-items:center; gap:6px; min-height:40px; padding:6px 8px 6px 10px; border:0; background:none; color:inherit; font:inherit; text-align:left; -webkit-tap-highlight-color:transparent} .mv-plan .gd-off{flex:none; align-self:stretch; width:38px; display:grid; place-items:center; border:0; border-left:1px solid var(--line); background:none; color:var(--ink-2); padding:0} .mv-plan .gd-off svg{width:17px; height:17px} .mv-plan .gd-off[hidden]{display:none} .mv-plan.sw .gd-main{min-height:38px; padding:5px 12px 5px 10px} .mv-plan .gp{display:flex !important; flex-direction:row !important; align-items:center; gap:7px} .mv-plan .gp b.pk{font-size:calc(15px * var(--k))} .mv-plan .gsw{display:inline-flex; border-radius:7px} .mv-plan .gsw .pl-sw{width:26px; height:13px; margin:0} .mv-plan .gsw.gl{box-shadow:0 0 0 2px rgba(182,240,58,.6)} .mv-plan .gsw.kei{box-shadow:0 0 0 2px rgba(120,150,255,.6)} .mv-plan .mv-plan .gp .gspd{display:inline-flex !important; flex-direction:row !important} .gspd{display:inline-flex; align-items:center; gap:3px; padding-left:7px; border-left:1px solid rgba(255,255,255,.18); font-size:calc(11.5px * var(--k)); font-weight:800; color:var(--ink-2); white-space:nowrap}
 .pl-hh .spd, .pl-hr .spd{display:flex; flex-direction:column; align-items:center; gap:3px} .spd small{color:var(--ink-2); font-size:calc(10px * var(--k))}
+.pl-skcur{display:flex; flex-wrap:wrap; align-items:center; gap:6px; margin-top:10px} .pl-skcur small{margin-right:2px} .pl-skcur button{min-width:40px; min-height:34px; padding:0 8px; border-radius:17px; border:1px solid var(--line); background:transparent; color:var(--ink); font:inherit; font-weight:800; font-size:calc(13px * var(--k))} .pl-skcur button.on{background:var(--ink); color:var(--card); border-color:var(--ink)}
 .pl-why{display:block; margin-top:4px; font-style:normal; color:var(--ink-2); font-size:.92em}
 .gt2{font-style:normal; font-size:calc(12px * var(--k)); font-weight:800; color:#E0A800} .mv-plan.soon{border-color:#FFC93C} .mv-plan .gd-off{display:none} .mv-plan.min small{display:none} .mv-plan.min .gd-main{min-height:34px; padding-top:4px; padding-bottom:4px} .mv-plan.min .gd-main > i{display:none} .mv-plan small .gt{display:inline; color:var(--ink-2); font-weight:800}
 .mv-plan span{display:grid; grid-template-columns:auto minmax(0, 1fr); column-gap:8px; align-items:center} .mv-plan small{grid-column:1 / -1} .mv-plan b.pk{display:inline-flex; align-items:center; gap:5px; font-size:calc(15px * var(--k))}
@@ -6538,6 +6539,7 @@ const TideHarm = (() => {
       if (a === 'pe') { s.pe = b.dataset.v; s.saved = false; return planRender(); }
       if (a === 'hours') { s.allH = !s.allH; return planRender(); }
       if (a === 'gdoff') { guideOff(); return planClose(); }
+      if (a === 'sknow') { const n = +b.dataset.n; if (n > 0) { skNowTap(n); lvC = null; try { s.live = liveCalc(Date.now()) || s.live; } catch (_) {} planChip(me); planRender(true); } return; }   // 단 봉돌 고르기 (선장님이 정한 호수)
       if (a === 'row') { const h = +b.dataset.h; if (s.open.has(h)) s.open.delete(h); else s.open.add(h); return planRender(); }
       if (a === 'more' || a === 'fn' || a === 'why') { const h = +b.dataset.h, S = s[a] || (s[a] = new Set()); if (S.has(h)) S.delete(h); else S.add(h); return planRender(); }
       if (a === 'auto') { s.how = null; s.p = null; s.saved = false; return planCalc(); }
@@ -6644,7 +6646,7 @@ const TideHarm = (() => {
       const skT = sk ? (sk.main ? `${sk.main}호` : '40↑') : '–';
       let h = `<div class="pl-hr2${on ? ' on' : ''}"><button type="button" class="pl-hh" data-pl="row" data-h="${x.h}" aria-expanded="${on}">`
         + `<span class="t">${x.h}시</span><span class="m"><span class="pl-chs">${plChip(L[0])}${plChip(L[1])}</span><small>${esc(x.st.txt)} · 물색 ${esc(x.W.label)}</small>${AB ? `<small class="act"><b>실제</b> ${esc(plActTxt(AB))}${[...AB.ids].some(id => id === L[0].id || id === L[1].id) ? ' <em>계획 색</em>' : ''}</small>` : ''}</span>`
-        + (lv ? `<span class="sk"><b>${lv.std ? lv.std + '호' : '40↑'}</b><small>지금 봉돌</small></span><span class="spd">${plDot(lv.vcat)}<small>속도</small></span>` : '') + `</button>`;   // 봉돌은 배 위에서 GPS로 잰 지금만 (출조 전 짐작은 헷갈려서 뺌 · 사용자 2026-11-23)
+        + (lv ? `<span class="sk"><b>${lv.cur && lv.std && lv.cur >= lv.std ? lv.cur + '호' : lv.std ? lv.std + '호' : '40↑'}</b><small>지금 봉돌</small></span><span class="spd">${plDot(lv.vcat)}<small>속도</small></span>` : '') + `</button>`;   // 봉돌은 배 위에서 GPS로 잰 지금만 (출조 전 짐작은 헷갈려서 뺌 · 사용자 2026-11-23)
       if (!on) return h + '</div>';
       if (!plRec) { try { plRec = simRecMap(); } catch (_) { plRec = {}; } }
       const all = s.more.has(x.h), fnOn = s.fn.has(x.h), list = all ? L : L.slice(0, 6), top = L[0].sc || 1;
@@ -6670,7 +6672,13 @@ const TideHarm = (() => {
         + `<div class="pl-dt"><small>에기 바닥 속도</small><b>${plDot(vc)}<span style="white-space:nowrap">초속 ${x.sink.v[1].toFixed(2)}m</span></b><span>${(([a, b]) => esc(a) + (b ? `<em class="pl-why">${esc(b + skStopTxt(x.sink.v[1]))}</em>` : ''))(SK_VTXT[s.sp === 'gp' ? 'gp' : 'jj'][vc].split(' · '))}</span></div>`
         + `<div class="pl-dt wide"><small>방법 (가설)</small><span>${esc(SK_METH[s.sp === 'gp' ? 'gp' : 'jj'][vc])}</span></div>`;
       h += `</div>`;
-      if (s.live && s.live.h === x.h && s.live.sk) { const q = s.live.sk; h += `<div class="pl-dg"><div class="pl-dt wide live"><small>지금 배 위 (GPS로 셈)</small><b>${plDot(q.vcat)}${q.std ? q.std + '호' : '40호↑'}<span style="white-space:nowrap">· 바닥 초속 ${q.v.toFixed(2)}m</span></b><span>바닥에 붙어 끌려오는 가장 가벼운 무게 · ${q.cur && q.std && q.cur < q.ho * 0.9 ? `지금 단 ${q.cur}호는 가벼워 바닥에서 뜰 수 있어요 → ${q.std}호 · ` : ''}에기는 배 속도로 지나가요 · ${esc(SK_VTXT[s.sp === 'gp' ? 'gp' : 'jj'][q.vcat].split(' · ')[0])}${skStopTxt(q.v)}</span></div><div class="pl-dt wide"><small>방법 (가설)</small><span>${esc(SK_METH[s.sp === 'gp' ? 'gp' : 'jj'][q.vcat])}</span></div></div>`; }
+      if (s.live && s.live.h === x.h && s.live.sk) { const q = s.live.sk, heavy = q.cur && q.std && q.cur >= q.std, light = q.cur && q.std && q.cur < q.ho * 0.9;
+        // 선장님이 정한 호수(단 봉돌)가 앱 최소보다 무거우면 단 호수를 크게 · 앱 셈은 참고로 (사용자 2026-11-23: 선장은 16호, 앱은 12호만 나오면 헷갈림)
+        const opts = [...new Set([...skOpts(), 12, 14, 15, 16, 18, 20, 25, ...(q.cur ? [q.cur] : [])])].filter(n => n > 0).sort((a, b) => a - b);
+        h += `<div class="pl-dg"><div class="pl-dt wide live"><small>지금 배 위 (GPS로 셈)</small><b>${plDot(q.vcat)}${heavy ? q.cur + '호' : q.std ? q.std + '호' : '40호↑'}<span style="white-space:nowrap">· 바닥 초속 ${q.v.toFixed(2)}m</span></b>`
+          + `<span>${heavy ? `${q.cur}호 단 채 · 바닥에 충분히 붙어요 (앱 최소 ${q.std}호) · ` : light ? `지금 단 ${q.cur}호는 가벼워 바닥에서 뜰 수 있어요 → ${q.std}호 · ` : '바닥에 붙어 끌려오는 가장 가벼운 무게 · '}에기는 배 속도로 지나가요 · ${esc(SK_VTXT[s.sp === 'gp' ? 'gp' : 'jj'][q.vcat].split(' · ')[0])}${skStopTxt(q.v)}</span>`
+          + `<div class="pl-skcur" role="group" aria-label="지금 단 봉돌 (선장님이 정한 호수)"><small>단 봉돌</small>${opts.map(n => `<button type="button" data-pl="sknow" data-n="${n}" class="${n === q.cur ? 'on' : ''}" aria-pressed="${n === q.cur}">${n}</button>`).join('')}</div></div>`
+          + `<div class="pl-dt wide"><small>방법 (가설)</small><span>${esc(SK_METH[s.sp === 'gp' ? 'gp' : 'jj'][q.vcat])}</span></div></div>`; }
       if (AB) h += `<p class="pl-k">실제 기록 <span style="font-weight:500">· 참고만</span></p><div class="pl-act">${AB.pts.map(p => `<div><b>${ampm((p.t - dayStartOf(s.n)) / 60000)}</b><span>${esc([(p.egi || []).map(plRecName).join(' · '), (p.sink || []).length ? p.sink.join('·') + '호' : '', p.mt ? PL_MT[p.mt] : ''].filter(Boolean).join(' · ') || '채비 기록 없음')}</span><em>${(p.jj || 0) + (p.gap || 0)}마리</em></div>`).join('')}</div>`;
       h += `<button type="button" class="pl-wb" data-pl="why" data-h="${x.h}" aria-expanded="${s.why.has(x.h)}">${s.why.has(x.h) ? '근거 접기' : '근거 보기'}</button>`;
       if (s.why.has(x.h)) h += `<p class="why">${plWhy(x, s)}</p>`;
@@ -6818,7 +6826,7 @@ const TideHarm = (() => {
       let L = null; try { L = liveCalc(now); } catch (_) { L = null; }
       if (!x && !(L && L.sk)) { el.classList.remove('soon', 'sw'); put(`<span><b class="pc">길잡이 셈하는 중…</b><small><span class="gt">길잡이</span> · 지금 이 자리로 셈해요</small></span>`, '길잡이 셈하는 중'); return show(); }
       const pe = (gdG && gdG.pe) || '1.0', s = L && L.sk, sx = x && x.sink && x.sink[pe];
-      const skT = s ? (s.std ? `${s.std}호` : '40호↑') : '', vc = s ? s.vcat : null;   // 봉돌·속도는 GPS로 잰 지금 값만 (사용자 2026-11-23)
+      const skT = s ? (s.cur && s.std && s.cur >= s.std ? `${s.cur}호` : s.std ? `${s.std}호` : '40호↑') : '', vc = s ? s.vcat : null;   // 봉돌·속도는 GPS로 잰 지금 값만 (사용자 2026-11-23)
       const E = x && x.EG, bfN = E && E.bf ? plFn(E.bf) : '';
       const cols = E ? [bfN, ...E.list.slice(0, 2).map(e => e.n + (e.best !== (E.bf || '') ? `(${plFn(e.best, e.fn.lz.lc)})` : ''))].filter(Boolean).join(' · ') : '';
       const warn = s && s.cur && s.std && s.cur < s.ho * 0.9, fast = s && s.vcat === 2;
@@ -11702,7 +11710,7 @@ const TideHarm = (() => {
 
 <script>
 if ('serviceWorker' in navigator) addEventListener('load', () => {
-  const sw = navigator.serviceWorker, VER = '1283a7f2'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
+  const sw = navigator.serviceWorker, VER = 'ac1cb0c5'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
   // 화면에 손을 대기 시작했는지 (쓰는 중에는 새로 열지 않으려고)
   ['pointerdown', 'keydown'].forEach(t => addEventListener(t, () => { touched = true; }, { capture: true, passive: true }));
   const reload = () => {
