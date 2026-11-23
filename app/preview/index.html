@@ -6594,10 +6594,9 @@ const TideHarm = (() => {
       const note = R.cur ? (R.cur.d > 3 ? `조류는 ${esc(R.cur.name)} 예보 지점(${kmTxt(R.cur.d)}) 값이라 실제와 다를 수 있어요` : '') : '가까운 조류 예보 지점이 없어 봉돌은 셈하지 못해요';
       return `<div class="pl-day"><div class="pl-dh"><b>챙길 것 · ${esc(R.dd.name)}</b><small>${esc(ex)} · ${esc(wsrc)}</small></div>`
         + `<div class="pl-dg"><div class="pl-dt wide"><small>에기 후보 · 하루 평균 잘 보이는 색</small><span class="pl-chs">${top.map(plChip).join('')}</span></div>`
-        + `<div class="pl-dt wide"><small>봉돌 · PE ${s.pe === '1.0' ? '1' : s.pe}호 · ${s.dz ? `출항지 둘레 수심 ${Math.round(s.dz[0])}~${Math.round(s.dz[2])}m 기준` : '수심을 넓게 잡은 범위'}</small><b>${sk}</b>${mid != null && lo !== hi ? `<span>보통 ${f(mid)}호 · 가장 무거운 ${f(hi)}호도 하나</span>` : ''}</div>`
+        + `<div class="pl-dt wide"><small>챙겨 갈 봉돌 · PE ${s.pe === '1.0' ? '1' : s.pe}호 · 배 위에서는 GPS로 그때그때 · ${s.dz ? `출항지 둘레 수심 ${Math.round(s.dz[0])}~${Math.round(s.dz[2])}m 기준` : '수심을 넓게 잡은 범위'}</small><b>${sk}</b>${mid != null && lo !== hi ? `<span>보통 ${f(mid)}호 · 가장 무거운 ${f(hi)}호도 하나</span>` : ''}</div>`
         + `<div class="pl-dt wide"><small>기능이 필요한 시간</small><span>${esc(fnT)}</span></div>`
-        + `<div class="pl-dt"><small>물색</small><b>${esc(wl)}</b><span>투명도 ${zt(z0)}~${zt(z1)}m</span></div>`
-        + `<div class="pl-dt"><small>에기가 빠른 시간</small>${fast.length ? `<span>${plDot(2)} ${plRuns(fast)}</span>` : `<span>${plDot(0)} 없음</span>`}</div></div>`
+        + `<div class="pl-dt wide"><small>물색</small><b>${esc(wl)}</b><span>투명도 ${zt(z0)}~${zt(z1)}m</span></div></div>`
         + (s.act ? `<div class="pl-dg"><div class="pl-dt wide act"><small>실제 기록 · 참고만</small><b>쭈꾸미 ${s.act.tot.jj} · 갑오징어 ${s.act.tot.gap}</b><span>포인트 ${s.act.n}곳</span></div></div>` : '')
         + (note ? `<p class="pl-note">${note}</p>` : '') + `<p class="pl-note">색 점수는 쭈갑이 눈에 보이는 정도만 셈한 가설이에요. 서해처럼 탁하고 어두운 날은 색끼리 차이가 작게 나와요.</p></div>`;
     }
@@ -6641,11 +6640,11 @@ const TideHarm = (() => {
     let plRec = null;
     const plCm = r => r <= 0.05 ? '5cm↓' : r < 1 ? `${Math.round(r * 20) * 5}cm` : `${(Math.round(r * 10) / 10).toFixed(1)}m`;   // 쭈갑이가 알아보는 거리 (점수의 바탕 값)
     function plHour(x, s) {
-      const on = s.open.has(x.h), L = x.EG.list, sk = x.sink && x.sink[s.pe], vc = plVc(x, s), AB = s.act && s.act.byH[x.h];
+      const on = s.open.has(x.h), L = x.EG.list, sk = x.sink && x.sink[s.pe], vc = plVc(x, s), AB = s.act && s.act.byH[x.h], lv = s.live && s.live.h === x.h && s.live.sk ? s.live.sk : null;
       const skT = sk ? (sk.main ? `${sk.main}호` : '40↑') : '–';
       let h = `<div class="pl-hr2${on ? ' on' : ''}"><button type="button" class="pl-hh" data-pl="row" data-h="${x.h}" aria-expanded="${on}">`
         + `<span class="t">${x.h}시</span><span class="m"><span class="pl-chs">${plChip(L[0])}${plChip(L[1])}</span><small>${esc(x.st.txt)} · 물색 ${esc(x.W.label)}</small>${AB ? `<small class="act"><b>실제</b> ${esc(plActTxt(AB))}${[...AB.ids].some(id => id === L[0].id || id === L[1].id) ? ' <em>계획 색</em>' : ''}</small>` : ''}</span>`
-        + `<span class="sk"><b>${skT}</b><small>봉돌</small></span><span class="spd">${vc != null ? plDot(vc) : '<i class="pl-dot"></i>'}<small>속도</small></span></button>`;
+        + (lv ? `<span class="sk"><b>${lv.std ? lv.std + '호' : '40↑'}</b><small>지금 봉돌</small></span><span class="spd">${plDot(lv.vcat)}<small>속도</small></span>` : '') + `</button>`;   // 봉돌은 배 위에서 GPS로 잰 지금만 (출조 전 짐작은 헷갈려서 뺌 · 사용자 2026-11-23)
       if (!on) return h + '</div>';
       if (!plRec) { try { plRec = simRecMap(); } catch (_) { plRec = {}; } }
       const all = s.more.has(x.h), fnOn = s.fn.has(x.h), list = all ? L : L.slice(0, 6), top = L[0].sc || 1;
@@ -6667,11 +6666,11 @@ const TideHarm = (() => {
       if (pr) h += `<p class="pl-k">두 개 달면</p><div class="pl-pr">${plSw(pr.a)}<b>${esc(pr.an)}</b><span>+</span>${plSw(pr.b)}<b>${esc(pr.bn)}</b><span class="sc">${pr.sc}${pr.sb != null ? `·${pr.sb}` : ''}</span></div>`;
       const zt = x.W.zsd < 1 ? x.W.zsd.toFixed(1) : (Math.round(x.W.zsd * 2) / 2).toFixed(1);
       h += `<div class="pl-dg"><div class="pl-dt"><small>바닥 빛</small><b>${esc(simLvTxt(x.LB.qb))}</b></div><div class="pl-dt"><small>물색</small><b>${esc(x.W.label)}</b><span>투명도 약 ${zt}m</span></div>`;
-      if (sk) h += `<div class="pl-dt"><small>봉돌 · PE ${s.pe === '1.0' ? '1' : s.pe}호</small><b>${skT}</b><span>바닥에 붙어 끌려오는 가장 가벼운 무게 · ${sk.wn ? '<em class="pl-wn">바람이 세서 배가 빨리 밀려요</em> · ' : ''}${sk.fl ? '물이 약해 12호로도 붙어요 · ' : ''}${sk.lo === sk.hi && sk.lo === sk.main ? '배가 더·덜 밀려도 같아요' : `배가 덜 밀리면 ${sk.lo || '40↑'}호 · 더 밀리면 ${sk.hi || '40↑'}호`}${sk.main && sk.boxMain !== sk.main ? ` · 상자엔 ${sk.boxMain || '25↑'}호` : ''}</span></div>`
+      if (0 && sk) h += `<div class="pl-dt"><small>봉돌 · PE ${s.pe === '1.0' ? '1' : s.pe}호</small><b>${skT}</b><span>바닥에 붙어 끌려오는 가장 가벼운 무게 · ${sk.wn ? '<em class="pl-wn">바람이 세서 배가 빨리 밀려요</em> · ' : ''}${sk.fl ? '물이 약해 12호로도 붙어요 · ' : ''}${sk.lo === sk.hi && sk.lo === sk.main ? '배가 더·덜 밀려도 같아요' : `배가 덜 밀리면 ${sk.lo || '40↑'}호 · 더 밀리면 ${sk.hi || '40↑'}호`}${sk.main && sk.boxMain !== sk.main ? ` · 상자엔 ${sk.boxMain || '25↑'}호` : ''}</span></div>`
         + `<div class="pl-dt"><small>에기 바닥 속도</small><b>${plDot(vc)}<span style="white-space:nowrap">초속 ${x.sink.v[1].toFixed(2)}m</span></b><span>${(([a, b]) => esc(a) + (b ? `<em class="pl-why">${esc(b + skStopTxt(x.sink.v[1]))}</em>` : ''))(SK_VTXT[s.sp === 'gp' ? 'gp' : 'jj'][vc].split(' · '))}</span></div>`
         + `<div class="pl-dt wide"><small>방법 (가설)</small><span>${esc(SK_METH[s.sp === 'gp' ? 'gp' : 'jj'][vc])}</span></div>`;
       h += `</div>`;
-      if (s.live && s.live.h === x.h && s.live.sk) { const q = s.live.sk; h += `<div class="pl-dg"><div class="pl-dt wide live"><small>지금 배 위 (GPS로 셈)</small><b>${plDot(q.vcat)}${q.std ? q.std + '호' : '40호↑'}<span style="white-space:nowrap">· 바닥 초속 ${q.v.toFixed(2)}m</span></b><span>${q.cur && q.std && q.cur < q.ho * 0.9 ? `지금 단 ${q.cur}호는 가벼워 바닥에서 뜰 수 있어요 → ${q.std}호 · ` : ''}에기는 배 속도로 지나가요${skStopTxt(q.v)}</span></div></div>`; }
+      if (s.live && s.live.h === x.h && s.live.sk) { const q = s.live.sk; h += `<div class="pl-dg"><div class="pl-dt wide live"><small>지금 배 위 (GPS로 셈)</small><b>${plDot(q.vcat)}${q.std ? q.std + '호' : '40호↑'}<span style="white-space:nowrap">· 바닥 초속 ${q.v.toFixed(2)}m</span></b><span>바닥에 붙어 끌려오는 가장 가벼운 무게 · ${q.cur && q.std && q.cur < q.ho * 0.9 ? `지금 단 ${q.cur}호는 가벼워 바닥에서 뜰 수 있어요 → ${q.std}호 · ` : ''}에기는 배 속도로 지나가요 · ${esc(SK_VTXT[s.sp === 'gp' ? 'gp' : 'jj'][q.vcat].split(' · ')[0])}${skStopTxt(q.v)}</span></div><div class="pl-dt wide"><small>방법 (가설)</small><span>${esc(SK_METH[s.sp === 'gp' ? 'gp' : 'jj'][q.vcat])}</span></div></div>`; }
       if (AB) h += `<p class="pl-k">실제 기록 <span style="font-weight:500">· 참고만</span></p><div class="pl-act">${AB.pts.map(p => `<div><b>${ampm((p.t - dayStartOf(s.n)) / 60000)}</b><span>${esc([(p.egi || []).map(plRecName).join(' · '), (p.sink || []).length ? p.sink.join('·') + '호' : '', p.mt ? PL_MT[p.mt] : ''].filter(Boolean).join(' · ') || '채비 기록 없음')}</span><em>${(p.jj || 0) + (p.gap || 0)}마리</em></div>`).join('')}</div>`;
       h += `<button type="button" class="pl-wb" data-pl="why" data-h="${x.h}" aria-expanded="${s.why.has(x.h)}">${s.why.has(x.h) ? '근거 접기' : '근거 보기'}</button>`;
       if (s.why.has(x.h)) h += `<p class="why">${plWhy(x, s)}</p>`;
@@ -6804,8 +6803,6 @@ const TideHarm = (() => {
         const E0 = x0.EG, E = x.EG;
         if (E0 && E && (E.bf || '') !== (E0.bf || '')) { msg = `${x.h}시부터 ${E.bf ? plFn(E.bf) : '기능 없이'} · ${E.list.slice(0, 2).map(e => e.n).join('·')}`; G.nextAt = t; break; }
         if (E0 && E && !E.flat && !E0.list.slice(0, 2).some(e => e.id === E.list[0].id)) { msg = `${x.h}시부터 ${E.list[0].n} 쪽`; G.nextAt = t; break; }
-        const s0 = x0.sink && x0.sink[G.pe], s1 = x.sink && x.sink[G.pe];
-        if (s0 && s1 && s0.main && s1.main && s1.main !== s0.main) { msg = `${x.h}시쯤 봉돌 ${s1.main}호 쪽`; G.nextAt = t; break; }
       }
       return msg;
     }
@@ -6821,7 +6818,7 @@ const TideHarm = (() => {
       let L = null; try { L = liveCalc(now); } catch (_) { L = null; }
       if (!x && !(L && L.sk)) { el.classList.remove('soon', 'sw'); put(`<span><b class="pc">길잡이 셈하는 중…</b><small><span class="gt">길잡이</span> · 지금 이 자리로 셈해요</small></span>`, '길잡이 셈하는 중'); return show(); }
       const pe = (gdG && gdG.pe) || '1.0', s = L && L.sk, sx = x && x.sink && x.sink[pe];
-      const skT = s ? (s.std ? `${s.std}호` : '40호↑') : sx ? (sx.main ? `${sx.main}호` : '40호↑') : '', vc = s ? s.vcat : x ? plVc(x, { pe }) : null;
+      const skT = s ? (s.std ? `${s.std}호` : '40호↑') : '', vc = s ? s.vcat : null;   // 봉돌·속도는 GPS로 잰 지금 값만 (사용자 2026-11-23)
       const E = x && x.EG, bfN = E && E.bf ? plFn(E.bf) : '';
       const cols = E ? [bfN, ...E.list.slice(0, 2).map(e => e.n + (e.best !== (E.bf || '') ? `(${plFn(e.best, e.fn.lz.lc)})` : ''))].filter(Boolean).join(' · ') : '';
       const warn = s && s.cur && s.std && s.cur < s.ho * 0.9, fast = s && s.vcat === 2;
@@ -6847,7 +6844,7 @@ const TideHarm = (() => {
         if (!gdOn || !gdG || at - gdG.t > 15 * 60000 || (pos && distKm(gdG.p, pos) > 1)) return {};
         const x = gdNowRow(gdG); if (!x || !x.EG) return {};
         let L = null; try { L = liveCalc(at); } catch (_) {}
-        const sk = L && L.sk && L.sk.std || (x.sink && x.sink[gdG.pe] && x.sink[gdG.pe].main) || null;
+        const sk = L && L.sk && L.sk.std || null;   // 봉돌은 GPS로 잰 지금 값만
         return { gd: { sk, bf: x.EG.bf || '', c: x.EG.list.slice(0, 2).map(e => [e.id, e.best]) }, fp: fpOf(x) };
       } catch (_) { return {}; }
     }
@@ -11705,7 +11702,7 @@ const TideHarm = (() => {
 
 <script>
 if ('serviceWorker' in navigator) addEventListener('load', () => {
-  const sw = navigator.serviceWorker, VER = 'fcb61dba'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
+  const sw = navigator.serviceWorker, VER = '1283a7f2'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
   // 화면에 손을 대기 시작했는지 (쓰는 중에는 새로 열지 않으려고)
   ['pointerdown', 'keydown'].forEach(t => addEventListener(t, () => { touched = true; }, { capture: true, passive: true }));
   const reload = () => {
