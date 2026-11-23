@@ -6321,70 +6321,44 @@ const TideHarm = (() => {
       let lo = 2, hi = 60; for (let i = 0; i < 18; i++) { const m = (lo + hi) / 2; if (skAngle(h, c, vb, m, pe) > SK_ANG) lo = m; else hi = m; }
       return hi;
     }
-    // 봉돌 (사용자 2026-11-23): 줄이 서는지는 선장님 몫 → 봉돌은 '에기를 쭈꾸미·갑오징어가 따라와 올라탈 속도까지 늦추는 가장 가벼운 무게'로
-    //  흘리며 줄을 풀어 주면 봉돌은 배에 끌려가지 않고, 바닥 물살과 줄에 걸리는 물살에 밀려 바닥을 끌린다 → 무거울수록 버텨서 배보다 느리게
-    //  · 목표 속도 vt: 쭈꾸미 0.19m/s · 갑오징어 0.13m/s (위 연구 값) · 봉돌을 미는 힘 = 바닥 물(봉돌·에기 2개) + 줄(아래는 봉돌 따라, 위로 갈수록 물 따라 흐름 → 1−z/h 만큼)
-    //  · 버티는 힘 = 바닥 마찰 μ × 물속 무게 · μ 0.5 (물속 납이 모래·뻘 섞인 바닥을 끌릴 때 대략 0.4~0.7 · 가정) · 범위: μ 0.65~0.38
-    //  · SK_K: 줄 힘이 봉돌까지 오는 정도 — 크기는 사용자 경험('대부분 20호 이하, 사리 때 25호')에 맞춤: 수심 25m · 겉물 0.9m/s(사리) → 쭈꾸미 25호 · 출조 기록으로 다듬을 것
-    const SK_VT = { jj: 0.19, gp: 0.13 }, SK_MU = [0.65, 0.5, 0.38], SK_K = 1.15;
-    function skPush(h, c, vb, ho, pe, vt) {
-      const S = skSinker(ho), d = SIM_PE[pe] || SIM_PE['1.0'], us = Math.hypot(c[0], c[1]), vbm = Math.hypot(vb[0], vb[1]) || 1, s0 = [vt * vb[0] / vbm, vt * vb[1] / vbm];
-      const wv = z => { const f = us > 0 ? (Math.max(0.05, z) / h) ** (1 / 7) : 0; return [c[0] * f, c[1] * f]; };
-      let w = wv(0.3), rx = w[0] - s0[0], ry = w[1] - s0[1], vr = Math.hypot(rx, ry);
-      const k = 0.5 * 1025 * (0.6 * S.A + 2 * SK_EGI.Cd * SK_EGI.A) * vr; let Fx = k * rx, Fy = k * ry, Lx = 0, Ly = 0;
-      const dz = Math.max(0.1, h / 120);
-      for (let z = 0.3; z < h; z += dz) { w = wv(z); const g = 1 - z / h; rx = (w[0] - s0[0]) * g; ry = (w[1] - s0[1]) * g; vr = Math.hypot(rx, ry); if (!(vr > 0)) continue;
-        const Re = Math.max(1e-3, vr * d / 1.2e-6), q = 0.5 * 1025 * (1 + 10 / Re ** (2 / 3)) * d * vr * dz; Lx += q * rx; Ly += q * ry; }
-      return Math.hypot(Fx + SK_K * Lx, Fy + SK_K * Ly);
-    }
-    function skSlow(h, c, vb, pe, vt, mu) {   // 에기를 vt 이하로 늦추는 가장 가벼운 호수 (연속값) · 0 = 배가 이미 그보다 느림 · 81 = 80호로도 못 늦춤
-      if (Math.hypot(vb[0], vb[1]) <= vt) return 0;
-      const ok = ho => mu * (skSinker(ho).W + 2 * SK_EGI.W) >= skPush(h, c, vb, ho, pe, vt);
-      if (!ok(80)) return 81; let lo = 1, hi = 80; for (let i = 0; i < 20; i++) { const m = (lo + hi) / 2; if (ok(m)) hi = m; else lo = m; } return hi;
-    }
-    const skCat = need => (need <= 25 * 1.05 ? 0 : need <= 40 ? 1 : 2);   // 점: 0 챙겨 가는 무게로 늦춤 · 1 아주 무거워야 · 2 40호로도 못 늦춤
     const SK_MIN = 12;   // 아랫선: 실제로 써 본 가장 가벼운 호수 (사용자 경험 2026-11-20 · 그보다 가벼운 셈은 12호로)
     const skStd = x => SK_STD.find(n => n >= Math.max(SK_MIN, x) * 0.95) || 0;   // 5% 안쪽이면 가벼운 쪽 · 0 = 40호로도 모자람
     const simPick = h => SIM_SK.find(n => n >= Math.max(SK_MIN, h) * 0.95) || 0;   // 챙겨 가는 호수 중
     // 에기 바닥 속도 등급 (sp: jj 쭈꾸미 · gp 갑오징어)
     const skVcat = (v, sp) => (v <= (sp === 'gp' ? 0.13 : 0.19) ? 0 : v <= 0.6 ? 1 : 2);
-    const SK_VTXT = { jj: ['쭈꾸미가 따라와 올라탈 수도 있는 속도', '쭈꾸미가 곁을 지나가는 에기를 잡아야 하는 속도', '에기가 쭈꾸미 곁을 너무 빨리 지나가 잡을 틈이 짧을 수 있음 · 평균 속도는 배가 밀리는 속도라 봉돌로 못 바꿔요. 조금 무거운 봉돌로 줄을 풀어 주면 바닥에서 잠깐씩 멈출 수 있어요(가설)'],
-      gp: ['갑오징어가 따라와 덮치기 쉬운 속도', '갑오징어가 곁을 지나가는 에기를 덮쳐야 하는 속도', '에기가 갑오징어 곁을 너무 빨리 지나가 덮칠 틈이 짧을 수 있음 · 평균 속도는 배가 밀리는 속도라 봉돌로 못 바꿔요. 조금 무거운 봉돌로 줄을 풀어 주면 바닥에서 잠깐씩 멈출 수 있어요(가설)'] };
+    const SK_VTXT = { jj: ['쭈꾸미가 따라와 올라탈 수도 있는 속도', '쭈꾸미가 곁을 지나가는 에기를 잡아야 하는 속도 · 에기 속도는 배가 밀리는 속도라 봉돌로는 못 바꿔요', '에기가 쭈꾸미 곁을 너무 빨리 지나가 잡을 틈이 짧을 수 있음 · 에기 속도는 배가 밀리는 속도라 봉돌로는 못 바꿔요'],
+      gp: ['갑오징어가 따라와 덮치기 쉬운 속도', '갑오징어가 곁을 지나가는 에기를 덮쳐야 하는 속도 · 에기 속도는 배가 밀리는 속도라 봉돌로는 못 바꿔요', '에기가 갑오징어 곁을 너무 빨리 지나가 덮칠 틈이 짧을 수 있음 · 에기 속도는 배가 밀리는 속도라 봉돌로는 못 바꿔요'] };
     //  방법(가설): 텐션 = 줄을 팽팽히 두고 살짝 들기(보이게·느끼기) · 내려놓기 = 봉돌을 바닥에 두어 에기를 멈춤(쭈꾸미는 가만있는 물건에 잘 오름 · 소라방)
     //        갑오징어는 움직이는 먹이를 눈으로 쫓다 덮쳐서 텐션 쪽 · 두 방법을 직접 견준 연구는 없음 → 출조 기록(쓴 방법)으로 확인할 것
     const SK_METH = { jj: ['텐션 위주로 충분', '텐션으로 보이게 → 내려놓아 2~3초 멈춤 → 다시 텐션으로 무게 확인, 번갈아', '내려놓기를 길게 (줄이 금방 휘니 짧게 끊어서)'],
       gp: ['텐션 잡고 살짝살짝 움직이기', '텐션 위주 + 가끔 짧게 멈춤', '멈춤을 섞되 짧게 · 움직임으로 보이게'] };
-    const skMethTxt = (x, sp) => `방법(가설): ${SK_METH[sp === 'gp' ? 'gp' : 'jj'][sp === 'gp' ? x.vdGp : x.vd]}`;
+    const skMethTxt = (x, sp) => `방법(가설): ${SK_METH[sp === 'gp' ? 'gp' : 'jj'][sp === 'gp' ? x.vcatGp : x.vcat]}`;
     // 출조 전: 배는 '보통 낚싯배가 바람·조류에 자연스럽게 흐름' (밀림 3~5.5%) · 바람 방향을 모르면 조류와 같은 쪽·옆·마주 셋 다
     function skPlan(depth, cur, wx, sp) {
       const r = cur.dir * Math.PI / 180, c = [cur.sp * Math.sin(r), cur.sp * Math.cos(r)];
       const winds = wx.wind != null ? [wx.wind] : [3, 5, 8], dirs = wx.dir != null ? [wx.dir] : [cur.dir, cur.dir + 90, cur.dir + 135, cur.dir + 180];   // 예보 밖: 보통 바람 5m/s로 셈, 3·8m/s는 범위만
-      const out = {}, vs = [], vm = [], midJ = [], midG = [];
+      const out = {}, vs = [], vm = [];
       for (const pe of ['0.8', '1.0']) {
         const need = [], mid = [];
         for (const ws of winds) for (const wd of dirs) for (const k of SK_LEE) {
-          const a = (wd + 180) * Math.PI / 180, vb = [c[0] + k * ws * Math.sin(a), c[1] + k * ws * Math.cos(a)], isMid = k === 0.04 && (wx.wind != null || ws === 5) && (wx.dir != null || wd === cur.dir + 135);
-          need.push(skSlow(depth, c, vb, pe, SK_VT[sp === 'gp' ? 'gp' : 'jj'], SK_MU[0]), skSlow(depth, c, vb, pe, SK_VT[sp === 'gp' ? 'gp' : 'jj'], SK_MU[2]));   // 범위: 바닥 마찰 0.65~0.38
-          if (isMid) { mid.push(skSlow(depth, c, vb, pe, SK_VT[sp === 'gp' ? 'gp' : 'jj'], SK_MU[1])); if (pe === '1.0') { midJ.push(skSlow(depth, c, vb, pe, SK_VT.jj, SK_MU[1])); midG.push(skSlow(depth, c, vb, pe, SK_VT.gp, SK_MU[1])); } }   // 방향 모르면 같은 쪽과 옆 사이(45°)가 대표
+          const a = (wd + 180) * Math.PI / 180, vb = [c[0] + k * ws * Math.sin(a), c[1] + k * ws * Math.cos(a)], x = skNeed(depth, c, vb, pe);
+          need.push(x); if (k === 0.04 && (wx.wind != null || ws === 5) && (wx.dir != null || wd === cur.dir + 135)) mid.push(x);   // 방향 모르면 같은 쪽과 옆 사이(45°)가 대표 — 옆바람만으론 사리 때 경험보다 가벼움
           if (pe === '1.0') { vs.push(Math.hypot(vb[0], vb[1])); if (k === 0.04 && (wx.wind != null || ws === 5) && (wx.dir != null || wd === cur.dir + 135)) vm.push(Math.hypot(vb[0], vb[1])); }
         }
         const a = Math.min(...need), b = Math.max(...need), m = Math.max(...mid);   // 보통 배(밀림 4%) · 방향을 모르면 같은 쪽과 옆 사이
-        out[pe] = { wn: 0, fl: m < SK_MIN * 0.95 ? 1 : 0, main: skStd(m), boxMain: simPick(m), lo: skStd(a), hi: skStd(b), boxLo: simPick(a), boxHi: simPick(b), ho: [Math.round(a * 10) / 10, Math.round(m * 10) / 10, Math.round(b * 10) / 10] };
+        const w0 = skNeed(depth, c, c, pe), wn = wx.wind != null && wx.wind >= 8 && m >= w0 + 8 && m >= 15 ? 1 : 0;   // 바람이 세서 무거워짐
+        out[pe] = { wn, fl: m < SK_MIN * 0.95 ? 1 : 0, main: skStd(m), boxMain: simPick(m), lo: skStd(a), hi: skStd(b), boxLo: simPick(a), boxHi: simPick(b), ho: [Math.round(a * 10) / 10, Math.round(m * 10) / 10, Math.round(b * 10) / 10] };
       }
       const v0 = Math.min(...vs), v1 = Math.max(...vs), v = Math.max(...vm);
-      const nj = Math.max(...midJ), ng = Math.max(...midG);
-      return { ...out, v: [v0, v, v1], vcat: skCat(nj), vcatGp: skCat(ng), vd: skVcat(v, 'jj'), vdGp: skVcat(v, 'gp') };   // vcat: 봉돌로 늦출 수 있나(점) · vd: 배가 밀리는 빠르기(방법)
+      return { ...out, v: [v0, v, v1], vcat: skVcat(v, sp), vcatGp: skVcat(v, 'gp') };
     }
     // 배 위 (선상모드): GPS 배 속도로 바로
     function skLive(depth, cur, b, pe, sp) {
       const r = cur.dir * Math.PI / 180, c = [cur.sp * Math.sin(r), cur.sp * Math.cos(r)], vb = b ? [b.e, b.n] : c;
-      const vt = SK_VT[sp === 'gp' ? 'gp' : 'jj'], ho = skSlow(depth, c, vb, pe, vt, SK_MU[1]), v = Math.hypot(vb[0], vb[1]);
-      return { ho, std: skStd(ho), box: simPick(ho), lo: skStd(skSlow(depth, c, vb, pe, vt, SK_MU[0])), hi: skStd(skSlow(depth, c, vb, pe, vt, SK_MU[2])), v, vt, vcat: skCat(ho), vd: skVcat(v, sp) };
+      const ho = skNeed(depth, c, vb, pe), v = Math.hypot(vb[0], vb[1]);
+      return { ho, std: skStd(ho), box: simPick(ho), ang: skAngle(depth, c, vb, skStd(ho) || 40, pe), v, vcat: skVcat(v, sp) };
     }
-    // 에기 속도 칸 글: 그 무게로 흘릴 때 · 줄을 얼마나 풀어 줘야 하는지 (배가 밀리는 만큼)
-    const skSpdTxt = (v, vt, vc) => vc === 2 ? '물살이 너무 세서 봉돌로 늦추기 어려워요 · 내려놓기로 잠깐씩 멈춤(가설)'
-      : v <= vt ? `배가 천천히 밀려(초속 ${v.toFixed(2)}m) 그대로도 따라올 속도예요`
-      : `이 무게로 흘리며 줄을 1분에 약 ${Math.round((v - vt) * 60)}m씩 풀어 주면 따라올 속도로 지나가요 · 배는 초속 ${v.toFixed(2)}m로 밀림`;
+    const skStopTxt = v => v > 0.19 ? ` · 줄을 30cm쯤 풀어 두면 약 ${Math.max(0.5, Math.round(0.3 / v * 2) / 2)}초 멈춰요(무거운 봉돌일수록 또렷 · 가설)` : '';
     const skTxt = (lo, hi) => !lo ? '40호로도 줄이 서기 어려움' : !hi || hi === lo ? `${lo}호${!hi ? '~40호↑' : ''}` : `${lo}~${hi}호`;
     // 한 시각 셈
     function simHour(ctx, t) {
@@ -6425,7 +6399,7 @@ const TideHarm = (() => {
     const simNum = v => v >= 100 ? String(Math.round(v)) : v >= 1 ? v.toFixed(1) : v >= 0.01 ? v.toFixed(2) : v.toExponential(0).replace('e-', '×10⁻').replace(/⁻(\d)/, (m, d) => '⁻' + '⁰¹²³⁴⁵⁶⁷⁸⁹'[d]);
     const simSkTxt = s => (!s ? '–' : s.main != null ? (s.main ? `${s.main}호` : '40호↑') : skTxt(s.lo, s.hi));
     const skBoxTxt = s => (!s || !s.main ? '' : s.boxMain === s.main ? ' · 챙겨 가는 호수' : ` · 챙겨 가는 호수에 없음(가까운 것 ${s.boxMain ? s.boxMain + '호' : '25호↑'})`);
-    const skVTxt = (x, sp) => `에기 바닥 속도 약 초속 ${x.v[1].toFixed(2)}m (쭈꾸미가 기어가는 속도의 ${Math.max(1, Math.round(x.v[1] / 0.07))}배쯤) · ${SK_VTXT[sp === 'gp' ? 'gp' : 'jj'][sp === 'gp' ? x.vdGp : x.vd]}`;
+    const skVTxt = (x, sp) => `에기 바닥 속도 약 초속 ${x.v[1].toFixed(2)}m (쭈꾸미가 기어가는 속도의 ${Math.max(1, Math.round(x.v[1] / 0.07))}배쯤) · ${SK_VTXT[sp === 'gp' ? 'gp' : 'jj'][sp === 'gp' ? x.vcatGp : x.vcat]}`;
     // 하루 셈: { k(출항지), p(낚시할 자리), n(날짜), h0~h1(시), sp('jj'|'gp'), pe } → 준비(자료 받기)까지 기다린 뒤
     async function simRun(o) {
       await loadSpots(); dpIndex(); await wqReady();   // 매일 위성(satReady)은 쓰지 않기로 함 — 한 번 맞춤
@@ -6623,7 +6597,7 @@ const TideHarm = (() => {
         + `<div class="pl-dt wide"><small>봉돌 · PE ${s.pe === '1.0' ? '1' : s.pe}호 · ${s.dz ? `출항지 둘레 수심 ${Math.round(s.dz[0])}~${Math.round(s.dz[2])}m 기준` : '수심을 넓게 잡은 범위'}</small><b>${sk}</b>${mid != null && lo !== hi ? `<span>보통 ${f(mid)}호 · 가장 무거운 ${f(hi)}호도 하나</span>` : ''}</div>`
         + `<div class="pl-dt wide"><small>기능이 필요한 시간</small><span>${esc(fnT)}</span></div>`
         + `<div class="pl-dt"><small>물색</small><b>${esc(wl)}</b><span>투명도 ${zt(z0)}~${zt(z1)}m</span></div>`
-        + `<div class="pl-dt"><small>봉돌로 못 늦추는 시간</small>${fast.length ? `<span>${plDot(2)} ${plRuns(fast)}</span>` : `<span>${plDot(0)} 없음</span>`}</div></div>`
+        + `<div class="pl-dt"><small>에기가 빠른 시간</small>${fast.length ? `<span>${plDot(2)} ${plRuns(fast)}</span>` : `<span>${plDot(0)} 없음</span>`}</div></div>`
         + (s.act ? `<div class="pl-dg"><div class="pl-dt wide act"><small>실제 기록 · 참고만</small><b>쭈꾸미 ${s.act.tot.jj} · 갑오징어 ${s.act.tot.gap}</b><span>포인트 ${s.act.n}곳</span></div></div>` : '')
         + (note ? `<p class="pl-note">${note}</p>` : '') + `<p class="pl-note">색 점수는 쭈갑이 눈에 보이는 정도만 셈한 가설이에요. 서해처럼 탁하고 어두운 날은 색끼리 차이가 작게 나와요.</p></div>`;
     }
@@ -6693,11 +6667,11 @@ const TideHarm = (() => {
       if (pr) h += `<p class="pl-k">두 개 달면</p><div class="pl-pr">${plSw(pr.a)}<b>${esc(pr.an)}</b><span>+</span>${plSw(pr.b)}<b>${esc(pr.bn)}</b><span class="sc">${pr.sc}${pr.sb != null ? `·${pr.sb}` : ''}</span></div>`;
       const zt = x.W.zsd < 1 ? x.W.zsd.toFixed(1) : (Math.round(x.W.zsd * 2) / 2).toFixed(1);
       h += `<div class="pl-dg"><div class="pl-dt"><small>바닥 빛</small><b>${esc(simLvTxt(x.LB.qb))}</b></div><div class="pl-dt"><small>물색</small><b>${esc(x.W.label)}</b><span>투명도 약 ${zt}m</span></div>`;
-      if (sk) h += `<div class="pl-dt"><small>봉돌 · PE ${s.pe === '1.0' ? '1' : s.pe}호</small><b>${skT}</b><span>${s.sp === 'gp' ? '갑오징어' : '쭈꾸미'}가 따라올 속도로 늦추는 무게${sk.fl ? ' · 물이 약해 12호로 충분' : ''}${!(sk.lo === sk.hi && sk.lo === sk.main) ? ` · 바닥·배에 따라 ${sk.lo || '40↑'}~${sk.hi || '40↑'}호` : ''}${sk.main && sk.boxMain !== sk.main ? ` · 상자엔 ${sk.boxMain || '25↑'}호` : ''} (가설)</span></div>`
-        + `<div class="pl-dt"><small>에기 바닥 속도</small><b>${plDot(vc)}<span style="white-space:nowrap">${vc === 2 ? '40호로도 빠름' : `초속 ${SK_VT[s.sp === 'gp' ? 'gp' : 'jj']}m 이하`}</span></b><span>${skSpdTxt(x.sink.v[1], SK_VT[s.sp === 'gp' ? 'gp' : 'jj'], vc)}</span></div>`
-        + `<div class="pl-dt wide"><small>방법 (가설)</small><span>${esc(SK_METH[s.sp === 'gp' ? 'gp' : 'jj'][s.sp === 'gp' ? x.sink.vdGp : x.sink.vd])}</span></div>`;
+      if (sk) h += `<div class="pl-dt"><small>봉돌 · PE ${s.pe === '1.0' ? '1' : s.pe}호</small><b>${skT}</b><span>바닥에 붙어 끌려오는 가장 가벼운 무게 · ${sk.wn ? '<em class="pl-wn">바람이 세서 배가 빨리 밀려요</em> · ' : ''}${sk.fl ? '물이 약해 12호로도 붙어요 · ' : ''}${sk.lo === sk.hi && sk.lo === sk.main ? '배가 더·덜 밀려도 같아요' : `배가 덜 밀리면 ${sk.lo || '40↑'}호 · 더 밀리면 ${sk.hi || '40↑'}호`}${sk.main && sk.boxMain !== sk.main ? ` · 상자엔 ${sk.boxMain || '25↑'}호` : ''}</span></div>`
+        + `<div class="pl-dt"><small>에기 바닥 속도</small><b>${plDot(vc)}<span style="white-space:nowrap">초속 ${x.sink.v[1].toFixed(2)}m</span></b><span>${(([a, b]) => esc(a) + (b ? `<em class="pl-why">${esc(b + skStopTxt(x.sink.v[1]))}</em>` : ''))(SK_VTXT[s.sp === 'gp' ? 'gp' : 'jj'][vc].split(' · '))}</span></div>`
+        + `<div class="pl-dt wide"><small>방법 (가설)</small><span>${esc(SK_METH[s.sp === 'gp' ? 'gp' : 'jj'][vc])}</span></div>`;
       h += `</div>`;
-      if (s.live && s.live.h === x.h && s.live.sk) { const q = s.live.sk; h += `<div class="pl-dg"><div class="pl-dt wide live"><small>지금 배 위 (GPS로 셈)</small><b>${plDot(q.vcat)}${q.std ? q.std + '호' : '40호↑'}<span style="white-space:nowrap">· 배 초속 ${q.v.toFixed(2)}m</span></b><span>${q.cur && q.std && q.cur < q.ho * 0.9 ? `지금 단 ${q.cur}호는 가벼워요 → ${q.std}호 · ` : ''}${skSpdTxt(q.v, q.vt, q.vcat)}</span></div></div>`; }
+      if (s.live && s.live.h === x.h && s.live.sk) { const q = s.live.sk; h += `<div class="pl-dg"><div class="pl-dt wide live"><small>지금 배 위 (GPS로 셈)</small><b>${plDot(q.vcat)}${q.std ? q.std + '호' : '40호↑'}<span style="white-space:nowrap">· 바닥 초속 ${q.v.toFixed(2)}m</span></b><span>${q.cur && q.std && q.cur < q.ho * 0.9 ? `지금 단 ${q.cur}호는 가벼워 바닥에서 뜰 수 있어요 → ${q.std}호 · ` : ''}에기는 배 속도로 지나가요${skStopTxt(q.v)}</span></div></div>`; }
       if (AB) h += `<p class="pl-k">실제 기록 <span style="font-weight:500">· 참고만</span></p><div class="pl-act">${AB.pts.map(p => `<div><b>${ampm((p.t - dayStartOf(s.n)) / 60000)}</b><span>${esc([(p.egi || []).map(plRecName).join(' · '), (p.sink || []).length ? p.sink.join('·') + '호' : '', p.mt ? PL_MT[p.mt] : ''].filter(Boolean).join(' · ') || '채비 기록 없음')}</span><em>${(p.jj || 0) + (p.gap || 0)}마리</em></div>`).join('')}</div>`;
       h += `<button type="button" class="pl-wb" data-pl="why" data-h="${x.h}" aria-expanded="${s.why.has(x.h)}">${s.why.has(x.h) ? '근거 접기' : '근거 보기'}</button>`;
       if (s.why.has(x.h)) h += `<p class="why">${plWhy(x, s)}</p>`;
@@ -6792,7 +6766,7 @@ const TideHarm = (() => {
         const q = curNow(cc.c, at), b = boatVel();
         // GPS 배 속도(바닥 위) · 그 자리 조류 → 줄이 30° 안으로 서는 호수 · GPS가 없으면 물 따라 흐른다고 본다
         const L = skLive(depth, { sp: q.sp / 100, dir: q.dir }, b, pe, 'jj');
-        sk = { need: L.box, std: L.std, ho: L.ho, lo: L.lo, hi: L.hi, v: L.v, vt: L.vt, vcat: L.vcat, vd: L.vd, b, depth, cur: skAt(at) };
+        sk = { need: L.box, std: L.std, ho: L.ho, v: L.v, vcat: L.vcat, b, depth, cur: skAt(at) };
       }
       const val = { n, h, P, row, live, sk, pe };
       lvC = SP && DPI && D.st !== 'load' ? { k: k0, t: at, v: val } : null;   // 자료가 아직 덜 들어왔으면 다음에 다시
@@ -6857,10 +6831,10 @@ const TideHarm = (() => {
       const sws = E ? E.list.slice(0, 2).map(e => `<span class="gsw${ring(e.best)}">${plSw(e.id)}</span>`).join('') : '';
       const atT = soon ? ampm((gdG.nextAt - dayStartOf(gdG.n)) / 60000).replace(/^오[전후] /, '') : '', tag = warn ? `→${s.std}호` : fast ? '빠름' : atT;
       el.classList.toggle('soon', !!(soon || warn || fast)); el.classList.add('sw'); ob.hidden = true;
-      const spdW = vc != null ? `<span class="gspd"><i class="pl-dot d${vc}" aria-hidden="true"></i>${['따라옴', '무거움', '빠름'][vc]}</span>` : '';   // 바닥 속도는 봉돌과 따로 (사용자 2026-11-23: 12호 옆 빨간 점이 봉돌 점수처럼 보임)
+      const spdW = vc != null ? `<span class="gspd"><i class="pl-dot d${vc}" aria-hidden="true"></i>${['느림', '보통', '빠름'][vc]}</span>` : '';   // 바닥 속도는 봉돌과 따로 (사용자 2026-11-23: 12호 옆 빨간 점이 봉돌 점수처럼 보임)
       const tag2 = warn ? `→${s.std}호` : (fast ? '' : atT);
       const t = `<span class="gp">${skT ? `<b class="pk">${esc(skT)}</b>` : ''}${sws}${spdW}${tag2 ? `<em class="gt2">${esc(tag2)}</em>` : ''}</span>`;
-      put(t, ['길잡이', `봉돌 ${skT}`, cols, warn ? `봉돌이 가벼워요 ${s.std}호로` : fast ? '40호로도 에기가 빨라요' : nx ? '다음: ' + nx : '', '누르면 자세히'].filter(Boolean).join('. ')); show();
+      put(t, ['길잡이', `봉돌 ${skT}`, cols, warn ? `봉돌이 가벼워요 ${s.std}호로` : fast ? '에기가 빨라요' : nx ? '다음: ' + nx : '', '누르면 자세히'].filter(Boolean).join('. ')); show();
     }
     function guideTap() {
       if (!gdOn) { gdOn = true; try { localStorage.setItem(GD_KEY, '1'); } catch (_) {} guideCalc(true); planChip(me); return; }
@@ -11731,7 +11705,7 @@ const TideHarm = (() => {
 
 <script>
 if ('serviceWorker' in navigator) addEventListener('load', () => {
-  const sw = navigator.serviceWorker, VER = '62623dc0'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
+  const sw = navigator.serviceWorker, VER = 'fcb61dba'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
   // 화면에 손을 대기 시작했는지 (쓰는 중에는 새로 열지 않으려고)
   ['pointerdown', 'keydown'].forEach(t => addEventListener(t, () => { touched = true; }, { capture: true, passive: true }));
   const reload = () => {
