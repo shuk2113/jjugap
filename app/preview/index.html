@@ -819,6 +819,7 @@ a.mv-row-btn{text-decoration:none; gap:10px} .mv-row-btn span{font-size:calc(20p
 .pl-cr .nm em{font-style:normal; font-size:calc(10px * var(--k)); font-weight:800; padding:0 5px; border-radius:5px; white-space:nowrap}
 .pl-cr .nm em.nb{background:transparent; box-shadow:inset 0 0 0 1px var(--line); color:var(--ink-2); font-weight:700} .pl-cr .nm em.mr{background:color-mix(in srgb, var(--accent, #2F7DF6) 18%, var(--card)); color:var(--ink)}
 .pl-cr .bar{height:calc(8px * var(--k)); border-radius:5px; background:color-mix(in srgb, var(--ink) 9%, var(--card)); overflow:hidden} .pl-cr .bar i{display:block; height:100%; border-radius:5px; background:var(--accent, #2F7DF6)}
+.pl-cr .sc small.rc{color:var(--hi)} .pl-flat{margin:4px 0 2px; font-size:calc(12px * var(--k)); line-height:1.5; color:var(--ink-2); word-break:keep-all}
 .pl-cr .sc{font-weight:800; font-size:calc(13.5px * var(--k)); text-align:right} .pl-cr .sc small{display:block; font-size:calc(10px * var(--k)); font-weight:700; color:var(--ink-2); white-space:nowrap} .pl-cr .fn{font-style:normal; font-size:calc(10.5px * var(--k)); font-weight:800; color:var(--ink-2); line-height:1.25; word-break:keep-all}
 .pl-cr .fx{grid-column:2 / -1; color:var(--ink-2); font-size:calc(11px * var(--k)); margin-top:-3px}
 .pl-bt{display:flex; gap:8px} .pl-bt button, .pl-wb{flex:1; padding:9px; border:1px solid var(--line); border-radius:11px; background:var(--card); color:var(--ink); font:inherit; font-size:calc(12.5px * var(--k)); font-weight:700}
@@ -6639,11 +6640,11 @@ const TideHarm = (() => {
         : x.EG.gk != null && x.EG.gk < 0.6 ? '주변이 밝아져 약해진 야광이 묻혀요 · 다시 충전해도 차이가 작아요' : '바닥이 밝아 기능 없이도 잘 보여요';
       const tm = {}; for (const e of L.slice(0, 3)) { const m = e.fn[e.best].m; tm[m] = (tm[m] || 0) + 1; }
       const tmK = Object.entries(tm).sort((a, b) => b[1] - a[1])[0], tmW = { '어둡게 보임': '어두운 색이 물빛보다 짙어 실루엣이 또렷해요', '밝게 보임': '물속이 어두워 밝은 색이 잘 보여요', '빛을 냄': '어두운 물에서 빛을 내는 에기가 잘 보여요', '무늬가 보임': '머리·몸통 밝기 경계(무늬)가 잘 보여요' }[tmK && tmK[0]] || '';
-      h += `<div class="pl-dx"><p class="pl-bf"><b>이 시각 기본: ${esc(bfN)}</b><span>${bfW}</span>${tmW ? `<span>위 색들: ${tmW}</span>` : ''}</p><p class="pl-k">에기 색 · ${bf ? esc(bfN) + ' 켠 채로' : '눈에 띔'} · 점수 밑 거리 = 쭈갑이가 알아보는 거리</p><div class="pl-cl">`;
+      h += `<div class="pl-dx"><p class="pl-bf"><b>이 시각 기본: ${esc(bfN)}</b><span>${bfW}</span>${tmW ? `<span>위 색들: ${tmW}</span>` : ''}</p><p class="pl-k">에기 색 · ${bf ? esc(bfN) + ' 켠 채로' : '눈에 띔'} · 점수 밑 거리 = 쭈갑이가 알아보는 거리</p>${x.EG.flat ? `<p class="pl-flat">${(bf || '').includes('g') ? '밤이라 색 차이가 작아요 · 야광이 천을 뚫고 가장 잘 비쳐 보이는 순서예요' : '이 시각은 색 차이가 작아요 · 위 색들 점수가 거의 같아요'}</p>` : ''}<div class="pl-cl">`;
       for (const e of list) {
         const rec = e.app && plRec[e.app], tags = (e.mine ? '<em class="mr">내 에기</em>' : simHas(e) ? '' : '<em class="nb">사 두면 좋아요</em>') + (rec ? `<em class="mr">내 기록 ${rec.map(n => { const v = ymd(n); return `${v.m}/${v.d}`; }).join('·')}</em>` : '');
         h += `<div class="pl-cr">${plSw(e.id)}<span class="nm"><b>${esc(e.n)}</b>${PL_SUB[e.id] ? `<small>${PL_SUB[e.id]}</small>` : e.mine ? '<small>색 코드로 어림</small>' : ''}${tags}</span>`
-          + `<span class="bar"><i style="width:${Math.max(3, Math.round(e.sc / Math.max(top, 40) * 100))}%"></i></span><span class="sc">${e.sc}<small>${plCm(e.r)}</small></span>`
+          + `<span class="bar"><i style="width:${Math.max(3, Math.round(e.sc / Math.max(top, 40) * 100))}%"></i></span><span class="sc">${e.sc}<small>${plCm(e.r)}</small>${e.rec ? `<small class="rc">기록 ${e.rec > 0 ? '+' : ''}${e.rec}</small>` : ''}</span>`
           + `<em class="fn">${e.best !== bf ? esc(plFn(e.best, e.fn.lz.lc)) : ''}</em>`
           + (fnOn ? `<small class="fx">기본 ${e.fn[''].sc} · 야광 ${e.fn.g.sc} · 케이 ${e.fn.k.sc} · 둘다 ${e.fn.gk.sc} · 레이저 ${e.fn.lz.sc}${e.fn.n ? ` · 누드 ${Math.max(e.fn.n.sc, e.fn.ng.sc, e.fn.nk.sc, e.fn.ngk.sc)}` : ''}</small>` : '') + `</div>`;
       }
@@ -9257,6 +9258,8 @@ const TideHarm = (() => {
     let fpMem = (() => { try { return JSON.parse(localStorage.getItem(FP_KEY) || '{}') || {}; } catch (_) { return {}; } })(), LRN = null, lrnBusy = null;
     const fpOf = x => ({ lb: x.LB.qb < 0.01 ? 0 : x.LB.qb < 0.3 ? 1 : x.LB.qb < 5 ? 2 : 3, sk: x.wx && x.wx.sky != null ? (x.wx.sky >= 3 ? 1 : 0) : null, td: x.st.stand ? 2 : x.st.flood ? 1 : 0, wa: x.W.zsd < 1.2 ? 0 : x.W.zsd < 2.5 ? 1 : 2 });
     function fpSim(a, b) {
+      // 바닥 빛이 두 단계 넘게 다르면(낮 ↔ 밤) 비슷한 조건이 아님 — 낮에 '보이는 색'으로 먹힌 기록을 밤(야광만 보이는 때)으로 옮기지 않게 (사용자 2026-11-23)
+      if (a.lb != null && b.lb != null && Math.abs(a.lb - b.lb) >= 2) return 0;
       let s = 0, n = 3;
       s += a.lb === b.lb ? 1 : Math.abs(a.lb - b.lb) === 1 ? 0.4 : 0;
       s += a.td === b.td ? 1 : (a.td === 2 || b.td === 2) ? 0.5 : 0;
@@ -11685,7 +11688,7 @@ const TideHarm = (() => {
 
 <script>
 if ('serviceWorker' in navigator) addEventListener('load', () => {
-  const sw = navigator.serviceWorker, VER = 'e9394a3d'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
+  const sw = navigator.serviceWorker, VER = '4b7b540c'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
   // 화면에 손을 대기 시작했는지 (쓰는 중에는 새로 열지 않으려고)
   ['pointerdown', 'keydown'].forEach(t => addEventListener(t, () => { touched = true; }, { capture: true, passive: true }));
   const reload = () => {
