@@ -2192,7 +2192,9 @@ const TideHarm = (() => {
   const MOON_IC = (x, y) => `<path d="M${(x + 1.2).toFixed(1)} ${(y - 4.6).toFixed(1)}a4.7 4.7 0 1 0 3.3 7a3.8 3.8 0 0 1-3.3-7z" fill="currentColor"/>`;
   let sunMarks = [], capFor = null;
   // 화면 폭에 맞춘 글자·그림 배율 (CSS 의 --k)
-  function uiK() { const k = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--k')); return k > 0.5 && k < 2 ? k : 1; }
+  // 글자 배율은 화면 폭에서만 바뀌니 한 번 재 두고 화면 크기가 바뀔 때만 다시 — 바다 그림이 매 장면 스타일을 다시 계산하게 하던 것 (사용자 2026-11-24: 버벅임 점검)
+  let uiKv = 0; addEventListener('resize', () => { uiKv = 0; });
+  function uiK() { if (uiKv) return uiKv; const k = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--k')); return (uiKv = k > 0.5 && k < 2 ? k : 1); }
   function fitCap() {
     const el = $('scrub-cap'); if (!el) return; el.style.fontSize = '';
     const k = uiK(); let fs = 11.5 * k; const over = () => [...el.children].some(c => c.scrollWidth > c.clientWidth + 0.5);
@@ -4621,7 +4623,7 @@ const TideHarm = (() => {
         labC = null; depCache.clear(); draw();
       }).catch(() => { mapPortsP = null; });
     }
-    let bv = null, BM = 0, interacting = false, bufs = {}, gestFn = null;   // 바탕을 그린 때의 화면 · 바깥 여유(점) · 손가락으로 움직이는 중
+    let opening = false, openT = 0, bv = null, BM = 0, interacting = false, bufs = {}, gestFn = null;   // 바탕을 그린 때의 화면 · 바깥 여유(점) · 손가락으로 움직이는 중
     // 지금 화면에서 본 바탕 그림의 배율·위치
     const baseXf = () => { const k = v.s / bv.s; return { k, tx: W / 2 * (1 - k) + (bv.lon - v.lon) * KX * v.s, ty: H / 2 * (1 - k) - (bv.lat - v.lat) * v.s }; };
     function renderBase(C, font) {
@@ -4706,7 +4708,18 @@ const TideHarm = (() => {
       levelSets.clear(); lastSet = null;
       return labC;
     }
-    const twOf = (c, font) => c.tw || (ctx.font = c.t === 'i' ? `${c.wt} ${c.fs}px ${font}` : `700 10.5px ${font}`, c.tw = ctx.measureText(c.n).width);
+    // 이름표 글자 폭: 한 번 잰 건 폰에 남겨 다음에 지도를 열 때 다시 재지 않는다 (지도 첫 장면이 가벼워짐 · 사용자 2026-11-24)
+    let twMem = null, twDirty = false, twFont = '', twSaveT = 0;
+    const twOf = (c, font) => {
+      if (c.tw) return c.tw;
+      const f = c.t === 'i' ? `${c.wt} ${c.fs}px ${font}` : `700 10.5px ${font}`, key = f + '|' + c.n;
+      if (!twMem) { try { const r = JSON.parse(localStorage.getItem('jjukgap-tw') || 'null'); twMem = r && r.v === 1 ? r.m : {}; } catch (_) { twMem = {}; } }
+      const m = twMem[key]; if (m) return (c.tw = m);
+      if (twFont !== f) { ctx.font = f; twFont = f; }
+      c.tw = ctx.measureText(c.n).width; twMem[key] = Math.round(c.tw * 10) / 10; twDirty = true;
+      if (!twSaveT) twSaveT = setTimeout(() => { twSaveT = 0; if (!twDirty) return; twDirty = false; try { const ks = Object.keys(twMem); if (ks.length > 6000) for (const k of ks.slice(0, ks.length - 6000)) delete twMem[k]; localStorage.setItem('jjukgap-tw', JSON.stringify({ v: 1, m: twMem })); } catch (_) {} }, 4000);
+      return c.tw;
+    };
     // 이 배율 단계에서 보일 이름표 (우선순위: 내 출항지 → 큰 섬·만 → 항구 → 작은 섬, 앞의 것과 겹치면 뺀다)
     function levelSet(L, font) {
       const key = [myStations().join(','), portsOff, font].join('|');
@@ -4723,6 +4736,7 @@ const TideHarm = (() => {
         const S = TideHarm.STATIONS[k], x = S.lon * KX * s, y = -S.lat * s, w = ctx.measureText(short(k)).width + 16;
         put([x - 7, y - 13, x + 9 + w + 3, y + 13]);
       }
+      twFont = '';   // 위에서 글꼴을 바꿨으니 다시 맞추게
       for (const list of Lc) {
         if (portsOff && list === Lc[1]) continue;
         for (const c of list) {
@@ -4863,6 +4877,7 @@ const TideHarm = (() => {
       ctx.restore();
     }
     function drawLabels(C, font) {
+      twFont = '';
       const now = performance.now(), step = Math.min(64, Math.max(0, now - (labT || now))) / 170; labT = now;
       const sk = [dpr, font, C.sea, C.land, C.card, C.ink, C.isl, C.bay, C.port, C.cur].join('|'); if (sk !== sprKey) { spr = new Map(); sprKey = sk; }
       if (!labCands()) return false;
@@ -4957,9 +4972,9 @@ const TideHarm = (() => {
       if (flt === 'season') return seasonNear(tr.pts[0].t);
       return true;
     }
-    function fltList(TG) { TG = TG || tripGroups(); mulToday(TG); return TG.list.filter((tr, i) => fltOk(tr, i)); }
+    function fltList(TG) { TG = TG || tripGroups(); if (flt === 'mul') mulToday(TG); return TG.list.filter((tr, i) => fltOk(tr, i)); }
     function fltPaint(TG) {
-      TG = TG || tripGroups(); fltN = TG.list.length; fltDF = dayFilter; mulToday(TG);
+      TG = TG || tripGroups(); fltN = TG.list.length; fltDF = dayFilter; if (flt === 'mul') mulToday(TG); else if (window.requestIdleCallback) requestIdleCallback(() => { try { mulToday(TG); } catch (_) {} });   // 오늘 물때 이름은 '같은 물때' 고를 때만 바로 (열 때 무거움)
       if (!fbEl) {
         fbEl = document.createElement('button'); fbEl.type = 'button'; fbEl.id = 'mv-fbtn'; fbEl.className = 'fb'; fbEl.setAttribute('aria-haspopup', 'menu');
         $('mv-map').querySelector('.mv-tools').appendChild(fbEl); fbEl.addEventListener('click', () => fltMenu(fbEl));
@@ -5296,7 +5311,7 @@ const TideHarm = (() => {
       }
       if (basemap) {
         // 이름표 자리 잡기: 가만히 있을 때는 화면이 바뀌면 바로, 손으로 움직이는 중에는 0.1초마다
-        if (drawLabels(C, font)) { if (inLoop) needDraw = true; else draw(); }   // 흐려지는 중이면 다음 장면도 (한 장면에 두 번 그리지 않게)
+        if (!opening && drawLabels(C, font)) { if (inLoop) needDraw = true; else draw(); }   // 흐려지는 중이면 다음 장면도 (한 장면에 두 번 그리지 않게)
       }
       // 가까운 출항지까지 점선
       const nr = me && nearest(me);
@@ -11258,6 +11273,8 @@ const TideHarm = (() => {
       sheetMode = 'peek';   // 지도에 처음 들어올 때는 늘 판을 접어 지도가 넓게 보이게 (저장·목록·출항지 고르기는 그 뒤에 알아서 펼친다)
       if (!(o && (o.pick || o.view))) boardOn();
       if (!viewMode) { startGps(); wakeOn(); }
+      // 처음 여는 장면은 가볍게(바탕 1.25배 · 이름표는 0.2초 뒤) → 누르자마자 지도가 뜨고, 곧바로 또렷하게 (사용자 2026-11-24: 지도 열 때 버벅임)
+      opening = true; interacting = true; clearTimeout(openT); openT = setTimeout(() => { opening = false; if (!ptrs.size) interacting = false; if (isOpen) draw(); }, 220);
       loadLand(); loadMapPorts(); loadSpots(); natFixes(); paintView(); paintPanel(true); applySheet(false); resize(); kick(); autoPill(); autoPill.last = '';
       if (rec) { const F = dayFilter == null ? fltList().flatMap(t => t.pts) : [], L = F.length ? F : points.filter(recVis); if (L.length) fitPts(L); if (onBoard) showList(); draw(); }
       if (useHist) { try { history.pushState({ mapv: 1 }, ''); } catch (_) {} }
@@ -11710,7 +11727,7 @@ const TideHarm = (() => {
 
 <script>
 if ('serviceWorker' in navigator) addEventListener('load', () => {
-  const sw = navigator.serviceWorker, VER = '434d40ed'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
+  const sw = navigator.serviceWorker, VER = '11240c8e'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
   // 화면에 손을 대기 시작했는지 (쓰는 중에는 새로 열지 않으려고)
   ['pointerdown', 'keydown'].forEach(t => addEventListener(t, () => { touched = true; }, { capture: true, passive: true }));
   const reload = () => {
