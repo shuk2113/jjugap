@@ -2319,7 +2319,8 @@ const TideHarm = (() => {
   function selWxBlock(force) {
     const b = Math.min(7, Math.floor(tMin / 180));
     if (b === wxSelB && !force) return; wxSelB = b;
-    document.querySelectorAll('#sc-wx .wxb-selbg').forEach(r => r.classList.toggle('wxb-sel', +r.dataset.b === b));
+    const has = !document.querySelector('#sc-wx .wxb-msg');   // 예보가 없는 날은 지금 칸 바탕을 깔지 않음 (빈 상자처럼 보임 · 사용자 2026-11-24)
+    document.querySelectorAll('#sc-wx .wxb-selbg').forEach(r => r.classList.toggle('wxb-sel', has && +r.dataset.b === b));
   }
   function updateTime() {
     const ds = dayStartOf(sel), ms = ds + tMin * 60000;
@@ -6833,7 +6834,7 @@ const TideHarm = (() => {
         : x.EG.gk != null && x.EG.gk < 0.6 ? '주변이 밝아져 약해진 야광이 묻혀요 · 다시 충전해도 차이가 작아요' : '바닥이 밝아 기능 없이도 잘 보여요';
       const tm = {}; for (const e of L.slice(0, 3)) { const m = e.fn[e.best].m; tm[m] = (tm[m] || 0) + 1; }
       const tmK = Object.entries(tm).sort((a, b) => b[1] - a[1])[0], tmW = { '어둡게 보임': '어두운 색이 물빛보다 짙어 실루엣이 또렷해요', '밝게 보임': '물속이 어두워 밝은 색이 잘 보여요', '빛을 냄': '어두운 물에서 빛을 내는 에기가 잘 보여요', '무늬가 보임': '머리·몸통 밝기 경계(무늬)가 잘 보여요' }[tmK && tmK[0]] || '';
-      h += `<div class="pl-dx"><p class="pl-bf"><b>이 시각 기본: ${esc(bfN)}</b><span>${bfW}</span>${tmW ? `<span>위 색들: ${tmW}</span>` : ''}</p><p class="pl-k">에기 색 · ${bf ? esc(bfN) + ' 켠 채로' : '눈에 띔'} · 점수 밑 거리 = 쭈갑이가 알아보는 거리</p>${x.EG.flat ? `<p class="pl-flat">${(bf || '').includes('g') ? '밤이라 색 차이가 작아요 · 야광이 천을 뚫고 가장 잘 비쳐 보이는 순서예요' : '이 시각은 색 차이가 작아요 · 위 색들 점수가 거의 같아요'}</p>` : ''}<div class="pl-cl">`;
+      h += `<div class="pl-dx"><p class="pl-bf"><b>이 시각 기본: ${esc(bfN)}</b><span>${bfW}</span>${tmW ? `<span>위 색들: ${tmW}</span>` : ''}</p><p class="pl-k">에기 색 · ${bf ? esc(bfN) + ' 켠 채로' : '눈에 띔'} · 점수 밑 거리 = 쭈갑이가 알아보는 거리</p>${x.EG.flat ? `<p class="pl-flat">${(bf || '').includes('g') ? '바닥이 어두워 색 차이가 작아요 · 야광이 천을 뚫고 가장 잘 비쳐 보이는 순서예요' : '이 시각은 색 차이가 작아요 · 위 색들 점수가 거의 같아요'}</p>` : ''}<div class="pl-cl">`;
       for (const e of list) {
         const rec = e.app && plRec[e.app], tags = (e.mine ? '<em class="mr">내 에기</em>' : simHas(e) || e.own ? '' : '<em class="nb">사 두면 좋아요</em>') + (e.cv ? `<em class="mr">${esc(e.cv.join('·'))} 계열</em>` : '') + (rec ? `<em class="mr">내 기록 ${rec.map(n => { const v = ymd(n); return `${v.m}/${v.d}`; }).join('·')}</em>` : '');
         h += `<div class="pl-cr">${plSw(e.id)}<span class="nm"><b>${esc(e.n)}</b>${PL_SUB[e.id] ? `<small>${PL_SUB[e.id]}</small>` : e.mine ? `<small>${(SIM_MINE_BY[e.id] || {}).kn ? esc(SIM_MINE_BY[e.id].p.map(pt => pt.c).join('+')) : '색 코드로 어림'}</small>` : ''}${tags}</span>`
@@ -11895,7 +11896,7 @@ const TideHarm = (() => {
 
 <script>
 if ('serviceWorker' in navigator) addEventListener('load', () => {
-  const sw = navigator.serviceWorker, VER = '6a1bc019'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
+  const sw = navigator.serviceWorker, VER = '52b6e448'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
   // 화면에 손을 대기 시작했는지 (쓰는 중에는 새로 열지 않으려고)
   ['pointerdown', 'keydown'].forEach(t => addEventListener(t, () => { touched = true; }, { capture: true, passive: true }));
   const reload = () => {
