@@ -6339,8 +6339,11 @@ const TideHarm = (() => {
     function simMine() {
       let L = []; try {
         L = egiMine.filter(m => !m.hide && !m.k && Array.isArray(m.c) && m.c.length && m.c[0] !== 'laser' && m.c[0] !== 'glow').map(m => {
-          const ps = m.c.map(h => ({ c: simHexKey(h), h })).filter(x => x.c); if (!ps.length) return null;
-          return { id: m.id, n: m.n, p: ps.map(x => ({ c: x.c, h: x.h, a: 1 / ps.length })), app: m.id, mine: 1 };
+          // 이름 있는 색과 가까우면 그 색의 정리된 값으로 셈 (사용자 2026-11-24 A) · 알려진 에기 색 조합과 같으면 그 에기와 똑같이 셈 · 독특한 색만 색 코드로 어림
+          const ps = m.c.map(h => ({ c: simName(h) || simHexKey(h), h })).filter(x => x.c); if (!ps.length) return null;
+          const cs = new Set(ps.map(x => x.c)), gp = SIM_COL_ALL.find(g => g.p !== SIM_STR && g.p.length === cs.size && g.p.every(pt => cs.has(pt.c)));
+          if (gp) return { id: m.id, n: m.n, p: gp.p.map(pt => ({ c: pt.c, h: (ps.find(x => x.c === pt.c) || {}).h, a: pt.a })), app: m.id, mine: 1, kn: gp.n };
+          return { id: m.id, n: m.n, p: ps.map(x => ({ c: x.c, h: x.h, a: 1 / ps.length })), app: m.id, mine: 1, ...(ps.some(x => x.c[0] === '#') ? {} : { kn: 1 }) };
         }).filter(Boolean);
       } catch (_) { L = []; }
       SIM_MINE_BY = Object.fromEntries(L.map(e => [e.id, e])); return L;
@@ -6834,7 +6837,7 @@ const TideHarm = (() => {
       h += `<div class="pl-dx"><p class="pl-bf"><b>이 시각 기본: ${esc(bfN)}</b><span>${bfW}</span>${tmW ? `<span>위 색들: ${tmW}</span>` : ''}</p><p class="pl-k">에기 색 · ${bf ? esc(bfN) + ' 켠 채로' : '눈에 띔'} · 점수 밑 거리 = 쭈갑이가 알아보는 거리</p>${x.EG.flat ? `<p class="pl-flat">${(bf || '').includes('g') ? '밤이라 색 차이가 작아요 · 야광이 천을 뚫고 가장 잘 비쳐 보이는 순서예요' : '이 시각은 색 차이가 작아요 · 위 색들 점수가 거의 같아요'}</p>` : ''}<div class="pl-cl">`;
       for (const e of list) {
         const rec = e.app && plRec[e.app], tags = (e.mine ? '<em class="mr">내 에기</em>' : simHas(e) || e.own ? '' : '<em class="nb">사 두면 좋아요</em>') + (e.cv ? `<em class="mr">${esc(e.cv.join('·'))} 계열</em>` : '') + (rec ? `<em class="mr">내 기록 ${rec.map(n => { const v = ymd(n); return `${v.m}/${v.d}`; }).join('·')}</em>` : '');
-        h += `<div class="pl-cr">${plSw(e.id)}<span class="nm"><b>${esc(e.n)}</b>${PL_SUB[e.id] ? `<small>${PL_SUB[e.id]}</small>` : e.mine ? '<small>색 코드로 어림</small>' : ''}${tags}</span>`
+        h += `<div class="pl-cr">${plSw(e.id)}<span class="nm"><b>${esc(e.n)}</b>${PL_SUB[e.id] ? `<small>${PL_SUB[e.id]}</small>` : e.mine ? `<small>${(SIM_MINE_BY[e.id] || {}).kn ? esc(SIM_MINE_BY[e.id].p.map(pt => pt.c).join('+')) : '색 코드로 어림'}</small>` : ''}${tags}</span>`
           + `<span class="bar"><i style="width:${Math.max(3, Math.round(e.sc / Math.max(top, 40) * 100))}%"></i></span><span class="sc">${e.sc}<small>${plCm(e.r)}</small>${e.rec ? `<small class="rc">기록 ${e.rec > 0 ? '+' : ''}${e.rec}</small>` : ''}</span>`
           + `<em class="fn">${e.best !== bf ? esc(plFn(e.best, e.fn.lz.lc)) : ''}</em>`
           + (e.rec && e.recW && e.recW.length ? `<small class="pl-rw">기록 근거 · ${e.recW.map(o => { const v = ymd(o.d); return `${v.m}/${v.d} ${TM_N[o.tm] || ''} ${o.y ? '★잘 먹힘' : '써 봄'}`; }).join(' · ')}</small>` : '')
@@ -11891,7 +11894,7 @@ const TideHarm = (() => {
 
 <script>
 if ('serviceWorker' in navigator) addEventListener('load', () => {
-  const sw = navigator.serviceWorker, VER = '4afbe656'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
+  const sw = navigator.serviceWorker, VER = '02484cfc'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
   // 화면에 손을 대기 시작했는지 (쓰는 중에는 새로 열지 않으려고)
   ['pointerdown', 'keydown'].forEach(t => addEventListener(t, () => { touched = true; }, { capture: true, passive: true }));
   const reload = () => {
