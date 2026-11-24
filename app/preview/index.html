@@ -6360,7 +6360,41 @@ const TideHarm = (() => {
     const SIM_LZID = { silver: '은', gold: '금', red: '빨강', blue: '파랑', green: '초록', purple: '보라', rainbow: '무지개' };
     // 상자에 있나: 앱 에기 목록(기본 + 내가 만든 것, 숨긴 것 빼고)에 같은 색 에기가 있거나 이름이 맞으면 (기능은 따로 모름)
     function simHas(e) {
-      try { const all = egiAll(), nm = e.n.split('(')[0].trim(); return all.some(x => (e.app && x.id === e.app) || (x.n && nm && x.n.includes(nm))); } catch (_) { return false; }
+      try { const all = egiAll(), nm = e.n.split('(')[0].trim(); return all.some(x => (e.app && x.id === e.app) || (x.n && nm && x.n.split('(')[0].trim() === nm)); } catch (_) { return false; }   // 이름은 똑같을 때만 ('내 빨강흰'이 빨강을 가진 걸로 보이지 않게 · 색은 simOwn이 따로 알아봄)
+    }
+    // ---------- 내 상자의 에기를 색으로 알아보기 (사용자 2026-11-24 ③)
+    // 색 코드 → 색 이름(빨강·흰·형광 연두…) → 알려진 에기 색과 조합을 맞춘다 (순서·비율은 안 봄 · 빨강+흰 = 고추장).
+    // 같이 든 색이 서로 다를 때는, 다른 색이 겹치는 색과 같은 밝기 무리(밝은·붉은·어두운)일 때만 같은 계열로 본다
+    //   예) 만세기(형광 연두+레몬) = 형광 연두 계열 (둘 다 밝은 색) · 고추장(빨강+흰) ≠ 빨강 (흰은 밝은 색이라 물속에서 다르게 보임)
+    const SIM_CTONE = { 흰: 'b', 클리어: 'b', 레몬: 'b', '형광 연두': 'b', 민트: 'b', 하늘: 'b', 빨강: 'r', 주황: 'r', 살구: 'r', 핑크: 'r', 검정: 'd', 갈색: 'd', 카키: 'd', 올리브: 'd', 퍼플: 'd', 블루: 'd', 초록: 'd' };
+    function simName(hex) {   // 가장 가까운 색 이름 (너무 멀면 모름)
+      const c = simLin(hex); if (!c) return null;
+      let best = null, bd = 1e9; for (const [k, h] of Object.entries(SIM_HEX)) { const r = simLin(h), d = Math.hypot(...r.map((x, i) => Math.sqrt(x) - Math.sqrt(c[i]))); if (d < bd) { bd = d; best = k; } }
+      return bd < 0.3 ? best : null;
+    }
+    function simSame(A, B) {
+      const sh = [...A].filter(c => B.has(c)); if (!sh.length) return false;
+      const tn = new Set(sh.map(c => SIM_CTONE[c]));
+      for (const c of A) if (!B.has(c) && !tn.has(SIM_CTONE[c])) return false;
+      for (const c of B) if (!A.has(c) && !tn.has(SIM_CTONE[c])) return false;
+      return true;
+    }
+    // 추천 목록에서: 내 상자에 같은 계열 에기가 있는 일반 색 줄은 빼고, 그 에기 줄에 '○○ 계열'을 단다 (여럿이면 점수 높은 에기)
+    function simOwn(out) {
+      let box = [];
+      try { box = egiAll().filter(m => !m.k && Array.isArray(m.c) && m.c.length && m.c[0] !== 'laser' && m.c[0] !== 'glow').map(m => { const gp = SIM_COL_ALL.find(x => x.app && x.app === m.id);   // 기본 에기(고추장·닭새우…)는 정해 둔 색 이름 그대로
+        return { id: m.id, n: m.n, cs: new Set(gp ? gp.p.map(pt => pt.c).filter(c => SIM_CTONE[c]) : m.c.map(simName).filter(Boolean)) }; }).filter(m => m.cs.size); } catch (_) { return out; }
+      if (!box.length) return out;
+      const rowOf = m => out.find(r => r.id === m.id || r.app === m.id), drop = new Set();
+      for (const r of out) {
+        if (r.mine || box.some(m => m.id === r.app)) continue;   // 내 에기 줄 · 상자에 그대로 있는 기본 에기 줄은 그대로
+        const g = SIM_COL_ALL.find(x => x.id === r.id); if (!g) continue;
+        const gs = new Set(g.p.map(pt => pt.c).filter(c => SIM_CTONE[c])); if (!gs.size) continue;
+        let best = null;
+        for (const m of box) { if (!simSame(gs, m.cs)) continue; const mr = rowOf(m); if (mr && mr !== r && !drop.has(mr)) { if (!best || mr.r > best.r) best = mr; } else if (!mr) r.own = m.n; }
+        if (best) { drop.add(r); if (best.n !== r.n) (best.cv = best.cv || []).push(r.n); }
+      }
+      return drop.size ? out.filter(r => !drop.has(r)) : out;
     }
     // 내 기록 (참고 딱지): 그 색 에기를 달고 잡은 포인트의 날짜 (최근 2개) — 조건이 같았다는 뜻은 아님
     function simRecMap() {
@@ -6384,7 +6418,7 @@ const TideHarm = (() => {
       const uv = o.surf[0] * 10 * 0.9 * Math.exp(-1.5 * o.Kd[0] * o.zd), K = SIM_KEI.map(x => x * 0.3 * uv / SIM_KEIS / Math.PI);
       const qe = (src, T) => src.reduce((a, x, i) => a + x * T[i] * S[i], 0) / qn;   // 천을 지난 바탕 빛 (쭈갑이 눈 기준)
       const sc = r => Math.round(100 * r / (r + 1));
-      const out = [...SIM_COL, ...simMine()].map(e => {
+      let out = [...SIM_COL, ...simMine()].map(e => {
         const parts = e.p.map(pt => { const R = SIM_REF[pt.c], T = simTr(pt.c), Rm = R.reduce((a, x) => a + x, 0) / R.length;
           const Tn = R.map(x => Math.min(SIM_NUD.tmax, x * SIM_NUD.t / Math.max(0.02, Rm)));
           return { a: pt.a, rs: q(o.ez.map((x, i) => x * R[i])), T, g: qe(G, T), k: qe(K, T),
@@ -6420,6 +6454,7 @@ const TideHarm = (() => {
       let bf = ''; { const gs = avg('g'), ks = avg('k'); if (Math.max(gs, ks) >= avg('') + 2) bf = gs >= ks ? 'g' : 'k'; if (bf && avg('gk') >= avg(bf) + 2) bf = 'gk'; }
       for (const e of out) { e.bestAll = e.best; const nf = 'n' + bf; e.best = e.fn[nf] && e.fn[nf].r > e.fn[bf].r * 1.08 + 1e-9 ? nf : bf; e.r = e.fn[e.best].r; e.sc = e.fn[e.best].sc; }
       out.sort((a, b) => b.r - a.r || b.fn[''].r - a.fn[''].r || a.n.localeCompare(b.n));
+      out = simOwn(out);   // 내 상자에 같은 계열 색 에기가 있으면 그 에기로 (사용자 2026-11-24)
       const flat = out.length > 5 && out[0].sc - out[5].sc <= 4 ? 1 : 0;   // 위 6색 점수 차가 4점 안쪽이면 '색 차이 작음'
       // 두 개 달면: 그 시각 점수 1등과 2등 (서로 다른 색 · 각자 가장 좋은 기능) — 톤 제한·'다른 방식 더하기' 없앰 (사용자 2026-11-20: 목적은 잘 붙을 색 찾기)
       const top = []; for (let i = 0; i + 1 < out.length && top.length < 1; i++) { const a = out[i], b = out[i + 1], fa = SIM_FN.find(x => x[0] === a.best), fb = SIM_FN.find(x => x[0] === b.best);
@@ -6798,7 +6833,7 @@ const TideHarm = (() => {
       const tmK = Object.entries(tm).sort((a, b) => b[1] - a[1])[0], tmW = { '어둡게 보임': '어두운 색이 물빛보다 짙어 실루엣이 또렷해요', '밝게 보임': '물속이 어두워 밝은 색이 잘 보여요', '빛을 냄': '어두운 물에서 빛을 내는 에기가 잘 보여요', '무늬가 보임': '머리·몸통 밝기 경계(무늬)가 잘 보여요' }[tmK && tmK[0]] || '';
       h += `<div class="pl-dx"><p class="pl-bf"><b>이 시각 기본: ${esc(bfN)}</b><span>${bfW}</span>${tmW ? `<span>위 색들: ${tmW}</span>` : ''}</p><p class="pl-k">에기 색 · ${bf ? esc(bfN) + ' 켠 채로' : '눈에 띔'} · 점수 밑 거리 = 쭈갑이가 알아보는 거리</p>${x.EG.flat ? `<p class="pl-flat">${(bf || '').includes('g') ? '밤이라 색 차이가 작아요 · 야광이 천을 뚫고 가장 잘 비쳐 보이는 순서예요' : '이 시각은 색 차이가 작아요 · 위 색들 점수가 거의 같아요'}</p>` : ''}<div class="pl-cl">`;
       for (const e of list) {
-        const rec = e.app && plRec[e.app], tags = (e.mine ? '<em class="mr">내 에기</em>' : simHas(e) ? '' : '<em class="nb">사 두면 좋아요</em>') + (rec ? `<em class="mr">내 기록 ${rec.map(n => { const v = ymd(n); return `${v.m}/${v.d}`; }).join('·')}</em>` : '');
+        const rec = e.app && plRec[e.app], tags = (e.mine ? '<em class="mr">내 에기</em>' : simHas(e) || e.own ? '' : '<em class="nb">사 두면 좋아요</em>') + (e.cv ? `<em class="mr">${esc(e.cv.join('·'))} 계열</em>` : '') + (rec ? `<em class="mr">내 기록 ${rec.map(n => { const v = ymd(n); return `${v.m}/${v.d}`; }).join('·')}</em>` : '');
         h += `<div class="pl-cr">${plSw(e.id)}<span class="nm"><b>${esc(e.n)}</b>${PL_SUB[e.id] ? `<small>${PL_SUB[e.id]}</small>` : e.mine ? '<small>색 코드로 어림</small>' : ''}${tags}</span>`
           + `<span class="bar"><i style="width:${Math.max(3, Math.round(e.sc / Math.max(top, 40) * 100))}%"></i></span><span class="sc">${e.sc}<small>${plCm(e.r)}</small>${e.rec ? `<small class="rc">기록 ${e.rec > 0 ? '+' : ''}${e.rec}</small>` : ''}</span>`
           + `<em class="fn">${e.best !== bf ? esc(plFn(e.best, e.fn.lz.lc)) : ''}</em>`
@@ -11856,7 +11891,7 @@ const TideHarm = (() => {
 
 <script>
 if ('serviceWorker' in navigator) addEventListener('load', () => {
-  const sw = navigator.serviceWorker, VER = 'c8ebf8ac'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
+  const sw = navigator.serviceWorker, VER = '4afbe656'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
   // 화면에 손을 대기 시작했는지 (쓰는 중에는 새로 열지 않으려고)
   ['pointerdown', 'keydown'].forEach(t => addEventListener(t, () => { touched = true; }, { capture: true, passive: true }));
   const reload = () => {
