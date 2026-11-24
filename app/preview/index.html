@@ -1007,7 +1007,7 @@ html.scrolling .wxb-rays, html.scrolling .wxb-cloud, html.scrolling .wxb-drop, h
 .cal-track > .cal{flex:0 0 100%; min-width:0; will-change:opacity}   /* 판마다 따로 층: 흐려질 때 칸 그림을 다시 그리지 않게 */   /* 판마다 따로 층: 흐려질 때 칸 그림을 다시 그리지 않게 */
 /* 달력 판 사이 틈: 무대(stage)를 양옆으로 반 틈씩 넓히고, 각 판 안쪽에 같은 만큼 여백을 둬서
    가만히 있을 땐 그대로, 밀 때만 지난달·다음 달 판 사이에 빈 틈이 보이게 (판끼리 붙어 보이지 않게) */
-.cal-stage, .mp-stage{--pgh:12px} .pc-stage, .pc-mp-stage{--pgh:10px}
+.cal-stage{--pgh:8px} .mp-stage{--pgh:12px} .pc-stage, .pc-mp-stage{--pgh:10px}   /* 달력 무대는 앱 좌우 여백(8px)만큼만 넓힘 — 더 넓으면 메인 화면이 좌우로 밀려 흔들림 (사용자 2026-11-24) */
 .cal-stage, .mp-stage, .pc-stage, .pc-mp-stage{margin-left:calc(var(--pgh) * -1); margin-right:calc(var(--pgh) * -1)}
 .cal-track > .cal, .mp-page, .pc-track > .cal, .pc-mp-page{box-sizing:border-box; padding-left:var(--pgh); padding-right:var(--pgh)}
 .cal-note{display:flex; align-items:center; justify-content:center; gap:7px; margin:12px 0 0; text-align:center; font-size:calc(12px * var(--k)); color:var(--ink-2); line-height:1.4; font-weight:500}
@@ -11894,7 +11894,7 @@ const TideHarm = (() => {
 
 <script>
 if ('serviceWorker' in navigator) addEventListener('load', () => {
-  const sw = navigator.serviceWorker, VER = '02484cfc'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
+  const sw = navigator.serviceWorker, VER = '7aba3f2f'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
   // 화면에 손을 대기 시작했는지 (쓰는 중에는 새로 열지 않으려고)
   ['pointerdown', 'keydown'].forEach(t => addEventListener(t, () => { touched = true; }, { capture: true, passive: true }));
   const reload = () => {
