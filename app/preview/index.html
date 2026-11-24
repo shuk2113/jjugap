@@ -282,7 +282,7 @@ html.mv-on .app *{animation-play-state:paused !important} html.mv-hide .app{visi
 .mv-x{width:38px; height:38px; display:grid; place-items:center; padding:0; border:0; border-radius:50%; background:var(--well); color:var(--ink-2); -webkit-tap-highlight-color:transparent; font-weight:500}
 .mv-x svg{width:15px; height:15px}
 .mv-title{flex:1; min-width:0; display:flex; flex-direction:column; line-height:1.25}
-.mv-title b{font-size:calc(16px * var(--k))} .mv-title span{font-size:calc(12px * var(--k)); color:var(--ink-2); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; font-weight:500}
+.mv-title b{font-size:calc(16px * var(--k))} .mv-title span{font-size:calc(12px * var(--k)); color:var(--ink-2); overflow:hidden; display:-webkit-box; -webkit-box-orient:vertical; -webkit-line-clamp:2; word-break:keep-all; font-weight:500}   /* 글자가 크게 나오는 폰: '…'로 줄이지 않고 두 줄까지 (사용자 2026-11-24) */
 .mv-title span.ok{color:var(--calm)} .mv-title span.warn{color:var(--mid)} .mv-title span.bad{color:var(--strong); font-weight:700}
 .mv-locoff{flex:none; display:flex; align-items:center; gap:10px; padding:8px 10px 8px 12px; background:#D63B3B; color:#fff; font-size:calc(13px * var(--k)); font-weight:700; line-height:1.35}
 .mv-locoff[hidden]{display:none}
@@ -378,7 +378,7 @@ html.mv-on .app *{animation-play-state:paused !important} html.mv-hide .app{visi
 .mv-grid{display:grid; grid-template-columns:1fr 1fr; gap:6px; margin:10px 0 8px}
 .mv-c{padding:7px 10px; border-radius:12px; background:var(--well); min-width:0}
 .mv-c.wide{grid-column:1 / -1}
-.mv-c small{display:block; font-size:calc(10.5px * var(--k)); color:var(--ink-2); font-weight:500} .mv-c b{display:block; font-size:calc(13.5px * var(--k)); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; font-variant-numeric:tabular-nums}
+.mv-c small{display:block; font-size:calc(10.5px * var(--k)); color:var(--ink-2); font-weight:500} .mv-c b{display:block; font-size:calc(13.5px * var(--k)); word-break:keep-all; font-variant-numeric:tabular-nums}   /* 조류·물때·바람 숫자는 '…'로 가리지 않고 다음 줄로 (사용자 2026-11-24) */
 .mv-c i{display:block; margin-top:1px; font-style:normal; font-size:calc(10.5px * var(--k)); line-height:1.35; color:var(--ink-2); word-break:keep-all; font-variant-numeric:tabular-nums; font-weight:500}
 .mv-note{margin:0 0 10px; font-size:calc(11.5px * var(--k)); line-height:1.5; color:var(--ink-2); word-break:keep-all; font-weight:500}
 .mv-btns{display:flex; gap:8px}
@@ -969,7 +969,7 @@ html.scrolling .wxb-rays, html.scrolling .wxb-cloud, html.scrolling .wxb-drop, h
 .advice .adv-wx{margin-top:6px}
 .chart-head{align-items:center}
 .chart-wrap{display:flex; flex-direction:column; gap:4px; padding:10px 6px 10px; border-radius:18px; border:1px solid var(--line); background:var(--card)}
-#chart{display:block; width:100%; height:auto; touch-action:pan-y; user-select:none; -webkit-user-select:none; -webkit-touch-callout:none}
+#chart{display:block; width:100%; height:auto; overflow:visible; touch-action:pan-y; user-select:none; -webkit-user-select:none; -webkit-touch-callout:none}
 .chart-wrap, .chart-wrap *{-webkit-tap-highlight-color:transparent}
 #chart:focus, #chart:focus-visible{outline:none}
 .band-calm{fill:var(--calm-soft)} .band-mid{fill:var(--mid-soft)} .band-strong{fill:var(--strong-soft)}
@@ -1007,7 +1007,7 @@ html.scrolling .wxb-rays, html.scrolling .wxb-cloud, html.scrolling .wxb-drop, h
 .cal-track > .cal{flex:0 0 100%; min-width:0; will-change:opacity}   /* 판마다 따로 층: 흐려질 때 칸 그림을 다시 그리지 않게 */   /* 판마다 따로 층: 흐려질 때 칸 그림을 다시 그리지 않게 */
 /* 달력 판 사이 틈: 무대(stage)를 양옆으로 반 틈씩 넓히고, 각 판 안쪽에 같은 만큼 여백을 둬서
    가만히 있을 땐 그대로, 밀 때만 지난달·다음 달 판 사이에 빈 틈이 보이게 (판끼리 붙어 보이지 않게) */
-.cal-stage{--pgh:8px} .mp-stage{--pgh:12px} .pc-stage, .pc-mp-stage{--pgh:10px}   /* 달력 무대는 앱 좌우 여백(8px)만큼만 넓힘 — 더 넓으면 메인 화면이 좌우로 밀려 흔들림 (사용자 2026-11-24) */
+.cal-stage, .mp-stage{--pgh:8px} .pc-stage, .pc-mp-stage{--pgh:10px}   /* 달력 무대는 앱 좌우 여백(8px)만큼만 넓힘 — 더 넓으면 메인 화면이 좌우로 밀려 흔들림 (사용자 2026-11-24) */
 .cal-stage, .mp-stage, .pc-stage, .pc-mp-stage{margin-left:calc(var(--pgh) * -1); margin-right:calc(var(--pgh) * -1)}
 .cal-track > .cal, .mp-page, .pc-track > .cal, .pc-mp-page{box-sizing:border-box; padding-left:var(--pgh); padding-right:var(--pgh)}
 .cal-note{display:flex; align-items:center; justify-content:center; gap:7px; margin:12px 0 0; text-align:center; font-size:calc(12px * var(--k)); color:var(--ink-2); line-height:1.4; font-weight:500}
@@ -11307,8 +11307,10 @@ const TideHarm = (() => {
     // 자리는 지도 칸 안의 비율로 기억하고, 정보 판이 올라와 가리게 되면 판 바로 위로 비켜 선다
     try { const o = JSON.parse(localStorage.getItem(FAB_KEY) || 'null'); if (o && Number.isFinite(o.x) && Number.isFinite(o.y)) fabPos = o; } catch (_) {}
     function fabLimits() {
-      const bw = box.clientWidth, bh = box.clientHeight, cover = shownH + grab.offsetHeight;
-      return { bw, bh, x0: FAB_R + 6, x1: bw - FAB_R - 6, y0: FAB_R + 8, y1: Math.max(FAB_R + 8, bh - cover - FAB_R - 22) };   // 판 위 축척·지도 출처 글씨 자리는 비운다
+      const bw = box.clientWidth, bh = box.clientHeight, cover = shownH + grab.offsetHeight, em = fab.querySelector('em'), hw = Math.max(FAB_R, em ? em.offsetWidth / 2 : 0);   // 단추 밑 글씨가 단추보다 넓으면 그 폭까지 (화면 끝에서 글씨가 잘리지 않게)
+      // 아래쪽: 단추+글씨의 실제 높이와 지도 출처 글씨 높이를 재서 (글자가 크게 나와도 '포인트 저장' 글씨가 출처를 가리지 않게)
+      const sp = fab.firstElementChild, below = Math.max(FAB_R, sp ? sp.offsetHeight / 2 : 0), at = $('mv-attr'), ah = Math.max(22, at && at.offsetHeight ? at.offsetHeight + 10 : 0);
+      return { bw, bh, x0: hw + 6, x1: bw - hw - 6, y0: FAB_R + 8, y1: Math.max(FAB_R + 8, bh - cover - below - ah) };   // 판 위 축척·지도 출처 글씨 자리는 비운다
     }
     function placeFab(anim) {
       if (!fab) return; const L = fabLimits(); if (!L.bw) return;
@@ -11898,7 +11900,7 @@ const TideHarm = (() => {
 
 <script>
 if ('serviceWorker' in navigator) addEventListener('load', () => {
-  const sw = navigator.serviceWorker, VER = '1818afcf'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
+  const sw = navigator.serviceWorker, VER = '6a1bc019'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
   // 화면에 손을 대기 시작했는지 (쓰는 중에는 새로 열지 않으려고)
   ['pointerdown', 'keydown'].forEach(t => addEventListener(t, () => { touched = true; }, { capture: true, passive: true }));
   const reload = () => {
