@@ -2987,8 +2987,8 @@ const TideHarm = (() => {
     const md = WX.mid && st.mid && WX.mid[st.mid] && WX.mid[st.mid].days[key]; if (!md) return null;
     const ps = [md.am, md.pm, md.d].filter(Boolean); if (!ps.length) return null;
     const wfs = ps.map(p => p[0] || '').join(' ');
-    // 중기 해상예보 파고는 먼바다까지 묶은 해역 전체의 범위(낮은값~높은값)라, 연안 선상낚시에는 낮은 쪽(앞바다)을 쓴다
-    const waves = ps.map(p => p[1] ?? p[2]).filter(v => v != null), wave = waves.length ? Math.max(...waves) : null;
+    // 중기 해상예보 파고는 먼바다까지 묶은 해역 전체의 범위(낮은값~높은값) — 출조 위험 표시라 높은 쪽(최대값)을 쓴다 (사용자 2026-11-27: 낮게 틀리면 위험한 날을 놓침 · 출조 시뮬 물색은 가운데 값)
+    const waves = ps.map(p => p[2] ?? p[1]).filter(v => v != null), wave = waves.length ? Math.max(...waves) : null;
     const wfI = t => /비|소나기/.test(t) ? 'rain' : /눈/.test(t) ? 'snow' : /흐/.test(t) ? 'cloud' : /구름/.test(t) ? 'part' : 'sun';
     const icon = wfI(wfs), ap = md.am && md.pm ? [wfI(md.am[0] || ''), wfI(md.pm[0] || '')] : [icon];   // 중기예보는 7일째까지 오전·오후, 그 뒤는 하루 하나
     const wr = wrnFor(n); return { src: 'mid', icon, ap, wind: null, wave, lv: Math.max(waveLv(wave), wr ? wr.lv : -1), wrn: wr };
@@ -6065,7 +6065,8 @@ const TideHarm = (() => {
       }
       const md = WX.mid && st.mid && WX.mid[st.mid] && WX.mid[st.mid].days[wxYmd(n)];
       const part = md && (h < 12 ? md.am || md.d : md.pm || md.d);
-      if (part) { const w = part[0] || ''; return { src: 'mid', wind: null, dir: null, wave: part[1] ?? part[2], sky: /흐/.test(w) ? 4 : /구름/.test(w) ? 3 : 1, rain: /비|소나기/.test(w), txt: w }; }
+      if (part) { const w = part[0] || '', a = part[1], b = part[2], wv = a != null && b != null ? (a + b) / 2 : a ?? b;   // 중기 해상예보 파고 [최저, 최고] → 가운데 값 (사용자 2026-11-27: 예전엔 최저값을 써서 먼 날 파도를 0으로 셈하던 버그)
+        return { src: 'mid', wind: null, dir: null, wave: wv, sky: /흐/.test(w) ? 4 : /구름/.test(w) ? 3 : 1, rain: /비|소나기/.test(w), txt: w }; }
       return { src: 'none' };
     }
     // ---------- 물색 (1-2단계): 물속에 뜬 흙(mg/L) → 빛 감쇠 → 투명도(m)
@@ -11902,7 +11903,7 @@ const TideHarm = (() => {
 
 <script>
 if ('serviceWorker' in navigator) addEventListener('load', () => {
-  const sw = navigator.serviceWorker, VER = '9328a6fc'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
+  const sw = navigator.serviceWorker, VER = '2b41d721'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
   // 화면에 손을 대기 시작했는지 (쓰는 중에는 새로 열지 않으려고)
   ['pointerdown', 'keydown'].forEach(t => addEventListener(t, () => { touched = true; }, { capture: true, passive: true }));
   const reload = () => {
