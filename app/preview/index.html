@@ -6070,7 +6070,8 @@ const TideHarm = (() => {
       }
       const md = WX.mid && st.mid && WX.mid[st.mid] && WX.mid[st.mid].days[wxYmd(n)];
       const part = md && (h < 12 ? md.am || md.d : md.pm || md.d);
-      if (part) { const w = part[0] || ''; return { src: 'mid', wind: null, dir: null, wave: part[1] ?? part[2], sky: /흐/.test(w) ? 4 : /구름/.test(w) ? 3 : 1, rain: /비|소나기/.test(w), txt: w }; }
+      if (part) { const w = part[0] || '', a = part[1], b = part[2], wv = a != null && b != null ? (a + b) / 2 : a ?? b;   // 중기 해상예보 파고 [최저, 최고] → 가운데 값 (사용자 2026-11-27: 예전엔 최저값을 써서 먼 날 파도를 0으로 셈하던 버그)
+        return { src: 'mid', wind: null, dir: null, wave: wv, sky: /흐/.test(w) ? 4 : /구름/.test(w) ? 3 : 1, rain: /비|소나기/.test(w), txt: w }; }
       return { src: 'none' };
     }
     // ---------- 물색 (1-2단계): 물속에 뜬 흙(mg/L) → 빛 감쇠 → 투명도(m)
@@ -11907,7 +11908,7 @@ const TideHarm = (() => {
 
 <script>
 if ('serviceWorker' in navigator) addEventListener('load', () => {
-  const sw = navigator.serviceWorker, VER = '9328a6fc'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
+  const sw = navigator.serviceWorker, VER = 'fe682790'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
   // 화면에 손을 대기 시작했는지 (쓰는 중에는 새로 열지 않으려고)
   ['pointerdown', 'keydown'].forEach(t => addEventListener(t, () => { touched = true; }, { capture: true, passive: true }));
   const reload = () => {
