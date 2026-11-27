@@ -11309,11 +11309,11 @@ const TideHarm = (() => {
     // ---------- 아래 정보 판: 접기(맨 윗줄만) · 펼치기(내용에 딱 맞는 높이) 두 가지
     // 손잡이를 톡 누르거나 위·아래로 쓸면 한 번에 그 높이로 간다 (중간에 멈추지 않는다)
     // 움직이는 동안에는 판의 높이를 바꾸지 않고 위치(transform)만 옮겨서 매끄럽게, 다 움직인 뒤에 높이를 맞춘다
-    const sheet = $('mv-sheet'), grab = $('mv-grab'), SHEET_KEY = 'jjukgap-sheet', ORDER = ['peek', 'open'], DUR = '.3s cubic-bezier(.2,.85,.25,1)', EASE = 'transform ' + DUR;
-    let sheetMode = 'open', drag = null, boxH = 0, shownH = 0, animT = 0, fitRaf = 0;
+    const sheet = $('mv-sheet'), grab = $('mv-grab'), SHEET_KEY = 'jjukgap-sheet', ORDER = ['hide', 'peek', 'open'], DUR = '.3s cubic-bezier(.2,.85,.25,1)', EASE = 'transform ' + DUR;
+    let sheetMode = 'open', freeH = 0, drag = null, boxH = -1, shownH = 0, animT = 0, fitRaf = 0;
     const fab = $('mv-save'), FAB_KEY = 'jjukgap-fab', FAB_R = 38;   // 단추(동그라미 + 글씨) 반쪽 크기
     let fabPos = null, fabLive = null, fabDrag = null;
-    try { if (localStorage.getItem(SHEET_KEY) === 'peek') sheetMode = 'peek'; } catch (_) {}
+    try { const m0 = localStorage.getItem(SHEET_KEY); if (m0 === 'peek' || m0 === 'hide' || m0 === 'free') sheetMode = m0; freeH = +localStorage.getItem(SHEET_KEY + 'h') || 0; } catch (_) {}
     coverH = () => (sheet.isConnected ? grab.offsetHeight + shownH : 0);
     // 아래에 붙어 다니는 단추 줄(저장·닫기)의 높이: 이 줄은 판이 낮으면 판 바닥에 붙어 따라 올라오므로 자리로 재면 안 된다
     function stickH() {
@@ -11335,7 +11335,8 @@ const TideHarm = (() => {
       const sh = stickH();   // 접었을 때도 맨 윗줄(제목)이 저장·닫기 줄에 가리지 않게 그 줄 높이만큼 더
       const peek = Math.round(Math.min(150 + sh, (top && top !== panel.lastElementChild ? top.offsetTop + top.offsetHeight : 30) + (sh ? 6 : padB + 6) + sh));
       const most = Math.round(Math.min(vh * 0.82, vh - mapTop - 96) - grab.offsetHeight);   // 지도가 조금은 보이게
-      return { peek, open: Math.max(peek, Math.min(most, contentH())) };
+      const open = Math.max(peek, Math.min(most, contentH()));
+      return { hide: 0, peek, open, free: Math.max(0, Math.min(open, freeH)) };   // hide: 손잡이만 · free: 끌어서 놓은 높이 그대로 (사용자 2026-11-28)
     }
     const setBox = h => { if (h !== boxH) { boxH = h; panel.classList.add('sized'); panel.style.height = h + 'px'; } };
     const setY = (y, anim) => { sheet.style.transition = anim ? EASE : 'none'; sheet.style.transform = y ? `translate3d(0,${y}px,0)` : ''; stickY(y, anim); };
@@ -11353,7 +11354,7 @@ const TideHarm = (() => {
     const setCover = (h, anim) => { shownH = h; view.classList.toggle('mv-drag', !anim); view.style.setProperty('--sheet-h', Math.round(h + grab.offsetHeight) + 'px'); placeFab(anim); };
     // 지금 화면에 실제로 보이는 판 높이 (움직이는 도중이어도)
     function visH() {
-      if (!boxH) return shownH;
+      if (boxH < 0) return shownH;
       const t = getComputedStyle(sheet).transform; let y = 0;
       if (t && t !== 'none') { const m = t.match(/matrix(3d)?\(([^)]+)\)/); if (m) { const a = m[2].split(',').map(parseFloat); y = m[1] ? a[13] : a[5]; } }
       return boxH - (y || 0);
@@ -11361,7 +11362,7 @@ const TideHarm = (() => {
     // 판이 h 만큼 보이도록 (anim 이면 미끄러지듯, 움직이는 도중에 바뀌어도 지금 자리에서 이어서)
     function showTo(h, anim) {
       clearTimeout(animT); h = Math.round(h);
-      if (!anim || !boxH) { setY(0, false); setBox(h); setCover(h, false); return; }
+      if (!anim || boxH < 0) { setY(0, false); setBox(h); setCover(h, false); return; }
       const cur = visH(), top = Math.max(boxH, h, Math.ceil(cur));
       setBox(top); setY(top - cur, false); void sheet.offsetHeight;   // 지금 모습 그대로 높이만 넉넉히
       setY(top - h, true); setCover(h, true);
@@ -11370,16 +11371,16 @@ const TideHarm = (() => {
     }
     function applySheet(anim) {
       showTo(sheetHeights()[sheetMode], anim);
-      grab.setAttribute('aria-label', sheetMode === 'peek' ? '정보 판 펼치기' : '정보 판 접기');
+      grab.setAttribute('aria-label', sheetMode === 'hide' ? '정보 판 펼치기' : '정보 판 내리기');
     }
     function setMode(m, anim = true) {
       sheetMode = m; try { localStorage.setItem(SHEET_KEY, m); } catch (_) {}
       applySheet(anim);
     }
     // 새 포인트 저장을 끝내거나 취소하면: 판을 접어 다시 지도를 보는 상태로 (다음에 열 때 기본 상태는 그대로)
-    function sheetDown() { if (sheetMode !== 'peek') { sheetMode = 'peek'; if (!fitRaf) fitRaf = requestAnimationFrame(refit); } }
+    function sheetDown() { const m = onBoard ? 'hide' : 'peek'; if (sheetMode !== m) { sheetMode = m; if (!fitRaf) fitRaf = requestAnimationFrame(refit); } }
     // 저장·목록 화면을 열 때: 접혀 있으면 펼친다 (높이는 새 내용을 그린 뒤 refit 이 맞춘다)
-    function sheetAtLeast(m) { if (ORDER.indexOf(sheetMode) < ORDER.indexOf(m)) { sheetMode = m; if (!fitRaf) fitRaf = requestAnimationFrame(refit); } }
+    function sheetAtLeast(m) { const hs = sheetHeights(); if (hs[sheetMode] < hs[m] - 1) { sheetMode = m; if (!fitRaf) fitRaf = requestAnimationFrame(refit); } }
     function dragStart(e, tap) {
       if (e.button > 0) return;
       const vis = visH(); clearTimeout(animT);
@@ -11395,26 +11396,27 @@ const TideHarm = (() => {
       if (!drag.moved) return;
       const now = performance.now(), dt = Math.max(1, now - drag.t); drag.v = 0.5 * drag.v + 0.5 * ((e.clientY - drag.y) / dt); drag.y = e.clientY; drag.t = now;
       const hs = drag.hs; let h = drag.h0 - dy;
-      // 두 높이 밖으로는 살짝만 따라온다
-      if (h > hs.open) h = hs.open + Math.min(24, (h - hs.open) * 0.3); else if (h < hs.peek) h = hs.peek - Math.min(24, (hs.peek - h) * 0.3);
+      // 끝까지 열린 높이 위로는 살짝만 따라오고, 아래로는 손잡이만 남을 때까지 그대로 따라온다
+      if (h > hs.open) h = hs.open + Math.min(24, (h - hs.open) * 0.3); else if (h < 0) h = 0;
       setY(drag.big - h, false); setCover(h, false);
       e.preventDefault();
     }
     function dragEnd(e) {
       if (!drag || e.pointerId !== drag.id) return;
       const d = drag; drag = null;
-      // 톡: 접혀 있으면 펼치고, 펼쳐져 있으면 접는다
-      if (!d.moved) { if (e.type === 'pointerup' && d.tap) setMode(sheetMode === 'peek' ? 'open' : 'peek'); else applySheet(true); return; }
-      // 쓸기: 조금만 움직여도 그 방향 끝까지 (달력 넘기듯)
-      const dy = e.clientY - d.y0; let m = sheetMode;
-      if (Math.abs(d.v) > 0.25 && Math.abs(dy) > 8) m = d.v < 0 ? 'open' : 'peek';
-      else if (dy < -24) m = 'open'; else if (dy > 24) m = 'peek';
-      setMode(m, true);
+      // 톡: 손잡이만이면 끝까지 한 번에 펼치고, 조금이라도 보이면 손잡이만 남게 한 번에 내린다
+      if (!d.moved) { if (e.type === 'pointerup' && d.tap) setMode(sheetMode === 'hide' ? 'open' : 'hide'); else applySheet(true); return; }
+      // 끌기: 놓은 높이 그대로 (맨 아래 가까이면 손잡이만, 맨 위 가까이면 끝까지)
+      const h = Math.max(0, Math.min(d.hs.open, d.h0 - (e.clientY - d.y0)));
+      if (h < 28) return setMode('hide', true);
+      if (h > d.hs.open - 10) return setMode('open', true);
+      freeH = Math.round(h); try { localStorage.setItem(SHEET_KEY + 'h', String(freeH)); } catch (_) {}
+      setMode('free', true);
     }
     // 손잡이: 톡 누르면 접기·펼치기, 쓸어 올리고 내리기
     grab.addEventListener('pointerdown', e => dragStart(e, true));
     for (const el of [grab, panel]) { el.addEventListener('pointermove', dragMove); el.addEventListener('pointerup', dragEnd); el.addEventListener('pointercancel', dragEnd); }
-    grab.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setMode(sheetMode === 'peek' ? 'open' : 'peek'); } });
+    grab.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setMode(sheetMode === 'hide' ? 'open' : 'hide'); } });
     // 판의 맨 윗줄(어디서 몇 km · 제목)을 잡아도 끌 수 있다
     panel.addEventListener('pointerdown', e => { if (e.target.closest('.mv-where, .mv-h')) dragStart(e, false); });
     addEventListener('resize', () => { if (isOpen) applySheet(false); });
@@ -11424,7 +11426,7 @@ const TideHarm = (() => {
       fitRaf = 0; if (fab) fab.classList.toggle('off', mode === 'save' || mode === 'pick' || mode === 'sum');
       if (!isOpen || drag) return;
       const h = sheetHeights()[sheetMode]; if (Math.abs(h - shownH) > 1) showTo(h, true);
-      grab.setAttribute('aria-label', sheetMode === 'peek' ? '정보 판 펼치기' : '정보 판 접기');
+      grab.setAttribute('aria-label', sheetMode === 'hide' ? '정보 판 펼치기' : '정보 판 내리기');
     }
     // ---------- 포인트 저장 단추: 톡 누르면 저장, 꾹 누른 채 움직이면 원하는 자리로 옮긴다 (자리는 이 폰에 기억)
     // 자리는 지도 칸 안의 비율로 기억하고, 정보 판이 올라와 가리게 되면 판 바로 위로 비켜 선다
@@ -11567,7 +11569,7 @@ const TideHarm = (() => {
       const rec = !!(o && o.view); viewMode = rec && !onBoard; if (!rec) dayFilter = null;
       if (!me) { const S = TideHarm.STATIONS[tideSt]; v = { lon: S.lon - 0.05, lat: S.lat - 0.02, s: 1400 }; }
       else if (follow) placeAt(me.lon, me.lat, focusY());
-      sheetMode = 'peek';   // 지도에 처음 들어올 때는 늘 판을 접어 지도가 넓게 보이게 (저장·목록·출항지 고르기는 그 뒤에 알아서 펼친다)
+      sheetMode = o && (o.pick || o.view) ? 'peek' : 'hide';   // 지도에 처음 들어올 때는 판을 접어 지도가 넓게 · 선상 모드(낚시)면 손잡이만 (사용자 2026-11-28) · 저장·목록·출항지 고르기는 그 뒤에 알아서 펼친다
       if (!(o && (o.pick || o.view))) boardOn();
       if (!viewMode) { startGps(); wakeOn(); }
       loadLand(); loadMapPorts(); loadSpots(); natFixes(); paintView(); paintPanel(true); applySheet(false); resize(); kick(); autoPill(); autoPill.last = '';
@@ -12023,7 +12025,7 @@ const TideHarm = (() => {
 
 <script>
 if ('serviceWorker' in navigator) addEventListener('load', () => {
-  const sw = navigator.serviceWorker, VER = 'f173e3e0'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
+  const sw = navigator.serviceWorker, VER = '94584682'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
   // 화면에 손을 대기 시작했는지 (쓰는 중에는 새로 열지 않으려고)
   ['pointerdown', 'keydown'].forEach(t => addEventListener(t, () => { touched = true; }, { capture: true, passive: true }));
   const reload = () => {
