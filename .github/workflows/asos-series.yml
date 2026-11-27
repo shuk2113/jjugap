@@ -1,0 +1,19 @@
+# 센 바람 뒤 남는 흙탕 셈 맞추기용 ASOS 긴 기록 (손으로만): 결과는 실행 기록에만 (저장소에 안 남김 · 받은 뒤 기록 지움)
+name: ASOS 바람 긴 기록
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  ser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v5
+      - name: 받기
+        env:
+          DATA_GO_KR_KEY: ${{ secrets.DATA_GO_KR_KEY }}
+        run: python3 .github/scripts/asos_series.py

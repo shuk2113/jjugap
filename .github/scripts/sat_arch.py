@@ -24,6 +24,8 @@ for day in days:
     for hm, f in S:
         if hm >= '16:00':   # 해가 낮아 산출물 없음
             continue
+        if os.environ.get('HMS') and hm[:2] not in os.environ['HMS'].split(','):   # 고른 시(時)만 (빨리 모으기)
+            continue
         w = dods(f, [('/geophysical_data/Zsd', R0, R1, C0, C1, STEP), ('/geophysical_data/flag', R0, R1, C0, C1, STEP)])
         if not w or 'Zsd' not in w:
             continue
