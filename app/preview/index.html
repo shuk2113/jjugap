@@ -6868,7 +6868,7 @@ const TideHarm = (() => {
         // 선장님이 정한 호수(단 봉돌)가 앱 최소보다 무거우면 단 호수를 크게 · 앱 셈은 참고로 (사용자 2026-11-23: 선장은 16호, 앱은 12호만 나오면 헷갈림)
         const opts = [...new Set([...skOpts(), 12, 14, 15, 16, 18, 20, 25, ...(q.cur ? [q.cur] : [])])].filter(n => n > 0).sort((a, b) => a - b);
         h += `<div class="pl-dg"><div class="pl-dt wide live"><small>지금 배 위 (GPS로 셈)</small><b>${plDot(q.vcat)}${heavy ? q.cur + '호' : q.std ? q.std + '호' : '40호↑'}<span style="white-space:nowrap">· 바닥 초속 ${q.v.toFixed(2)}m</span></b>`
-          + `<span>${heavy ? `${q.cur}호 단 채 · 바닥에 충분히 붙어요 (앱 최소 ${q.std}호) · ` : light ? `지금 단 ${q.cur}호는 가벼워 바닥에서 뜰 수 있어요 → ${q.std}호 · ` : '바닥에 붙어 끌려오는 가장 가벼운 무게 · '}에기는 배 속도로 지나가요 · ${esc(SK_VTXT[s.sp === 'gp' ? 'gp' : 'jj'][q.vcat].split(' · ')[0])}${skStopTxt(q.v)}</span>`
+          + `<span>${heavy ? `${q.cur}호 단 채 · 바닥에 충분히 붙어요 (앱 최소 ${q.std}호) · ` : light ? `지금 단 ${q.cur}호는 가벼워 바닥에서 뜰 수 있어요 → ${q.std}호 · ` : !q.std ? '배가 너무 빨리 흘러 40호로도 줄이 서기 어려워요 · ' : '바닥에 붙어 끌려오는 가장 가벼운 무게 · '}에기는 배 속도로 지나가요 · ${esc(SK_VTXT[s.sp === 'gp' ? 'gp' : 'jj'][q.vcat].split(' · ')[0])}${skStopTxt(q.v)}</span>`
           + `<div class="pl-skcur" role="group" aria-label="지금 단 봉돌 (선장님이 정한 호수)"><small>단 봉돌</small>${opts.map(n => `<button type="button" data-pl="sknow" data-n="${n}" class="${n === q.cur ? 'on' : ''}" aria-pressed="${n === q.cur}">${n}</button>`).join('')}</div></div>`
           + `<div class="pl-dt wide"><small>방법 (가설)</small><span>${esc(SK_METH[s.sp === 'gp' ? 'gp' : 'jj'][q.vcat])}</span></div></div>`; }
       if (AB) h += `<p class="pl-k">실제 기록 <span style="font-weight:500">· 참고만</span></p><div class="pl-act">${AB.pts.map(p => `<div><b>${ampm((p.t - dayStartOf(s.n)) / 60000)}</b><span>${esc([(p.egi || []).map(plRecName).join(' · '), (p.sink || []).length ? p.sink.join('·') + '호' : '', p.mt ? PL_MT[p.mt] : ''].filter(Boolean).join(' · ') || '채비 기록 없음')}</span><em>${(p.jj || 0) + (p.gap || 0)}마리</em></div>`).join('')}</div>`;
@@ -11908,7 +11908,7 @@ const TideHarm = (() => {
 
 <script>
 if ('serviceWorker' in navigator) addEventListener('load', () => {
-  const sw = navigator.serviceWorker, VER = '2b41d721'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
+  const sw = navigator.serviceWorker, VER = 'f66a7654'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
   // 화면에 손을 대기 시작했는지 (쓰는 중에는 새로 열지 않으려고)
   ['pointerdown', 'keydown'].forEach(t => addEventListener(t, () => { touched = true; }, { capture: true, passive: true }));
   const reload = () => {
