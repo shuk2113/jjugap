@@ -6853,8 +6853,12 @@ const TideHarm = (() => {
       const lv = s.live && s.live.sk ? s.live.sk : null, sk = x.sink && x.sink[s.pe];
       const opts = [...new Set([...skOpts(), 12, 14, 15, 16, 18, 20, 25, ...(lv && lv.cur ? [lv.cur] : [])])].filter(n => n > 0).sort((a, b) => a - b); s.skOptsNow = opts; s.skCur = lv ? lv.cur : null;
       let skV, skS;
-      if (lv) { const heavy = lv.cur && lv.std && lv.cur >= lv.std, light = lv.cur && lv.std && lv.cur < lv.ho * 0.9; skV = heavy ? lv.cur + '호' : lv.std ? lv.std + '호' : '40호↑'; skS = light ? `${lv.cur}호는 가벼워요` : heavy ? '단 채 충분해요' : !lv.std ? '40호로도 어려워요' : lv.cur ? '바닥에 붙는 무게' : '눌러서 넣기'; }
-      else { skV = sk ? (sk.main ? sk.main + '호' : '40호↑') : '–'; skS = '바닥에 붙는 무게'; }
+      // 봉돌은 '바닥을 찍나'가 아니라 '줄이 서나(30° 안) · 눕나' (사용자 2026-11-28: 가벼워도 줄을 더 풀면 바닥은 찍힘 · 누우면 옆 사람과 엉키고 감이 둔함)
+      if (lv) { const light = lv.cur && lv.std && lv.cur < lv.ho * 0.9;
+        if (!lv.std) { skV = lv.cur ? lv.cur + '호' : '40호↑'; skS = '줄이 서기 어려워요'; }
+        else if (lv.cur) { skV = lv.cur + '호'; skS = light ? `줄이 누워요 · ${lv.std}호면 서요` : '줄이 잘 서요'; }
+        else { skV = lv.std + '호쯤'; skS = '줄이 서는 무게'; } }
+      else { skV = sk ? (sk.main ? sk.main + '호쯤' : '40호↑') : '–'; skS = '줄이 서는 무게'; }
       const vc = lv ? lv.vcat : plVc(x, s), vv = lv ? lv.v : x.sink && x.sink.v ? x.sink.v[1] : null;
       const spS = vv == null ? '' : `초속 ${vv.toFixed(2)}m${lv && lv.b ? '' : ' · 짐작'}`;
       const today = s.n === kstDay(now), wed = today && (me && !me.virtual || s.p);
@@ -6868,7 +6872,7 @@ const TideHarm = (() => {
       h += `<div class="pl-bt gd2-bt"><button type="button" data-pl="gdet" aria-pressed="${!!s.det}">${s.det ? '색 점수 접기' : '색 점수 모두'}</button><button type="button" data-pl="gwhy" aria-pressed="${!!s.gwhy}">${s.gwhy ? '근거 접기' : '근거 보기'}</button></div>`;
       if (s.gwhy) h += `<p class="why">${plWhy(x, s)}</p>`;
       if (s.det) { s.open = new Set([x.h]); h += `<div class="pl-hours">${plHour(x, s)}</div>`; }
-      h += `<p class="gd2-foot">가설이에요 · 10분마다, 500m 넘게 옮기면 다시 셈 · 원줄 <button type="button" class="gd2-ln" data-pl="pe1">PE ${esc(s.pe)}호 바꾸기</button> · <button type="button" class="gd2-ln" data-pl="gdoff">길잡이 끄기</button></p>`;
+      h += `<p class="gd2-foot">가설이에요 · 10분마다, 500m 넘게 옮기면 다시 셈 · <button type="button" class="gd2-ln" data-pl="gdoff">길잡이 끄기</button></p>`;
       h += `<p class="gd2-src">자료: 국립해양조사원 조석·조류 예측·격자 수심(BADA2024) · 기상청 예보·초단기실황·초단기예보 · 물색 바탕: 국립수산과학원 정선해양관측 · 물색 보정: 천리안위성 2B호(국립해양조사원 국가해양위성센터). 해도가 아니니 항해·안전에는 쓰지 마세요.</p></div>`;
       return head + h;
     }
@@ -6947,7 +6951,7 @@ const TideHarm = (() => {
         // 선장님이 정한 호수(단 봉돌)가 앱 최소보다 무거우면 단 호수를 크게 · 앱 셈은 참고로 (사용자 2026-11-23: 선장은 16호, 앱은 12호만 나오면 헷갈림)
         const opts = [...new Set([...skOpts(), 12, 14, 15, 16, 18, 20, 25, ...(q.cur ? [q.cur] : [])])].filter(n => n > 0).sort((a, b) => a - b); s.skOptsNow = opts; s.skCur = q.cur;
         h += `<div class="pl-dg"><div class="pl-dt wide live"><small>${q.b ? `지금 배 위 (GPS ${q.b.win}분으로 셈)` : '지금 배 위 (조류로 짐작 · 흐르기 시작하면 2~5분 뒤 GPS로)'}</small><b>${plDot(q.vcat)}<button type="button" class="pl-skbig" data-pl="skpick" aria-label="단 봉돌 고르기">${heavy ? q.cur + '호' : q.std ? q.std + '호' : '40호↑'}<i class="pl-pen" aria-hidden="true">✎</i></button><span style="white-space:nowrap">· 바닥 초속 ${q.v.toFixed(2)}m</span></b>`
-          + `<span>${heavy ? `${q.cur}호 단 채 · 바닥에 충분히 붙어요 (앱 최소 ${q.std}호) · ` : light ? `지금 단 ${q.cur}호는 가벼워 바닥에서 뜰 수 있어요 → ${q.std}호 · ` : !q.std ? '배가 너무 빨리 흘러 40호로도 줄이 서기 어려워요 · ' : '바닥에 붙어 끌려오는 가장 가벼운 무게 · '}에기는 배 속도로 지나가요 · ${esc(SK_VTXT[s.sp === 'gp' ? 'gp' : 'jj'][q.vcat].split(' · ')[0])}${skStopTxt(q.v)}</span>`
+          + `<span>${heavy ? `${q.cur}호 단 채 · 줄이 잘 서요 (줄이 서는 가장 가벼운 무게 ${q.std}호) · ` : light ? `지금 단 ${q.cur}호는 줄이 누워요(옆 사람과 엉키거나 감이 둔할 수 있어요) → ${q.std}호면 서요 · ` : !q.std ? '배가 너무 빨리 흘러 40호로도 줄이 서기 어려워요 · ' : '줄이 서는(30° 안) 가장 가벼운 무게 · '}에기는 배 속도로 지나가요 · ${esc(SK_VTXT[s.sp === 'gp' ? 'gp' : 'jj'][q.vcat].split(' · ')[0])}${skStopTxt(q.v)}</span>`
           + `${q.cur ? '' : '<em class="pl-wchint">호수를 눌러 단 봉돌 넣기</em>'}</div>`
           + `<div class="pl-dt wide"><small>방법 (가설)</small><span>${esc(SK_METH[s.sp === 'gp' ? 'gp' : 'jj'][q.vcat])}</span></div></div>`; }
       if (AB) h += `<p class="pl-k">실제 기록 <span style="font-weight:500">· 참고만</span></p><div class="pl-act">${AB.pts.map(p => `<div><b>${ampm((p.t - dayStartOf(s.n)) / 60000)}</b><span>${esc([(p.egi || []).map(plRecName).join(' · '), (p.sink || []).length ? p.sink.join('·') + '호' : '', p.mt ? PL_MT[p.mt] : ''].filter(Boolean).join(' · ') || '채비 기록 없음')}</span><em>${(p.jj || 0) + (p.gap || 0)}마리</em></div>`).join('')}</div>`;
@@ -10543,6 +10547,7 @@ const TideHarm = (() => {
         + `</div>`
         + `<p class="mv-setg">지도</p><div class="mv-setc"><button type="button" class="mv-row-btn" data-act="sty-open">지도 모양<span>${esc(styName(mapSty))} ›</span></button>`
         + `<div class="mv-dset"><div class="h"><b>수심 색칠</b><small>국립해양조사원 수심 · 서해 중부(인천~군산·부안 앞바다)</small></div><div class="mv-dseg" role="group" aria-label="수심 색칠">${DP_OPTS.map(([k, n]) => `<button type="button" data-act="dp-sty" data-v="${k}" class="${(mapSet.dp || 'off') === k ? 'on' : ''}" aria-pressed="${(mapSet.dp || 'off') === k}">${n}</button>`).join('')}</div>${dpKeyHtml(mapSet.dp)}</div>`
+        + sw('pe-tog', peGet() === '0.8', '원줄 PE 0.8호', '켜면 0.8호 · 끄면 1.0호', 'pe', '봉돌 셈(줄이 30° 안으로 서는 가장 가벼운 무게)에만 써요. 줄이 가늘면 물살에 덜 밀려 조금 가벼운 봉돌로도 줄이 서요. 0.8호와 1.0호 차이는 봉돌 한 단계 안팎이에요. 에기 속도와는 상관없어요.')
         + sw('chg-tog', !mapSet.chgOnce, '야광은 올릴 때마다 충전', '켜면 늘 막 충전한 밝기로 · 끄면 처음 한 번만', 'chg', '에기 추천에서 야광 밝기를 어떻게 셈할지예요. 켜 두면 채비를 올릴 때마다 축광기로 충전한다고 보고, 늘 막 충전한 밝기(충전 뒤 10분쯤)로 셈해요. 끄면 낚시 시작 때 한 번만 충전했다고 보고 시간이 지날수록 약해지게 셈해요.')
         + sw('dpme-tog', mapSet.dpMe !== false, '내 위치 수심 숫자', '선상 모드에서 파란 점 옆에 ‘약 7m’', 'dpme', '선상 모드에서 GPS로 움직일 때 내 위치 옆에 지금 수심을 작게 보여요. 지도를 꾹 누르면 그 자리 수심이 말풍선으로 떠요. 지도 수심(평균 물높이 기준)에 지금 물 높이를 더한 값이에요. 국립해양조사원 격자 수심(150m 간격)이라 작은 여는 안 보이고, 덕적도 위쪽~연평도 쪽은 자료가 없어요. 해도가 아니니 항해·안전에는 쓰지 마세요.')
         + sw('mapcl-tog', mapSet.cl, '멀리 보면 묶기', '멀리 볼 때 가까운 기록을 동그라미 하나로', 'mapcl', '출조가 4번 넘게 보일 때 지도를 멀리 보면, 가까운 포인트끼리 동그라미 하나로 묶고 총 마릿수를 적어요. 제일 많이 잡은 곳은 금색이에요. 동그라미를 톡 하면 그 자리로 확대돼요. 끄면 멀리 볼 때도 경로와 포인트가 그대로 보여요.')
@@ -10758,6 +10763,7 @@ const TideHarm = (() => {
       if (a === 'noti-tog') return setNoti(!notiOn);
       if (a === 'sty-open') { selId = null; mode = 'info'; paintPanel(true); setMode('peek'); return setTimeout(styOpen, 280); }   // 판을 접어 지도가 보이게 한 뒤
       if (a === 'dp-sty') { mapSet.dp = DP_STY[b.dataset.v] ? b.dataset.v : 'off'; mapSetSave(); bkey = ''; draw(); return showSet(); }
+      if (a === 'pe-tog') { peSet(peGet() === '0.8' ? '1.0' : '0.8'); gdG = null; try { guideCalc(true); } catch (_) {} return showSet(); }
       if (a === 'chg-tog') { mapSet.chgOnce = !mapSet.chgOnce; mapSetSave(); gdG = null; try { guideCalc(true); } catch (_) {} return showSet(); }
       if (a === 'dpme-tog') { mapSet.dpMe = mapSet.dpMe === false; mapSetSave(); draw(); return showSet(); }
       if (a === 'mapcl-tog' || a === 'mapqz-tog' || a === 'mapzb-tog') { const k = a.slice(3, 5); mapSet[k] = !mapSet[k]; mapSetSave(); draw(); return showSet(); }
@@ -12019,7 +12025,7 @@ const TideHarm = (() => {
 
 <script>
 if ('serviceWorker' in navigator) addEventListener('load', () => {
-  const sw = navigator.serviceWorker, VER = 'd7c3dadc'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
+  const sw = navigator.serviceWorker, VER = '0df3663a'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
   // 화면에 손을 대기 시작했는지 (쓰는 중에는 새로 열지 않으려고)
   ['pointerdown', 'keydown'].forEach(t => addEventListener(t, () => { touched = true; }, { capture: true, passive: true }));
   const reload = () => {
