@@ -6867,7 +6867,7 @@ const TideHarm = (() => {
       if (s.live && s.live.h === x.h && s.live.sk) { const q = s.live.sk, heavy = q.cur && q.std && q.cur >= q.std, light = q.cur && q.std && q.cur < q.ho * 0.9;
         // 선장님이 정한 호수(단 봉돌)가 앱 최소보다 무거우면 단 호수를 크게 · 앱 셈은 참고로 (사용자 2026-11-23: 선장은 16호, 앱은 12호만 나오면 헷갈림)
         const opts = [...new Set([...skOpts(), 12, 14, 15, 16, 18, 20, 25, ...(q.cur ? [q.cur] : [])])].filter(n => n > 0).sort((a, b) => a - b);
-        h += `<div class="pl-dg"><div class="pl-dt wide live"><small>${q.b ? '지금 배 위 (GPS로 셈)' : '지금 배 위 (조류로 짐작 · 흐르기 시작하면 3분 뒤 GPS로)'}</small><b>${plDot(q.vcat)}${heavy ? q.cur + '호' : q.std ? q.std + '호' : '40호↑'}<span style="white-space:nowrap">· 바닥 초속 ${q.v.toFixed(2)}m</span></b>`
+        h += `<div class="pl-dg"><div class="pl-dt wide live"><small>${q.b ? '지금 배 위 (GPS로 셈)' : '지금 배 위 (조류로 짐작 · 흐르기 시작하면 2분 뒤 GPS로)'}</small><b>${plDot(q.vcat)}${heavy ? q.cur + '호' : q.std ? q.std + '호' : '40호↑'}<span style="white-space:nowrap">· 바닥 초속 ${q.v.toFixed(2)}m</span></b>`
           + `<span>${heavy ? `${q.cur}호 단 채 · 바닥에 충분히 붙어요 (앱 최소 ${q.std}호) · ` : light ? `지금 단 ${q.cur}호는 가벼워 바닥에서 뜰 수 있어요 → ${q.std}호 · ` : !q.std ? '배가 너무 빨리 흘러 40호로도 줄이 서기 어려워요 · ' : '바닥에 붙어 끌려오는 가장 가벼운 무게 · '}에기는 배 속도로 지나가요 · ${esc(SK_VTXT[s.sp === 'gp' ? 'gp' : 'jj'][q.vcat].split(' · ')[0])}${skStopTxt(q.v)}</span>`
           + `<div class="pl-skcur" role="group" aria-label="지금 단 봉돌 (선장님이 정한 호수)"><small>단 봉돌</small>${opts.map(n => `<button type="button" data-pl="sknow" data-n="${n}" class="${n === q.cur ? 'on' : ''}" aria-pressed="${n === q.cur}">${n}</button>`).join('')}</div></div>`
           + `<div class="pl-dt wide"><small>방법 (가설)</small><span>${esc(SK_METH[s.sp === 'gp' ? 'gp' : 'jj'][q.vcat])}</span></div></div>`; }
@@ -6940,19 +6940,31 @@ const TideHarm = (() => {
     function planPaintMain() { try { window.jjugapPlanPaint && window.jjugapPlanPaint(); } catch (_) {} }
     window.jjugapPlan = planHTML; window.jjugapPlanOpen = n => planOpen(n);
     // ---------- 배 위 한 줄 (선상 모드 지도): 이 시간 계획 + 지금 실제로 배가 흐르는 속도(GPS)로 다시 셈한 봉돌
-    function boatVel() {   // 최근 3분 GPS로 배가 흐르는 속도 (자동 기록이 켜져 있을 때 · 이동 중이면 없음)
+    function boatVel() {   // 최근 2분 GPS 위치 전부로 직선을 맞춘 배 속도 (사용자 2026-11-27 A안: 3분 두 점 → 2분 직선 맞춤 · 자동 기록이 켜져 있을 때 · 달리는 중이면 없음)
       if (!onBoard || !me || me.virtual || !autoOn) return null;
-      const t = Date.now(), Q = track.filter(q => t - q.t <= 180000);
-      if (Q.length < 2 || Q.some(q => q.run)) return null;
-      const a = Q[0], b = Q[Q.length - 1], dt = (b.t - a.t) / 1000; if (dt < 50) return null;
-      const n = (b.lat - a.lat) * 111195, e = (b.lon - a.lon) * 111195 * Math.cos(a.lat * Math.PI / 180), sp = Math.hypot(e, n) / dt;
-      return sp > 2 ? null : { e: e / dt, n: n / dt, sp };
+      const t = Date.now(), Q = track.filter(q => t - q.t <= 120000);
+      if (Q.length < 6 || Q.some(q => q.run)) return null;
+      const a = Q[0], span = (Q[Q.length - 1].t - a.t) / 1000; if (span < 90) return null;
+      const kx = 111195 * Math.cos(a.lat * Math.PI / 180);
+      let sw = 0, st = 0, se = 0, sn = 0, stt = 0, ste = 0, stn = 0;
+      for (const q of Q) { const w = 1 / Math.pow(Math.max(q.acc || 10, 3), 2), x = (q.t - a.t) / 1000, e = (q.lon - a.lon) * kx, n = (q.lat - a.lat) * 111195;
+        sw += w; st += w * x; se += w * e; sn += w * n; stt += w * x * x; ste += w * x * e; stn += w * x * n; }
+      const D = sw * stt - st * st; if (D <= 0) return null;
+      const ve = (sw * ste - st * se) / D, vn = (sw * stn - st * sn) / D, sp = Math.hypot(ve, vn);
+      const S = Q.filter(q => q.spd != null && t - q.t <= 60000), dop = S.length >= 5 ? S.reduce((u, q) => u + q.spd, 0) / S.length : null;   // 휴대폰 속도 1분 평균 (견주기용)
+      return sp > 2 ? null : { e: ve, n: vn, sp, dop };
+    }
+    // 휴대폰 속도(도플러) vs 위치 직선 속도 견주기 기록 — 바다 기록이 쌓이면 휴대폰 속도가 믿을 만한지 보고 재는 시간을 더 줄인다 (30초마다 · 최근 3000개)
+    const SPD_LOG = 'jjukgap-spdlog'; let spdLogT = 0;
+    function spdLog(b) {
+      if (!b || b.dop == null || Date.now() - spdLogT < 30000) return; spdLogT = Date.now();
+      try { const L = JSON.parse(localStorage.getItem(SPD_LOG) || '[]'); L.push([spdLogT, +b.sp.toFixed(3), +b.dop.toFixed(3), me ? +me.acc.toFixed(0) : null]); while (L.length > 3000) L.shift(); localStorage.setItem(SPD_LOG, JSON.stringify(L)); } catch (_) {}
     }
     let lvC = null;
     function liveCalc(at) {   // 20초마다 · 자리가 바뀌면 다시
       if (!WQ) wqReady();   // 실측 물색 바탕 (들어오면 다음 셈부터)
       const k0 = `${me.lat.toFixed(3)},${me.lon.toFixed(3)}`;
-      if (lvC && lvC.k === k0 && at - lvC.t < 20000) return lvC.v;
+      if (lvC && lvC.k === k0 && at - lvC.t < 15000) return lvC.v;
       const n = kstDay(at), h = Math.floor((at - dayStartOf(n)) / 3600000), P = planGet(n), pe = peGet();
       let row = P ? P.hours.find(r => r.h === h) || null : null, live = null;
       if (0 && !row && SP) {   // (길잡이가 10분마다 셈하므로 여기서는 안 함)
@@ -6962,7 +6974,7 @@ const TideHarm = (() => {
       let sk = null;
       const cc = SP && spotCur(me), D = depthAt(me, at), depth = D.st === 'ok' ? Math.max(0.5, D.dn) : null;
       if (cc && depth != null) {
-        const q = curNow(cc.c, at), b = boatVel();
+        const q = curNow(cc.c, at), b = boatVel(); spdLog(b);
         // GPS 배 속도(바닥 위) · 그 자리 조류 → 줄이 30° 안으로 서는 호수 · GPS가 없으면 물 따라 흐른다고 본다
         const L = skLive(depth, { sp: q.sp / 100, dir: q.dir }, b, pe, 'jj');
         sk = { need: L.box, std: L.std, ho: L.ho, v: L.v, vcat: L.vcat, b, depth, cur: skAt(at) };
@@ -7050,7 +7062,7 @@ const TideHarm = (() => {
     }
     function guideOff() { gdOn = false; gdG = null; try { localStorage.setItem(GD_KEY, '0'); } catch (_) {} planChip(me); }
     document.addEventListener('visibilitychange', () => { if (!document.hidden && onBoard && gdOn && me) { guideCalc(); planChip(me); } });
-    setInterval(() => { if (!document.hidden && onBoard && gdOn && me) planChip(me); if (onBoard) nowLoad(); }, 60000);   // 지금 날씨는 선상 모드면 길잡이를 꺼도 받음(비 기록용 · 10분에 한 번)   // 1분마다 봉돌·시간 · 색은 10분 지났거나 500m 넘게 옮겼을 때만 다시 셈
+    setInterval(() => { if (!document.hidden && onBoard && gdOn && me) planChip(me); if (onBoard) nowLoad(); }, 30000);   // 지금 날씨는 선상 모드면 길잡이를 꺼도 받음(비 기록용 · 10분에 한 번)   // 1분마다 봉돌·시간 · 색은 10분 지났거나 500m 넘게 옮겼을 때만 다시 셈
     let plcB = -1;
     function planChipPos() {
       const el = $('mv-plan'), a = $('mv-area'); if (!el) return;
@@ -10706,7 +10718,7 @@ const TideHarm = (() => {
     function onPos(pos) {
       if (locOff && !natLocOk()) { locOff = false; gpsMsg = ''; paintLocBar(); }   // 위치가 다시 들어온다
       if (NAT && onBoard) natFixes();
-      const c = pos.coords; gps = { lat: c.latitude, lon: c.longitude, acc: c.accuracy, heading: Number.isFinite(c.heading) && c.speed > 0.5 ? c.heading : null, t: pos.timestamp };
+      const c = pos.coords; gps = { lat: c.latitude, lon: c.longitude, acc: c.accuracy, heading: Number.isFinite(c.heading) && c.speed > 0.5 ? c.heading : null, t: pos.timestamp, spd: Number.isFinite(c.speed) ? c.speed : null };   // spd: 휴대폰이 직접 준 속도(도플러) — 견주기 기록용 (사용자 2026-11-27 A안)
       if (me && me.virtual) { setGps('가상 위치 · GPS 잡힘 (‘내 위치로’를 누르면 돌아가요)', 'warn'); return; }
       const first = !me; me = { ...gps };
       setGps(`GPS ±${Math.round(c.accuracy)}m · ${ampm(kstMin(pos.timestamp))}`, c.accuracy <= 50 ? 'ok' : 'warn');
@@ -10825,7 +10837,7 @@ const TideHarm = (() => {
       if (runTo(fix, t)) { if (!runQ) runQ = t; } else runQ = 0;
       const run = !!runQ && t - runQ >= RUN_GAP;
       if (run) { for (let j = track.length - 1; j >= 0 && t - track[j].t <= 240000 && !track[j].run; j--) if (distKm(track[j], fix) * 1000 > 30) { track[j].run = true; break; } }   // 달리기 시작한 자리부터는 머문 구간이 아니다
-      track.push({ lat: fix.lat, lon: fix.lon, t, acc: fix.acc || 0, run }); while (track.length > 2 && t - track[1].t > 30 * 60000) track.shift();
+      track.push({ lat: fix.lat, lon: fix.lon, t, acc: fix.acc || 0, run, spd: fix.spd != null ? fix.spd : null }); while (track.length > 2 && t - track[1].t > 30 * 60000) track.shift();
       if (stay) {
         if (!moved && !run && distKm(stay, fix) * 1000 <= DRIFT_MAX) {   // 흘리는 중: 같은 자리
           stay.last = t; stay.e = { lat: fix.lat, lon: fix.lon };   // 흘러간 끝
@@ -11908,7 +11920,7 @@ const TideHarm = (() => {
 
 <script>
 if ('serviceWorker' in navigator) addEventListener('load', () => {
-  const sw = navigator.serviceWorker, VER = '2ef58b0a'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
+  const sw = navigator.serviceWorker, VER = '4f2198d3'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
   // 화면에 손을 대기 시작했는지 (쓰는 중에는 새로 열지 않으려고)
   ['pointerdown', 'keydown'].forEach(t => addEventListener(t, () => { touched = true; }, { capture: true, passive: true }));
   const reload = () => {
