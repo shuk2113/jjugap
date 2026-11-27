@@ -6495,7 +6495,7 @@ const TideHarm = (() => {
       out.sort((a, b) => b.r - a.r || b.fn[''].r - a.fn[''].r || a.n.localeCompare(b.n));
       for (const e of Object.values(alt)) { const nf = 'n' + bf; e.best = e.fn[nf] && e.fn[nf].r > e.fn[bf].r * 1.08 + 1e-9 ? nf : bf; e.r = e.fn[e.best].r; e.sc = e.fn[e.best].sc; }
       out = simOwn(out);   // 내 상자에 같은 계열 색 에기가 있으면 그 에기로 (사용자 2026-11-24)
-      const t0 = out[0] ? out[0].sc : 0, altW = alt.white && alt.white.sc >= t0 - 2 ? alt.white.sc : 0, altB = alt.black && alt.black.sc >= t0 - 2 ? alt.black.sc : 0, altHint = altW && altW >= altB ? 'w' : altB ? 'b' : '';
+      const t0 = out[0] ? out[0].sc : 0, altW = alt.white && alt.white.sc >= t0 - 2 ? alt.white.sc : 0, altB = alt.black && alt.black.sc >= t0 - 2 ? alt.black.sc : 0, altHint = altW && altW >= altB ? ((alt.white.best || '').includes('g') ? 'wg' : 'w') : altB ? 'b' : '';   // 흰색이 야광 덕인지(wg) 밝아서인지(w) 나눠 적음 (사용자 2026-11-28)
       const flat = out.length > 5 && out[0].sc - out[5].sc <= 4 ? 1 : 0;   // 위 6색 점수 차가 4점 안쪽이면 '색 차이 작음'
       // 두 개 달면: 그 시각 점수 1등과 2등 (서로 다른 색 · 각자 가장 좋은 기능) — 톤 제한·'다른 방식 더하기' 없앰 (사용자 2026-11-20: 목적은 잘 붙을 색 찾기)
       const top = []; for (let i = 0; i + 1 < out.length && top.length < 1; i++) { const a = out[i], b = out[i + 1], fa = SIM_FN.find(x => x[0] === a.best), fb = SIM_FN.find(x => x[0] === b.best);
@@ -6852,7 +6852,7 @@ const TideHarm = (() => {
       const card = (id, t) => { const [n, f0] = sp(t), f = (f0 || '').replace(/^누드[·+]?/, ''); return `<div class="gd2-egi"><span class="gd2-sw">${plSw(id)}</span><b>${esc(n)}</b>${f ? `<em>${esc(f)}</em>` : '<em class="no">기능 없이</em>'}</div>`; };   // 누드는 재질이라 카드에 안 씀 (사용자 2026-11-28)
       const bf = x.EG.bf || '', why = bf === 'gk' ? '바닥이 어둡고 자외선도 닿아요' : bf === 'g' ? '바닥이 어두워 <b>야광</b>이 잘 보여요' : bf === 'k' ? '자외선이 바닥까지 닿아요' : x.EG.fresh ? '야광이 약해졌어요 · 축광기로 다시 충전하세요' : '바닥이 밝아 기능 없이도 잘 보여요';
       let h = PL_DEFS + `<div class="gd2">`;
-      h += `<p class="gd2-k">지금 달 에기</p><div class="gd2-pair">${pr ? card(pr.a, pr.an) + card(pr.b, pr.bn) : ''}</div><p class="gd2-why">${why}${bf.includes('g') && !mapSet.chgOnce ? ' · 올릴 때마다 충전' : ''}${bf.includes('g') ? ' · 투명 누드면 더 밝아요' : ''}</p>${x.EG.altHint ? `<p class="gd2-alt">${x.EG.altHint === 'w' ? '흰색이 많은 에기도 좋아요' : '검정에 가까운 진한 에기도 좋아요'}</p>` : ''}`;
+      h += `<p class="gd2-k">지금 달 에기</p><div class="gd2-pair">${pr ? card(pr.a, pr.an) + card(pr.b, pr.bn) : ''}</div><p class="gd2-why">${why}${bf.includes('g') && !mapSet.chgOnce ? ' · 올릴 때마다 충전' : ''}${bf.includes('g') ? ' · 투명 누드면 더 밝아요' : ''}</p>${x.EG.altHint ? `<p class="gd2-alt">${{ wg: '흰 바탕 야광 에기도 좋아요', w: '물이 맑아 흰색이 많은 에기도 잘 보여요', b: '검정에 가까운 진한 에기도 실루엣으로 잘 보여요' }[x.EG.altHint]}</p>` : ''}`;
       // 봉돌 · 물색 · 속도
       const lv = s.live && s.live.sk ? s.live.sk : null, sk = x.sink && x.sink[s.pe];
       const opts = [...new Set([...skOpts(), 12, 14, 15, 16, 18, 20, 25, ...(lv && lv.cur ? [lv.cur] : [])])].filter(n => n > 0).sort((a, b) => a - b); s.skOptsNow = opts; s.skCur = lv ? lv.cur : null;
@@ -12031,7 +12031,7 @@ const TideHarm = (() => {
 
 <script>
 if ('serviceWorker' in navigator) addEventListener('load', () => {
-  const sw = navigator.serviceWorker, VER = '8cd2c7e0'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
+  const sw = navigator.serviceWorker, VER = 'bc633aab'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
   // 화면에 손을 대기 시작했는지 (쓰는 중에는 새로 열지 않으려고)
   ['pointerdown', 'keydown'].forEach(t => addEventListener(t, () => { touched = true; }, { capture: true, passive: true }));
   const reload = () => {
