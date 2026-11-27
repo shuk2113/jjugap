@@ -6867,7 +6867,7 @@ const TideHarm = (() => {
       if (s.live && s.live.h === x.h && s.live.sk) { const q = s.live.sk, heavy = q.cur && q.std && q.cur >= q.std, light = q.cur && q.std && q.cur < q.ho * 0.9;
         // 선장님이 정한 호수(단 봉돌)가 앱 최소보다 무거우면 단 호수를 크게 · 앱 셈은 참고로 (사용자 2026-11-23: 선장은 16호, 앱은 12호만 나오면 헷갈림)
         const opts = [...new Set([...skOpts(), 12, 14, 15, 16, 18, 20, 25, ...(q.cur ? [q.cur] : [])])].filter(n => n > 0).sort((a, b) => a - b);
-        h += `<div class="pl-dg"><div class="pl-dt wide live"><small>${q.b ? '지금 배 위 (GPS로 셈)' : '지금 배 위 (조류로 짐작 · 흐르기 시작하면 2분 뒤 GPS로)'}</small><b>${plDot(q.vcat)}${heavy ? q.cur + '호' : q.std ? q.std + '호' : '40호↑'}<span style="white-space:nowrap">· 바닥 초속 ${q.v.toFixed(2)}m</span></b>`
+        h += `<div class="pl-dg"><div class="pl-dt wide live"><small>${q.b ? `지금 배 위 (GPS ${q.b.win}분으로 셈)` : '지금 배 위 (조류로 짐작 · 흐르기 시작하면 2~5분 뒤 GPS로)'}</small><b>${plDot(q.vcat)}${heavy ? q.cur + '호' : q.std ? q.std + '호' : '40호↑'}<span style="white-space:nowrap">· 바닥 초속 ${q.v.toFixed(2)}m</span></b>`
           + `<span>${heavy ? `${q.cur}호 단 채 · 바닥에 충분히 붙어요 (앱 최소 ${q.std}호) · ` : light ? `지금 단 ${q.cur}호는 가벼워 바닥에서 뜰 수 있어요 → ${q.std}호 · ` : !q.std ? '배가 너무 빨리 흘러 40호로도 줄이 서기 어려워요 · ' : '바닥에 붙어 끌려오는 가장 가벼운 무게 · '}에기는 배 속도로 지나가요 · ${esc(SK_VTXT[s.sp === 'gp' ? 'gp' : 'jj'][q.vcat].split(' · ')[0])}${skStopTxt(q.v)}</span>`
           + `<div class="pl-skcur" role="group" aria-label="지금 단 봉돌 (선장님이 정한 호수)"><small>단 봉돌</small>${opts.map(n => `<button type="button" data-pl="sknow" data-n="${n}" class="${n === q.cur ? 'on' : ''}" aria-pressed="${n === q.cur}">${n}</button>`).join('')}</div></div>`
           + `<div class="pl-dt wide"><small>방법 (가설)</small><span>${esc(SK_METH[s.sp === 'gp' ? 'gp' : 'jj'][q.vcat])}</span></div></div>`; }
@@ -6940,25 +6940,31 @@ const TideHarm = (() => {
     function planPaintMain() { try { window.jjugapPlanPaint && window.jjugapPlanPaint(); } catch (_) {} }
     window.jjugapPlan = planHTML; window.jjugapPlanOpen = n => planOpen(n);
     // ---------- 배 위 한 줄 (선상 모드 지도): 이 시간 계획 + 지금 실제로 배가 흐르는 속도(GPS)로 다시 셈한 봉돌
-    function boatVel() {   // 최근 2분 GPS 위치 전부로 직선을 맞춘 배 속도 (사용자 2026-11-27 A안: 3분 두 점 → 2분 직선 맞춤 · 자동 기록이 켜져 있을 때 · 달리는 중이면 없음)
+    function boatVel() {   // GPS 위치로 직선을 맞춘 배 속도 (사용자 2026-11-27 최종안): 2분부터 재고, 믿을 만하지 않으면 3·4·5분까지 늘림 · 그래도 안 되면 없음(조류로 짐작)
       if (!onBoard || !me || me.virtual || !autoOn) return null;
-      const t = Date.now(), Q = track.filter(q => t - q.t <= 120000);
-      if (Q.length < 6 || Q.some(q => q.run)) return null;
-      const a = Q[0], span = (Q[Q.length - 1].t - a.t) / 1000; if (span < 90) return null;
-      const kx = 111195 * Math.cos(a.lat * Math.PI / 180);
-      let sw = 0, st = 0, se = 0, sn = 0, stt = 0, ste = 0, stn = 0;
-      for (const q of Q) { const w = 1 / Math.pow(Math.max(q.acc || 10, 3), 2), x = (q.t - a.t) / 1000, e = (q.lon - a.lon) * kx, n = (q.lat - a.lat) * 111195;
-        sw += w; st += w * x; se += w * e; sn += w * n; stt += w * x * x; ste += w * x * e; stn += w * x * n; }
-      const D = sw * stt - st * st; if (D <= 0) return null;
-      const ve = (sw * ste - st * se) / D, vn = (sw * stn - st * sn) / D, sp = Math.hypot(ve, vn);
-      const S = Q.filter(q => q.spd != null && t - q.t <= 60000), dop = S.length >= 5 ? S.reduce((u, q) => u + q.spd, 0) / S.length : null;   // 휴대폰 속도 1분 평균 (견주기용)
-      return sp > 2 ? null : { e: ve, n: vn, sp, dop };
+      const t = Date.now(); let k = track.length - 1; while (k > 0 && !track[k - 1].run) k--;   // 마지막으로 달린 뒤부터만
+      if (track[k] && track[k].run) k++;
+      const T = track.slice(k), S = T.filter(q => q.spd != null && t - q.t <= 60000), dop = S.length >= 5 ? S.reduce((u, q) => u + q.spd, 0) / S.length : null;
+      for (const W of [120, 180, 240, 300]) {
+        const Q = T.filter(q => t - q.t <= W * 1000); if (Q.length < 6) return null;
+        const a = Q[0], span = (Q[Q.length - 1].t - a.t) / 1000; if (span < W * 0.75) return null;   // 그만큼 오래 머문 기록이 아직 없음
+        const kx = 111195 * Math.cos(a.lat * Math.PI / 180), P = Q.map(q => [(q.t - a.t) / 1000, (q.lon - a.lon) * kx, (q.lat - a.lat) * 111195, 1 / Math.pow(Math.max(q.acc || 10, 3), 2)]);
+        let sw = 0, st = 0, se = 0, sn = 0, stt = 0, ste = 0, stn = 0;
+        for (const [x, e, n, w] of P) { sw += w; st += w * x; se += w * e; sn += w * n; stt += w * x * x; ste += w * x * e; stn += w * x * n; }
+        const D = sw * stt - st * st; if (D <= 0) return null;
+        const ve = (sw * ste - st * se) / D, vn = (sw * stn - st * sn) / D, e0 = (se - ve * st) / sw, n0 = (sn - vn * st) / sw;
+        const res = Math.sqrt(P.reduce((u, [x, e, n]) => u + (e - e0 - ve * x) ** 2 + (n - n0 - vn * x) ** 2, 0) / (2 * P.length));   // 직선에서 벗어난 정도(m, 한 방향)
+        const nEff = Math.max(3, span / 15), err = 2 * res * Math.sqrt(12 / nEff) / span;   // GPS 오차는 이어지는 성질 → 15초마다 하나만 따로 친 셈 · 2배 엄격 (기록이 쌓이면 다시 맞춤)
+        const sp = Math.hypot(ve, vn); if (sp > 2) return null;
+        if (err <= 0.05) return { e: ve, n: vn, sp, dop, win: W / 60, err };
+      }
+      return null;
     }
     // 휴대폰 속도(도플러) vs 위치 직선 속도 견주기 기록 — 바다 기록이 쌓이면 휴대폰 속도가 믿을 만한지 보고 재는 시간을 더 줄인다 (30초마다 · 최근 3000개)
     const SPD_LOG = 'jjukgap-spdlog'; let spdLogT = 0;
     function spdLog(b) {
       if (!b || b.dop == null || Date.now() - spdLogT < 30000) return; spdLogT = Date.now();
-      try { const L = JSON.parse(localStorage.getItem(SPD_LOG) || '[]'); L.push([spdLogT, +b.sp.toFixed(3), +b.dop.toFixed(3), me ? +me.acc.toFixed(0) : null]); while (L.length > 3000) L.shift(); localStorage.setItem(SPD_LOG, JSON.stringify(L)); } catch (_) {}
+      try { const L = JSON.parse(localStorage.getItem(SPD_LOG) || '[]'); L.push([spdLogT, +b.sp.toFixed(3), +b.dop.toFixed(3), me ? +me.acc.toFixed(0) : null, b.win, +b.err.toFixed(3)]); while (L.length > 3000) L.shift(); localStorage.setItem(SPD_LOG, JSON.stringify(L)); } catch (_) {}
     }
     let lvC = null;
     function liveCalc(at) {   // 20초마다 · 자리가 바뀌면 다시
@@ -11920,7 +11926,7 @@ const TideHarm = (() => {
 
 <script>
 if ('serviceWorker' in navigator) addEventListener('load', () => {
-  const sw = navigator.serviceWorker, VER = '4f2198d3'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
+  const sw = navigator.serviceWorker, VER = '681c6989'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
   // 화면에 손을 대기 시작했는지 (쓰는 중에는 새로 열지 않으려고)
   ['pointerdown', 'keydown'].forEach(t => addEventListener(t, () => { touched = true; }, { capture: true, passive: true }));
   const reload = () => {
