@@ -133,6 +133,17 @@ def main():
     keep = (now - timedelta(days=KEEP_DAYS)).strftime('%Y%m%d%H')
     rh = sorted(h for h in set(prev.get('rh') or []) if h >= keep)
     rr = {gk: {h: v for h, v in hs.items() if h >= keep} for gk, hs in (prev.get('rr') or {}).items()}
+    # 바람 기록 (센 바람 뒤 남는 흙탕 셈용 · 사용자 2026-11-28): 3시간 칸마다 가장 센 실황 바람 [풍속×10, 풍향] · 최근 KEEP_DAYS일
+    blk = lambda h: h[:8] + '%02d' % (int(h[8:]) // 3 * 3)
+    pw = prev.get('rw') or {}
+    rw = {}
+    if pw.get('b0'):
+        b0 = datetime.strptime(pw['b0'], '%Y%m%d%H')
+        for gk, arr in (pw.get('g') or {}).items():
+            for i, v in enumerate(arr):
+                b = (b0 + timedelta(hours=3 * i)).strftime('%Y%m%d%H')
+                if v and b >= keep[:8] + '00':
+                    rw.setdefault(gk, {})[b] = v
     want = [(datetime.strptime(cur, '%Y%m%d%H') - timedelta(hours=i)).strftime('%Y%m%d%H') for i in range(BACKFILL_H, -1, -1)]
     todo = [h for h in want if h == cur or h not in rh]
     log(f'격자 {len(gs)}곳 · 실황 {todo} · 초단기예보 {fbase if do_fc else "밤이라 안 받음"}')
@@ -161,6 +172,15 @@ def main():
                 rr.setdefault(gk, {})[hh] = mm
             elif gk in rr:
                 rr[gk].pop(hh, None)
+        wsa = fill_near({g: (v[1] if v else None) for g, v in res.items()}, gs)
+        wda = fill_near({g: (v[2] if v else None) for g, v in res.items()}, gs)
+        for g in gs:
+            w, d = wsa.get(g), wda.get(g)
+            if w is None or w < 0 or w > 80:
+                continue
+            gk = f'{g[0]},{g[1]}'; b = blk(hh); old = rw.setdefault(gk, {}).get(b)
+            if not old or round(w * 10) > old[0]:
+                rw[gk][b] = [round(w * 10), int(d) if d is not None and 0 <= d <= 360 else -1]
         if hh not in rh:
             rh.append(hh)
         if hh == cur:
@@ -175,6 +195,10 @@ def main():
     for h in rh:
         days[h[:8]] = days.get(h[:8], 0) + 1
     out['rdh'] = days
+    bs = sorted({b for hs in rw.values() for b in hs})
+    if bs:
+        b0 = datetime.strptime(bs[0], '%Y%m%d%H'); nb = int((datetime.strptime(bs[-1], '%Y%m%d%H') - b0).total_seconds() // 10800) + 1
+        out['rw'] = {'b0': bs[0], 'g': {gk: [hs.get((b0 + timedelta(hours=3 * i)).strftime('%Y%m%d%H')) or 0 for i in range(nb)] for gk, hs in sorted(rw.items())}}
     out['rd'] = {}
     for gk, hs in rr.items():
         dd = out['rd'].setdefault(gk, {})
@@ -205,7 +229,7 @@ def main():
             ok_f += 1 if fcs.get(g) else 0
         if e:
             out['g'][gk] = e
-    note(f'지금 날씨: 실황 {ok_n}/{len(gs)}곳, 초단기예보 {ok_f}/{len(gs)}곳, 비 기록 {len(rh)}시간(최근 {KEEP_DAYS}일), 비 온 격자 {len(rr)}곳')
+    note(f'지금 날씨: 실황 {ok_n}/{len(gs)}곳, 초단기예보 {ok_f}/{len(gs)}곳, 비 기록 {len(rh)}시간(최근 {KEEP_DAYS}일), 비 온 격자 {len(rr)}곳, 바람 기록 {len(bs)}칸(3시간)')
     wrn = warnings(prev, now)
     if wrn:
         out['wrn'] = wrn
