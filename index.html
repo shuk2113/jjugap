@@ -11560,7 +11560,7 @@ const TideHarm = (() => {
       const rec = !!(o && o.view); viewMode = rec && !onBoard; if (!rec) dayFilter = null;
       if (!me) { const S = TideHarm.STATIONS[tideSt]; v = { lon: S.lon - 0.05, lat: S.lat - 0.02, s: 1400 }; }
       else if (follow) placeAt(me.lon, me.lat, focusY());
-      sheetMode = o && (o.pick || o.view) ? 'peek' : 'hide';   // 지도에 처음 들어올 때는 판을 접어 지도가 넓게 · 선상 모드(낚시)면 손잡이만 (사용자 2026-11-28) · 저장·목록·출항지 고르기는 그 뒤에 알아서 펼친다
+      sheetMode = o && o.pick ? 'peek' : 'hide';   // 기록 보기(포인트)로 열어도 손잡이만 (사용자 2026-11-28) · 자리 고르기만 안내 줄이 보이게 반쯤   // 지도에 처음 들어올 때는 판을 접어 지도가 넓게 · 선상 모드(낚시)면 손잡이만 (사용자 2026-11-28) · 저장·목록·출항지 고르기는 그 뒤에 알아서 펼친다
       if (!(o && (o.pick || o.view))) boardOn();
       if (!viewMode) { startGps(); wakeOn(); }
       loadLand(); loadMapPorts(); loadSpots(); natFixes(); paintView(); paintPanel(true); applySheet(false); resize(); kick(); autoPill(); autoPill.last = '';
@@ -12016,7 +12016,7 @@ const TideHarm = (() => {
 
 <script>
 if ('serviceWorker' in navigator) addEventListener('load', () => {
-  const sw = navigator.serviceWorker, VER = 'afeb4d59'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
+  const sw = navigator.serviceWorker, VER = '306fc247'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
   // 화면에 손을 대기 시작했는지 (쓰는 중에는 새로 열지 않으려고)
   ['pointerdown', 'keydown'].forEach(t => addEventListener(t, () => { touched = true; }, { capture: true, passive: true }));
   const reload = () => {
