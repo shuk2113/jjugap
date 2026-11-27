@@ -15,7 +15,12 @@ for day in days:
     if not S:
         print('ARCHX', day, 'noslots', flush=True); continue
     if nav is None:
-        nv = dods(S[len(S) // 2][1], [('/navigation_data/latitude', R0, R1, C0, C1, STEP), ('/navigation_data/longitude', R0, R1, C0, C1, STEP)])
+        nv = None
+        for _, f in S[len(S) // 2:] + S[:len(S) // 2]:   # 한 파일이 안 되면 다른 시각 파일로 (위치 격자는 같음)
+            nv = dods(f, [('/navigation_data/latitude', R0, R1, C0, C1, STEP), ('/navigation_data/longitude', R0, R1, C0, C1, STEP)])
+            if nv: break
+        if not nv:
+            print('ARCHX', day, 'nonav', flush=True); continue
         LA, LO = nv['latitude'], nv['longitude']
         ci = np.floor((G['lat1'] - LA) / G['res']).astype(int); cj = np.floor((LO - G['lon0']) / G['res']).astype(int)
         inb = (LA > -900) & (ci >= 0) & (ci < G['ny']) & (cj >= 0) & (cj < G['nx'])
