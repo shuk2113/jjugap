@@ -341,6 +341,21 @@ html.mv-on .app *{animation-play-state:paused !important} html.mv-hide .app{visi
 .mv-area span{display:flex; flex-direction:column; min-width:0} .mv-area b, .mv-area small{overflow:hidden; text-overflow:ellipsis; white-space:nowrap} .mv-area b{font-weight:800} .mv-area small{font-size:calc(12px * var(--k)); font-weight:700; color:var(--accent, #2F7DF6)} .mv-area i{flex:none; font-style:normal; color:var(--ink-2)}
 .mv-area small.warn{color:var(--strong)} .gspd.est{opacity:.55} .mv-plan{bottom:42px; padding:0; gap:0; overflow:hidden} .mv-plan .gd-main{flex:1; min-width:0; display:flex; align-items:center; gap:6px; min-height:40px; padding:6px 8px 6px 10px; border:0; background:none; color:inherit; font:inherit; text-align:left; -webkit-tap-highlight-color:transparent} .mv-plan .gd-off{flex:none; align-self:stretch; width:38px; display:grid; place-items:center; border:0; border-left:1px solid var(--line); background:none; color:var(--ink-2); padding:0} .mv-plan .gd-off svg{width:17px; height:17px} .mv-plan .gd-off[hidden]{display:none} .mv-plan.sw .gd-main{min-height:38px; padding:5px 12px 5px 10px} .mv-plan .gp{display:flex !important; flex-direction:row !important; align-items:center; gap:7px} .mv-plan .gp b.pk{font-size:calc(15px * var(--k))} .mv-plan .gsw{display:inline-flex; border-radius:7px} .mv-plan .gsw .pl-sw{width:26px; height:13px; margin:0} .mv-plan .gsw.gl{box-shadow:0 0 0 2px rgba(182,240,58,.6)} .mv-plan .gsw.kei{box-shadow:0 0 0 2px rgba(120,150,255,.6)} .mv-plan .mv-plan .gp .gspd{display:inline-flex !important; flex-direction:row !important} .gspd{display:inline-flex; align-items:center; gap:3px; padding-left:7px; border-left:1px solid rgba(255,255,255,.18); font-size:calc(11.5px * var(--k)); font-weight:800; color:var(--ink-2); white-space:nowrap}
 .pl-hh .spd, .pl-hr .spd{display:flex; flex-direction:column; align-items:center; gap:3px} .spd small{color:var(--ink-2); font-size:calc(10px * var(--k))}
+.gd2{padding:4px 2px 8px} .gd2-k{margin:14px 2px 8px; font-size:14px; color:var(--ink-2)} .gd2-pair{display:flex; gap:10px}
+.gd2-egi{flex:1; min-width:0; display:flex; flex-direction:column; align-items:center; gap:8px; padding:14px 6px; border-radius:16px; background:var(--well)} .gd2-sw{--k:2.6; display:flex} .gd2-egi b{font-size:18px; text-align:center} .gd2-egi em{font-style:normal; font-size:12.5px; padding:2px 9px; border-radius:9px; background:color-mix(in srgb, var(--acc) 18%, transparent)} .gd2-egi em.no{background:transparent; color:var(--ink-2)}
+.gd2-why{margin:10px 2px 0; font-size:15px} .gd2-row{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px; margin-top:16px}
+.gd2-t{min-width:0; text-align:left; padding:10px 12px; border-radius:14px; border:0; background:var(--well); color:var(--ink); font:inherit} button.gd2-t{cursor:pointer} .gd2-t small{display:block; font-size:12px; color:var(--ink-2)} .gd2-t b{display:flex; align-items:center; gap:4px; font-size:17px; white-space:nowrap} .gd2-t span{display:block; font-size:12px; color:var(--ink-2)} .gd2-t span em{font-style:normal; color:var(--acc)} .gd2-t.est b{opacity:.6}
+.gd2-how{margin-top:12px; padding:10px 12px; border-radius:14px; background:var(--well); font-size:14.5px} .gd2-how small{display:block; font-size:12px; color:var(--ink-2)}
+.gd2-next{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:6px} .gd2-next>div{display:flex; flex-direction:column; align-items:center; gap:5px; padding:8px 2px; border-radius:12px} .gd2-next>div.ch{outline:2px solid var(--acc)} .gd2-next .t{font-size:13px; color:var(--ink-2)} .gd2-next .sw{display:flex; gap:3px; --k:.9} .gd2-next .m{font-size:11.5px; color:var(--ink-2); text-align:center} .gd2-next .ch .m{color:var(--acc); font-weight:700}
+.gd2-bt{margin-top:16px} .gd2-src{margin:10px 2px 0; font-size:11.5px; line-height:1.6; color:var(--ink-2)} .gd2-egi em{background:rgba(150,200,90,.22)} .gd2-foot{margin:14px 2px 0; font-size:12px; color:var(--ink-2); line-height:1.8} .gd2-ln{font:inherit; color:inherit; background:none; border:0; padding:0; text-decoration:underline; cursor:pointer; min-height:28px}
+.pl-pen{display:inline-flex; align-items:center; justify-content:center; width:22px; height:22px; margin-left:6px; border-radius:50%; border:1px solid var(--line); font-size:12px; font-style:normal; vertical-align:middle; color:var(--ink-2)}
+.pl-wcb{text-align:left; font:inherit; color:inherit; cursor:pointer; border:0} .pl-wchint{display:block; margin-top:4px; font-size:12.5px; font-style:normal; color:var(--acc)}
+.pl-skbig{font:inherit; color:inherit; background:none; border:0; padding:0; cursor:pointer; display:inline-flex; align-items:center; min-height:44px}
+.pl-shd{position:fixed; inset:0; z-index:9000; background:rgba(0,0,0,.45); display:flex; align-items:flex-end} .pl-sh{width:100%; max-width:560px; margin:0 auto; background:var(--card); color:var(--ink); border-radius:20px 20px 0 0; padding:12px 16px calc(18px + env(safe-area-inset-bottom)); box-shadow:0 -8px 30px rgba(0,0,0,.35)}
+.pl-shg{display:block; width:40px; height:4px; border-radius:2px; background:var(--line); margin:0 auto 12px} .pl-sh>b{display:block; font-size:17px} .pl-sh>p{margin:2px 0 12px; font-size:13px; color:var(--ink-2)}
+.pl-shg2{display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:8px} .pl-shg2 button,.pl-shg3 button{min-height:48px; border-radius:12px; border:1px solid var(--line); background:transparent; color:var(--ink); font:inherit; font-size:15px} .pl-shg2 button.on{border:2px solid var(--acc); font-weight:700}
+.pl-shg3{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px} .pl-shg3 button{display:flex; flex-direction:column; align-items:center; gap:8px; padding:12px 4px; min-height:96px; font-size:14px; line-height:1.25} .pl-shg3 i{display:block; width:52px; height:32px; border-radius:9px}
+.pl-shx{display:block; margin:12px 0 0 auto; min-height:44px; padding:0 14px; border:0; background:transparent; color:var(--ink); font:inherit; font-weight:700}
 .pl-skcur{display:flex; flex-wrap:wrap; align-items:center; gap:6px; margin-top:10px} .pl-skcur small{margin-right:2px} .pl-skcur button{min-width:40px; min-height:34px; padding:0 8px; border-radius:17px; border:1px solid var(--line); background:transparent; color:var(--ink); font:inherit; font-weight:800; font-size:calc(13px * var(--k))} .pl-skcur button.on{background:var(--ink); color:var(--card); border-color:var(--ink)}
 .pl-rw{grid-column:1/-1; display:block; margin:-2px 0 4px; color:var(--hi); font-size:calc(11.5px * var(--k)); word-break:keep-all}
 .pl-why{display:block; margin-top:4px; font-style:normal; color:var(--ink-2); font-size:.92em}
@@ -6547,8 +6562,17 @@ const TideHarm = (() => {
       return { ho, std: skStd(ho), box: simPick(ho), ang: skAngle(depth, c, vb, skStd(ho) || 40, pe), v, vcat: skVcat(v, sp) };
     }
     const skStopTxt = v => v > 0.19 ? ` · 줄을 30cm쯤 풀어 두면 약 ${Math.max(0.5, Math.round(0.3 / v * 2) / 2)}초 멈춰요(무거운 봉돌일수록 또렷 · 가설)` : '';
-    const skTxt = (lo, hi) => !lo ? '40호로도 줄이 서기 어려움' : !hi || hi === lo ? `${lo}호${!hi ? '~40호↑' : ''}` : `${lo}~${hi}호`;
+    const skTxt = (lo, hi) => !lo ? '40호로도 줄이 비스듬히 나감' : !hi || hi === lo ? `${lo}호${!hi ? '~40호↑' : ''}` : `${lo}~${hi}호`;
     // 한 시각 셈
+    // ---------- 내가 본 물색 (사용자 2026-11-28): 배 옆 물 색 3단 → 그날 그 일대(15km) 앱 짐작을 범위 안으로만 맞춤 (덮어쓰지 않음)
+    const WC_KEY = 'jjukgap-wcobs', WC_R = [[0, 0.6], [0.6, 1.5], [1.5, 99]], WC_T = ['누런 흙탕물', '살짝 누런 초록', '누런 기 없는 초록'], WC_C = ['#b39a63', '#7f8f55', '#3f7f5f'];
+    const wcAll = () => { try { return JSON.parse(localStorage.getItem(WC_KEY) || '[]'); } catch (_) { return []; } };
+    function wcObs(p, t) { if (!p) return null; const n = kstDay(t); let best = null;
+      for (const o of wcAll()) if (kstDay(o.t) === n && distKm(o, p) <= 15 && (!best || o.t > best.t)) best = o; return best; }
+    function wcSet(p, c) { const L = wcAll(); L.push({ t: Date.now(), lat: +p.lat.toFixed(4), lon: +p.lon.toFixed(4), c }); while (L.length > 500) L.shift(); try { localStorage.setItem(WC_KEY, JSON.stringify(L)); } catch (_) {} }
+    function wcApply(W, p, t) { const o = wcObs(p, t); if (!o) return W; const [lo, hi] = WC_R[o.c], z = Math.min(hi, Math.max(lo, W.zsd));
+      const why = [...W.why, `내가 본 물색(${WC_T[o.c]})으로 맞춤`]; if (Math.abs(z - W.zsd) < 1e-6) return { ...W, why, obs: o.c };
+      const kd = 1.44 / z, f = kd / W.kd; return { ...W, kd, zsd: z, tsm: W.tsm * f, why, obs: o.c, label: z >= 3 ? '맑은 편' : z >= 1.5 ? '보통' : z >= 0.7 ? '탁한 편' : '아주 탁함' }; }
     function simHour(ctx, t) {
       const { p, k, n, m, cc, sp, pe, flat } = ctx, h = Math.round((t - dayStartOf(n)) / 3600000);
       const wx = ctx.wx ? ctx.wx(h) : simWx(k, n, h);
@@ -6558,8 +6582,9 @@ const TideHarm = (() => {
       const rainNow = !!wx.rain, rainBefore = ctx.rainHours.some(x => x < h);
       let pct1 = null; if (cc) { const q1 = curNow(cc.c, t - 3600000); pct1 = Math.min(1, q1.sp / cc.c.mx); }
       const mm1 = ctx.mmFix ? ctx.mmFix.d1 : rainMmSpan(k, t - 24 * 3600000, t), mm2 = ctx.mmFix ? ctx.mmFix.d2 : rainMmSpan(k, t - 48 * 3600000, t - 24 * 3600000);
-      const W = simWater(flat, { mm1, mm2, st, pct: cur ? cur.pct / 100 : null, pct1, wave: wx.wave, wind: wx.wind, dir: wx.dir, depth, rainNow, sat: ctx.satK === 1 ? null : ctx.sat, rainBefore, rainYday: ctx.rainYday, mon: new Date(t + 9 * 3600000).getUTCMonth(), B: wqBase(p, t) });
+      let W = simWater(flat, { mm1, mm2, st, pct: cur ? cur.pct / 100 : null, pct1, wave: wx.wave, wind: wx.wind, dir: wx.dir, depth, rainNow, sat: ctx.satK === 1 ? null : ctx.sat, rainBefore, rainYday: ctx.rainYday, mon: new Date(t + 9 * 3600000).getUTCMonth(), B: wqBase(p, t) });
       if (ctx.waterOnly) return { t, h, st, depth, cur, W };   // 셈 바로잡기용 (물색만)
+      W = wcApply(W, p, t);
       const T = Math.max(0, Math.min(1, Math.log10(W.tsm / 2) / Math.log10(50)));   // 빛 셈(1-3단계 전)에 이어 주는 0~1
       // 바닥 빛 (1-3단계): 물 위 밝기·빛깔 → 수심(+물 높이)만큼 파장별로 줄어듦 → 쭈갑이 눈 기준 밝기
       const el = simSun(p, t), SF = simSurf(el, wx, rainNow), Kd = simKd(W.kd, SF.spec);
@@ -6661,7 +6686,7 @@ const TideHarm = (() => {
       head: x.head, body: x.body, tape: x.tape, one: x.one, alt: x.alt, eg: x.EG ? x.EG.list.slice(0, 6).map(e => [e.id, e.sc, e.best, e.fn.lz.lc]) : null, pr: x.EG && x.EG.pairs[0] ? [x.EG.pairs[0].an, x.EG.pairs[0].bn, x.EG.pairs[0].sc] : null, ...(x.after ? { after: 1 } : {}), see: Math.round(x.see * 10) / 10, sink: x.sink ? { '0.8': x.sink['0.8'], '1.0': x.sink['1.0'], v: x.sink.v.map(v => Math.round(v * 100) / 100), vcat: x.sink.vcat, vcatGp: x.sink.vcatGp } : null, T: Math.round(x.T * 100) / 100 });
     let plS = null, plEl = null;
     const PE_KEY = 'jjukgap-pe';   // 원줄: 한 번 고르면 계속 (사용자 2026-11-20)
-    const peGet = () => { try { const v = localStorage.getItem(PE_KEY); return v === '0.8' || v === '1.0' ? v : '1.0'; } catch (_) { return '1.0'; } };
+    const peGet = () => '1.0';   // 원줄은 굵은 PE 1.0호로 고정 (사용자 2026-11-28: 0.8호와 차이는 봉돌 한 단계 안팎 · 넉넉한 쪽이면 '똑바로'가 틀리지 않음)
     const peSet = v => { try { localStorage.setItem(PE_KEY, v); } catch (_) {} };
     function planOpen(n, o) {
       if (!plEl) {
@@ -6726,6 +6751,18 @@ const TideHarm = (() => {
       if (a === 'pe') { s.pe = b.dataset.v; s.saved = false; return planRender(); }
       if (a === 'hours') { s.allH = !s.allH; return planRender(); }
       if (a === 'gdoff') { guideOff(); return planClose(); }
+      if (a === 'gdet') { s.det = !s.det; return planRender(true); }
+      if (a === 'gwhy') { s.gwhy = !s.gwhy; return planRender(true); }
+      if (a === 'skpick') { const o = s.skOptsNow || [12, 14, 15, 16, 18, 20, 25];
+        return plSheet('단 봉돌', '선장님이 정한 호수 · 앱 셈은 PE 1.0호 기준이라, 더 얇은 0.8호면 줄이 더 잘 서요 · 배가 바람에 밀리면 더 무거워야 해요', `<div class="pl-shg2">${o.map(n => `<button type="button" data-v="${n}" class="${n === s.skCur ? 'on' : ''}">${n}호</button>`).join('')}</div>`,
+          v => { const n = +v; if (n > 0) { skNowTap(n); lvC = null; try { s.live = liveCalc(Date.now()) || s.live; } catch (_) {} planChip(me); planRender(true); } }); }
+      if (a === 'wc') { const p0 = me && !me.virtual ? { lat: me.lat, lon: me.lon } : s.p; if (!p0) return;
+        return plSheet('물색 맞추기', '배 옆 물을 보고 가장 비슷한 것 · 해를 등지고 배 그늘 쪽을 보세요 · 애매하면 안 넣어도 돼요',
+          `<div class="pl-shg3">${WC_T.map((t, i) => `<button type="button" data-v="${i}"><i style="background:${WC_C[i]}"></i>${t}</button>`).join('')}</div>`,
+          async v => { wcSet(p0, +v); lvC = null; gdG = null;
+            if (s.guide) { try { await guideCalc(true); if (gdG && plS === s) { s.res = gdG.R; s.live = liveCalc(Date.now()) || s.live; } } catch (_) {} if (plS === s) planRender(true); }
+            else if (plS === s) planCalc();
+            try { if (me) planChip(me); } catch (_) {} try { (typeof toast === 'function' ? toast : cvToast)(`물색을 ‘${WC_T[+v]}’로 맞췄어요 · 오늘 이 일대에 적용`); } catch (_) {} }); }
       if (a === 'sknow') { const n = +b.dataset.n; if (n > 0) { skNowTap(n); lvC = null; try { s.live = liveCalc(Date.now()) || s.live; } catch (_) {} planChip(me); planRender(true); } return; }   // 단 봉돌 고르기 (선장님이 정한 호수)
       if (a === 'row') { const h = +b.dataset.h; if (s.open.has(h)) s.open.delete(h); else s.open.add(h); return planRender(); }
       if (a === 'more' || a === 'fn' || a === 'why') { const h = +b.dataset.h, S = s[a] || (s[a] = new Set()); if (S.has(h)) S.delete(h); else S.add(h); return planRender(); }
@@ -6783,17 +6820,56 @@ const TideHarm = (() => {
       const note = R.cur ? (R.cur.d > 3 ? `조류는 ${esc(R.cur.name)} 예보 지점(${kmTxt(R.cur.d)}) 값이라 실제와 다를 수 있어요` : '') : '가까운 조류 예보 지점이 없어 봉돌은 셈하지 못해요';
       return `<div class="pl-day"><div class="pl-dh"><b>챙길 것 · ${esc(R.dd.name)}</b><small>${esc(ex)} · ${esc(wsrc)}</small></div>`
         + `<div class="pl-dg"><div class="pl-dt wide"><small>에기 후보 · 하루 평균 잘 보이는 색</small><span class="pl-chs">${top.map(plChip).join('')}</span></div>`
-        + `<div class="pl-dt wide"><small>챙겨 갈 봉돌 · PE ${s.pe === '1.0' ? '1' : s.pe}호 · 배 위에서는 GPS로 그때그때 · ${s.dz ? `출항지 둘레 수심 ${Math.round(s.dz[0])}~${Math.round(s.dz[2])}m 기준` : '수심을 넓게 잡은 범위'}</small><b>${sk}</b>${mid != null && lo !== hi ? `<span>보통 ${f(mid)}호 · 가장 무거운 ${f(hi)}호도 하나</span>` : ''}</div>`
+        + `<div class="pl-dt wide"><small>챙겨 갈 봉돌 · PE 1.0호 기준 · 더 얇은 0.8호면 줄이 더 잘 서요 · 배 위에서는 GPS로 그때그때 · ${s.dz ? `출항지 둘레 수심 ${Math.round(s.dz[0])}~${Math.round(s.dz[2])}m 기준` : '수심을 넓게 잡은 범위'}</small><b>${sk}</b>${mid != null && lo !== hi ? `<span>보통 ${f(mid)}호 · 가장 무거운 ${f(hi)}호도 하나</span>` : ''}</div>`
         + `<div class="pl-dt wide"><small>기능이 필요한 시간</small><span>${esc(fnT)}</span></div>`
         + `<div class="pl-dt wide"><small>물색</small><b>${esc(wl)}</b><span>투명도 ${zt(z0)}~${zt(z1)}m</span></div></div>`
         + (s.act ? `<div class="pl-dg"><div class="pl-dt wide act"><small>실제 기록 · 참고만</small><b>쭈꾸미 ${s.act.tot.jj} · 갑오징어 ${s.act.tot.gap}</b><span>포인트 ${s.act.n}곳</span></div></div>` : '')
         + (note ? `<p class="pl-note">${note}</p>` : '') + `<p class="pl-note">색 점수는 쭈갑이 눈에 보이는 정도만 셈한 가설이에요. 서해처럼 탁하고 어두운 날은 색끼리 차이가 작게 나와요.</p></div>`;
     }
-    function guideHTML(s) {   // 길잡이 자세히: 지금 시각 펼침 + 앞으로 3시간
+    // 길잡이 창 새 구도 (사용자 2026-11-28): 한 화면에 '뭘 달고 · 몇 호 · 어떻게' — 지금 달 에기 → 봉돌·물색·속도 → 이렇게 → 다음 3시간 → (색 점수 모두 · 근거 보기)
+    function guideHTML(s) {
+      const R = s.res, now = Date.now(), hNow = Math.floor((now - dayStartOf(s.n)) / 3600000), SP = s.sp === 'gp' ? 'gp' : 'jj';
+      const x = R && (R.hours.find(r => r.h === hNow) || R.hours.find(r => r.h >= hNow));
+      const sub = R ? `${ampm((now - dayStartOf(s.n)) / 60000)} · ${whereTxt(s.p, s.k)}${x ? ' · ' + x.st.txt.replace(' · 정조', '') : ''}` : ampm((now - dayStartOf(s.n)) / 60000);
+      const head = `<div class="cv-h"><button type="button" class="cv-x" data-pl="x" aria-label="닫기"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button><b>길잡이</b><span>${esc(sub)}</span></div>`;
+      if (s.busy || !R || !x) return head + PL_DEFS + `<p class="bk-none">셈하는 중…</p>`;
+      const pr = x.EG.pairs[0], sp = t => { const m = /^(.*?)\((.*)\)$/.exec(t || ''); return m ? [m[1], m[2]] : [t || '', '']; };
+      const card = (id, t) => { const [n, f] = sp(t); return `<div class="gd2-egi"><span class="gd2-sw">${plSw(id)}</span><b>${esc(n)}</b>${f ? `<em>${esc(f)}</em>` : '<em class="no">기능 없이</em>'}</div>`; };
+      const bf = x.EG.bf || '', why = bf === 'gk' ? '바닥이 어둡고 자외선도 닿아요' : bf === 'g' ? '바닥이 어두워 <b>야광</b>이 잘 보여요' : bf === 'k' ? '자외선이 바닥까지 닿아요' : x.EG.fresh ? '야광이 약해졌어요 · 축광기로 다시 충전하세요' : '바닥이 밝아 기능 없이도 잘 보여요';
+      let h = PL_DEFS + `<div class="gd2">`;
+      h += `<p class="gd2-k">지금 달 에기</p><div class="gd2-pair">${pr ? card(pr.a, pr.an) + card(pr.b, pr.bn) : ''}</div><p class="gd2-why">${why}${bf.includes('g') && !mapSet.chgOnce ? ' · 올릴 때마다 충전' : ''}</p>`;
+      // 봉돌 · 물색 · 속도
+      const lv = s.live && s.live.sk ? s.live.sk : null, sk = x.sink && x.sink[s.pe];
+      const opts = [...new Set([...skOpts(), 12, 14, 15, 16, 18, 20, 25, ...(lv && lv.cur ? [lv.cur] : [])])].filter(n => n > 0).sort((a, b) => a - b); s.skOptsNow = opts; s.skCur = lv ? lv.cur : null;
+      let skV, skS;
+      // 봉돌은 '바닥을 찍나'가 아니라 '줄이 서나(30° 안) · 눕나' (사용자 2026-11-28: 가벼워도 줄을 더 풀면 바닥은 찍힘 · 누우면 옆 사람과 엉키고 감이 둔함)
+      if (lv) { const light = lv.cur && lv.std && lv.cur < lv.ho * 0.9;
+        if (!lv.std) { skV = lv.cur ? lv.cur + '호' : '40호↑'; skS = '40호로도 줄이 비스듬히 나가요'; }
+        else if (lv.cur) { skV = lv.cur + '호'; skS = light ? `줄이 비스듬히 나가 엉킬 수 있어요<br><small>${lv.std}호면 똑바로</small>` : '줄이 똑바로 내려가요'; }
+        else { skV = lv.std + '호쯤'; skS = '줄이 똑바로 내려가는 무게'; } }
+      else { skV = sk ? (sk.main ? sk.main + '호쯤' : '40호↑') : '–'; skS = '줄이 똑바로 내려가는 무게'; }
+      const vc = lv ? lv.vcat : plVc(x, s), vv = lv ? lv.v : x.sink && x.sink.v ? x.sink.v[1] : null;
+      const spS = vv == null ? '' : `초속 ${vv.toFixed(2)}m${lv && lv.b ? '' : ' · 짐작'}`;
+      const today = s.n === kstDay(now), wed = today && (me && !me.virtual || s.p);
+      const tile = (k, v, t, act, est) => `<${act ? `button type="button" data-pl="${act}"` : 'div'} class="gd2-t${est ? ' est' : ''}"><small>${k}</small><b>${v}${act ? '<i class="pl-pen" aria-hidden="true">✎</i>' : ''}</b><span>${t}</span></${act ? 'button' : 'div'}>`;
+      h += `<div class="gd2-row">${tile('봉돌', esc(skV), skS, 'skpick')}${tile('물색', esc(x.W.obs != null ? WC_T[x.W.obs] : x.W.label), x.W.obs != null ? '내가 봄' : wed ? '<em>눌러서 맞추기</em>' : '앱 짐작', wed ? 'wc' : '')}${tile('속도', `${plDot(vc)}${['느림', '보통', '빠름'][vc] || '–'}`, esc(spS), '', !(lv && lv.b))}</div>`;
+      h += `<div class="gd2-how"><small>이렇게</small>${esc(SK_METH[SP][vc] || '')}</div>`;
+      // 다음 3시간
+      const nx = R.hours.filter(r => r.h > x.h).slice(0, 3);
+      if (nx.length) h += `<p class="gd2-k">다음 3시간</p><div class="gd2-next">${nx.map(r => { const q = r.EG.pairs[0], ch = q && pr && (q.a !== pr.a || q.b !== pr.b) && (q.a !== pr.b || q.b !== pr.a);
+        return `<div class="${ch ? 'ch' : ''}"><span class="t">${r.h}시</span><span class="sw">${q ? plSw(q.a) + plSw(q.b) : ''}</span><span class="m">${ch ? esc(sp(q.an)[0] + '·' + sp(q.bn)[0]) : '같음'}</span></div>`; }).join('')}</div>`;
+      h += `<div class="pl-bt gd2-bt"><button type="button" data-pl="gdet" aria-pressed="${!!s.det}">${s.det ? '색 점수 접기' : '색 점수 모두'}</button><button type="button" data-pl="gwhy" aria-pressed="${!!s.gwhy}">${s.gwhy ? '근거 접기' : '근거 보기'}</button></div>`;
+      if (s.gwhy) h += `<p class="why">${plWhy(x, s)}</p>`;
+      if (s.det) { s.open = new Set([x.h]); h += `<div class="pl-hours">${plHour(x, s)}</div>`; }
+      h += `<p class="gd2-foot">가설이에요 · 10분마다, 500m 넘게 옮기면 다시 셈 · <button type="button" class="gd2-ln" data-pl="gdoff">길잡이 끄기</button></p>`;
+      h += `<p class="gd2-src">자료: 국립해양조사원 조석·조류 예측·격자 수심(BADA2024) · 기상청 예보·초단기실황·초단기예보 · 물색 바탕: 국립수산과학원 정선해양관측 · 물색 보정: 천리안위성 2B호(국립해양조사원 국가해양위성센터). 해도가 아니니 항해·안전에는 쓰지 마세요.</p></div>`;
+      return head + h;
+    }
+    function guideHTMLOld(s) {   // (예전 길잡이 자세히 · 안 씀)
       const R = s.res, now = Date.now(), hNow = Math.floor((now - dayStartOf(s.n)) / 3600000);
       const head = `<div class="cv-h"><button type="button" class="cv-x" data-pl="x" aria-label="닫기"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button><b>길잡이</b><span>${esc(ampm((now - dayStartOf(s.n)) / 60000))}</span></div>`;
       let h = PL_DEFS + `<p class="ar-sub">지금 이 자리(GPS)·이 시각으로 셈한 <b>가설</b>이에요. 10분마다, 또는 500m 넘게 옮기면 다시 셈해요. 봉돌은 GPS로 잰 배 속도로 1분마다 바뀌어요.</p>`;
-      h += `<div class="pl-set"><div class="pl-l"><span class="k">원줄</span><span class="pl-ports"><button type="button" class="on pe1" data-pl="pe1" aria-label="원줄 PE ${s.pe}호 · 누르면 바꿔요">PE ${s.pe}호<small>바꾸기</small></button></span></div></div>`;
+
       if (s.busy || !R) return head + h + `<p class="bk-none">셈하는 중…</p>`;
       const srcs = new Set(R.hours.map(x => x.wx.src)), wsrc = srcs.has('now') ? '지금 날씨(기상청 초단기실황·예보)' : srcs.has('short') ? '시간별 예보' : '예보 없음';
       const nx = gdG ? gdNext(gdG) : null, mins = gdG ? Math.round((now - gdG.t) / 60000) : 0;
@@ -6855,24 +6931,36 @@ const TideHarm = (() => {
       const pr = x.EG.pairs[0];
       if (pr) h += `<p class="pl-k">두 개 달면</p><div class="pl-pr">${plSw(pr.a)}<b>${esc(pr.an)}</b><span>+</span>${plSw(pr.b)}<b>${esc(pr.bn)}</b><span class="sc">${pr.sc}${pr.sb != null ? `·${pr.sb}` : ''}</span></div>`;
       const zt = x.W.zsd < 1 ? x.W.zsd.toFixed(1) : (Math.round(x.W.zsd * 2) / 2).toFixed(1);
-      h += `<div class="pl-dg"><div class="pl-dt"><small>바닥 빛</small><b>${esc(simLvTxt(x.LB.qb))}</b></div><div class="pl-dt"><small>물색</small><b>${esc(x.W.label)}</b><span>투명도 약 ${zt}m</span></div>`;
+      h += `<div class="pl-dg"><div class="pl-dt"><small>바닥 빛</small><b>${esc(simLvTxt(x.LB.qb))}</b></div>${wcTile(x, s, zt)}`;
       if (0 && sk) h += `<div class="pl-dt"><small>봉돌 · PE ${s.pe === '1.0' ? '1' : s.pe}호</small><b>${skT}</b><span>바닥에 붙어 끌려오는 가장 가벼운 무게 · ${sk.wn ? '<em class="pl-wn">바람이 세서 배가 빨리 밀려요</em> · ' : ''}${sk.fl ? '물이 약해 12호로도 붙어요 · ' : ''}${sk.lo === sk.hi && sk.lo === sk.main ? '배가 더·덜 밀려도 같아요' : `배가 덜 밀리면 ${sk.lo || '40↑'}호 · 더 밀리면 ${sk.hi || '40↑'}호`}${sk.main && sk.boxMain !== sk.main ? ` · 상자엔 ${sk.boxMain || '25↑'}호` : ''}</span></div>`
         + `<div class="pl-dt"><small>에기 바닥 속도</small><b>${plDot(vc)}<span style="white-space:nowrap">초속 ${x.sink.v[1].toFixed(2)}m</span></b><span>${(([a, b]) => esc(a) + (b ? `<em class="pl-why">${esc(b + skStopTxt(x.sink.v[1]))}</em>` : ''))(SK_VTXT[s.sp === 'gp' ? 'gp' : 'jj'][vc].split(' · '))}</span></div>`
         + `<div class="pl-dt wide"><small>방법 (가설)</small><span>${esc(SK_METH[s.sp === 'gp' ? 'gp' : 'jj'][vc])}</span></div>`;
       h += `</div>`;
       if (s.live && s.live.h === x.h && s.live.sk) { const q = s.live.sk, heavy = q.cur && q.std && q.cur >= q.std, light = q.cur && q.std && q.cur < q.ho * 0.9;
         // 선장님이 정한 호수(단 봉돌)가 앱 최소보다 무거우면 단 호수를 크게 · 앱 셈은 참고로 (사용자 2026-11-23: 선장은 16호, 앱은 12호만 나오면 헷갈림)
-        const opts = [...new Set([...skOpts(), 12, 14, 15, 16, 18, 20, 25, ...(q.cur ? [q.cur] : [])])].filter(n => n > 0).sort((a, b) => a - b);
-        h += `<div class="pl-dg"><div class="pl-dt wide live"><small>${q.b ? `지금 배 위 (GPS ${q.b.win}분으로 셈)` : '지금 배 위 (조류로 짐작 · 흐르기 시작하면 2~5분 뒤 GPS로)'}</small><b>${plDot(q.vcat)}${heavy ? q.cur + '호' : q.std ? q.std + '호' : '40호↑'}<span style="white-space:nowrap">· 바닥 초속 ${q.v.toFixed(2)}m</span></b>`
-          + `<span>${heavy ? `${q.cur}호 단 채 · 바닥에 충분히 붙어요 (앱 최소 ${q.std}호) · ` : light ? `지금 단 ${q.cur}호는 가벼워 바닥에서 뜰 수 있어요 → ${q.std}호 · ` : !q.std ? '배가 너무 빨리 흘러 40호로도 줄이 서기 어려워요 · ' : '바닥에 붙어 끌려오는 가장 가벼운 무게 · '}에기는 배 속도로 지나가요 · ${esc(SK_VTXT[s.sp === 'gp' ? 'gp' : 'jj'][q.vcat].split(' · ')[0])}${skStopTxt(q.v)}</span>`
-          + `<div class="pl-skcur" role="group" aria-label="지금 단 봉돌 (선장님이 정한 호수)"><small>단 봉돌</small>${opts.map(n => `<button type="button" data-pl="sknow" data-n="${n}" class="${n === q.cur ? 'on' : ''}" aria-pressed="${n === q.cur}">${n}</button>`).join('')}</div></div>`
+        const opts = [...new Set([...skOpts(), 12, 14, 15, 16, 18, 20, 25, ...(q.cur ? [q.cur] : [])])].filter(n => n > 0).sort((a, b) => a - b); s.skOptsNow = opts; s.skCur = q.cur;
+        h += `<div class="pl-dg"><div class="pl-dt wide live"><small>${q.b ? `지금 배 위 (GPS ${q.b.win}분으로 셈)` : '지금 배 위 (조류로 짐작 · 흐르기 시작하면 2~5분 뒤 GPS로)'}</small><b>${plDot(q.vcat)}<button type="button" class="pl-skbig" data-pl="skpick" aria-label="단 봉돌 고르기">${heavy ? q.cur + '호' : q.std ? q.std + '호' : '40호↑'}<i class="pl-pen" aria-hidden="true">✎</i></button><span style="white-space:nowrap">· 바닥 초속 ${q.v.toFixed(2)}m</span></b>`
+          + `<span>${heavy ? `${q.cur}호 단 채 · 줄이 똑바로 내려가요 (똑바로 내려가는 가장 가벼운 무게 ${q.std}호) · ` : light ? `지금 단 ${q.cur}호는 줄이 비스듬히 나가 엉킬 수 있어요 → ${q.std}호면 똑바로 · ` : !q.std ? '배가 너무 빨리 흘러 40호로도 줄이 비스듬히 나가요 · ' : '줄이 똑바로 내려가는 가장 가벼운 무게 · '}에기는 배 속도로 지나가요 · ${esc(SK_VTXT[s.sp === 'gp' ? 'gp' : 'jj'][q.vcat].split(' · ')[0])}${skStopTxt(q.v)}</span>`
+          + `${q.cur ? '' : '<em class="pl-wchint">호수를 눌러 단 봉돌 넣기</em>'}</div>`
           + `<div class="pl-dt wide"><small>방법 (가설)</small><span>${esc(SK_METH[s.sp === 'gp' ? 'gp' : 'jj'][q.vcat])}</span></div></div>`; }
       if (AB) h += `<p class="pl-k">실제 기록 <span style="font-weight:500">· 참고만</span></p><div class="pl-act">${AB.pts.map(p => `<div><b>${ampm((p.t - dayStartOf(s.n)) / 60000)}</b><span>${esc([(p.egi || []).map(plRecName).join(' · '), (p.sink || []).length ? p.sink.join('·') + '호' : '', p.mt ? PL_MT[p.mt] : ''].filter(Boolean).join(' · ') || '채비 기록 없음')}</span><em>${(p.jj || 0) + (p.gap || 0)}마리</em></div>`).join('')}</div>`;
       h += `<button type="button" class="pl-wb" data-pl="why" data-h="${x.h}" aria-expanded="${s.why.has(x.h)}">${s.why.has(x.h) ? '근거 접기' : '근거 보기'}</button>`;
       if (s.why.has(x.h)) h += `<p class="why">${plWhy(x, s)}</p>`;
       return h + '</div></div>';
     }
-    const plWhy = (x, s) => `바닥 빛(쭈갑이 눈 기준) 약 ${simNum(x.LB.qb)}lux · ${simLvTxt(x.LB.qb)} · 물 위 ${simNum(x.LB.surf)}lux의 ${x.LB.frac >= 0.001 ? (x.LB.frac * 100).toFixed(1) : simNum(x.LB.frac * 100)}% · 남은 빛 ${x.LB.pk}nm<br>해 높이 ${Math.round(x.el)}° · 에기가 보이는 거리 약 ${x.see.toFixed(1)}m<br>물색 ${x.W.label} · 투명도 약 ${x.W.zsd < 1 ? x.W.zsd.toFixed(1) : (Math.round(x.W.zsd * 2) / 2).toFixed(1)}m (${esc(x.W.why.join(' · '))})${WQ ? '<br>물색 바탕: 국립수산과학원 정선해양관측 실측(2000~2020)' : ''}${WQ && WQ.sat ? '<br>물색 보정: 천리안위성 2B호(국립해양조사원 국가해양위성센터) 자료로 셈 맞춤' : ''}<br>${mapSet.chgOnce ? '야광: 낚시 시작 때 한 번 충전했다고 보고 시간이 지날수록 약해지게 셈(축광 야광 감쇠: 10분 뒤의 약 8분의 1이 1시간 뒤, 50분의 1이 5시간 뒤)' : '야광: 채비를 올릴 때마다 충전한다고 보고 늘 막 충전한 밝기(충전 뒤 10분쯤)로 셈 · 설정에서 바꿀 수 있어요'}<br>누드: 천 없는 반투명 색 몸통으로 셈 — 빛의 약 40%가 몸통 색으로 물들어 통과(반투명 색 플라스틱 판 측정값 30~50%를 에기 몸통에 맞춘 가정)<br>단색: ${esc(x.one)}${x.alt ? ` · 대안: ${esc(x.alt)}` : ''}${x.after ? '<br>비 그친 뒤라 톤을 낮추지 않음 (내 기록 11/5)' : ''}${x.sink ? `<br>봉돌(합사 ${s.pe === '1.0' ? '1' : s.pe}호): ${simSkTxt(x.sink[s.pe])}${skBoxTxt(x.sink[s.pe])}${x.sink[s.pe].main != null ? ` · 배가 바람에 덜 밀리면 ${x.sink[s.pe].lo ? x.sink[s.pe].lo + '호' : '40호↑'}, 더 밀리면 ${x.sink[s.pe].hi ? x.sink[s.pe].hi + '호' : '40호↑'}` : ''}<br>줄이 30° 안으로 서는 가장 가벼운 무게 · 보통 낚싯배가 자연스럽게 흐른다고 봄(배 위에서 GPS로 바로잡음)${x.sink.v ? `<br>${skVTxt(x.sink, s.sp)}<br>${skMethTxt(x.sink, s.sp)}` : ''}` : ''}`;
+    function wcTile(x, s, zt) {   // 오늘 칸이면 눌러서 내가 본 물색 넣기 (연필 표시)
+      const today = s.n === kstDay(Date.now()), ed = today && (me && !me.virtual || s.p);
+      const body = `<small>물색</small><b>${esc(x.W.obs != null ? WC_T[x.W.obs] : x.W.label)}${ed ? '<i class="pl-pen" aria-hidden="true">✎</i>' : ''}</b><span>투명도 약 ${zt}m${x.W.obs != null ? ' · 내가 봄' : ''}</span>${ed && x.W.obs == null ? '<em class="pl-wchint">눌러서 맞추기</em>' : ''}`;
+      return ed ? `<button type="button" class="pl-dt pl-wcb" data-pl="wc" aria-label="물색 맞추기 · 지금 ${esc(x.W.label)}">${body}</button>` : `<div class="pl-dt">${body}</div>`;
+    }
+    function plSheet(title, sub, inner, onPick) {   // 아래에서 올라오는 작은 고르기 창
+      const dim = document.createElement('div'); dim.className = 'pl-shd';
+      dim.innerHTML = `<div class="pl-sh" role="dialog" aria-modal="true" aria-label="${esc(title)}"><i class="pl-shg"></i><b>${esc(title)}</b><p>${esc(sub)}</p>${inner}<button type="button" class="pl-shx" data-x="1">닫기</button></div>`;
+      const close = () => dim.remove();
+      dim.addEventListener('click', e => { if (e.target === dim || e.target.closest('[data-x]')) return close(); const b = e.target.closest('[data-v]'); if (b) { close(); onPick(b.dataset.v); } });
+      document.body.appendChild(dim); setTimeout(() => { const f = dim.querySelector('[data-v]'); if (f) f.focus(); }, 30);
+    }
+    const plWhy = (x, s) => `봉돌: 줄이 똑바로(30° 안) 내려가는 가장 가벼운 무게 · 원줄은 PE 1.0호로 셈해요(어느 원줄을 쓰든 ‘똑바로’가 틀리지 않게 넉넉한 쪽) · 더 얇은 0.8호면 물에 덜 밀려 같거나 한 단계 가벼워도 똑바로 · 줄이 서는지는 봉돌만이 아니라 배를 어떻게 흘리느냐에 달려 있어요: 선장님이 배를 물과 같이 흘리면 가벼워도 똑바로, 바람에 밀리거나 엔진으로 버티면 물이 줄을 쓸고 지나가 더 무거워야 해요. 앱은 GPS로 잰 배 속도로 30초마다 다시 셈하지만, 도착 2~5분 안(GPS 값 전)은 물과 같이 흐른다고 보고 가볍게 나올 수 있어요 · 확인법: 바닥 찍었을 때 풀린 줄이 수심보다 10m(합사 한 색) 넘게 더 나갔으면 비스듬히 나간 거예요<br>바닥 빛(쭈갑이 눈 기준) 약 ${simNum(x.LB.qb)}lux · ${simLvTxt(x.LB.qb)} · 물 위 ${simNum(x.LB.surf)}lux의 ${x.LB.frac >= 0.001 ? (x.LB.frac * 100).toFixed(1) : simNum(x.LB.frac * 100)}% · 남은 빛 ${x.LB.pk}nm<br>해 높이 ${Math.round(x.el)}° · 에기가 보이는 거리 약 ${x.see.toFixed(1)}m<br>물색 ${x.W.label} · 투명도 약 ${x.W.zsd < 1 ? x.W.zsd.toFixed(1) : (Math.round(x.W.zsd * 2) / 2).toFixed(1)}m (${esc(x.W.why.join(' · '))})${WQ ? '<br>물색 바탕: 국립수산과학원 정선해양관측 실측(2000~2020)' : ''}${WQ && WQ.sat ? '<br>물색 보정: 천리안위성 2B호(국립해양조사원 국가해양위성센터) 자료로 셈 맞춤' : ''}<br>${mapSet.chgOnce ? '야광: 낚시 시작 때 한 번 충전했다고 보고 시간이 지날수록 약해지게 셈(축광 야광 감쇠: 10분 뒤의 약 8분의 1이 1시간 뒤, 50분의 1이 5시간 뒤)' : '야광: 채비를 올릴 때마다 충전한다고 보고 늘 막 충전한 밝기(충전 뒤 10분쯤)로 셈 · 설정에서 바꿀 수 있어요'}<br>누드: 천 없는 반투명 색 몸통으로 셈 — 빛의 약 40%가 몸통 색으로 물들어 통과(반투명 색 플라스틱 판 측정값 30~50%를 에기 몸통에 맞춘 가정)<br>단색: ${esc(x.one)}${x.alt ? ` · 대안: ${esc(x.alt)}` : ''}${x.after ? '<br>비 그친 뒤라 톤을 낮추지 않음 (내 기록 11/5)' : ''}${x.sink ? `<br>봉돌(합사 ${s.pe === '1.0' ? '1' : s.pe}호): ${simSkTxt(x.sink[s.pe])}${skBoxTxt(x.sink[s.pe])}${x.sink[s.pe].main != null ? ` · 배가 바람에 덜 밀리면 ${x.sink[s.pe].lo ? x.sink[s.pe].lo + '호' : '40호↑'}, 더 밀리면 ${x.sink[s.pe].hi ? x.sink[s.pe].hi + '호' : '40호↑'}` : ''}<br>줄이 30° 안으로 서는 가장 가벼운 무게 · 보통 낚싯배가 자연스럽게 흐른다고 봄(배 위에서 GPS로 바로잡음)${x.sink.v ? `<br>${skVTxt(x.sink, s.sp)}<br>${skMethTxt(x.sink, s.sp)}` : ''}` : ''}`;
     function planRender(keep) {   // keep: 스크롤 자리 그대로 (원줄 바꿀 때 깜빡임·튐 없이)
       const s = plS; if (!s || !plEl) return;
       if (keep) { const y = plEl.scrollTop; plRenderIn(s); plEl.scrollTop = y; return; }
@@ -6889,7 +6977,7 @@ const TideHarm = (() => {
       h += `<div class="pl-l"><span class="k">색 셈 기준 자리</span><span class="v"><b>${where}</b><small>${howT}</small><span class="pl-btns"><button type="button" data-pl="pick">지도에서 고르기</button>${s.how === 'pick' ? '<button type="button" data-pl="auto">자동으로</button>' : ''}</span></span></div>`;
       const opt = (a, b, v) => Array.from({ length: b - a + 1 }, (_, i) => a + i).map(x => `<option value="${x}"${x === v ? ' selected' : ''}>${String(x).padStart(2, '0')}시</option>`).join('');
       h += `<div class="pl-l"><span class="k">시간</span><span class="v pl-tm"><select data-pl="h0" aria-label="시작 시각">${opt(3, 14, s.h0)}</select> ~ <select data-pl="h1" aria-label="끝 시각">${opt(8, 20, s.h1)}</select></span></div>`;
-      h += `<div class="pl-l"><span class="k">원줄</span><span class="pl-ports"><button type="button" class="on pe1" data-pl="pe1" aria-label="원줄 PE ${s.pe}호 · 누르면 바꿔요">PE ${s.pe}호<small>바꾸기</small></button></span></div></div>`;
+      h += `</div>`;
       const R = s.res;
       if (s.busy && !R) h += `<p class="bk-none">셈하는 중…</p>`;
       else if (!R) h += `<p class="bk-none">${s.err ? '셈하지 못했어요. 인터넷이 될 때 한 번 열어 주세요.' : ''}</p>`;
@@ -11924,7 +12012,7 @@ const TideHarm = (() => {
 
 <script>
 if ('serviceWorker' in navigator) addEventListener('load', () => {
-  const sw = navigator.serviceWorker, VER = '127f54ab'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
+  const sw = navigator.serviceWorker, VER = 'f173e3e0'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
   // 화면에 손을 대기 시작했는지 (쓰는 중에는 새로 열지 않으려고)
   ['pointerdown', 'keydown'].forEach(t => addEventListener(t, () => { touched = true; }, { capture: true, passive: true }));
   const reload = () => {
