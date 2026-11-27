@@ -5,6 +5,7 @@ on:
   workflow_dispatch:
     inputs:
       days: { description: '날짜들 (쉼표)', default: '' }
+      hms: { description: '고를 시(時) (쉼표, 비우면 모두)', default: '' }
 
 permissions:
   contents: read
@@ -24,4 +25,5 @@ jobs:
         env:
           DAYS: ${{ github.event.inputs.days }}
           TMAX: '19800'
+          HMS: ${{ github.event.inputs.hms }}
         run: python3 .github/scripts/sat_arch.py
