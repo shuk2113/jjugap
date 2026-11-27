@@ -352,6 +352,13 @@ html.mv-on .app *{animation-play-state:paused !important} html.mv-hide .app{visi
 .mv-area span{display:flex; flex-direction:column; min-width:0} .mv-area b, .mv-area small{overflow:hidden; text-overflow:ellipsis; white-space:nowrap} .mv-area b{font-weight:800} .mv-area small{font-size:calc(12px * var(--k)); font-weight:700; color:var(--accent, #2F7DF6)} .mv-area i{flex:none; font-style:normal; color:var(--ink-2)}
 .mv-area small.warn{color:var(--strong)} .gspd.est{opacity:.55} .mv-plan{bottom:42px; padding:0; gap:0; overflow:hidden} .mv-plan .gd-main{flex:1; min-width:0; display:flex; align-items:center; gap:6px; min-height:40px; padding:6px 8px 6px 10px; border:0; background:none; color:inherit; font:inherit; text-align:left; -webkit-tap-highlight-color:transparent} .mv-plan .gd-off{flex:none; align-self:stretch; width:38px; display:grid; place-items:center; border:0; border-left:1px solid var(--line); background:none; color:var(--ink-2); padding:0} .mv-plan .gd-off svg{width:17px; height:17px} .mv-plan .gd-off[hidden]{display:none} .mv-plan.sw .gd-main{min-height:38px; padding:5px 12px 5px 10px} .mv-plan .gp{display:flex !important; flex-direction:row !important; align-items:center; gap:7px} .mv-plan .gp b.pk{font-size:calc(15px * var(--k))} .mv-plan .gsw{display:inline-flex; border-radius:7px} .mv-plan .gsw .pl-sw{width:26px; height:13px; margin:0} .mv-plan .gsw.gl{box-shadow:0 0 0 2px rgba(182,240,58,.6)} .mv-plan .gsw.kei{box-shadow:0 0 0 2px rgba(120,150,255,.6)} .mv-plan .mv-plan .gp .gspd{display:inline-flex !important; flex-direction:row !important} .gspd{display:inline-flex; align-items:center; gap:3px; padding-left:7px; border-left:1px solid rgba(255,255,255,.18); font-size:calc(11.5px * var(--k)); font-weight:800; color:var(--ink-2); white-space:nowrap}
 .pl-hh .spd, .pl-hr .spd{display:flex; flex-direction:column; align-items:center; gap:3px} .spd small{color:var(--ink-2); font-size:calc(10px * var(--k))}
+.gd2{padding:4px 2px 8px} .gd2-k{margin:14px 2px 8px; font-size:14px; color:var(--ink-2)} .gd2-pair{display:flex; gap:10px}
+.gd2-egi{flex:1; min-width:0; display:flex; flex-direction:column; align-items:center; gap:8px; padding:14px 6px; border-radius:16px; background:var(--well)} .gd2-sw{--k:2.6; display:flex} .gd2-egi b{font-size:18px; text-align:center} .gd2-egi em{font-style:normal; font-size:12.5px; padding:2px 9px; border-radius:9px; background:color-mix(in srgb, var(--acc) 18%, transparent)} .gd2-egi em.no{background:transparent; color:var(--ink-2)}
+.gd2-why{margin:10px 2px 0; font-size:15px} .gd2-row{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px; margin-top:16px}
+.gd2-t{min-width:0; text-align:left; padding:10px 12px; border-radius:14px; border:0; background:var(--well); color:var(--ink); font:inherit} button.gd2-t{cursor:pointer} .gd2-t small{display:block; font-size:12px; color:var(--ink-2)} .gd2-t b{display:flex; align-items:center; gap:4px; font-size:17px; white-space:nowrap} .gd2-t span{display:block; font-size:12px; color:var(--ink-2)} .gd2-t span em{font-style:normal; color:var(--acc)} .gd2-t.est b{opacity:.6}
+.gd2-how{margin-top:12px; padding:10px 12px; border-radius:14px; background:var(--well); font-size:14.5px} .gd2-how small{display:block; font-size:12px; color:var(--ink-2)}
+.gd2-next{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:6px} .gd2-next>div{display:flex; flex-direction:column; align-items:center; gap:5px; padding:8px 2px; border-radius:12px} .gd2-next>div.ch{outline:2px solid var(--acc)} .gd2-next .t{font-size:13px; color:var(--ink-2)} .gd2-next .sw{display:flex; gap:3px; --k:.9} .gd2-next .m{font-size:11.5px; color:var(--ink-2); text-align:center} .gd2-next .ch .m{color:var(--acc); font-weight:700}
+.gd2-bt{margin-top:16px} .gd2-src{margin:10px 2px 0; font-size:11.5px; line-height:1.6; color:var(--ink-2)} .gd2-egi em{background:rgba(150,200,90,.22)} .gd2-foot{margin:14px 2px 0; font-size:12px; color:var(--ink-2); line-height:1.8} .gd2-ln{font:inherit; color:inherit; background:none; border:0; padding:0; text-decoration:underline; cursor:pointer; min-height:28px}
 .pl-pen{display:inline-flex; align-items:center; justify-content:center; width:22px; height:22px; margin-left:6px; border-radius:50%; border:1px solid var(--line); font-size:12px; font-style:normal; vertical-align:middle; color:var(--ink-2)}
 .pl-wcb{text-align:left; font:inherit; color:inherit; cursor:pointer; border:0} .pl-wchint{display:block; margin-top:4px; font-size:12.5px; font-style:normal; color:var(--acc)}
 .pl-skbig{font:inherit; color:inherit; background:none; border:0; padding:0; cursor:pointer; display:inline-flex; align-items:center; min-height:44px}
@@ -6755,6 +6762,8 @@ const TideHarm = (() => {
       if (a === 'pe') { s.pe = b.dataset.v; s.saved = false; return planRender(); }
       if (a === 'hours') { s.allH = !s.allH; return planRender(); }
       if (a === 'gdoff') { guideOff(); return planClose(); }
+      if (a === 'gdet') { s.det = !s.det; return planRender(true); }
+      if (a === 'gwhy') { s.gwhy = !s.gwhy; return planRender(true); }
       if (a === 'skpick') { const o = s.skOptsNow || [12, 14, 15, 16, 18, 20, 25];
         return plSheet('단 봉돌', '선장님이 정한 호수 · 지금 단 무게', `<div class="pl-shg2">${o.map(n => `<button type="button" data-v="${n}" class="${n === s.skCur ? 'on' : ''}">${n}호</button>`).join('')}</div>`,
           v => { const n = +v; if (n > 0) { skNowTap(n); lvC = null; try { s.live = liveCalc(Date.now()) || s.live; } catch (_) {} planChip(me); planRender(true); } }); }
@@ -6828,7 +6837,42 @@ const TideHarm = (() => {
         + (s.act ? `<div class="pl-dg"><div class="pl-dt wide act"><small>실제 기록 · 참고만</small><b>쭈꾸미 ${s.act.tot.jj} · 갑오징어 ${s.act.tot.gap}</b><span>포인트 ${s.act.n}곳</span></div></div>` : '')
         + (note ? `<p class="pl-note">${note}</p>` : '') + `<p class="pl-note">색 점수는 쭈갑이 눈에 보이는 정도만 셈한 가설이에요. 서해처럼 탁하고 어두운 날은 색끼리 차이가 작게 나와요.</p></div>`;
     }
-    function guideHTML(s) {   // 길잡이 자세히: 지금 시각 펼침 + 앞으로 3시간
+    // 길잡이 창 새 구도 (사용자 2026-11-28): 한 화면에 '뭘 달고 · 몇 호 · 어떻게' — 지금 달 에기 → 봉돌·물색·속도 → 이렇게 → 다음 3시간 → (색 점수 모두 · 근거 보기)
+    function guideHTML(s) {
+      const R = s.res, now = Date.now(), hNow = Math.floor((now - dayStartOf(s.n)) / 3600000), SP = s.sp === 'gp' ? 'gp' : 'jj';
+      const x = R && (R.hours.find(r => r.h === hNow) || R.hours.find(r => r.h >= hNow));
+      const sub = R ? `${ampm((now - dayStartOf(s.n)) / 60000)} · ${whereTxt(s.p, s.k)}${x ? ' · ' + x.st.txt.replace(' · 정조', '') : ''}` : ampm((now - dayStartOf(s.n)) / 60000);
+      const head = `<div class="cv-h"><button type="button" class="cv-x" data-pl="x" aria-label="닫기"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button><b>길잡이</b><span>${esc(sub)}</span></div>`;
+      if (s.busy || !R || !x) return head + PL_DEFS + `<p class="bk-none">셈하는 중…</p>`;
+      const pr = x.EG.pairs[0], sp = t => { const m = /^(.*?)\((.*)\)$/.exec(t || ''); return m ? [m[1], m[2]] : [t || '', '']; };
+      const card = (id, t) => { const [n, f] = sp(t); return `<div class="gd2-egi"><span class="gd2-sw">${plSw(id)}</span><b>${esc(n)}</b>${f ? `<em>${esc(f)}</em>` : '<em class="no">기능 없이</em>'}</div>`; };
+      const bf = x.EG.bf || '', why = bf === 'gk' ? '바닥이 어둡고 자외선도 닿아요' : bf === 'g' ? '바닥이 어두워 <b>야광</b>이 잘 보여요' : bf === 'k' ? '자외선이 바닥까지 닿아요' : x.EG.fresh ? '야광이 약해졌어요 · 축광기로 다시 충전하세요' : '바닥이 밝아 기능 없이도 잘 보여요';
+      let h = PL_DEFS + `<div class="gd2">`;
+      h += `<p class="gd2-k">지금 달 에기</p><div class="gd2-pair">${pr ? card(pr.a, pr.an) + card(pr.b, pr.bn) : ''}</div><p class="gd2-why">${why}${bf.includes('g') && !mapSet.chgOnce ? ' · 올릴 때마다 충전' : ''}</p>`;
+      // 봉돌 · 물색 · 속도
+      const lv = s.live && s.live.sk ? s.live.sk : null, sk = x.sink && x.sink[s.pe];
+      const opts = [...new Set([...skOpts(), 12, 14, 15, 16, 18, 20, 25, ...(lv && lv.cur ? [lv.cur] : [])])].filter(n => n > 0).sort((a, b) => a - b); s.skOptsNow = opts; s.skCur = lv ? lv.cur : null;
+      let skV, skS;
+      if (lv) { const heavy = lv.cur && lv.std && lv.cur >= lv.std, light = lv.cur && lv.std && lv.cur < lv.ho * 0.9; skV = heavy ? lv.cur + '호' : lv.std ? lv.std + '호' : '40호↑'; skS = light ? `${lv.cur}호는 가벼워요` : heavy ? '단 채 충분해요' : !lv.std ? '40호로도 어려워요' : lv.cur ? '바닥에 붙는 무게' : '눌러서 넣기'; }
+      else { skV = sk ? (sk.main ? sk.main + '호' : '40호↑') : '–'; skS = '바닥에 붙는 무게'; }
+      const vc = lv ? lv.vcat : plVc(x, s), vv = lv ? lv.v : x.sink && x.sink.v ? x.sink.v[1] : null;
+      const spS = vv == null ? '' : `초속 ${vv.toFixed(2)}m${lv && lv.b ? '' : ' · 짐작'}`;
+      const today = s.n === kstDay(now), wed = today && (me && !me.virtual || s.p);
+      const tile = (k, v, t, act, est) => `<${act ? `button type="button" data-pl="${act}"` : 'div'} class="gd2-t${est ? ' est' : ''}"><small>${k}</small><b>${v}${act ? '<i class="pl-pen" aria-hidden="true">✎</i>' : ''}</b><span>${t}</span></${act ? 'button' : 'div'}>`;
+      h += `<div class="gd2-row">${tile('봉돌', esc(skV), esc(skS), 'skpick')}${tile('물색', esc(x.W.obs != null ? WC_T[x.W.obs] : x.W.label), x.W.obs != null ? '내가 봄' : wed ? '<em>눌러서 맞추기</em>' : '앱 짐작', wed ? 'wc' : '')}${tile('속도', `${plDot(vc)}${['느림', '보통', '빠름'][vc] || '–'}`, esc(spS), '', !(lv && lv.b))}</div>`;
+      h += `<div class="gd2-how"><small>이렇게</small>${esc(SK_METH[SP][vc] || '')}</div>`;
+      // 다음 3시간
+      const nx = R.hours.filter(r => r.h > x.h).slice(0, 3);
+      if (nx.length) h += `<p class="gd2-k">다음 3시간</p><div class="gd2-next">${nx.map(r => { const q = r.EG.pairs[0], ch = q && pr && (q.a !== pr.a || q.b !== pr.b) && (q.a !== pr.b || q.b !== pr.a);
+        return `<div class="${ch ? 'ch' : ''}"><span class="t">${r.h}시</span><span class="sw">${q ? plSw(q.a) + plSw(q.b) : ''}</span><span class="m">${ch ? esc(sp(q.an)[0] + '·' + sp(q.bn)[0]) : '같음'}</span></div>`; }).join('')}</div>`;
+      h += `<div class="pl-bt gd2-bt"><button type="button" data-pl="gdet" aria-pressed="${!!s.det}">${s.det ? '색 점수 접기' : '색 점수 모두'}</button><button type="button" data-pl="gwhy" aria-pressed="${!!s.gwhy}">${s.gwhy ? '근거 접기' : '근거 보기'}</button></div>`;
+      if (s.gwhy) h += `<p class="why">${plWhy(x, s)}</p>`;
+      if (s.det) { s.open = new Set([x.h]); h += `<div class="pl-hours">${plHour(x, s)}</div>`; }
+      h += `<p class="gd2-foot">가설이에요 · 10분마다, 500m 넘게 옮기면 다시 셈 · 원줄 <button type="button" class="gd2-ln" data-pl="pe1">PE ${esc(s.pe)}호 바꾸기</button> · <button type="button" class="gd2-ln" data-pl="gdoff">길잡이 끄기</button></p>`;
+      h += `<p class="gd2-src">자료: 국립해양조사원 조석·조류 예측·격자 수심(BADA2024) · 기상청 예보·초단기실황·초단기예보 · 물색 바탕: 국립수산과학원 정선해양관측 · 물색 보정: 천리안위성 2B호(국립해양조사원 국가해양위성센터). 해도가 아니니 항해·안전에는 쓰지 마세요.</p></div>`;
+      return head + h;
+    }
+    function guideHTMLOld(s) {   // (예전 길잡이 자세히 · 안 씀)
       const R = s.res, now = Date.now(), hNow = Math.floor((now - dayStartOf(s.n)) / 3600000);
       const head = `<div class="cv-h"><button type="button" class="cv-x" data-pl="x" aria-label="닫기"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button><b>길잡이</b><span>${esc(ampm((now - dayStartOf(s.n)) / 60000))}</span></div>`;
       let h = PL_DEFS + `<p class="ar-sub">지금 이 자리(GPS)·이 시각으로 셈한 <b>가설</b>이에요. 10분마다, 또는 500m 넘게 옮기면 다시 셈해요. 봉돌은 GPS로 잰 배 속도로 1분마다 바뀌어요.</p>`;
@@ -11975,7 +12019,7 @@ const TideHarm = (() => {
 
 <script>
 if ('serviceWorker' in navigator) addEventListener('load', () => {
-  const sw = navigator.serviceWorker, VER = '6a36389d'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
+  const sw = navigator.serviceWorker, VER = 'd7c3dadc'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
   // 화면에 손을 대기 시작했는지 (쓰는 중에는 새로 열지 않으려고)
   ['pointerdown', 'keydown'].forEach(t => addEventListener(t, () => { touched = true; }, { capture: true, passive: true }));
   const reload = () => {
