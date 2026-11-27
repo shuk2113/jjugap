@@ -339,7 +339,7 @@ html.mv-on .app *{animation-play-state:paused !important} html.mv-hide .app{visi
 /* 이 일대 지난 기록: 지도 아래 판 바로 위 조용한 한 줄 (누르면 화면 전체 카드) */
 .mv-area{position:absolute; left:10px; bottom:42px; z-index:1; transform:translate3d(0,calc(-1 * var(--sheet-h, 0px)),0); transition:transform .28s cubic-bezier(.2,.85,.25,1); max-width:calc(100% - 104px); display:flex; align-items:center; gap:6px; min-height:36px; padding:6px 12px 6px 10px; border:1px solid var(--line); border-radius:18px; background:var(--card); color:var(--ink); font:inherit; font-size:calc(12.5px * var(--k)); font-weight:700; text-align:left; box-shadow:0 4px 14px rgba(0,0,0,.18); -webkit-tap-highlight-color:transparent}
 .mv-area span{display:flex; flex-direction:column; min-width:0} .mv-area b, .mv-area small{overflow:hidden; text-overflow:ellipsis; white-space:nowrap} .mv-area b{font-weight:800} .mv-area small{font-size:calc(12px * var(--k)); font-weight:700; color:var(--accent, #2F7DF6)} .mv-area i{flex:none; font-style:normal; color:var(--ink-2)}
-.mv-area small.warn{color:var(--strong)} .mv-plan{bottom:42px; padding:0; gap:0; overflow:hidden} .mv-plan .gd-main{flex:1; min-width:0; display:flex; align-items:center; gap:6px; min-height:40px; padding:6px 8px 6px 10px; border:0; background:none; color:inherit; font:inherit; text-align:left; -webkit-tap-highlight-color:transparent} .mv-plan .gd-off{flex:none; align-self:stretch; width:38px; display:grid; place-items:center; border:0; border-left:1px solid var(--line); background:none; color:var(--ink-2); padding:0} .mv-plan .gd-off svg{width:17px; height:17px} .mv-plan .gd-off[hidden]{display:none} .mv-plan.sw .gd-main{min-height:38px; padding:5px 12px 5px 10px} .mv-plan .gp{display:flex !important; flex-direction:row !important; align-items:center; gap:7px} .mv-plan .gp b.pk{font-size:calc(15px * var(--k))} .mv-plan .gsw{display:inline-flex; border-radius:7px} .mv-plan .gsw .pl-sw{width:26px; height:13px; margin:0} .mv-plan .gsw.gl{box-shadow:0 0 0 2px rgba(182,240,58,.6)} .mv-plan .gsw.kei{box-shadow:0 0 0 2px rgba(120,150,255,.6)} .mv-plan .mv-plan .gp .gspd{display:inline-flex !important; flex-direction:row !important} .gspd{display:inline-flex; align-items:center; gap:3px; padding-left:7px; border-left:1px solid rgba(255,255,255,.18); font-size:calc(11.5px * var(--k)); font-weight:800; color:var(--ink-2); white-space:nowrap}
+.mv-area small.warn{color:var(--strong)} .gspd.est{opacity:.55} .mv-plan{bottom:42px; padding:0; gap:0; overflow:hidden} .mv-plan .gd-main{flex:1; min-width:0; display:flex; align-items:center; gap:6px; min-height:40px; padding:6px 8px 6px 10px; border:0; background:none; color:inherit; font:inherit; text-align:left; -webkit-tap-highlight-color:transparent} .mv-plan .gd-off{flex:none; align-self:stretch; width:38px; display:grid; place-items:center; border:0; border-left:1px solid var(--line); background:none; color:var(--ink-2); padding:0} .mv-plan .gd-off svg{width:17px; height:17px} .mv-plan .gd-off[hidden]{display:none} .mv-plan.sw .gd-main{min-height:38px; padding:5px 12px 5px 10px} .mv-plan .gp{display:flex !important; flex-direction:row !important; align-items:center; gap:7px} .mv-plan .gp b.pk{font-size:calc(15px * var(--k))} .mv-plan .gsw{display:inline-flex; border-radius:7px} .mv-plan .gsw .pl-sw{width:26px; height:13px; margin:0} .mv-plan .gsw.gl{box-shadow:0 0 0 2px rgba(182,240,58,.6)} .mv-plan .gsw.kei{box-shadow:0 0 0 2px rgba(120,150,255,.6)} .mv-plan .mv-plan .gp .gspd{display:inline-flex !important; flex-direction:row !important} .gspd{display:inline-flex; align-items:center; gap:3px; padding-left:7px; border-left:1px solid rgba(255,255,255,.18); font-size:calc(11.5px * var(--k)); font-weight:800; color:var(--ink-2); white-space:nowrap}
 .pl-hh .spd, .pl-hr .spd{display:flex; flex-direction:column; align-items:center; gap:3px} .spd small{color:var(--ink-2); font-size:calc(10px * var(--k))}
 .pl-skcur{display:flex; flex-wrap:wrap; align-items:center; gap:6px; margin-top:10px} .pl-skcur small{margin-right:2px} .pl-skcur button{min-width:40px; min-height:34px; padding:0 8px; border-radius:17px; border:1px solid var(--line); background:transparent; color:var(--ink); font:inherit; font-weight:800; font-size:calc(13px * var(--k))} .pl-skcur button.on{background:var(--ink); color:var(--card); border-color:var(--ink)}
 .pl-rw{grid-column:1/-1; display:block; margin:-2px 0 4px; color:var(--hi); font-size:calc(11.5px * var(--k)); word-break:keep-all}
@@ -1496,7 +1496,7 @@ window.jjFunFont = function () { if (document.getElementById('fun-font')) return
     <div class="mv-area mv-plan" id="mv-plan" hidden><button type="button" class="gd-main" id="gd-main"></button><button type="button" class="gd-off" id="gd-off" aria-label="길잡이 끄기"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v8M7.1 6.4a7 7 0 1 0 9.8 0" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg></button></div>
     <div class="mv-toast" id="mv-toast" hidden></div>
     <div class="mv-snack" id="mv-snack" role="status" hidden><span></span><button type="button">되돌리기</button></div>
-    <button class="mv-auto" id="mv-auto" type="button" aria-label="5분 머문 곳 자동 기록 켜기·끄기"><i></i><span>자동 기록 켜짐</span></button>
+    <button class="mv-auto" id="mv-auto" type="button" aria-label="3분 머문 곳 자동 기록 켜기·끄기"><i></i><span>자동 기록 켜짐</span></button>
   </div>
   <div class="mv-sheet" id="mv-sheet">
     <div class="mv-grab" id="mv-grab" role="button" tabindex="0" aria-label="정보 판 크기 바꾸기 (끌어서 올리고 내리기)"><i></i></div>
@@ -6862,7 +6862,7 @@ const TideHarm = (() => {
       if (s.live && s.live.h === x.h && s.live.sk) { const q = s.live.sk, heavy = q.cur && q.std && q.cur >= q.std, light = q.cur && q.std && q.cur < q.ho * 0.9;
         // 선장님이 정한 호수(단 봉돌)가 앱 최소보다 무거우면 단 호수를 크게 · 앱 셈은 참고로 (사용자 2026-11-23: 선장은 16호, 앱은 12호만 나오면 헷갈림)
         const opts = [...new Set([...skOpts(), 12, 14, 15, 16, 18, 20, 25, ...(q.cur ? [q.cur] : [])])].filter(n => n > 0).sort((a, b) => a - b);
-        h += `<div class="pl-dg"><div class="pl-dt wide live"><small>지금 배 위 (GPS로 셈)</small><b>${plDot(q.vcat)}${heavy ? q.cur + '호' : q.std ? q.std + '호' : '40호↑'}<span style="white-space:nowrap">· 바닥 초속 ${q.v.toFixed(2)}m</span></b>`
+        h += `<div class="pl-dg"><div class="pl-dt wide live"><small>${q.b ? '지금 배 위 (GPS로 셈)' : '지금 배 위 (조류로 짐작 · 흐르기 시작하면 2분 뒤 GPS로)'}</small><b>${plDot(q.vcat)}${heavy ? q.cur + '호' : q.std ? q.std + '호' : '40호↑'}<span style="white-space:nowrap">· 바닥 초속 ${q.v.toFixed(2)}m</span></b>`
           + `<span>${heavy ? `${q.cur}호 단 채 · 바닥에 충분히 붙어요 (앱 최소 ${q.std}호) · ` : light ? `지금 단 ${q.cur}호는 가벼워 바닥에서 뜰 수 있어요 → ${q.std}호 · ` : !q.std ? '배가 너무 빨리 흘러 40호로도 줄이 서기 어려워요 · ' : '바닥에 붙어 끌려오는 가장 가벼운 무게 · '}에기는 배 속도로 지나가요 · ${esc(SK_VTXT[s.sp === 'gp' ? 'gp' : 'jj'][q.vcat].split(' · ')[0])}${skStopTxt(q.v)}</span>`
           + `<div class="pl-skcur" role="group" aria-label="지금 단 봉돌 (선장님이 정한 호수)"><small>단 봉돌</small>${opts.map(n => `<button type="button" data-pl="sknow" data-n="${n}" class="${n === q.cur ? 'on' : ''}" aria-pressed="${n === q.cur}">${n}</button>`).join('')}</div></div>`
           + `<div class="pl-dt wide"><small>방법 (가설)</small><span>${esc(SK_METH[s.sp === 'gp' ? 'gp' : 'jj'][q.vcat])}</span></div></div>`; }
@@ -6935,19 +6935,31 @@ const TideHarm = (() => {
     function planPaintMain() { try { window.jjugapPlanPaint && window.jjugapPlanPaint(); } catch (_) {} }
     window.jjugapPlan = planHTML; window.jjugapPlanOpen = n => planOpen(n);
     // ---------- 배 위 한 줄 (선상 모드 지도): 이 시간 계획 + 지금 실제로 배가 흐르는 속도(GPS)로 다시 셈한 봉돌
-    function boatVel() {   // 최근 3분 GPS로 배가 흐르는 속도 (자동 기록이 켜져 있을 때 · 이동 중이면 없음)
+    function boatVel() {   // 최근 2분 GPS 위치 전부로 직선을 맞춘 배 속도 (사용자 2026-11-27 A안: 3분 두 점 → 2분 직선 맞춤 · 자동 기록이 켜져 있을 때 · 달리는 중이면 없음)
       if (!onBoard || !me || me.virtual || !autoOn) return null;
-      const t = Date.now(), Q = track.filter(q => t - q.t <= 180000);
-      if (Q.length < 2 || Q.some(q => q.run)) return null;
-      const a = Q[0], b = Q[Q.length - 1], dt = (b.t - a.t) / 1000; if (dt < 50) return null;
-      const n = (b.lat - a.lat) * 111195, e = (b.lon - a.lon) * 111195 * Math.cos(a.lat * Math.PI / 180), sp = Math.hypot(e, n) / dt;
-      return sp > 2 ? null : { e: e / dt, n: n / dt, sp };
+      const t = Date.now(), Q = track.filter(q => t - q.t <= 120000);
+      if (Q.length < 6 || Q.some(q => q.run)) return null;
+      const a = Q[0], span = (Q[Q.length - 1].t - a.t) / 1000; if (span < 90) return null;
+      const kx = 111195 * Math.cos(a.lat * Math.PI / 180);
+      let sw = 0, st = 0, se = 0, sn = 0, stt = 0, ste = 0, stn = 0;
+      for (const q of Q) { const w = 1 / Math.pow(Math.max(q.acc || 10, 3), 2), x = (q.t - a.t) / 1000, e = (q.lon - a.lon) * kx, n = (q.lat - a.lat) * 111195;
+        sw += w; st += w * x; se += w * e; sn += w * n; stt += w * x * x; ste += w * x * e; stn += w * x * n; }
+      const D = sw * stt - st * st; if (D <= 0) return null;
+      const ve = (sw * ste - st * se) / D, vn = (sw * stn - st * sn) / D, sp = Math.hypot(ve, vn);
+      const S = Q.filter(q => q.spd != null && t - q.t <= 60000), dop = S.length >= 5 ? S.reduce((u, q) => u + q.spd, 0) / S.length : null;   // 휴대폰 속도 1분 평균 (견주기용)
+      return sp > 2 ? null : { e: ve, n: vn, sp, dop };
+    }
+    // 휴대폰 속도(도플러) vs 위치 직선 속도 견주기 기록 — 바다 기록이 쌓이면 휴대폰 속도가 믿을 만한지 보고 재는 시간을 더 줄인다 (30초마다 · 최근 3000개)
+    const SPD_LOG = 'jjukgap-spdlog'; let spdLogT = 0;
+    function spdLog(b) {
+      if (!b || b.dop == null || Date.now() - spdLogT < 30000) return; spdLogT = Date.now();
+      try { const L = JSON.parse(localStorage.getItem(SPD_LOG) || '[]'); L.push([spdLogT, +b.sp.toFixed(3), +b.dop.toFixed(3), me ? +me.acc.toFixed(0) : null]); while (L.length > 3000) L.shift(); localStorage.setItem(SPD_LOG, JSON.stringify(L)); } catch (_) {}
     }
     let lvC = null;
     function liveCalc(at) {   // 20초마다 · 자리가 바뀌면 다시
       if (!WQ) wqReady();   // 실측 물색 바탕 (들어오면 다음 셈부터)
       const k0 = `${me.lat.toFixed(3)},${me.lon.toFixed(3)}`;
-      if (lvC && lvC.k === k0 && at - lvC.t < 20000) return lvC.v;
+      if (lvC && lvC.k === k0 && at - lvC.t < 15000) return lvC.v;
       const n = kstDay(at), h = Math.floor((at - dayStartOf(n)) / 3600000), P = planGet(n), pe = peGet();
       let row = P ? P.hours.find(r => r.h === h) || null : null, live = null;
       if (0 && !row && SP) {   // (길잡이가 10분마다 셈하므로 여기서는 안 함)
@@ -6957,7 +6969,7 @@ const TideHarm = (() => {
       let sk = null;
       const cc = SP && spotCur(me), D = depthAt(me, at), depth = D.st === 'ok' ? Math.max(0.5, D.dn) : null;
       if (cc && depth != null) {
-        const q = curNow(cc.c, at), b = boatVel();
+        const q = curNow(cc.c, at), b = boatVel(); spdLog(b);
         // GPS 배 속도(바닥 위) · 그 자리 조류 → 줄이 30° 안으로 서는 호수 · GPS가 없으면 물 따라 흐른다고 본다
         const L = skLive(depth, { sp: q.sp / 100, dir: q.dir }, b, pe, 'jj');
         sk = { need: L.box, std: L.std, ho: L.ho, v: L.v, vcat: L.vcat, b, depth, cur: skAt(at) };
@@ -7023,10 +7035,10 @@ const TideHarm = (() => {
       const sws = E ? E.list.slice(0, 2).map(e => `<span class="gsw${ring(e.best)}">${plSw(e.id)}</span>`).join('') : '';
       const atT = soon ? ampm((gdG.nextAt - dayStartOf(gdG.n)) / 60000).replace(/^오[전후] /, '') : '', tag = warn ? `→${s.std}호` : fast ? '빠름' : atT;
       el.classList.toggle('soon', !!(soon || warn || fast)); el.classList.add('sw'); ob.hidden = true;
-      const spdW = vc != null ? `<span class="gspd"><i class="pl-dot d${vc}" aria-hidden="true"></i>${['느림', '보통', '빠름'][vc]}</span>` : '';   // 바닥 속도는 봉돌과 따로 (사용자 2026-11-23: 12호 옆 빨간 점이 봉돌 점수처럼 보임)
+      const spdW = vc != null ? `<span class="gspd${s.b ? '' : ' est'}"><i class="pl-dot d${vc}" aria-hidden="true"></i>${['느림', '보통', '빠름'][vc]}</span>` : '';   // 바닥 속도는 봉돌과 따로 (사용자 2026-11-23: 12호 옆 빨간 점이 봉돌 점수처럼 보임)
       const tag2 = warn ? `→${s.std}호` : (fast ? '' : atT);
       const t = `<span class="gp">${skT ? `<b class="pk">${esc(skT)}</b>` : ''}${sws}${spdW}${tag2 ? `<em class="gt2">${esc(tag2)}</em>` : ''}</span>`;
-      put(t, ['길잡이', `봉돌 ${skT}`, cols, warn ? `봉돌이 가벼워요 ${s.std}호로` : fast ? '에기가 빨라요' : nx ? '다음: ' + nx : '', '누르면 자세히'].filter(Boolean).join('. ')); show();
+      put(t, ['길잡이', `봉돌 ${skT}`, vc != null && !s.b ? '속도는 조류로 짐작' : '', cols, warn ? `봉돌이 가벼워요 ${s.std}호로` : fast ? '에기가 빨라요' : nx ? '다음: ' + nx : '', '누르면 자세히'].filter(Boolean).join('. ')); show();
     }
     function guideTap() {
       if (!gdOn) { gdOn = true; try { localStorage.setItem(GD_KEY, '1'); } catch (_) {} guideCalc(true); planChip(me); return; }
@@ -7045,7 +7057,7 @@ const TideHarm = (() => {
     }
     function guideOff() { gdOn = false; gdG = null; try { localStorage.setItem(GD_KEY, '0'); } catch (_) {} planChip(me); }
     document.addEventListener('visibilitychange', () => { if (!document.hidden && onBoard && gdOn && me) { guideCalc(); planChip(me); } });
-    setInterval(() => { if (!document.hidden && onBoard && gdOn && me) planChip(me); if (onBoard) nowLoad(); }, 60000);   // 지금 날씨는 선상 모드면 길잡이를 꺼도 받음(비 기록용 · 10분에 한 번)   // 1분마다 봉돌·시간 · 색은 10분 지났거나 500m 넘게 옮겼을 때만 다시 셈
+    setInterval(() => { if (!document.hidden && onBoard && gdOn && me) planChip(me); if (onBoard) nowLoad(); }, 30000);   // 지금 날씨는 선상 모드면 길잡이를 꺼도 받음(비 기록용 · 10분에 한 번)   // 1분마다 봉돌·시간 · 색은 10분 지났거나 500m 넘게 옮겼을 때만 다시 셈
     let plcB = -1;
     function planChipPos() {
       const el = $('mv-plan'), a = $('mv-area'); if (!el) return;
@@ -10421,9 +10433,9 @@ const TideHarm = (() => {
       const home = setMore.has('home');
       panel.innerHTML = `<div class="mv-h mv-seth"><button type="button" class="mv-bk" data-act="set-back" aria-label="포인트 목록으로">‹</button><b>설정</b></div>`
         + `<p class="mv-setg">선상 모드일 때</p><div class="mv-setc">`
-        + sw('auto-tog', autoOn, '5분 머문 곳 자동 기록', '한자리에 5분 넘게 머물면 포인트로 남겨요', 'auto', NAT
-          ? '선상 모드를 켜 두면 GPS로 배 위치를 계속 지켜봐요. 홈 화면에 나가 있거나 화면이 잠겨 있어도 한자리(반경 약 250m)에 5분 넘게 머문 곳을 포인트로 남기고 알림으로 알려 줘요. 알림줄에 \'선상 모드 켜짐\'이 떠 있는 동안 돼요. 마릿수는 나중에 넣어요.'
-          : '선상 모드가 켜져 있을 때 배가 한자리(반경 약 250m)에 5분 넘게 머물면 포인트로 남겨요. 마릿수는 나중에 넣어요.')
+        + sw('auto-tog', autoOn, '3분 머문 곳 자동 기록', '한자리에 3분 넘게 머물면 포인트로 남겨요', 'auto', NAT
+          ? '선상 모드를 켜 두면 GPS로 배 위치를 계속 지켜봐요. 홈 화면에 나가 있거나 화면이 잠겨 있어도 한자리(반경 약 250m)에 3분 넘게 머문 곳을 포인트로 남기고 알림으로 알려 줘요. 알림줄에 \'선상 모드 켜짐\'이 떠 있는 동안 돼요. 마릿수는 나중에 넣어요.'
+          : '선상 모드가 켜져 있을 때 배가 한자리(반경 약 250m)에 3분 넘게 머물면 포인트로 남겨요. 마릿수는 나중에 넣어요.')
         + (NAT ? sw('bubble-tog', natBubble(), '홈 화면에 떠 있는 저장 단추', '앱 밖에서도 누르면 바로 저장 화면', 'bubble', '선상 모드를 켠 채 홈 화면으로 나가면 떠 있는 단추가 생겨요. 끌어서 옮기고, 누르면 바로 저장 화면이 열려요. 아래 ×로 끌어 놓으면 숨겨요.')
           : sw('noti-tog', notiOn, '앱을 나가면 알림줄에 바로가기', '알림에서 바로 선상 모드·포인트 저장', 'noti', '선상 모드를 켠 채 나가면 알림이 생겨요. 누르면 선상 모드로, \'포인트 저장\'을 누르면 바로 저장 화면이 열려요.'))
         + `</div>`
@@ -10701,7 +10713,7 @@ const TideHarm = (() => {
     function onPos(pos) {
       if (locOff && !natLocOk()) { locOff = false; gpsMsg = ''; paintLocBar(); }   // 위치가 다시 들어온다
       if (NAT && onBoard) natFixes();
-      const c = pos.coords; gps = { lat: c.latitude, lon: c.longitude, acc: c.accuracy, heading: Number.isFinite(c.heading) && c.speed > 0.5 ? c.heading : null, t: pos.timestamp };
+      const c = pos.coords; gps = { lat: c.latitude, lon: c.longitude, acc: c.accuracy, heading: Number.isFinite(c.heading) && c.speed > 0.5 ? c.heading : null, t: pos.timestamp, spd: Number.isFinite(c.speed) ? c.speed : null };   // spd: 휴대폰이 직접 준 속도(도플러) — 견주기 기록용 (사용자 2026-11-27 A안)
       if (me && me.virtual) { setGps('가상 위치 · GPS 잡힘 (‘내 위치로’를 누르면 돌아가요)', 'warn'); return; }
       const first = !me; me = { ...gps };
       setGps(`GPS ±${Math.round(c.accuracy)}m · ${ampm(kstMin(pos.timestamp))}`, c.accuracy <= 50 ? 'ok' : 'warn');
@@ -10780,9 +10792,9 @@ const TideHarm = (() => {
       if (navigator.geolocation) navigator.geolocation.getCurrentPosition(onPos, onErr, { enableHighAccuracy: true, maximumAge: 0, timeout: 20000 });
     };
     setInterval(() => { if ((onBoard || isOpen) && document.visibilityState === 'visible') locCheck(); }, 3000);
-    // ---------- 5분 머문 곳 자동 기록: 지도를 켜 둔 동안 배가 한자리(반경 약 250m)에 5분 넘게 머물면 포인트로 남긴다
+    // ---------- 3분 머문 곳 자동 기록 (사용자 2026-11-27: 5분→3분): 지도를 켜 둔 동안 배가 한자리(반경 약 250m)에 3분 넘게 머물면 포인트로 남긴다
     // 웹 앱이라 화면이 꺼지거나 다른 앱으로 가 있는 동안은 휴대폰이 앱을 멈춘다. 다시 켰을 때 그 전과 같은 자리면 계속 머문 것으로 본다
-    const AUTO_KEY = 'jjukgap-auto', STAY_MS = 5 * 60000, STAY_R = 250, LEAVE_R = 400;
+    const AUTO_KEY = 'jjukgap-auto', STAY_MS = 3 * 60000, STAY_R = 250, LEAVE_R = 400;
     // 배가 '달렸다'(포인트 이동): 20초 넘게 앞선 위치보다 초속 2m(약 4노트) 넘게 · GPS 오차보다 멀리 → 그런 상태가 20초 넘게 이어지면 확정 (GPS 튐 한두 번은 무시)
     // 흘리는 중(조류·바람에 밀려 천천히 움직임)은 한자리로 본다 → 강한 물살에 250m 넘게 흘러도 놓치지 않고, 400m 안의 가까운 자리로 옮겨도 새 자리로 남긴다
     const RUN_V = 2.0, RUN_GAP = 20000, DRIFT_V = 1.5, DRIFT_MAX = 1500;
@@ -10820,7 +10832,7 @@ const TideHarm = (() => {
       if (runTo(fix, t)) { if (!runQ) runQ = t; } else runQ = 0;
       const run = !!runQ && t - runQ >= RUN_GAP;
       if (run) { for (let j = track.length - 1; j >= 0 && t - track[j].t <= 240000 && !track[j].run; j--) if (distKm(track[j], fix) * 1000 > 30) { track[j].run = true; break; } }   // 달리기 시작한 자리부터는 머문 구간이 아니다
-      track.push({ lat: fix.lat, lon: fix.lon, t, acc: fix.acc || 0, run }); while (track.length > 2 && t - track[1].t > 30 * 60000) track.shift();
+      track.push({ lat: fix.lat, lon: fix.lon, t, acc: fix.acc || 0, run, spd: fix.spd != null ? fix.spd : null }); while (track.length > 2 && t - track[1].t > 30 * 60000) track.shift();
       if (stay) {
         if (!moved && !run && distKm(stay, fix) * 1000 <= DRIFT_MAX) {   // 흘리는 중: 같은 자리
           stay.last = t; stay.e = { lat: fix.lat, lon: fix.lon };   // 흘러간 끝
@@ -10860,8 +10872,8 @@ const TideHarm = (() => {
       stay.id = id; stay.saved = t; savePts(); draw();
       if (mode === 'list') showList(); else if (mode === 'detail' && selId) showDetail(selId);
       try { navigator.vibrate && navigator.vibrate([30, 70, 30]); } catch (_) {}
-      snack('5분 머문 곳을 포인트로 남겼어요', '마릿수 넣기', () => showEdit(id), 9000);
-      if (NAT) { try { NAT.saved(`${ampm(kstMin(t))} · 5분 머문 곳을 포인트로 남겼어요`); } catch (_) {} }
+      snack('3분 머문 곳을 포인트로 남겼어요', '마릿수 넣기', () => showEdit(id), 9000);
+      if (NAT) { try { NAT.saved(`${ampm(kstMin(t))} · 3분 머문 곳을 포인트로 남겼어요`); } catch (_) {} }
     }
     function endStay() {
       if (stay && stay.id) { const p = points.find(q => q.id === stay.id); if (p && p.stayFrom) { p.stayTo = stay.last; if (stay.e) { p.eLat = +stay.e.lat.toFixed(6); p.eLon = +stay.e.lon.toFixed(6); } savePts(); } }
@@ -10883,7 +10895,7 @@ const TideHarm = (() => {
       else if (stay) { if (stay.id) { cls = 'done'; txt = '이 자리 기록됨'; } }
       else if (track.length) {
         const d = track[track.length - 1].t - stayFrom;
-        if (d >= 60000) { cls = 'wait'; txt = `한자리 ${Math.floor(d / 60000)}분째 · 5분이면 기록`; pill.style.setProperty('--pg', Math.min(1, d / STAY_MS).toFixed(3)); }
+        if (d >= 60000) { cls = 'wait'; txt = `한자리 ${Math.floor(d / 60000)}분째 · 3분이면 기록`; pill.style.setProperty('--pg', Math.min(1, d / STAY_MS).toFixed(3)); }
       }
       pill.className = 'mv-auto ' + cls; pill.querySelector('span').textContent = txt;
       if (NAT && onBoard && txt !== autoPill.last) { autoPill.last = txt; try { NAT.setStatus(txt); } catch (_) {} }
@@ -11903,7 +11915,7 @@ const TideHarm = (() => {
 
 <script>
 if ('serviceWorker' in navigator) addEventListener('load', () => {
-  const sw = navigator.serviceWorker, VER = 'f66a7654'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
+  const sw = navigator.serviceWorker, VER = '4f2198d3'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
   // 화면에 손을 대기 시작했는지 (쓰는 중에는 새로 열지 않으려고)
   ['pointerdown', 'keydown'].forEach(t => addEventListener(t, () => { touched = true; }, { capture: true, passive: true }));
   const reload = () => {
