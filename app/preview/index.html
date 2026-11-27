@@ -6364,7 +6364,8 @@ const TideHarm = (() => {
     //  야광은 충전 뒤 시간이 지날수록 약해짐 (사용자 2026-11-20: 낚시 시작 때 축광기로 한 번 충전)
     //    근거: 스트론튬 알루미네이트 축광 감쇠 측정 예 — 10분 386 · 1시간 50 · 5시간 약 8 mcd/m² (≈ 시간^-1.15) · DIN 67510 Class D 10분 260 · 60분 35
     //    0.03cd/m²(30mcd/m²)를 충전 90분 뒤 값으로 보고 그 곡선을 따름 · 충전 직후 10분보다 밝게는 안 봄 · 12시간 뒤까지 · 바닷물에 담긴 채라 다시 충전되지는 않는다고 가정
-    const glowK = (tc, t) => { if (tc == null) return 1; const m = Math.min(720, Math.max(10, (t - tc) / 60000)); return (m / 90) ** -1.15; };
+    const glowK = (tc, t) => { if (!mapSet.chgOnce) return (10 / 90) ** -1.15;   // 올릴 때마다 충전(기본 · 사용자 2026-11-27): 늘 막 충전한 밝기(충전 뒤 10분)
+      if (tc == null) return 1; const m = Math.min(720, Math.max(10, (t - tc) / 60000)); return (m / 90) ** -1.15; };
     const SIM_GLOWN = SIM_GLOW.reduce((a, x, i) => a + x * SIM_V[i], 0);
     const SIM_LZID = { silver: '은', gold: '금', red: '빨강', blue: '파랑', green: '초록', purple: '보라', rainbow: '무지개' };
     // 상자에 있나: 앱 에기 목록(기본 + 내가 만든 것, 숨긴 것 빼고)에 같은 색 에기가 있거나 이름이 맞으면 (기능은 따로 모름)
@@ -6876,7 +6877,7 @@ const TideHarm = (() => {
       if (s.why.has(x.h)) h += `<p class="why">${plWhy(x, s)}</p>`;
       return h + '</div></div>';
     }
-    const plWhy = (x, s) => `바닥 빛(쭈갑이 눈 기준) 약 ${simNum(x.LB.qb)}lux · ${simLvTxt(x.LB.qb)} · 물 위 ${simNum(x.LB.surf)}lux의 ${x.LB.frac >= 0.001 ? (x.LB.frac * 100).toFixed(1) : simNum(x.LB.frac * 100)}% · 남은 빛 ${x.LB.pk}nm<br>해 높이 ${Math.round(x.el)}° · 에기가 보이는 거리 약 ${x.see.toFixed(1)}m<br>물색 ${x.W.label} · 투명도 약 ${x.W.zsd < 1 ? x.W.zsd.toFixed(1) : (Math.round(x.W.zsd * 2) / 2).toFixed(1)}m (${esc(x.W.why.join(' · '))})${WQ ? '<br>물색 바탕: 국립수산과학원 정선해양관측 실측(2000~2020)' : ''}${WQ && WQ.sat ? '<br>물색 보정: 천리안위성 2B호(국립해양조사원 국가해양위성센터) 자료로 셈 맞춤' : ''}<br>야광: 낚시 시작 때 한 번 충전했다고 보고 시간이 지날수록 약해지게 셈(축광 야광 감쇠: 10분 뒤의 약 8분의 1이 1시간 뒤, 50분의 1이 5시간 뒤)<br>누드: 천 없는 반투명 색 몸통으로 셈 — 빛의 약 40%가 몸통 색으로 물들어 통과(반투명 색 플라스틱 판 측정값 30~50%를 에기 몸통에 맞춘 가정)<br>단색: ${esc(x.one)}${x.alt ? ` · 대안: ${esc(x.alt)}` : ''}${x.after ? '<br>비 그친 뒤라 톤을 낮추지 않음 (내 기록 11/5)' : ''}${x.sink ? `<br>봉돌(합사 ${s.pe === '1.0' ? '1' : s.pe}호): ${simSkTxt(x.sink[s.pe])}${skBoxTxt(x.sink[s.pe])}${x.sink[s.pe].main != null ? ` · 배가 바람에 덜 밀리면 ${x.sink[s.pe].lo ? x.sink[s.pe].lo + '호' : '40호↑'}, 더 밀리면 ${x.sink[s.pe].hi ? x.sink[s.pe].hi + '호' : '40호↑'}` : ''}<br>줄이 30° 안으로 서는 가장 가벼운 무게 · 보통 낚싯배가 자연스럽게 흐른다고 봄(배 위에서 GPS로 바로잡음)${x.sink.v ? `<br>${skVTxt(x.sink, s.sp)}<br>${skMethTxt(x.sink, s.sp)}` : ''}` : ''}`;
+    const plWhy = (x, s) => `바닥 빛(쭈갑이 눈 기준) 약 ${simNum(x.LB.qb)}lux · ${simLvTxt(x.LB.qb)} · 물 위 ${simNum(x.LB.surf)}lux의 ${x.LB.frac >= 0.001 ? (x.LB.frac * 100).toFixed(1) : simNum(x.LB.frac * 100)}% · 남은 빛 ${x.LB.pk}nm<br>해 높이 ${Math.round(x.el)}° · 에기가 보이는 거리 약 ${x.see.toFixed(1)}m<br>물색 ${x.W.label} · 투명도 약 ${x.W.zsd < 1 ? x.W.zsd.toFixed(1) : (Math.round(x.W.zsd * 2) / 2).toFixed(1)}m (${esc(x.W.why.join(' · '))})${WQ ? '<br>물색 바탕: 국립수산과학원 정선해양관측 실측(2000~2020)' : ''}${WQ && WQ.sat ? '<br>물색 보정: 천리안위성 2B호(국립해양조사원 국가해양위성센터) 자료로 셈 맞춤' : ''}<br>${mapSet.chgOnce ? '야광: 낚시 시작 때 한 번 충전했다고 보고 시간이 지날수록 약해지게 셈(축광 야광 감쇠: 10분 뒤의 약 8분의 1이 1시간 뒤, 50분의 1이 5시간 뒤)' : '야광: 채비를 올릴 때마다 충전한다고 보고 늘 막 충전한 밝기(충전 뒤 10분쯤)로 셈 · 설정에서 바꿀 수 있어요'}<br>누드: 천 없는 반투명 색 몸통으로 셈 — 빛의 약 40%가 몸통 색으로 물들어 통과(반투명 색 플라스틱 판 측정값 30~50%를 에기 몸통에 맞춘 가정)<br>단색: ${esc(x.one)}${x.alt ? ` · 대안: ${esc(x.alt)}` : ''}${x.after ? '<br>비 그친 뒤라 톤을 낮추지 않음 (내 기록 11/5)' : ''}${x.sink ? `<br>봉돌(합사 ${s.pe === '1.0' ? '1' : s.pe}호): ${simSkTxt(x.sink[s.pe])}${skBoxTxt(x.sink[s.pe])}${x.sink[s.pe].main != null ? ` · 배가 바람에 덜 밀리면 ${x.sink[s.pe].lo ? x.sink[s.pe].lo + '호' : '40호↑'}, 더 밀리면 ${x.sink[s.pe].hi ? x.sink[s.pe].hi + '호' : '40호↑'}` : ''}<br>줄이 30° 안으로 서는 가장 가벼운 무게 · 보통 낚싯배가 자연스럽게 흐른다고 봄(배 위에서 GPS로 바로잡음)${x.sink.v ? `<br>${skVTxt(x.sink, s.sp)}<br>${skMethTxt(x.sink, s.sp)}` : ''}` : ''}`;
     function planRender(keep) {   // keep: 스크롤 자리 그대로 (원줄 바꿀 때 깜빡임·튐 없이)
       const s = plS; if (!s || !plEl) return;
       if (keep) { const y = plEl.scrollTop; plRenderIn(s); plEl.scrollTop = y; return; }
@@ -10452,6 +10453,7 @@ const TideHarm = (() => {
         + `</div>`
         + `<p class="mv-setg">지도</p><div class="mv-setc"><button type="button" class="mv-row-btn" data-act="sty-open">지도 모양<span>${esc(styName(mapSty))} ›</span></button>`
         + `<div class="mv-dset"><div class="h"><b>수심 색칠</b><small>국립해양조사원 수심 · 서해 중부(인천~군산·부안 앞바다)</small></div><div class="mv-dseg" role="group" aria-label="수심 색칠">${DP_OPTS.map(([k, n]) => `<button type="button" data-act="dp-sty" data-v="${k}" class="${(mapSet.dp || 'off') === k ? 'on' : ''}" aria-pressed="${(mapSet.dp || 'off') === k}">${n}</button>`).join('')}</div>${dpKeyHtml(mapSet.dp)}</div>`
+        + sw('chg-tog', !mapSet.chgOnce, '야광은 올릴 때마다 충전', '켜면 늘 막 충전한 밝기로 · 끄면 처음 한 번만', 'chg', '에기 추천에서 야광 밝기를 어떻게 셈할지예요. 켜 두면 채비를 올릴 때마다 축광기로 충전한다고 보고, 늘 막 충전한 밝기(충전 뒤 10분쯤)로 셈해요. 끄면 낚시 시작 때 한 번만 충전했다고 보고 시간이 지날수록 약해지게 셈해요.')
         + sw('dpme-tog', mapSet.dpMe !== false, '내 위치 수심 숫자', '선상 모드에서 파란 점 옆에 ‘약 7m’', 'dpme', '선상 모드에서 GPS로 움직일 때 내 위치 옆에 지금 수심을 작게 보여요. 지도를 꾹 누르면 그 자리 수심이 말풍선으로 떠요. 지도 수심(평균 물높이 기준)에 지금 물 높이를 더한 값이에요. 국립해양조사원 격자 수심(150m 간격)이라 작은 여는 안 보이고, 덕적도 위쪽~연평도 쪽은 자료가 없어요. 해도가 아니니 항해·안전에는 쓰지 마세요.')
         + sw('mapcl-tog', mapSet.cl, '멀리 보면 묶기', '멀리 볼 때 가까운 기록을 동그라미 하나로', 'mapcl', '출조가 4번 넘게 보일 때 지도를 멀리 보면, 가까운 포인트끼리 동그라미 하나로 묶고 총 마릿수를 적어요. 제일 많이 잡은 곳은 금색이에요. 동그라미를 톡 하면 그 자리로 확대돼요. 끄면 멀리 볼 때도 경로와 포인트가 그대로 보여요.')
         + sw('mapqz-tog', mapSet.qz, '한 손 확대·축소', '두 번 톡 한 뒤 위아래로 끌기', 'mapqz', '지도를 톡 한 번 누르고, 바로 한 번 더 누른 채 손가락을 떼지 않고 아래로 끌면 확대, 위로 끌면 축소돼요. 끄면 두 번 톡은 확대만 해요.')
@@ -10666,6 +10668,7 @@ const TideHarm = (() => {
       if (a === 'noti-tog') return setNoti(!notiOn);
       if (a === 'sty-open') { selId = null; mode = 'info'; paintPanel(true); setMode('peek'); return setTimeout(styOpen, 280); }   // 판을 접어 지도가 보이게 한 뒤
       if (a === 'dp-sty') { mapSet.dp = DP_STY[b.dataset.v] ? b.dataset.v : 'off'; mapSetSave(); bkey = ''; draw(); return showSet(); }
+      if (a === 'chg-tog') { mapSet.chgOnce = !mapSet.chgOnce; mapSetSave(); gdG = null; try { guideCalc(true); } catch (_) {} return showSet(); }
       if (a === 'dpme-tog') { mapSet.dpMe = mapSet.dpMe === false; mapSetSave(); draw(); return showSet(); }
       if (a === 'mapcl-tog' || a === 'mapqz-tog' || a === 'mapzb-tog') { const k = a.slice(3, 5); mapSet[k] = !mapSet[k]; mapSetSave(); draw(); return showSet(); }
       if (a === 'bubble-tog') { try { NAT.setBubble(!natBubble()); } catch (_) {} return setTimeout(refreshList, 300); }
@@ -11926,7 +11929,7 @@ const TideHarm = (() => {
 
 <script>
 if ('serviceWorker' in navigator) addEventListener('load', () => {
-  const sw = navigator.serviceWorker, VER = '681c6989'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
+  const sw = navigator.serviceWorker, VER = '127f54ab'; let ctl = sw.controller, reloading = false, pending = false, touched = false;
   // 화면에 손을 대기 시작했는지 (쓰는 중에는 새로 열지 않으려고)
   ['pointerdown', 'keydown'].forEach(t => addEventListener(t, () => { touched = true; }, { capture: true, passive: true }));
   const reload = () => {
